@@ -8,7 +8,7 @@ from sklearn.utils.validation import NotFittedError
 #DNN
 import tensorflow.keras as keras
 from tensorflow.keras import layers
-from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras_radam.training import RAdamOptimizer
 
 #Calibration
@@ -58,7 +58,7 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
                 )
                 raise NotFittedError(msg % {"name": type(self).__name__})
                 
-    def fit_transformer(self, X, y, epochs = 10):
+    def fit_transformer(self, X, y, epochs = 10, lr = 5e-4):
         #format y
         check_classification_targets(y)
         
@@ -78,13 +78,17 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
         self.network.add(layers.BatchNormalization())
         self.network.add(layers.Dense(units=len(np.unique(y)), activation = 'softmax'))
 
-        self.network.compile(loss = 'categorical_crossentropy', metrics=['acc'], optimizer = RAdamOptimizer())
+        self.network.compile(loss = 'categorical_crossentropy', metrics=['acc'], optimizer = keras.optimizers.Adam(lr))
         self.network.fit(X, 
                     keras.utils.to_categorical(y), 
                     epochs = epochs, 
-                    callbacks = [ModelCheckpoint("best_model.h5", save_best_only = True)], 
+                    callbacks = [ModelCheckpoint("best_model.h5", 
+                                                 save_best_only = True, 
+                                                 verbose = False),
+                                 EarlyStopping(patience = 3)
+                                ], 
                     verbose = False,
-                    validation_split = .2)
+                    validation_split = .3)
         self.network.load_weights("best_model.h5")
 
         self.encoder = keras.models.Model(inputs = self.network.inputs, outputs = self.network.layers[-3].output)
@@ -103,7 +107,7 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
         #make sure to flag that we're fit
         self.voter_fitted_ = True
 
-    def fit(self, X, y, epochs = 10):
+    def fit(self, X, y, epochs = 30, lr = 5e-4):
         #format y
         check_classification_targets(y)
 
@@ -111,7 +115,7 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
         X_train, X_cal, y_train, y_cal = train_test_split(X, y, test_size = self.calibration_split)
         
         #fit the transformer
-        self.fit_transformer(X_train, y_train, epochs = epochs)
+        self.fit_transformer(X_train, y_train, epochs = epochs, lr = lr)
 
         #fit the voter
         X_cal_transformed = self.transform(X_cal)

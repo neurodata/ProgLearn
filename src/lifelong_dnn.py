@@ -19,13 +19,13 @@ class LifeLongDNN():
         if task_idx >= self.num_tasks:
             raise Exception("Invalid Task IDX")
     
-    def add_task(self, X, y, epochs = 10):
+    def add_task(self, X, y, epochs = 30, lr = 5e-4):
         
         self.X_across_tasks.append(X)
         self.y_across_tasks.append(y)
         
         new_honest_dnn = HonestDNN()
-        new_honest_dnn.fit(X, y, epochs = epochs)
+        new_honest_dnn.fit(X, y, epochs = epochs, lr = lr)
         new_transformer = new_honest_dnn.get_transformer()
         new_voter = new_honest_dnn.get_voter()
         
