@@ -2,23 +2,21 @@ import numpy as np
 import pickle
 import pandas as pd
 
+n_shifts = 6
+
 backward_dfs = []
 
-for duplication_round in range(3):
-    for shift in range(2):
-        df_of_split = pickle.load(open('BTE_shift_{}.p'.format(shift), 'rb'), encoding = 'latin1')
-        df_of_split['shift'] = np.array(df_of_split['shift']) + duplication_round * 2
-        backward_dfs.append(df_of_split)
+for shift in range(n_shifts):
+    df_of_split = pickle.load(open('BTE_shift_{}.p'.format(shift), 'rb'), encoding = 'latin1')
+    backward_dfs.append(df_of_split)
     
 backward_df = pd.concat(backward_dfs)
 
 forward_dfs = []
 
-for duplication_round in range(3):
-    for shift in range(2):
-        df_of_split = pickle.load(open('FTE_shift_{}.p'.format(shift), 'rb'), encoding = 'latin1')
-        df_of_split['shift'] = np.array(df_of_split['shift']) + duplication_round * 2
-        forward_dfs.append(df_of_split)
+for shift in range(n_shifts):
+    df_of_split = pickle.load(open('FTE_shift_{}.p'.format(shift), 'rb'), encoding = 'latin1')
+    forward_dfs.append(df_of_split)
     
 forward_df = pd.concat(forward_dfs)
 

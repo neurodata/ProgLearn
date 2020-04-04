@@ -9,7 +9,6 @@ from sklearn.utils.validation import NotFittedError
 import tensorflow.keras as keras
 from tensorflow.keras import layers
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
-from keras_radam.training import RAdamOptimizer
 
 #Calibration
 from sklearn.neighbors import KNeighborsClassifier
@@ -28,11 +27,13 @@ import numpy as np
 class HonestDNN(BaseEstimator, ClassifierMixin):
     def __init__(
         self,
-        calibration_split = .33
+        calibration_split = .3,
+        n_jobs = -1
     ):
         self.calibration_split = calibration_split
         self.transformer_fitted_ = False
         self.voter_fitted_ = False
+        self.n_jobs = n_jobs
 
     def check_transformer_fit_(self):
         '''
@@ -58,13 +59,13 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
                 )
                 raise NotFittedError(msg % {"name": type(self).__name__})
                 
-    def fit_transformer(self, X, y, epochs = 10, lr = 5e-4):
+    def fit_transformer(self, X, y, epochs = 30, lr = 1e-4):
         #format y
         check_classification_targets(y)
         
-        
         self.network = keras.Sequential()
-        self.network.add(layers.Conv2D(filters=6, kernel_size=(3, 3), activation='relu', input_shape=np.shape(X)[1:]))
+        self.network.add(layers.BatchNormalization(input_shape=np.shape(X)[1:]))
+        self.network.add(layers.Conv2D(filters=6, kernel_size=(3, 3), activation='relu'))
         self.network.add(layers.AveragePooling2D())
         self.network.add(layers.BatchNormalization())
         self.network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu'))
@@ -74,7 +75,7 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
         
         self.network.add(layers.Dense(units=120, activation='relu'))
         self.network.add(layers.BatchNormalization())
-        self.network.add(layers.Dense(units=16, activation='relu'))
+        self.network.add(layers.Dense(units=84, activation='relu'))
         self.network.add(layers.BatchNormalization())
         self.network.add(layers.Dense(units=len(np.unique(y)), activation = 'softmax'))
 
@@ -85,13 +86,13 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
                     callbacks = [ModelCheckpoint("best_model.h5", 
                                                  save_best_only = True, 
                                                  verbose = False),
-                                 EarlyStopping(patience = 3)
+                                 EarlyStopping(patience = 5)
                                 ], 
                     verbose = False,
-                    validation_split = .3)
+                    validation_split = .15)
         self.network.load_weights("best_model.h5")
 
-        self.encoder = keras.models.Model(inputs = self.network.inputs, outputs = self.network.layers[-3].output)
+        self.encoder = keras.models.Model(inputs = self.network.inputs, outputs = self.network.layers[-2].output)
         
         #make sure to flag that we're fit
         self.transformer_fitted_ = True
@@ -101,13 +102,13 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
         check_classification_targets(y)
         self.classes_, y = np.unique(y, return_inverse=True)
         
-        self.knn = KNeighborsClassifier(int(np.log2(len(X))))
+        self.knn = KNeighborsClassifier(int(np.log2(len(X))), n_jobs = self.n_jobs)
         self.knn.fit(X, y)
         
         #make sure to flag that we're fit
         self.voter_fitted_ = True
 
-    def fit(self, X, y, epochs = 30, lr = 5e-4):
+    def fit(self, X, y, epochs = 30, lr = 1e-4):
         #format y
         check_classification_targets(y)
 
