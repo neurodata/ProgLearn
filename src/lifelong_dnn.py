@@ -19,7 +19,7 @@ class LifeLongDNN():
         if task_idx >= self.num_tasks:
             raise Exception("Invalid Task IDX")
     
-    def add_task(self, X, y, epochs = 30, lr = 5e-4):
+    def add_task(self, X, y, epochs = 100, lr = 5e-4):
         
         self.X_across_tasks.append(X)
         self.y_across_tasks.append(y)

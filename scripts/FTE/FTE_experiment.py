@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     num_classes = len(np.unique(y))
 
-    kfold = StratifiedKFold(n_splits = args.n_shifts)
+    kfold = StratifiedKFold(n_splits = args.n_shifts, shuffle = False)
     
     run(args.target_shift)
                 
