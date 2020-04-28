@@ -15,6 +15,8 @@ class LifeLongDNN():
         self.voters_across_tasks_matrix = []
         self.num_tasks = 0
         
+        self.classes_across_tasks = []
+        
     def check_task_idx_(self, task_idx):
         if task_idx >= self.num_tasks:
             raise Exception("Invalid Task IDX")
@@ -28,8 +30,10 @@ class LifeLongDNN():
         new_honest_dnn.fit(X, y, epochs = epochs, lr = lr)
         new_transformer = new_honest_dnn.get_transformer()
         new_voter = new_honest_dnn.get_voter()
+        new_classes = new_honest_dnn.classes_
         
         self.transformers_across_tasks.append(new_transformer)
+        self.classes_across_tasks.append(new_classes)
         
         #add one voter to previous task voter lists under the new transformation
         for task_idx in range(self.num_tasks):            
@@ -71,6 +75,7 @@ class LifeLongDNN():
             posteriors_across_tasks.append(voter.predict_proba(transformer.predict(X)))
         return np.mean(posteriors_across_tasks, axis = 0)
     
-    def predict(self, X, target_task_idx, transformer_task_idxs = None):        
-        return np.argmax(self.predict_proba(X, target_task_idx, transformer_task_idxs), axis = 1)
+    def predict(self, X, target_task_idx, transformer_task_idxs = None):
+        task_classes = self.classes_across_tasks[target_task_idx]
+        return task_classes[np.argmax(self.predict_proba(X, target_task_idx, transformer_task_idxs), axis = 1)]
         

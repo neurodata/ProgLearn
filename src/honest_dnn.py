@@ -133,6 +133,7 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
     def fit(self, X, y, epochs = 30, lr = 1e-4):
         #format y
         check_classification_targets(y)
+        self.classes_, y = np.unique(y, return_inverse=True)
 
         #split
         X_train, X_cal, y_train, y_cal = train_test_split(X, y, test_size = self.calibration_split)
@@ -182,4 +183,4 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
         return self.predict_proba_unscaled(X)
     
     def predict(self, X):
-        return self.decide(self.predict_proba(X))
+        return self.classes_[self.decide(self.predict_proba(X))]
