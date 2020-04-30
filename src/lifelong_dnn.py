@@ -75,7 +75,7 @@ class LifeLongDNN():
         
         self.n_tasks += 1
         
-    def _estimate_posteriors(self, test, X, representation = 0, decider = 0):
+    def _estimate_posteriors(self, X, representation = 0, decider = 0):
         self.check_task_idx_(decider)
         
         if representation == "all":
