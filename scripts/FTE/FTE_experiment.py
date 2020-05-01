@@ -23,7 +23,7 @@ def run(target_shift):
 
         X_train_across_tasks, y_train_across_tasks = [], []
         X_test_across_tasks, y_test_across_tasks = [], []
-        for task_idx in range(n_tasks):
+        for task_idx in range(n_tasks - 1, -1, -1):
             train_idxs_of_task = np.where((y_train >= int(num_classes / n_tasks) * task_idx) & (y_train < int(num_classes / n_tasks) * (task_idx + 1)))[0]
             X_train_across_tasks.append(X_train[train_idxs_of_task])
             y_train_across_tasks.append(y_train[train_idxs_of_task] - int(num_classes / n_tasks) * task_idx)
@@ -36,7 +36,7 @@ def run(target_shift):
 
     def set_random_seed(random_seed):
         random.seed(random_seed)
-        tf.random.set_seed(random_seed)
+        tf.random.set_random_seed(random_seed)
 
     seeds = []
     shifts = []  
