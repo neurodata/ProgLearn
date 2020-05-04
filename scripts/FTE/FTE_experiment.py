@@ -36,7 +36,6 @@ def run(target_shift):
 
     def set_random_seed(random_seed):
         random.seed(random_seed)
-        tf.random.set_random_seed(random_seed)
 
     seeds = []
     shifts = []  
@@ -55,10 +54,10 @@ def run(target_shift):
             X_test_of_task, y_test_of_task = X_test_across_tasks[task], y_test_across_tasks[task]
 
             set_random_seed(random_seed)
-            lifelong_dnn.add_task(X_train_of_task, y_train_of_task)
+            lifelong_dnn.new_forest(X_train_of_task, y_train_of_task)
 
-            forward_accuracy = np.mean(y_test_of_task == lifelong_dnn.predict(X_test_of_task, task))
-            org_accuracy = np.mean(y_test_of_task == lifelong_dnn.predict(X_test_of_task, task, transformer_task_idxs = [task]))
+            forward_accuracy = np.mean(y_test_of_task == lifelong_dnn.predict(X_test_of_task, decider = task, representation = "all"))
+            org_accuracy = np.mean(y_test_of_task == lifelong_dnn.predict(X_test_of_task, decider = task, representation = task))
 
             seeds.append(random_seed)
             shifts.append(shift)

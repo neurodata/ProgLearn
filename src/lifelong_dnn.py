@@ -5,7 +5,7 @@ from sklearn.base import clone
 import numpy as np
 
 class LifeLongDNN():
-    def __init__(self, acorn = None):
+    def __init__(self, acorn = None, verbose = False):
         self.X_across_tasks = []
         self.y_across_tasks = []
         
@@ -19,6 +19,8 @@ class LifeLongDNN():
         
         if acorn is not None:
             np.random.seed(acorn)
+        
+        self.verbose = verbose
         
     def check_task_idx_(self, task_idx):
         if task_idx >= self.n_tasks:
@@ -39,7 +41,7 @@ class LifeLongDNN():
         self.X_across_tasks.append(X)
         self.y_across_tasks.append(y)
         
-        new_honest_dnn = HonestDNN()
+        new_honest_dnn = HonestDNN(verbose = self.verbose)
         new_honest_dnn.fit(X, y, epochs = epochs, lr = lr)
         new_transformer = new_honest_dnn.get_transformer()
         new_voter = new_honest_dnn.get_voter()

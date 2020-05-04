@@ -36,7 +36,6 @@ def run(target_shift):
 
     def set_random_seed(random_seed):
         random.seed(random_seed)
-        tf.random.set_seed(random_seed)
 
     seeds = []
     shifts = []
@@ -57,16 +56,16 @@ def run(target_shift):
                 y_train_of_task = y_train_across_tasks[task_seen]
 
                 set_random_seed(random_seed)
-                lifelong_dnn.add_task(X_train_of_task , y_train_of_task)
+                lifelong_dnn.new_forest(X_train_of_task , y_train_of_task)
 
             def fill_in_backward_accuracies_per_task(task_seen):
                 X_train_of_task = X_train_across_tasks[task_seen]
                 y_train_of_task = y_train_across_tasks[task_seen]
 
                 set_random_seed(random_seed)
-                lifelong_dnn.add_task(X_train_of_task , y_train_of_task)
+                lifelong_dnn.new_forest(X_train_of_task , y_train_of_task)
 
-                accuracy = np.mean(y_test_across_tasks[task] == lifelong_dnn.predict(X_test_across_tasks[task], task))
+                accuracy = np.mean(y_test_across_tasks[task] == lifelong_dnn.predict(X_test_across_tasks[task], decider = task, representation = "all"))
                 backward_accuracies_across_tasks.append(accuracy)
 
             for task_seen in range(task, n_tasks):
