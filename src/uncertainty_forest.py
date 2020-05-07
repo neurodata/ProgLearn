@@ -19,6 +19,8 @@ from sklearn.utils.multiclass import check_classification_targets
 from joblib import Parallel, delayed
 import numpy as np
 
+from tqdm import tqdm
+
 def _finite_sample_correction(posteriors, num_points_in_partition, num_classes):
     '''
     encourage posteriors to approach uniform when there is low data
@@ -107,7 +109,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
 
         if self.parallel:
             return np.array(
-                    Parallel(n_jobs=-2)(
+                    Parallel(n_jobs=-1)(
                             delayed(worker)(tree_idx, tree) for tree_idx, tree in enumerate(self.ensemble.estimators_)
                     )
             )
@@ -133,7 +135,6 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         X, y = check_X_y(X, y)
         check_classification_targets(y)
         self.classes_, y = np.unique(y, return_inverse=True)
-        print("COMPUTED CLASSES: {}".format(self.classes_))
 
         #split into train and cal
         X_train, X_cal, y_train, y_cal = train_test_split(X, y)
@@ -149,7 +150,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
             n_estimators=self.n_estimators,
             max_samples=self.max_samples,
             bootstrap=self.bootstrap,
-            n_jobs = -1 if self.parallel else None
+            n_jobs = -1
         )
 
         #fit the ensemble
@@ -160,7 +161,6 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
             def __init__(self, n_estimators, classes, parallel = True):
                 self.n_estimators = n_estimators
                 self.classes_ = classes
-                print("SAVED CLASSES: {}".format(self.classes_))
                 self.parallel = parallel
             
             def fit(self, cal_nodes_across_trees, y_cal):
@@ -184,13 +184,16 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
 
                     #add the node_ids_to_posterior_map to the overall tree_idx map 
                     self.tree_idx_to_node_ids_to_posterior_map[tree_idx] = node_ids_to_posterior_map
-
+                '''
                 if self.parallel:
-                    Parallel(n_jobs=-2)(
+                    Parallel(n_jobs=1)(
                         delayed(worker)(tree_idx) for tree_idx in range(self.n_estimators)
                     )
                 else:
                     for tree_idx in range(self.n_estimators):
+                        worker(tree_idx)
+                '''
+                for tree_idx in range(self.n_estimators):
                         worker(tree_idx)
                 return self
                         
@@ -217,8 +220,8 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                     return posteriors
 
                 if self.parallel:
-                    return np.array(
-                            Parallel(n_jobs=-2)(
+                    return np.mean(
+                            Parallel(n_jobs=-1)(
                                     delayed(worker)(tree_idx) for tree_idx in range(self.n_estimators)
                             ), axis = 0
                     )
@@ -229,7 +232,6 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                             axis = 0)
         #get the nodes of the calibration set
         cal_nodes_across_trees = self.transform(X_cal) 
-        print("INPUT CLASSES: {}".format(self.classes_))
         self.voter = Voter(n_estimators = len(self.ensemble.estimators_), classes = self.classes_, parallel = self.parallel)
         self.voter.fit(cal_nodes_across_trees, y_cal)
         

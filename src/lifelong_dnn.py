@@ -55,7 +55,7 @@ class LifeLongDNN():
                                                bootstrap = bootstrap,
                                                max_depth = max_depth,
                                                min_samples_leaf = min_samples_leaf,
-                                               parallel = False)
+                                               parallel = True)
             new_honest_dnn.fit(X, y)
         new_transformer = new_honest_dnn.get_transformer()
         new_voter = new_honest_dnn.get_voter()
@@ -66,13 +66,14 @@ class LifeLongDNN():
         
         #add one voter to previous task voter lists under the new transformation
         for task_idx in range(self.n_tasks):
-            print(self.voters_across_tasks_matrix)
             X_of_task, y_of_task = self.X_across_tasks[task_idx], self.y_across_tasks[task_idx]
             if self.model == "dnn":
                 X_of_task_under_new_transform = new_transformer.predict(X_of_task) 
             if self.model == "uf":
                 X_of_task_under_new_transform = new_transformer(X_of_task) 
             unfit_task_voter_under_new_transformation = clone(self.voters_across_tasks_matrix[task_idx][0])
+            if self.model == "uf":
+                unfit_task_voter_under_new_transformation.classes_ = self.voters_across_tasks_matrix[task_idx][0].classes_
             task_voter_under_new_transformation = unfit_task_voter_under_new_transformation.fit(X_of_task_under_new_transform, y_of_task)
 
             self.voters_across_tasks_matrix[task_idx].append(task_voter_under_new_transformation)
@@ -86,6 +87,8 @@ class LifeLongDNN():
             if self.model == "uf":
                 X_under_task_transformation = transformer_of_task(X)
             unfit_new_task_voter_under_task_transformation = clone(new_voter)
+            if self.model == "uf":
+                unfit_new_task_voter_under_task_transformation.classes_ = new_voter.classes_
             new_task_voter_under_task_transformation = unfit_new_task_voter_under_task_transformation.fit(X_under_task_transformation, y)
             new_voters_under_previous_task_transformation.append(new_task_voter_under_task_transformation)
             
