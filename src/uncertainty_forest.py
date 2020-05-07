@@ -40,7 +40,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
     '''
     def __init__(
         self,
-        max_depth=5,
+        max_depth=30,
         min_samples_leaf=10,
         max_samples = 0.5,
         max_features_tree = "auto",

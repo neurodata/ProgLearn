@@ -3,7 +3,7 @@ from sklearn.base import clone
 import numpy as np
 
 class LifeLongDNN():
-    def __init__(self, acorn = None, verbose = False, model = "dnn"):
+    def __init__(self, acorn = None, verbose = False, model = "uf"):
         self.X_across_tasks = []
         self.y_across_tasks = []
         
