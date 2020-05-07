@@ -47,7 +47,7 @@ def run(target_shift):
     def fill_in_forward_transfer_efficiencies_across_tasks(train_shift_idxs, test_shift_idxs, shift):
         X_train_across_tasks, X_test_across_tasks, y_train_across_tasks, y_test_across_tasks = get_taskwise_datasets(train_shift_idxs, test_shift_idxs)
 
-        lifelong_dnn = LifeLongDNN()
+        lifelong_dnn = LifeLongDNN(model = "uf")
         forward_transfer_efficiencies_across_tasks = []
         def fill_in_forward_transfer_efficiencies_per_task(task):
             X_train_of_task, y_train_of_task = X_train_across_tasks[task], y_train_across_tasks[task]
@@ -100,6 +100,7 @@ if __name__ == "__main__":
 
     (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
     X = np.concatenate([X_train, X_test])
+    X = X.reshape((X.shape[0], X.shape[1] * X.shape[2] * X.shape[3]))
     y = np.concatenate([y_train, y_test])
     y = y[:, 0]
 

@@ -41,10 +41,10 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
     def __init__(
         self,
         max_depth=5,
-        min_samples_leaf=1,
-        max_samples = 0.9,
+        min_samples_leaf=10,
+        max_samples = 0.5,
         max_features_tree = "auto",
-        n_estimators=100,
+        n_estimators=3500,
         bootstrap=False,
         parallel=True,
         calibration_split = .33
@@ -94,6 +94,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         '''
         get the estimated posteriors across trees
         '''
+        print("Transforming Points")
         self._check_fit()
         X = check_array(X)
         
@@ -123,6 +124,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         return lambda X : self.transform(X)
         
     def vote(self, nodes_across_trees):
+        print("Voting On Points")
         return self.voter.predict(nodes_across_trees)
         
     def get_voter(self):
@@ -138,7 +140,8 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
 
         #split into train and cal
         X_train, X_cal, y_train, y_cal = train_test_split(X, y)
-
+        
+        
         #define the ensemble
         self.ensemble = BaggingClassifier(
             DecisionTreeClassifier(
@@ -150,9 +153,11 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
             n_estimators=self.n_estimators,
             max_samples=self.max_samples,
             bootstrap=self.bootstrap,
-            n_jobs = -1
+            n_jobs = -1,
+            verbose = 1
         )
-
+        
+        print("Fitting Transformer")
         #fit the ensemble
         self.ensemble.fit(X_train, y_train)
         self.fitted = True
@@ -184,16 +189,8 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
 
                     #add the node_ids_to_posterior_map to the overall tree_idx map 
                     self.tree_idx_to_node_ids_to_posterior_map[tree_idx] = node_ids_to_posterior_map
-                '''
-                if self.parallel:
-                    Parallel(n_jobs=1)(
-                        delayed(worker)(tree_idx) for tree_idx in range(self.n_estimators)
-                    )
-                else:
-                    for tree_idx in range(self.n_estimators):
-                        worker(tree_idx)
-                '''
-                for tree_idx in range(self.n_estimators):
+                    
+                for tree_idx in tqdm(range(self.n_estimators)):
                         worker(tree_idx)
                 return self
                         
@@ -230,8 +227,10 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                     return np.mean(
                             [worker(tree_idx) for tree_idx in range(self.n_estimators)],
                             axis = 0)
+                
         #get the nodes of the calibration set
         cal_nodes_across_trees = self.transform(X_cal) 
+        print("Fitting Voter")
         self.voter = Voter(n_estimators = len(self.ensemble.estimators_), classes = self.classes_, parallel = self.parallel)
         self.voter.fit(cal_nodes_across_trees, y_cal)
         
