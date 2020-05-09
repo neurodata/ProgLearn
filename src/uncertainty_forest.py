@@ -42,7 +42,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         max_depth=30,
         min_samples_leaf=1,
         max_samples = 0.32,
-        max_features_tree = None,
+        max_features_tree = "auto",
         n_estimators=300,
         bootstrap=False,
         parallel=True):
@@ -72,15 +72,6 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                 )
                 raise NotFittedError(msg % {"name": type(self).__name__})
 
-    
-        
-
-    def _get_nodes(self, tree, X):
-        '''
-        given a tree, return the leaf nodes of the input X
-        '''
-        return self._get_leaves(tree)
-    
     def transform(self, X):
         '''
         get the estimated posteriors across trees
@@ -91,7 +82,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
             #get the nodes of X
             # Drop each estimation example down the tree, and record its 'y' value.
             sample_indices = range(len(X)) if self.fitted else self.ensemble.estimators_samples_[tree_idx]
-            return np.array([node.item() for node in tree.apply(X[sample_indices])])
+            return tree.apply(X[sample_indices])
             
 
         if self.parallel:
@@ -121,11 +112,6 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         X, y = check_X_y(X, y)
         check_classification_targets(y)
         self.classes_, y = np.unique(y, return_inverse=True)
-        
-        if not self.max_features_tree:
-            d = X.shape[1]
-            self.max_features_tree = int(np.floor(np.sqrt(d)))
-        
         
         #define the ensemble
         self.ensemble = BaggingClassifier(
@@ -223,14 +209,3 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X):
         return self.voter.predict_proba(self.transform(X))
-
-    def estimate_conditional_entropy(self, X):
-        '''
-        as described in Algorithm 1
-        '''
-        posteriors_across_trees = self.voter.predict_proba_across_trees(self.transform(X))
-        print(np.shape(posteriors_across_trees))
-        conditional_entropy_across_trees = np.sum(-posteriors_across_trees * np.log(posteriors_across_trees), axis = 0)
-        print(np.shape(conditional_entropy_across_trees))
-
-        return np.mean(conditional_entropy_across_trees, axis = 0)
