@@ -7,7 +7,6 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import NotFittedError
 
 #Data Handling
-from sklearn.model_selection import train_test_split
 from sklearn.utils.validation import (
     check_X_y,
     check_array,
@@ -41,14 +40,12 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
     def __init__(
         self,
         max_depth=30,
-        min_samples_leaf=10,
-        max_samples = 0.5,
-        max_features_tree = "auto",
-        n_estimators=3500,
+        min_samples_leaf=1,
+        max_samples = 0.32,
+        max_features_tree = None,
+        n_estimators=300,
         bootstrap=False,
-        parallel=True,
-        calibration_split = .33
-    ):
+        parallel=True):
 
         #Tree parameters.
         self.max_depth = max_depth
@@ -62,7 +59,6 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
 
         #Model parameters.
         self.parallel = parallel
-        self.calibration_split = calibration_split
         self.fitted = False
 
     def _check_fit(self):
@@ -79,33 +75,23 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
     
         
 
-    def _get_nodes_and_tree_depth(self, tree, X):
+    def _get_nodes(self, tree, X):
         '''
-        given a tree, return its depth and the leaf nodes of the input X
+        given a tree, return the leaf nodes of the input X
         '''
-        binary_decision_paths = tree.decision_path(X).toarray()
-        tree_depth = np.shape(binary_decision_paths)[1]
-        base_2_powers = 2 ** np.arange(0, tree_depth, 1)
-        decision_paths = binary_decision_paths * base_2_powers
-        nodes = np.sum(decision_paths, axis = 1)
-        return nodes, tree_depth
+        return self._get_leaves(tree)
     
     def transform(self, X):
         '''
         get the estimated posteriors across trees
         '''
-        print("Transforming Points")
-        self._check_fit()
         X = check_array(X)
         
-        #for aggreg
-        node_ids = []
-
         def worker(tree_idx, tree):
             #get the nodes of X
-            nodes, _= self._get_nodes_and_tree_depth(tree, X)
-            return nodes
-
+            # Drop each estimation example down the tree, and record its 'y' value.
+            sample_indices = range(len(X)) if self.fitted else self.ensemble.estimators_samples_[tree_idx]
+            return np.array([node.item() for node in tree.apply(X[sample_indices])])
             
 
         if self.parallel:
@@ -113,8 +99,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                     Parallel(n_jobs=-1)(
                             delayed(worker)(tree_idx, tree) for tree_idx, tree in enumerate(self.ensemble.estimators_)
                     )
-            )
-                    
+            )         
         else:
             return np.array(
                     [worker(tree_idx, tree) for tree_idx, tree in enumerate(self.ensemble.estimators_)]
@@ -124,7 +109,6 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         return lambda X : self.transform(X)
         
     def vote(self, nodes_across_trees):
-        print("Voting On Points")
         return self.voter.predict(nodes_across_trees)
         
     def get_voter(self):
@@ -137,9 +121,10 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         X, y = check_X_y(X, y)
         check_classification_targets(y)
         self.classes_, y = np.unique(y, return_inverse=True)
-
-        #split into train and cal
-        X_train, X_cal, y_train, y_cal = train_test_split(X, y)
+        
+        if not self.max_features_tree:
+            d = X.shape[1]
+            self.max_features_tree = int(np.floor(np.sqrt(d)))
         
         
         #define the ensemble
@@ -147,32 +132,32 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
             DecisionTreeClassifier(
                 max_depth=self.max_depth,
                 min_samples_leaf=self.min_samples_leaf,
-                max_features=self.max_features_tree,
-                splitter="random"
+                max_features=self.max_features_tree
             ),
             n_estimators=self.n_estimators,
             max_samples=self.max_samples,
             bootstrap=self.bootstrap,
-            n_jobs = -1,
-            verbose = 1
+            n_jobs = -1
         )
         
-        print("Fitting Transformer")
         #fit the ensemble
-        self.ensemble.fit(X_train, y_train)
-        self.fitted = True
+        self.ensemble.fit(X, y)
         
         class Voter(BaseEstimator):
-            def __init__(self, n_estimators, classes, parallel = True):
-                self.n_estimators = n_estimators
+            def __init__(self, estimators_samples_, classes, parallel = True):
+                self.n_estimators = len(estimators_samples_)
                 self.classes_ = classes
                 self.parallel = parallel
+                self.estimators_samples_ = estimators_samples_
             
-            def fit(self, cal_nodes_across_trees, y_cal):
+            def fit(self, cal_nodes_across_trees, y):
                 self.tree_idx_to_node_ids_to_posterior_map = {}
 
                 def worker(tree_idx):
                     cal_nodes = cal_nodes_across_trees[tree_idx]
+                    y_cal = y[self.estimators_samples_[tree_idx]]
+                    
+                    
                     #create a map from the unique node ids to their classwise posteriors
                     node_ids_to_posterior_map = {}
 
@@ -180,7 +165,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                     for node_id in np.unique(cal_nodes):
                         cal_idxs_of_node_id = np.where(cal_nodes == node_id)[0]
                         cal_ys_of_node = y_cal[cal_idxs_of_node_id]
-                        class_counts = [len(np.where(cal_ys_of_node == y)[0]) for y in np.unique(y_train) ]
+                        class_counts = [len(np.where(cal_ys_of_node == y)[0]) for y in np.unique(y) ]
                         posteriors = np.nan_to_num(np.array(class_counts) / np.sum(class_counts))
 
                         #finite sample correction
@@ -190,7 +175,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                     #add the node_ids_to_posterior_map to the overall tree_idx map 
                     self.tree_idx_to_node_ids_to_posterior_map[tree_idx] = node_ids_to_posterior_map
                     
-                for tree_idx in tqdm(range(self.n_estimators)):
+                for tree_idx in range(self.n_estimators):
                         worker(tree_idx)
                 return self
                         
@@ -225,15 +210,13 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
 
                 else:
                     return np.mean(
-                            [worker(tree_idx) for tree_idx in range(self.n_estimators)],
-                            axis = 0)
+                            [worker(tree_idx) for tree_idx in range(self.n_estimators)], axis = 0)
                 
         #get the nodes of the calibration set
-        cal_nodes_across_trees = self.transform(X_cal) 
-        print("Fitting Voter")
-        self.voter = Voter(n_estimators = len(self.ensemble.estimators_), classes = self.classes_, parallel = self.parallel)
-        self.voter.fit(cal_nodes_across_trees, y_cal)
-        
+        nodes_across_trees = self.transform(X) 
+        self.voter = Voter(estimators_samples_ = self.ensemble.estimators_samples_, classes = self.classes_, parallel = self.parallel)
+        self.voter.fit(nodes_across_trees, y)
+        self.fitted = True
 
     def predict(self, X):
         return self.classes_[np.argmax(self.predict_proba(X), axis=-1)]
@@ -245,7 +228,9 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         '''
         as described in Algorithm 1
         '''
-        posteriors_across_trees = self._get_posteriors_across_trees(X)
-        conditional_entropy_across_trees = np.sum(-posteriors_across_trees * np.log(posteriors_across_trees), axis = -1)
+        posteriors_across_trees = self.voter.predict_proba_across_trees(self.transform(X))
+        print(np.shape(posteriors_across_trees))
+        conditional_entropy_across_trees = np.sum(-posteriors_across_trees * np.log(posteriors_across_trees), axis = 0)
+        print(np.shape(conditional_entropy_across_trees))
 
         return np.mean(conditional_entropy_across_trees, axis = 0)
