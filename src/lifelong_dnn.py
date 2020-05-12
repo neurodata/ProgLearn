@@ -31,11 +31,11 @@ class LifeLongDNN():
                    y, 
                    epochs = 100, 
                    lr = 5e-4, 
-                   n_estimators = 350, 
-                   max_samples = .9,
+                   n_estimators = 10, 
+                   max_samples = .32,
                    bootstrap = True,
                    max_depth = 30,
-                   min_samples_leaf = 10,
+                   min_samples_leaf = 1,
                    acorn = None):
         
         if self.model == "dnn":

@@ -75,9 +75,11 @@ def LF_experiment(data_x, data_y, angle, reps=1, ntrees=29, acorn=None):
             tmp_ = image_aug(tmp_data[i],angle)
         
             tmp_data[i] = tmp_
-        
+            
+        train_x1 = train_x1.reshape((train_x1.shape[0], train_x1.shape[1] * train_x1.shape[2] * train_x1.shape[3]))
+        tmp_data = tmp_data.reshape((tmp_data.shape[0], tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3]))
 
-        lifelong_forest = LifeLongDNN()
+        lifelong_forest = LifeLongDNN(model = "uf")
         lifelong_forest.new_forest(train_x1, train_y1, n_estimators=ntrees)
         lifelong_forest.new_forest(tmp_data, train_y2, n_estimators=ntrees)
     

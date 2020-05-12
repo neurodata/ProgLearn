@@ -43,7 +43,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         min_samples_leaf=1,
         max_samples = 0.32,
         max_features_tree = "auto",
-        n_estimators=300,
+        n_estimators=200,
         bootstrap=False,
         parallel=True):
 
@@ -77,12 +77,11 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         get the estimated posteriors across trees
         '''
         X = check_array(X)
-        
+                
         def worker(tree_idx, tree):
             #get the nodes of X
             # Drop each estimation example down the tree, and record its 'y' value.
-            sample_indices = range(len(X)) if self.fitted else self.ensemble.estimators_samples_[tree_idx]
-            return tree.apply(X[sample_indices])
+            return tree.apply(X)
             
 
         if self.parallel:
@@ -136,13 +135,13 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                 self.parallel = parallel
                 self.estimators_samples_ = estimators_samples_
             
-            def fit(self, cal_nodes_across_trees, y):
+            def fit(self, nodes_across_trees, y, fitting = False):
                 self.tree_idx_to_node_ids_to_posterior_map = {}
 
                 def worker(tree_idx):
-                    cal_nodes = cal_nodes_across_trees[tree_idx]
-                    y_cal = y[self.estimators_samples_[tree_idx]]
-                    
+                    nodes = nodes_across_trees[tree_idx]
+                    cal_nodes = nodes[self.estimators_samples_[tree_idx]] if fitting else nodes
+                    y_cal = y[self.estimators_samples_[tree_idx]] if fitting else y                    
                     
                     #create a map from the unique node ids to their classwise posteriors
                     node_ids_to_posterior_map = {}
@@ -201,7 +200,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         #get the nodes of the calibration set
         nodes_across_trees = self.transform(X) 
         self.voter = Voter(estimators_samples_ = self.ensemble.estimators_samples_, classes = self.classes_, parallel = self.parallel)
-        self.voter.fit(nodes_across_trees, y)
+        self.voter.fit(nodes_across_trees, y, fitting = True)
         self.fitted = True
 
     def predict(self, X):
