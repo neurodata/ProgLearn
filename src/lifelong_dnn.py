@@ -2,6 +2,8 @@ from sklearn.base import clone
 
 import numpy as np
 
+from joblib import Parallel, delayed
+
 class LifeLongDNN():
     def __init__(self, acorn = None, verbose = False, model = "uf"):
         self.X_across_tasks = []
@@ -31,9 +33,9 @@ class LifeLongDNN():
                    y, 
                    epochs = 100, 
                    lr = 5e-4, 
-                   n_estimators = 10, 
-                   max_samples = .32,
-                   bootstrap = True,
+                   n_estimators = 100, 
+                   max_samples = .63,
+                   bootstrap = False,
                    max_depth = 30,
                    min_samples_leaf = 1,
                    acorn = None):
@@ -107,16 +109,22 @@ class LifeLongDNN():
         elif isinstance(representation, int):
             representation = np.array([representation])
         
-        posteriors_across_tasks = []
-        for transformer_task_idx in representation:
+        def worker(transformer_task_idx):
             transformer = self.transformers_across_tasks[transformer_task_idx]
             voter = self.voters_across_tasks_matrix[decider][transformer_task_idx]
             if self.model == "dnn":
-                posteriors_across_tasks.append(voter.predict_proba(transformer.predict(X)))
+                return voter.predict_proba(transformer.predict(X))
             if self.model == "uf":
-                posteriors_across_tasks.append(voter.predict_proba(transformer(X)))
+                return voter.predict_proba(transformer(X))
+        
+        posteriors_across_tasks = np.array(
+                    Parallel(n_jobs=-1)(
+                            delayed(worker)(transformer_task_idx) for transformer_task_idx in representation
+                    )
+            )    
+            
         return np.mean(posteriors_across_tasks, axis = 0)
-    
+        
     def predict(self, X, representation = 0, decider = 0):
         task_classes = self.classes_across_tasks[decider]
         return task_classes[np.argmax(self._estimate_posteriors(X, representation, decider), axis = -1)]
