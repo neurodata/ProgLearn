@@ -27,10 +27,10 @@ def _finite_sample_correction(posteriors, num_points_in_partition, num_classes):
     correction_constant = 1 / (num_classes * num_points_in_partition)
 
     zero_posterior_idxs = np.where(posteriors == 0)[0]
-
-    c = len(zero_posterior_idxs) / (num_classes * num_points_in_partition)
-    posteriors *= (1 - c)
     posteriors[zero_posterior_idxs] = correction_constant
+    
+    posteriors /= sum(posteriors)
+    
     return posteriors
 
 class UncertaintyForest(BaseEstimator, ClassifierMixin):
@@ -41,7 +41,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         self,
         max_depth=30,
         min_samples_leaf=1,
-        max_samples = 0.32,
+        max_samples = 0.63,
         max_features_tree = "auto",
         n_estimators=200,
         bootstrap=False,
