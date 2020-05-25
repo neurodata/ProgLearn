@@ -34,10 +34,7 @@ def run(target_shift):
             X_test_across_tasks.append(X_test[test_idxs_of_task])
             y_test_across_tasks.append(y_test[test_idxs_of_task] - int(num_classes / n_tasks) * task_idx)
 
-        return X_train_across_tasks, X_test_across_tasks, y_train_across_tasks, y_test_across_tasks
-
-    def set_random_seed(random_seed):
-        random.seed(random_seed)
+        return X_train_across_tasks, X_test_across_tasks, y_train_across_tasks, y_test_across_tasks        
 
     backward_transfer_efficiencies_across_tasks_across_shifts = [[] for _ in range(n_tasks)]
     def fill_in_transfer_efficiencies_across_tasks(train_shift_idxs, test_shift_idxs, shift):
@@ -47,10 +44,10 @@ def run(target_shift):
         lifelong_dnn = LifeLongDNN(model = "uf")
         for task in range(n_tasks):
             print("Adding Forest For Task: {}".format(task))
-            set_random_seed(random_seed)
+            random.seed(random_seed)
             X_train_of_task = X_train_across_tasks[task]
             y_train_of_task = y_train_across_tasks[task]
-            lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 41)
+            lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 41, max_depth = np.log2(len(X_train_of_task))
         
         
 

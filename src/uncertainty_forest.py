@@ -43,7 +43,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         min_samples_leaf=1,
         max_samples = 0.63,
         max_features_tree = "auto",
-        n_estimators=200,
+        n_estimators=100,
         bootstrap=False,
         parallel=True):
 
