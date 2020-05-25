@@ -47,7 +47,7 @@ def run(target_shift):
             random.seed(random_seed)
             X_train_of_task = X_train_across_tasks[task]
             y_train_of_task = y_train_across_tasks[task]
-            lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 41, max_depth = np.log2(len(X_train_of_task))
+            lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 41, max_depth = np.log2(len(X_train_of_task)))
         
         
 
