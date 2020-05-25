@@ -99,7 +99,7 @@ def run(target_shift):
     for train_shift_idxs, test_shift_idxs in kfold.split(X, y):
         if shift == target_shift:
             df = fill_in_transfer_efficiencies_across_tasks(train_shift_idxs, test_shift_idxs, shift)
-            pickle.dump(df, open('../../pkls/shift_{}.p'.format(target_shift), 'wb'))
+            pickle.dump(df, open('pkls/shift_{}.p'.format(target_shift), 'wb'))
         shift += 1
 
 if __name__ == "__main__":
