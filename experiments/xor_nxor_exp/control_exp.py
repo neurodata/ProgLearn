@@ -169,5 +169,6 @@ for i in range(1,50,10):
     ax[1].axvline(x = i, linewidth=1.5,alpha=0.5, color='k')
     
 plt.savefig('./result/control_xor_rxor.png',dpi=500)
+plt.savefig('./result/control_xor_rxor.pdf',dpi=500)
 
 # %%
