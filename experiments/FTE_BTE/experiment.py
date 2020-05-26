@@ -60,8 +60,7 @@ def run(target_shift):
         df_single_task['data_fold'] = shift
         df_single_task['accuracy'] = single_task_accuracies
         print(df_single_task)
-            
-        
+
         
 
         def fill_in_transfer_efficiencies_per_task(base_task):
@@ -70,16 +69,16 @@ def run(target_shift):
             accuracies_across_tasks = []
             errors = []
             for task in range(base_task + 1):
-                accuracy = np.mean(y_test_across_tasks[task] == lifelong_dnn.predict(X_test_across_tasks[task], decider = task, representation = "all"))
+                accuracy = np.mean(y_test_across_tasks[task] == lifelong_dnn.predict(X_test_across_tasks[task], decider = task, representation = range(base_task + 1)))
                 accuracies_across_tasks.append(accuracy)
                 
                 shifts.append(shift)
                 tasks.append(task)
-            print("Accuracies of Task {} Across Tasks: {}".format(base_task + 1, accuracies_across_tasks))
+            print("Accuracies of With Base Task {} Across Tasks: {}".format(base_task + 1, accuracies_across_tasks))
                 
             df = pd.DataFrame()
             df['data_fold'] = shifts
-            df['tasks'] = tasks
+            df['task'] = tasks
             df['base_task'] = base_task
             df['accuracy'] = accuracies_across_tasks
 
