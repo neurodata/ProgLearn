@@ -39,7 +39,6 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, cv, acorn=None):
             train_x[ii*5000:(ii+1)*5000,:], train_y[ii*5000:(ii+1)*5000], 
             max_depth=ceil(log2(5000)), n_estimators=ntrees
             )
-        #lifelong_forest.new_forest(train_x[(ii-1)*5000:(ii)*5000,:], homogenize_labels(train_y[(ii-1)*5000:(ii)*5000]), n_estimators=ntrees)
         
         llf_task=lifelong_forest.predict(
             test_x[ii*1000:(ii+1)*1000,:], representation=ii, decider=ii
@@ -55,7 +54,6 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, cv, acorn=None):
             errors[ii].append(1 - np.sum(
                 llf_task == test_y[jj*1000:(jj+1)*1000]
                 )/m)
-            #print(np.sum(llf_task == homogenize_labels(test_y[jj*1000:(jj+1)*1000]))/m)
     
     
     with open('./result/'+'LF_'+str(ntrees)+'__'+str(cv)+'.pickle', 'wb') as f:
