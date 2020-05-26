@@ -58,7 +58,6 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, cv, acorn=None):
             #print(np.sum(llf_task == homogenize_labels(test_y[jj*1000:(jj+1)*1000]))/m)
     
     
-    print('%s cv %s tree done!'%(cv,n_trees))
     with open('./result/'+'LF_'+str(ntrees)+'__'+str(cv)+'.pickle', 'wb') as f:
         pickle.dump(errors, f)
         
