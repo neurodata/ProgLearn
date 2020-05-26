@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow.keras as keras
 from itertools import product
+import pandas as pd
 
 import numpy as np
 import pickle
@@ -23,12 +24,16 @@ def unpickle(file):
     return dict
     
 #%%
-def LF_experiment(train_x, train_y, test_x, test_y, ntrees, cv, acorn=None):
+def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, acorn=None):
        
     m = 1000
-    errors = [[] for i in range(10)]
-    errors_1 = np.zeros(10,dtype=float)
-    
+    df = pd.DataFrame()
+    single_task_accuracies = np.zeros(10,dtype=float)
+    shifts = []
+    tasks = []
+    base_tasks = []
+    accuracies_across_tasks = []
+
     lifelong_forest = LifeLongDNN()
     
     for ii in range(10):
@@ -43,7 +48,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, cv, acorn=None):
         llf_task=lifelong_forest.predict(
             test_x[ii*1000:(ii+1)*1000,:], representation=ii, decider=ii
             )
-        errors_1[ii] = 1 - np.sum(
+        single_task_accuracies[ii] = np.sum(
                 llf_task == test_y[ii*1000:(ii+1)*1000]
                 )/m
         
@@ -51,16 +56,28 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, cv, acorn=None):
             llf_task=lifelong_forest.predict(
                 test_x[jj*1000:(jj+1)*1000,:], representation='all', decider=jj
                 )
-            errors[ii].append(1 - np.sum(
+            
+            shifts.append(shift)
+            tasks.append(jj)
+            base_tasks.append(ii)
+            accuracies_across_tasks.append(np.sum(
                 llf_task == test_y[jj*1000:(jj+1)*1000]
                 )/m)
-    
-    
-    with open('./result/'+'LF_'+str(ntrees)+'__'+str(cv)+'.pickle', 'wb') as f:
-        pickle.dump(errors, f)
-        
-    with open('./result/'+'LF_single_task_'+str(ntrees)+'__'+str(cv)+'.pickle', 'wb') as f:
-        pickle.dump(errors_1, f)
+            
+    df['data_fold'] = shifts
+    df['tasks'] = tasks
+    df['base_task'] = base_tasks
+    df['accuracy'] = accuracies_across_tasks
+
+    df_single_task = pd.DataFrame()
+    df_single_task['task'] = range(1, 11)
+    df_single_task['data_fold'] = shift
+    df_single_task['accuracy'] = single_task_accuracies
+
+    summary = (df,df_single_task)
+    file_to_save = '/data/Jayanta/syn1/progressive-learning/experiments/cifar_exp/result/'+'LF_'+str(ntrees)+'__'+str(shift)+'.pickle'
+    with open(file_to_save, 'wb') as f:
+        pickle.dump(summary, f)
 
 #%%
 def cross_val_data(data_x, data_y, class_idx, total_cls=100, cv=1):
@@ -117,7 +134,7 @@ class_idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
 #%%
 cv_fold = range(1,7,1)
 #n_trees = np.asarray([41,82,164,328,656,1312,2624])
-n_trees=[41]
+n_trees=[10]
 iterable = product(n_trees,cv_fold)
 
 Parallel(n_jobs=-2,verbose=1)(
