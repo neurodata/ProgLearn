@@ -8,6 +8,7 @@ import numpy as np
 import pickle
 
 from sklearn.model_selection import StratifiedKFold
+from math import log2, ceil 
 
 import sys
 sys.path.append("../../src/")
@@ -92,7 +93,7 @@ def exp(n_sample, n_test, angle_params, n_trees, reps, acorn=None):
         test, test_label = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=angle_params)
     
         l2f = LifeLongDNN()
-        l2f.new_forest(train, label, n_estimators=n_trees)
+        l2f.new_forest(train, label, n_estimators=n_trees, max_samples=ceil(log2(n_sample)))
     
         uf_task = l2f.predict(test, representation=0, decider=0)
         error[i] = 1 - np.sum(uf_task == test_label)/n_test
@@ -100,19 +101,28 @@ def exp(n_sample, n_test, angle_params, n_trees, reps, acorn=None):
     return np.mean(error,axis=0), np.std(error,ddof=1,axis=0)
 
 #%%
-n_trees = np.arange(1,50,1)
+n_trees = range(1,50,1)
 n_test = 1000
 n_sample = 1500
 reps = 20
+error1 = np.zeros(len(n_trees),dtype=float)
+error2 = np.zeros(len(n_trees),dtype=float)
+
+'''for count,n_tree in enumerate(n_trees):
+    print(count)
+    error1[count],_ = exp(n_sample,n_test,angle_params=0,n_trees=n_tree,reps=reps)
+
+for count,n_tree in enumerate(n_trees):
+    error2[count],_ = exp(n_sample,n_test,angle_params=np.pi/4,n_trees=n_tree,reps=reps)'''
 
 error1 = np.array(
-                Parallel(n_jobs=-1,verbose=1)(
+                Parallel(n_jobs=-2,verbose=1)(
                 delayed(exp)(n_sample,n_test,angle_params=0,n_trees=n_tree,reps=reps) for n_tree in n_trees
                 )
             )
 
 error2 = np.array(
-                Parallel(n_jobs=-1,verbose=1)(
+                Parallel(n_jobs=-2,verbose=1)(
                 delayed(exp)(n_sample,n_test,angle_params=np.pi/4,n_trees=n_tree,reps=reps) for n_tree in n_trees
                 )
             )
