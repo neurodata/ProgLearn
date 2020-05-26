@@ -28,11 +28,11 @@ def run(target_shift):
         for task_idx in range(n_tasks):
             train_idxs_of_task = np.where((y_train >= int(num_classes / n_tasks) * task_idx) & (y_train < int(num_classes / n_tasks) * (task_idx + 1)))[0]
             X_train_across_tasks.append(X_train[train_idxs_of_task])
-            y_train_across_tasks.append(y_train[train_idxs_of_task] - int(num_classes / n_tasks) * task_idx)
+            y_train_across_tasks.append(y_train[train_idxs_of_task])
 
             test_idxs_of_task = np.where((y_test >= int(num_classes / n_tasks) * task_idx) & (y_test < int(num_classes / n_tasks) * (task_idx + 1)))[0]
             X_test_across_tasks.append(X_test[test_idxs_of_task])
-            y_test_across_tasks.append(y_test[test_idxs_of_task] - int(num_classes / n_tasks) * task_idx)
+            y_test_across_tasks.append(y_test[test_idxs_of_task])
 
         return X_train_across_tasks, X_test_across_tasks, y_train_across_tasks, y_test_across_tasks        
 
@@ -44,48 +44,45 @@ def run(target_shift):
         lifelong_dnn = LifeLongDNN(model = "uf")
         for task in range(n_tasks):
             print("Adding Forest For Task: {}".format(task))
-            random.seed(random_seed)
             X_train_of_task = X_train_across_tasks[task]
             y_train_of_task = y_train_across_tasks[task]
-            lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 41, max_depth = np.log2(len(X_train_of_task)))
+            lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 10, max_depth = np.log2(len(X_train_of_task)))
         
         
 
-        def fill_in_transfer_efficiencies_per_task(task):
+        def fill_in_transfer_efficiencies_per_task(first_task):
             seeds = []
             shifts = []
-            tasks = []
-            tasks_seen = []
+            last_tasks = []
+            first_tasks = []
             reverse_accuracies = []
             forward_accuracies = []
             
             backward_accuracies_across_tasks = []
             forward_accuracies_across_tasks = []
 
-            def fill_in_accuracies_per_task(task_seen):
-                backward_accuracy = np.mean(y_test_across_tasks[task] == lifelong_dnn.predict(X_test_across_tasks[task], decider = task, representation = range(task, task_seen + 1)))
+            def fill_in_accuracies_per_task(last_task):
+                backward_accuracy = np.mean(y_test_across_tasks[first_task] == lifelong_dnn.predict(X_test_across_tasks[first_task], decider = first_task, representation = range(first_task, last_task + 1)))
                 backward_accuracies_across_tasks.append(backward_accuracy)
                 
-                forward_accuracy = np.mean(y_test_across_tasks[task_seen] == lifelong_dnn.predict(X_test_across_tasks[task_seen], decider = task_seen, representation = range(task, task_seen + 1)))
+                forward_accuracy = np.mean(y_test_across_tasks[last_task] == lifelong_dnn.predict(X_test_across_tasks[last_task], decider = last_task, representation = range(first_task, last_task + 1)))
                 forward_accuracies_across_tasks.append(forward_accuracy)
 
-            for task_seen in range(task, n_tasks):
-                fill_in_accuracies_per_task(task_seen)
-                print("Backward Accuracies of Task {} Across Tasks: {}".format(task + 1, backward_accuracies_across_tasks))
-                print("Forward Accuracies of Task {} Across Tasks: {}".format(task + 1, forward_accuracies_across_tasks))
+            for last_task in range(first_task, n_tasks):
+                fill_in_accuracies_per_task(last_task)
+                print("Backward Accuracies of Task {} Across Tasks: {}".format(first_task + 1, backward_accuracies_across_tasks))
+                print("Forward Accuracies of Task {} Across Tasks: {}".format(first_task + 1, forward_accuracies_across_tasks))
                 
-                seeds.append(random_seed)
                 shifts.append(shift)
-                tasks.append(task)
-                tasks_seen.append(task_seen)
+                first_tasks.append(first_task)
+                last_tasks.append(last_task)
                 reverse_accuracies.append(backward_accuracies_across_tasks[-1])
                 forward_accuracies.append(forward_accuracies_across_tasks[-1])
                 
             df = pd.DataFrame()
-            df['seed'] = seeds
             df['shift'] = shifts
-            df['task'] = tasks
-            df['task_seen'] = tasks_seen
+            df['first_task'] = first_tasks
+            df['last_task'] = last_tasks
             df['reverse_accuracy'] = reverse_accuracies
             df['forward_accuracy'] = forward_accuracies
 
@@ -108,7 +105,6 @@ if __name__ == "__main__":
     parser.add_argument('--n_shifts', type = int)
     args = parser.parse_args()
     
-    random_seed = 12345
     n_tasks = 10
 
     (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
