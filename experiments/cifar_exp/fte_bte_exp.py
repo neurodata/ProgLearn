@@ -120,7 +120,11 @@ cv_fold = range(1,7,1)
 n_trees=[41]
 iterable = product(n_trees,cv_fold)
 
-Parallel(n_jobs=-2,verbose=1)(delayed(run_parallel_exp)(data_x, data_y, class_idx, ntree, total_cls=100, cv=i) for ntree,i in iterable)
+Parallel(n_jobs=-2,verbose=1)(
+    delayed(run_parallel_exp)(
+            data_x, data_y, class_idx, ntree, total_cls=100, cv=i
+            ) for ntree,i in iterable
+            )
 
 #for i in range(1,7):
 #    print('doing %d fold'%i)
