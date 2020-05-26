@@ -46,12 +46,12 @@ def run(target_shift):
             print("Adding Forest For Task: {}".format(task))
             X_train_of_task = X_train_across_tasks[task]
             y_train_of_task = y_train_across_tasks[task]
-            lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 10, max_depth = np.log2(len(X_train_of_task)))
+            random.seed(random_seed)
+            lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 41, max_depth = np.log2(len(X_train_of_task)))
         
         
 
         def fill_in_transfer_efficiencies_per_task(first_task):
-            seeds = []
             shifts = []
             last_tasks = []
             first_tasks = []
@@ -80,6 +80,7 @@ def run(target_shift):
                 forward_accuracies.append(forward_accuracies_across_tasks[-1])
                 
             df = pd.DataFrame()
+            df['seed'] = random_seed
             df['shift'] = shifts
             df['first_task'] = first_tasks
             df['last_task'] = last_tasks
@@ -106,6 +107,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     n_tasks = 10
+    random_seed = 1234
 
     (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
     X = np.concatenate([X_train, X_test])
