@@ -1,5 +1,7 @@
 import random
 
+from math import ceil 
+
 import tensorflow as tf
 import tensorflow.keras as keras
 
@@ -41,63 +43,58 @@ def run(target_shift):
         
         X_train_across_tasks, X_test_across_tasks, y_train_across_tasks, y_test_across_tasks = get_taskwise_datasets(train_shift_idxs, test_shift_idxs)
         
+        single_task_accuracies = []
+        
         lifelong_dnn = LifeLongDNN(model = "uf")
         for task in range(n_tasks):
             print("Adding Forest For Task: {}".format(task))
             X_train_of_task = X_train_across_tasks[task]
             y_train_of_task = y_train_across_tasks[task]
             random.seed(random_seed)
-            lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 41, max_depth = np.log2(len(X_train_of_task)))
-        
-        
-
-        def fill_in_transfer_efficiencies_per_task(first_task):
-            shifts = []
-            last_tasks = []
-            first_tasks = []
-            reverse_accuracies = []
-            forward_accuracies = []
+            lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 10, max_depth = ceil(np.log2(len(X_train_of_task))))
+            single_task_accuracy = np.mean(y_test_across_tasks[task] == lifelong_dnn.predict(X_test_across_tasks[task], decider = task, representation = task))
+            single_task_accuracies.append(single_task_accuracy)
             
-            backward_accuracies_across_tasks = []
-            forward_accuracies_across_tasks = []
+        df_single_task = pd.DataFrame()
+        df_single_task['task'] = range(1, 11)
+        df_single_task['data_fold'] = shift
+        df_single_task['accuracy'] = single_task_accuracies
+        print(df_single_task)
+            
+        
+        
 
-            def fill_in_accuracies_per_task(last_task):
-                backward_accuracy = np.mean(y_test_across_tasks[first_task] == lifelong_dnn.predict(X_test_across_tasks[first_task], decider = first_task, representation = range(first_task, last_task + 1)))
-                backward_accuracies_across_tasks.append(backward_accuracy)
-                
-                forward_accuracy = np.mean(y_test_across_tasks[last_task] == lifelong_dnn.predict(X_test_across_tasks[last_task], decider = last_task, representation = range(first_task, last_task + 1)))
-                forward_accuracies_across_tasks.append(forward_accuracy)
-
-            for last_task in range(first_task, n_tasks):
-                fill_in_accuracies_per_task(last_task)
-                print("Backward Accuracies of Task {} Across Tasks: {}".format(first_task + 1, backward_accuracies_across_tasks))
-                print("Forward Accuracies of Task {} Across Tasks: {}".format(first_task + 1, forward_accuracies_across_tasks))
+        def fill_in_transfer_efficiencies_per_task(base_task):
+            shifts = []
+            tasks = []
+            accuracies_across_tasks = []
+            errors = []
+            for task in range(base_task + 1):
+                accuracy = np.mean(y_test_across_tasks[task] == lifelong_dnn.predict(X_test_across_tasks[task], decider = task, representation = "all"))
+                accuracies_across_tasks.append(accuracy)
                 
                 shifts.append(shift)
-                first_tasks.append(first_task)
-                last_tasks.append(last_task)
-                reverse_accuracies.append(backward_accuracies_across_tasks[-1])
-                forward_accuracies.append(forward_accuracies_across_tasks[-1])
+                tasks.append(task)
+            print("Accuracies of Task {} Across Tasks: {}".format(base_task + 1, accuracies_across_tasks))
                 
             df = pd.DataFrame()
-            df['seed'] = random_seed
-            df['shift'] = shifts
-            df['first_task'] = first_tasks
-            df['last_task'] = last_tasks
-            df['reverse_accuracy'] = reverse_accuracies
-            df['forward_accuracy'] = forward_accuracies
+            df['data_fold'] = shifts
+            df['tasks'] = tasks
+            df['base_task'] = base_task
+            df['accuracy'] = accuracies_across_tasks
 
             return df
 
         
         df_across_tasks = Parallel(n_jobs=-1)(delayed(fill_in_transfer_efficiencies_per_task)(task) for task in range(n_tasks))
-        return pd.concat(df_across_tasks, ignore_index = True)
+        
+        return pd.concat(df_across_tasks, ignore_index = True), df_single_task
 
     shift = 0
     for train_shift_idxs, test_shift_idxs in kfold.split(X, y):
         if shift == target_shift:
-            df = fill_in_transfer_efficiencies_across_tasks(train_shift_idxs, test_shift_idxs, shift)
-            pickle.dump(df, open('pkls/shift_{}.p'.format(target_shift), 'wb'))
+            df_tuple = fill_in_transfer_efficiencies_across_tasks(train_shift_idxs, test_shift_idxs, shift)
+            pickle.dump(df_tuple, open('pkls/shift_{}.p'.format(target_shift), 'wb'))
         shift += 1
 
 if __name__ == "__main__":
