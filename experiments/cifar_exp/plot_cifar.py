@@ -79,7 +79,7 @@ def calc_mean_err(err,task_num=10,cv=6):
     return mean_err     
 
 #%%
-ntrees = 10
+ntrees = 50
 cvs = 6
 alg_num = 1
 task_num = 10
