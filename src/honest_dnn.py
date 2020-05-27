@@ -88,8 +88,6 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
                     callbacks = [EarlyStopping(patience = 10, monitor = "val_acc")], 
                     verbose = self.verbose,
                     validation_split = .15)
-        self.network.load_weights("best_model.h5")
-
         self.encoder = keras.models.Model(inputs = self.network.inputs, outputs = self.network.layers[-2].output)
         
         #make sure to flag that we're fit
