@@ -1,6 +1,7 @@
 #!/bin/bash
 source activate tensorflow_p36
 n_shifts=6
+n_gpus=4
 if [[ $# == 0 ]]
 then
     for ((target_shift=0; target_shift<$n_shifts; target_shift++))
@@ -12,7 +13,7 @@ else
     for target_shift in $*
     do
       echo "Starting Shift: $target_shift"
-      dvc=$(($target_shift % 4))
+      dvc=$(($target_shift % $n_gpus))
       CUDA_VISIBLE_DEVICES=$dvc python experiment.py --target_shift $target_shift --n_shifts $n_shifts &
     done
 fi
