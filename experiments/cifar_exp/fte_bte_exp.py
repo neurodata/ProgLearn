@@ -17,7 +17,6 @@ sys.path.append("../../src/")
 from lifelong_dnn import LifeLongDNN
 from joblib import Parallel, delayed
 
-from keras import backend as K
 import tensorflow as tf
 
 #%%
@@ -27,7 +26,7 @@ def unpickle(file):
     return dict
     
 #%%
-def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, acorn=None):
+def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, num_points_per_task, acorn=None):
        
     df = pd.DataFrame()
     single_task_accuracies = np.zeros(10,dtype=float)
@@ -43,8 +42,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, acorn=
             np.random.seed(acorn)
 
         single_task_learner.new_forest(
-            train_x[task_ii*5000:(task_ii+1)*5000,:], train_y[task_ii*5000:(task_ii+1)*5000], 
-            max_depth=ceil(log2(5000)), n_estimators=ntrees*(task_ii+1)
+            train_x[task_ii*num_points_per_task:(task_ii+1)*num_points_per_task,:], train_y[task_ii*num_points_per_task:(task_ii+1)*num_points_per_task], 
+            max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees*(task_ii+1)
             )
         llf_task=single_task_learner.predict(
             test_x[task_ii*1000:(task_ii+1)*1000,:], representation=0, decider=0
@@ -60,8 +59,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, acorn=
             np.random.seed(acorn)
 
         lifelong_forest.new_forest(
-            train_x[task_ii*5000:(task_ii+1)*5000,:], train_y[task_ii*5000:(task_ii+1)*5000], 
-            max_depth=ceil(log2(5000)), n_estimators=ntrees
+            train_x[task_ii*num_points_per_task:(task_ii+1)*num_points_per_task,:], train_y[task_ii*num_points_per_task:(task_ii+1)*num_points_per_task], 
+            max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees
             )
         
         '''llf_task=lifelong_forest.predict(
@@ -99,7 +98,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, acorn=
         pickle.dump(summary, f)
 
 #%%
-def cross_val_data(data_x, data_y, class_idx, total_cls=100, shift=1):
+def cross_val_data(data_x, data_y, class_idx, num_points_per_task, total_cls=100, shift=1):
     x = data_x.copy()
     y = data_y.copy()
     idx = class_idx.copy()
@@ -110,30 +109,35 @@ def cross_val_data(data_x, data_y, class_idx, total_cls=100, shift=1):
         
         if i==0:
 
-            train_x = x[indx[0:500],:]
+            train_x = x[indx[0:num_points_per_task//10],:]
             test_x = x[indx[500:600],:]
 
-            train_y = y[indx[0:500]]
+            train_y = y[indx[0:num_points_per_task//10]]
             test_y = y[indx[500:600]]
         else:
-            train_x = np.concatenate((train_x, x[indx[0:500],:]), axis=0)
+            train_x = np.concatenate((train_x, x[indx[0:num_points_per_task//10],:]), axis=0)
             test_x = np.concatenate((test_x, x[indx[500:600],:]), axis=0)
 
-            train_y = np.concatenate((train_y, y[indx[0:500]]), axis=0)
+            train_y = np.concatenate((train_y, y[indx[0:num_points_per_task//10]]), axis=0)
             test_y = np.concatenate((test_y, y[indx[500:600]]), axis=0)
         
         
     return train_x, train_y, test_x, test_y
 
 #%%
-def run_parallel_exp(data_x, data_y, class_idx, n_trees, model, total_cls=100, shift=1):
-    train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, class_idx, shift=shift)
-    with tf.device('/gpu:'+str(shift % 4)):
-        LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, model, acorn=12345)
+def run_parallel_exp(data_x, data_y, class_idx, n_trees, model, num_points_per_task, total_cls=100, shift=1):
+    train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, class_idx, num_points_per_task, shift=shift)
+    
+    if model == "dnn":
+        with tf.device('/gpu:'+str(shift % 4)):
+            LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, model, num_points_per_task, acorn=12345)
+    else:
+        LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, model, num_points_per_task, acorn=12345)
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
+num_points_per_task = 500
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
@@ -153,22 +157,22 @@ if model == "uf":
     iterable = product(n_trees,shift_fold)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
-                data_x, data_y, class_idx, ntree, model, total_cls=100, shift=shift
+                data_x, data_y, class_idx, ntree, model, num_points_per_task, total_cls=100, shift=shift
                 ) for ntree,shift in iterable
                 )
-elif model == "dnn:
+elif model == "dnn":
     print("Performing Stage 1 Shifts")
     stage_1_shifts = range(1, 5)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
-                data_x, data_y, class_idx, 0, model, total_cls=100, shift=shift
+                data_x, data_y, class_idx, 0, model, num_points_per_task, total_cls=100, shift=shift
                 ) for shift in stage_1_shifts
                 )
     print("Performing Stage 2 Shifts")
     stage_2_shifts = range(5, 7)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
-                data_x, data_y, class_idx, 0, model, total_cls=100, shift=shift
+                data_x, data_y, class_idx, 0, model, num_points_per_task, total_cls=100, shift=shift
                 ) for shift in stage_2_shifts
                 )
 
