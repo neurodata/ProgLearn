@@ -17,6 +17,9 @@ sys.path.append("../../src/")
 from lifelong_dnn import LifeLongDNN
 from joblib import Parallel, delayed
 
+from keras import backend as K
+import tensorflow as tf
+
 #%%
 def unpickle(file):
     with open(file, 'rb') as fo:
@@ -24,7 +27,7 @@ def unpickle(file):
     return dict
     
 #%%
-def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, acorn=None):
+def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, acorn=None):
        
     df = pd.DataFrame()
     single_task_accuracies = np.zeros(10,dtype=float)
@@ -34,7 +37,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, acorn=None):
     accuracies_across_tasks = []
 
     for task_ii in range(10):
-        single_task_learner = LifeLongDNN()
+        single_task_learner = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
 
         if acorn is not None:
             np.random.seed(acorn)
@@ -50,7 +53,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, acorn=None):
                 llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
                 )
 
-    lifelong_forest = LifeLongDNN()
+    lifelong_forest = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
     for task_ii in range(10):
         print("Starting Task {} For Fold {}".format(task_ii, shift))
         if acorn is not None:
@@ -91,7 +94,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, acorn=None):
     df_single_task['accuracy'] = single_task_accuracies
 
     summary = (df,df_single_task)
-    file_to_save = 'result/'+'LF_'+str(ntrees)+'__'+str(shift)+'.pickle'
+    file_to_save = 'result/'+model+str(ntrees)+'__'+str(shift)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(summary, f)
 
@@ -123,14 +126,20 @@ def cross_val_data(data_x, data_y, class_idx, total_cls=100, shift=1):
     return train_x, train_y, test_x, test_y
 
 #%%
-def run_parallel_exp(data_x, data_y, class_idx, n_trees, total_cls=100, shift=1):
+def run_parallel_exp(data_x, data_y, class_idx, n_trees, model, total_cls=100, shift=1):
     train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, class_idx, shift=shift)
-    LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, acorn=12345)
+    with tf.device('/gpu:'+str(shift % 4)):
+        LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, model, acorn=12345)
 
 #%%
+### MAIN HYPERPARAMS ###
+model = "dnn"
+########################
+
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
 data_x = np.concatenate([X_train, X_test])
-data_x = data_x.reshape((data_x.shape[0], data_x.shape[1] * data_x.shape[2] * data_x.shape[3]))
+if model == "uf":
+    data_x = data_x.reshape((data_x.shape[0], data_x.shape[1] * data_x.shape[2] * data_x.shape[3]))
 data_y = np.concatenate([y_train, y_test])
 data_y = data_y[:, 0]
 
@@ -138,18 +147,29 @@ data_y = data_y[:, 0]
 class_idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
 
 #%%
-shift_fold = range(1,7,1)
-n_trees=[10,20,30,40,50]
-iterable = product(n_trees,shift_fold)
-
-Parallel(n_jobs=-2,verbose=1)(
-    delayed(run_parallel_exp)(
-            data_x, data_y, class_idx, ntree, total_cls=100, shift=i
-            ) for ntree,i in iterable
-            )
-
-#for i in range(1,7):
-#    print('doing %d fold'%i)
-#    run_parallel_exp(data_x, data_y, class_idx, n_trees, total_cls=100, shift=i)
+if model == "uf":
+    shift_fold = range(1,7,1)
+    n_trees=[10,20,30,40,50]
+    iterable = product(n_trees,shift_fold)
+    Parallel(n_jobs=-2,verbose=1)(
+        delayed(run_parallel_exp)(
+                data_x, data_y, class_idx, ntree, model, total_cls=100, shift=shift
+                ) for ntree,shift in iterable
+                )
+elif model == "dnn:
+    print("Performing Stage 1 Shifts")
+    stage_1_shifts = range(1, 5)
+    Parallel(n_jobs=-2,verbose=1)(
+        delayed(run_parallel_exp)(
+                data_x, data_y, class_idx, 0, model, total_cls=100, shift=shift
+                ) for shift in stage_1_shifts
+                )
+    print("Performing Stage 2 Shifts")
+    stage_2_shifts = range(5, 7)
+    Parallel(n_jobs=-2,verbose=1)(
+        delayed(run_parallel_exp)(
+                data_x, data_y, class_idx, 0, model, total_cls=100, shift=shift
+                ) for shift in stage_2_shifts
+                )
 
 # %%
