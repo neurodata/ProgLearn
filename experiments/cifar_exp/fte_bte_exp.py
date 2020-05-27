@@ -36,6 +36,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, acorn=None):
     lifelong_forest = LifeLongDNN()
     
     for task_ii in range(10):
+        print("Starting Task {} For Fold {}".format(task_ii, shift))
         if acorn is not None:
             np.random.seed(acorn)
 
@@ -74,7 +75,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, acorn=None):
     df_single_task['accuracy'] = single_task_accuracies
 
     summary = (df,df_single_task)
-    file_to_save = '/data/Jayanta/syn1/progressive-learning/experiments/cifar_exp/result/'+'LF_'+str(ntrees)+'__'+str(shift)+'.pickle'
+    file_to_save = 'result/'+'LF_'+str(ntrees)+'__'+str(shift)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(summary, f)
 
@@ -112,21 +113,12 @@ def run_parallel_exp(data_x, data_y, class_idx, n_trees, total_cls=100, cv=1):
     LF_experiment(train_x, train_y, test_x, test_y, n_trees, cv, acorn=12345)
 
 #%%
-n_tasks = 10
-train_file = '/data/Jayanta/continual-learning/train'
-unpickled_train = unpickle(train_file)
-train_keys = list(unpickled_train.keys())
-fine_labels = np.array(unpickled_train[train_keys[2]])
-labels = fine_labels
+(X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
+data_x = np.concatenate([X_train, X_test])
+data_x = data_x.reshape((data_x.shape[0], data_x.shape[1] * data_x.shape[2] * data_x.shape[3]))
+data_y = np.concatenate([y_train, y_test])
+data_y = data_y[:, 0]
 
-test_file = '/data/Jayanta/continual-learning/test'
-unpickled_test = unpickle(test_file)
-test_keys = list(unpickled_test.keys())
-fine_labels = np.array(unpickled_test[test_keys[2]])
-labels_ = fine_labels
-
-data_x = np.concatenate((unpickled_train[b'data'], unpickled_test[b'data']), axis=0)
-data_y = np.concatenate((labels, labels_), axis=0)
 
 class_idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
 
