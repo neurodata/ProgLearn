@@ -58,14 +58,14 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, acorn=None):
                 )
             
             shifts.append(shift)
-            tasks.append(jj)
-            base_tasks.append(ii)
+            tasks.append(jj+1)
+            base_tasks.append(ii+1)
             accuracies_across_tasks.append(np.sum(
                 llf_task == test_y[jj*1000:(jj+1)*1000]
                 )/m)
             
     df['data_fold'] = shifts
-    df['tasks'] = tasks
+    df['task'] = tasks
     df['base_task'] = base_tasks
     df['accuracy'] = accuracies_across_tasks
 
