@@ -8,11 +8,11 @@ from itertools import product
 import seaborn as sns
 
 ### MAIN HYPERPARAMS ###
-ntrees = 50
+ntrees = 0
 cvs = 6
 alg_num = 1
 task_num = 10
-model = "uf"
+model = "dnn"
 ########################
 
 #%%
@@ -203,6 +203,6 @@ ax[1][1].set_ylabel('Accuracy', fontsize=fontsize)
 #ax[1][1].set_ylim(0.89, 1.15)
 ax[1][1].tick_params(labelsize=ticksize)
 
-plt.savefig('./result/fig_trees'+str(ntrees)+"__"+model+'.pdf',dpi=300)
+plt.savefig('./result/figs/fig_trees'+str(ntrees)+"__"+model+'.pdf',dpi=300)
 
 # %%

@@ -13,7 +13,7 @@ from sklearn.tree import DecisionTreeClassifier
 from itertools import product
 import keras
 
-from tqdm import tqdm
+from joblib import Parallel, delayed
 
 import tensorflow as tf
 
@@ -21,10 +21,6 @@ import sys
 sys.path.append("../../src")
 
 from lifelong_dnn import LifeLongDNN
-
-def homogenize_labels(a):
-    u = np.unique(a)
-    return np.array([np.where(u == i)[0][0] for i in a])
 
 def cross_val_data(data_x, data_y, total_cls=10):
     x = data_x.copy()
@@ -56,13 +52,14 @@ def cross_val_data(data_x, data_y, total_cls=10):
         
     return train_x1, train_y1, train_x2, train_y2, test_x, test_y 
 
-def LF_experiment(data_x, data_y, angle, reps=1, ntrees=29, acorn=None):
+def LF_experiment(data_x, data_y, angle, model, reps=1, ntrees=29, acorn=None):
     if acorn is not None:
         np.random.seed(acorn)
     
     errors = np.zeros(2)
     
-    for rep in tqdm(range(reps)):
+    for rep in range(reps):
+        print("Starting Rep {} of Angle {}".format(rep, angle))
         train_x1, train_y1, train_x2, train_y2, test_x, test_y = cross_val_data(data_x, data_y, total_cls=10)
     
     
@@ -73,27 +70,27 @@ def LF_experiment(data_x, data_y, angle, reps=1, ntrees=29, acorn=None):
         
         for i in range(total_data):
             tmp_ = image_aug(tmp_data[i],angle)
-        
             tmp_data[i] = tmp_
-            
-        train_x1 = train_x1.reshape((train_x1.shape[0], train_x1.shape[1] * train_x1.shape[2] * train_x1.shape[3]))
-        tmp_data = tmp_data.reshape((tmp_data.shape[0], tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3]))
+        
+        if model == "uf":
+            train_x1 = train_x1.reshape((train_x1.shape[0], train_x1.shape[1] * train_x1.shape[2] * train_x1.shape[3]))
+            tmp_data = tmp_data.reshape((tmp_data.shape[0], tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3]))
+            test_x = test_x.reshape((test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3]))
 
-        lifelong_forest = LifeLongDNN(model = "uf")
+        lifelong_forest = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
         lifelong_forest.new_forest(train_x1, train_y1, n_estimators=ntrees)
         lifelong_forest.new_forest(tmp_data, train_y2, n_estimators=ntrees)
     
         llf_task1=lifelong_forest.predict(test_x, representation='all', decider=0)
         llf_single_task=lifelong_forest.predict(test_x, representation=0, decider=0)
     
-        m = len(test_y)
-        errors[1] = errors[1]+(1 - np.sum(llf_task1 == test_y)/m)
-        errors[0] = errors[0]+(1 - np.sum(llf_single_task == test_y)/m)
+        errors[1] = errors[1]+(1 - np.mean(llf_task1 == test_y))
+        errors[0] = errors[0]+(1 - np.mean(llf_single_task == test_y))
     
     errors = errors/reps
     print(errors,train_x1.shape,train_x2.shape,test_x.shape,angle)
-    with open('rotation_res_ln/'+'LF'+'_'+str(angle)+'.pickle', 'wb') as f:
-        pickle.dump(errors, f)
+    with open('rotation_results/angle_'+str(angle)+'.pickle', 'wb') as f:
+        pickle.dump(errors, f, protocol = 2)
         
 def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
     im_sz = int(np.floor(pic.shape[0]*scale))
@@ -110,37 +107,15 @@ def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
     
     return img_as_ubyte(image_aug_)
 
-angles = np.arange(0,360,5)
-cvs = np.arange(1,7)
-task_label = range(0,10)
+### MAIN HYPERPARAMS ###
+model = "uf"
+########################
 
+angles = np.arange(0,360,2)
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
+data_x = np.concatenate([X_train, X_test])
+data_y = np.concatenate([y_train, y_test])
+data_y = data_y[:, 0]
 
-data_x = np.concatenate((X_train, X_test), axis=0)
-data_y = np.concatenate((y_train[:,0], y_test[:,0]), axis=0)
-
-class_idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
-
-data_x1 = np.zeros((6000,32,32,3), dtype=int)
-data_y1 = np.zeros((6000,1), dtype=int)
-ind = 0
-
-for j in range(10):
-    for i in range(600):
-        data_x1[ind] = data_x[class_idx[j][i]]
-        data_y1[ind] = data_y[class_idx[j][i]]
-        ind += 1
-        
-data_y1 = homogenize_labels(np.ravel(data_y1))
-
-[LF_experiment(data_x1, data_y1, angle, reps=4, ntrees=16, acorn=1) for angle in tqdm(angles)]
-
-fig, ax = plt.subplots(1,1, figsize=(10,10))
-ax.plot(angles,mean_eta)
-
-#ax.set_yticks([1.0, 1.05, 1.1])
-ax.tick_params(labelsize=20)
-ax.set_xlabel('Angle of Rotation(Degree)', fontsize=24)
-ax.set_ylabel('Transfer Efficiency', fontsize=24)
-
-plt.savefig('cifar-100-rotate.png')
+#[LF_experiment(data_x, data_y, angle, model, reps=2, ntrees=16, acorn=1) for angle in angles]
+Parallel(n_jobs=-1)(delayed(LF_experiment)(data_x, data_y, angle, model, reps=20, ntrees=16, acorn=1) for angle in angles)

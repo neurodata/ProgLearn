@@ -19,6 +19,8 @@ from joblib import Parallel, delayed
 
 import tensorflow as tf
 
+from numba import cuda
+
 #%%
 def unpickle(file):
     with open(file, 'rb') as fo:
@@ -36,21 +38,22 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, num_po
     accuracies_across_tasks = []
 
     for task_ii in range(10):
-        single_task_learner = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
+        if model == "uf":
+            single_task_learner = LifeLongDNN(model = "uf", parallel = True)
 
-        if acorn is not None:
-            np.random.seed(acorn)
+            if acorn is not None:
+                np.random.seed(acorn)
 
-        single_task_learner.new_forest(
-            train_x[task_ii*num_points_per_task:(task_ii+1)*num_points_per_task,:], train_y[task_ii*num_points_per_task:(task_ii+1)*num_points_per_task], 
-            max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees*(task_ii+1)
-            )
-        llf_task=single_task_learner.predict(
-            test_x[task_ii*1000:(task_ii+1)*1000,:], representation=0, decider=0
-            )
-        single_task_accuracies[task_ii] = np.mean(
-                llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
+            single_task_learner.new_forest(
+                train_x[task_ii*num_points_per_task:(task_ii+1)*num_points_per_task,:], train_y[task_ii*num_points_per_task:(task_ii+1)*num_points_per_task], 
+                max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees*(task_ii+1)
                 )
+            llf_task=single_task_learner.predict(
+                test_x[task_ii*1000:(task_ii+1)*1000,:], representation=0, decider=0
+                )
+            single_task_accuracies[task_ii] = np.mean(
+                    llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
+                    )
 
     lifelong_forest = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
     for task_ii in range(10):
@@ -62,13 +65,13 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, num_po
             train_x[task_ii*num_points_per_task:(task_ii+1)*num_points_per_task,:], train_y[task_ii*num_points_per_task:(task_ii+1)*num_points_per_task], 
             max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees
             )
-        
-        '''llf_task=lifelong_forest.predict(
-            test_x[task_ii*1000:(task_ii+1)*1000,:], representation=task_ii, decider=task_ii
-            )
-        single_task_accuracies[task_ii] = np.mean(
-                llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
-                )'''
+        if model == "dnn":
+            llf_task=lifelong_forest.predict(
+                test_x[task_ii*1000:(task_ii+1)*1000,:], representation=task_ii, decider=task_ii
+                )
+            single_task_accuracies[task_ii] = np.mean(
+                    llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
+                    )
         
         for task_jj in range(task_ii+1):
             llf_task=lifelong_forest.predict(
@@ -136,7 +139,7 @@ def run_parallel_exp(data_x, data_y, class_idx, n_trees, model, num_points_per_t
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 500
 ########################
 
@@ -161,6 +164,7 @@ if model == "uf":
                 ) for ntree,shift in iterable
                 )
 elif model == "dnn":
+    '''
     print("Performing Stage 1 Shifts")
     stage_1_shifts = range(1, 5)
     Parallel(n_jobs=-2,verbose=1)(
@@ -168,6 +172,8 @@ elif model == "dnn":
                 data_x, data_y, class_idx, 0, model, num_points_per_task, total_cls=100, shift=shift
                 ) for shift in stage_1_shifts
                 )
+    '''
+    cuda.close()
     print("Performing Stage 2 Shifts")
     stage_2_shifts = range(5, 7)
     Parallel(n_jobs=-2,verbose=1)(
