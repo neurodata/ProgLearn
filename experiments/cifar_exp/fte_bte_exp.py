@@ -26,7 +26,6 @@ def unpickle(file):
 #%%
 def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, acorn=None):
        
-    m = 1000
     df = pd.DataFrame()
     single_task_accuracies = np.zeros(10,dtype=float)
     shifts = []
@@ -36,33 +35,33 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, acorn=None):
 
     lifelong_forest = LifeLongDNN()
     
-    for ii in range(10):
+    for task_ii in range(10):
         if acorn is not None:
             np.random.seed(acorn)
 
         lifelong_forest.new_forest(
-            train_x[ii*5000:(ii+1)*5000,:], train_y[ii*5000:(ii+1)*5000], 
+            train_x[task_ii*5000:(task_ii+1)*5000,:], train_y[task_ii*5000:(task_ii+1)*5000], 
             max_depth=ceil(log2(5000)), n_estimators=ntrees
             )
         
         llf_task=lifelong_forest.predict(
-            test_x[ii*1000:(ii+1)*1000,:], representation=ii, decider=ii
+            test_x[task_ii*1000:(task_ii+1)*1000,:], representation=task_ii, decider=task_ii
             )
-        single_task_accuracies[ii] = np.sum(
-                llf_task == test_y[ii*1000:(ii+1)*1000]
-                )/m
+        single_task_accuracies[task_ii] = np.mean(
+                llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
+                )
         
-        for jj in range(ii+1):
+        for task_jj in range(task_ii+1):
             llf_task=lifelong_forest.predict(
-                test_x[jj*1000:(jj+1)*1000,:], representation='all', decider=jj
+                test_x[task_jj*1000:(task_jj+1)*1000,:], representation='all', decider=task_jj
                 )
             
             shifts.append(shift)
-            tasks.append(jj+1)
-            base_tasks.append(ii+1)
-            accuracies_across_tasks.append(np.sum(
-                llf_task == test_y[jj*1000:(jj+1)*1000]
-                )/m)
+            tasks.append(task_jj+1)
+            base_tasks.append(task_ii+1)
+            accuracies_across_tasks.append(np.mean(
+                llf_task == test_y[task_jj*1000:(task_jj+1)*1000]
+                ))
             
     df['data_fold'] = shifts
     df['task'] = tasks
