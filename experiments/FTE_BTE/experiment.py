@@ -73,13 +73,13 @@ def run(target_shift):
                 accuracies_across_tasks.append(accuracy)
                 
                 shifts.append(shift)
-                tasks.append(task)
+                tasks.append(task + 1)
             print("Accuracies of With Base Task {} Across Tasks: {}".format(base_task + 1, accuracies_across_tasks))
                 
             df = pd.DataFrame()
             df['data_fold'] = shifts
             df['task'] = tasks
-            df['base_task'] = base_task
+            df['base_task'] = base_task + 1
             df['accuracy'] = accuracies_across_tasks
 
             return df
