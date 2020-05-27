@@ -85,12 +85,7 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
         self.network.fit(X, 
                     keras.utils.to_categorical(y), 
                     epochs = epochs, 
-                    callbacks = [ModelCheckpoint("best_model.h5", 
-                                                 save_best_only = True, 
-                                                 verbose = self.verbose,
-                                                 monitor = "val_acc"),
-                                 EarlyStopping(patience = 10, monitor = "val_acc")
-                                ], 
+                    callbacks = [EarlyStopping(patience = 10, monitor = "val_acc")], 
                     verbose = self.verbose,
                     validation_split = .15)
         self.network.load_weights("best_model.h5")

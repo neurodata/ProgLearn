@@ -18,7 +18,7 @@ import argparse
 
 from joblib import Parallel, delayed
 
-def run(target_shift):
+def run(target_shift, model_type, parallel):
     def get_taskwise_datasets(train_shift_idxs, test_shift_idxs):
         X_train, y_train = X[train_shift_idxs], y[train_shift_idxs]
         X_test, y_test = X[test_shift_idxs], y[test_shift_idxs]
@@ -43,7 +43,7 @@ def run(target_shift):
         
         single_task_accuracies = []
         
-        lifelong_dnn = LifeLongDNN(model = "uf")
+        lifelong_dnn = LifeLongDNN(model = model_type, parallel = parallel)
         for task in range(n_tasks):
             print("Adding Forest For Task: {}".format(task))
             X_train_of_task = X_train_across_tasks[task]
@@ -72,7 +72,7 @@ def run(target_shift):
                 
                 shifts.append(shift)
                 tasks.append(task + 1)
-            print("Accuracies of With Base Task {} Across Tasks: {}".format(base_task + 1, accuracies_across_tasks))
+            print("Accuracies With Base Task {} Across Tasks: {}".format(base_task + 1, accuracies_across_tasks))
                 
             df = pd.DataFrame()
             df['data_fold'] = shifts
@@ -82,8 +82,10 @@ def run(target_shift):
 
             return df
 
-        
-        df_across_tasks = Parallel(n_jobs=-1)(delayed(fill_in_transfer_efficiencies_per_task)(task) for task in range(n_tasks))
+        if parallel:
+            df_across_tasks = Parallel(n_jobs=-1)(delayed(fill_in_transfer_efficiencies_per_task)(task) for task in range(n_tasks))
+        else:
+            df_across_tasks = [fill_in_transfer_efficiencies_per_task(task) for task in range(n_tasks)]
         
         return pd.concat(df_across_tasks, ignore_index = True), df_single_task
 
@@ -95,17 +97,20 @@ def run(target_shift):
         shift += 1
 
 if __name__ == "__main__":
+    n_tasks = 10
+    random_seed = 1234
+    model_type = "dnn"
+    parallel = False
+    
     parser = argparse.ArgumentParser(description='Argument parser')
     parser.add_argument('--target_shift', type = int)
     parser.add_argument('--n_shifts', type = int)
     args = parser.parse_args()
-    
-    n_tasks = 10
-    random_seed = 1234
 
     (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
     X = np.concatenate([X_train, X_test])
-    X = X.reshape((X.shape[0], X.shape[1] * X.shape[2] * X.shape[3]))
+    if model_type == "uf":
+        X = X.reshape((X.shape[0], X.shape[1] * X.shape[2] * X.shape[3]))
     y = np.concatenate([y_train, y_test])
     y = y[:, 0]
 
@@ -113,5 +118,5 @@ if __name__ == "__main__":
 
     kfold = StratifiedKFold(n_splits = args.n_shifts, shuffle = False)
     
-    run(args.target_shift)
+    run(args.target_shift, model_type, parallel)
                 

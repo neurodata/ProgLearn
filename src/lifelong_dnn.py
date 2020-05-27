@@ -5,7 +5,7 @@ import numpy as np
 from joblib import Parallel, delayed
 
 class LifeLongDNN():
-    def __init__(self, acorn = None, verbose = False, model = "uf"):
+    def __init__(self, acorn = None, verbose = False, model = "uf", parallel = True):
         self.X_across_tasks = []
         self.y_across_tasks = []
         
@@ -23,6 +23,8 @@ class LifeLongDNN():
         self.verbose = verbose
         
         self.model = model
+        
+        self.parallel = parallel
         
     def check_task_idx_(self, task_idx):
         if task_idx >= self.n_tasks:
@@ -57,7 +59,7 @@ class LifeLongDNN():
                                                bootstrap = bootstrap,
                                                max_depth = max_depth,
                                                min_samples_leaf = min_samples_leaf,
-                                               parallel = True)
+                                               parallel = self.parallel)
             new_honest_dnn.fit(X, y)
         new_transformer = new_honest_dnn.get_transformer()
         new_voter = new_honest_dnn.get_voter()
@@ -117,11 +119,14 @@ class LifeLongDNN():
             if self.model == "uf":
                 return voter.predict_proba(transformer(X))
         
-        posteriors_across_tasks = np.array(
-                    Parallel(n_jobs=-1)(
-                            delayed(worker)(transformer_task_idx) for transformer_task_idx in representation
-                    )
-            )    
+        if self.parallel:
+            posteriors_across_tasks = np.array(
+                        Parallel(n_jobs=-1)(
+                                delayed(worker)(transformer_task_idx) for transformer_task_idx in representation
+                        )
+                )    
+        else:
+            posteriors_across_tasks = np.array([worker(transformer_task_idx) for transformer_task_idx in representation])    
             
         return np.mean(posteriors_across_tasks, axis = 0)
         
