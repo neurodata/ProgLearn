@@ -1,5 +1,3 @@
-import random
-
 from math import ceil 
 
 import tensorflow as tf
@@ -50,7 +48,7 @@ def run(target_shift):
             print("Adding Forest For Task: {}".format(task))
             X_train_of_task = X_train_across_tasks[task]
             y_train_of_task = y_train_across_tasks[task]
-            random.seed(random_seed)
+            np.random.seed(random_seed)
             lifelong_dnn.new_forest(X_train_of_task , y_train_of_task, n_estimators = 10, max_depth = ceil(np.log2(len(X_train_of_task))))
             single_task_accuracy = np.mean(y_test_across_tasks[task] == lifelong_dnn.predict(X_test_across_tasks[task], decider = task, representation = task))
             single_task_accuracies.append(single_task_accuracy)
