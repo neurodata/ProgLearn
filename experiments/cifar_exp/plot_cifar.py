@@ -79,7 +79,7 @@ def calc_mean_err(err,task_num=10,cv=6):
     return mean_err     
 
 #%%
-ntrees = 41
+ntrees = 10
 cvs = 6
 alg_num = 1
 task_num = 10
@@ -96,11 +96,18 @@ err_tmp = [[] for _ in range(cvs)]
     
 for cv in range(cvs):
     filename = './result/'+'LF_'+str(ntrees)+'__'+str(cv+1)+'.pickle'
-    err = unpickle(filename)
+    #filename = '../FTE_BTE/pkls/shift_'+str(cv)+'.p'
+    multitask_df, single_task_df = unpickle(filename)
 
-    filename = './result/'+'LF_single_task_'+str(ntrees)+'__'+str(cv+1)+'.pickle'
-    single_err = unpickle(filename)
+    err = [[] for _ in range(10)]
 
+    for ii in range(10):
+        err[ii].extend(
+            1 - np.array(
+                multitask_df[multitask_df['base_task']==ii+1]['accuracy']
+            )
+        )
+    single_err = 1 - np.array(single_task_df['accuracy'])
     fte, bte, te = get_fte_bte(err,single_err,ntrees,cv)
     
     err_ = [[] for i in range(task_num)]
@@ -174,8 +181,10 @@ ax[1][0].hlines(1, 1,n_tasks, colors='grey', linestyles='dashed',linewidth=1.5)
 
 cv = 6
 for cv_ in range(cv):
-    single_err = unpickle('./result/LF_single_task_'+str(ntrees)+'__'+str(cv_+1)+'.pickle')
-    
+    _, single_task_df = unpickle('./result/'+'LF_'+str(ntrees)+'__'+str(cv_+1)+'.pickle')
+    #filename = '../FTE_BTE/pkls/shift_'+str(cv_)+'.p'
+    single_err = 1 - np.array(single_task_df['accuracy'])
+   
     for i in range(n_tasks):
         et = np.asarray(err_tmp[cv_][i])
         ns = np.arange(i + 1, n_tasks + 1)
@@ -195,6 +204,6 @@ ax[1][1].set_ylabel('Accuracy', fontsize=fontsize)
 #ax[1][1].set_ylim(0.89, 1.15)
 ax[1][1].tick_params(labelsize=ticksize)
 
-plt.savefig('./result/fig_trees'+str(ntrees)+'.pdf',dpi=300)
+plt.savefig('./result/fig_trees_JD'+str(ntrees)+'.pdf',dpi=300)
 
 # %%
