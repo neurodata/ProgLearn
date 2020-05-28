@@ -61,7 +61,7 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
                 )
                 raise NotFittedError(msg % {"name": type(self).__name__})
                 
-    def fit_transformer(self, X, y, epochs = 100, lr = 1e-4):
+    def fit_transformer(self, X, y, epochs = 100, lr = 3e-4):
         #format y
         check_classification_targets(y)
         
@@ -85,9 +85,9 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
         self.network.fit(X, 
                     keras.utils.to_categorical(y), 
                     epochs = epochs, 
-                    callbacks = [EarlyStopping(patience = 10, monitor = "val_acc")], 
+                    callbacks = [EarlyStopping(patience = 4, monitor = "val_acc")], 
                     verbose = self.verbose,
-                    validation_split = .15)
+                    validation_split = .33)
         self.encoder = keras.models.Model(inputs = self.network.inputs, outputs = self.network.layers[-2].output)
         
         #make sure to flag that we're fit
@@ -97,7 +97,7 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
         #format y
         check_classification_targets(y)
         
-        self.knn = KNeighborsClassifier(16 * int(np.log2(len(X))), n_jobs = self.n_jobs, weights = "distance", p = 1)
+        self.knn = KNeighborsClassifier(int(np.log2(len(X))), n_jobs = self.n_jobs, weights = "distance", p = 1)
         self.knn.fit(X, y)
         
         #make sure to flag that we're fit
