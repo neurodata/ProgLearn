@@ -55,7 +55,7 @@ def cross_val_data(data_x, data_y, total_cls=10):
         
     return train_x1, train_y1, train_x2, train_y2, test_x, test_y 
 
-def LF_experiment(data_x, data_y, angle, model, reps=1, ntrees=29, acorn=None):
+def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, acorn=None):
     if acorn is not None:
         np.random.seed(acorn)
     
@@ -80,7 +80,7 @@ def LF_experiment(data_x, data_y, angle, model, reps=1, ntrees=29, acorn=None):
             tmp_data = tmp_data.reshape((tmp_data.shape[0], tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3]))
             test_x = test_x.reshape((test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3]))
             
-        with tf.device('/gpu:'+str(int(angle //  9) % 4)):
+        with tf.device('/gpu:'+str(int(angle //  granularity) % 4)):
             lifelong_forest = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
             lifelong_forest.new_forest(train_x1, train_y1, n_estimators=ntrees)
             lifelong_forest.new_forest(tmp_data, train_y2, n_estimators=ntrees)
@@ -92,7 +92,7 @@ def LF_experiment(data_x, data_y, angle, model, reps=1, ntrees=29, acorn=None):
             errors[0] = errors[0]+(1 - np.mean(llf_single_task == test_y))
     
     errors = errors/reps
-    print(errors,train_x1.shape,train_x2.shape,test_x.shape,angle)
+    print("Errors For Angle {}: {}".format(angle, errors))
     with open('rotation_results/angle_'+str(angle)+'_'+model+'.pickle', 'wb') as f:
         pickle.dump(errors, f, protocol = 2)
         
@@ -113,8 +113,8 @@ def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
 
 ### MAIN HYPERPARAMS ###
 model = "dnn"
-granularity = 9
-reps = 1
+granularity = 2
+reps = 20
 ########################
 
 
@@ -124,13 +124,13 @@ data_y = np.concatenate([y_train, y_test])
 data_y = data_y[:, 0]
 
 def perform_angle(angle):
-    LF_experiment(data_x, data_y, angle, model, reps=reps, ntrees=16, acorn=1)
+    LF_experiment(data_x, data_y, angle, model, granularity, reps=reps, ntrees=16, acorn=1)
 
-if model == "dnn"
+if model == "dnn":
     for angle_adder in range(0, 360, granularity * 4):
         angles = angle_adder + np.arange(0, granularity * 4, granularity)
         with Pool(4) as p:
             p.map(perform_angle, angles)
 elif model == "uf":
     angles = np.arange(0,360,2)
-    Parallel(n_jobs=-1)(delayed(LF_experiment)(data_x, data_y, angle, model, reps=20, ntrees=16, acorn=1) for angle in angles)
+    Parallel(n_jobs=-1)(delayed(LF_experiment)(data_x, data_y, angle, model, granularity, reps=20, ntrees=16, acorn=1) for angle in angles)

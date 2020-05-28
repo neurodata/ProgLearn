@@ -102,10 +102,10 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         pickle.dump(summary, f)
 
 #%%
-def cross_val_data(data_x, data_y, class_idx, num_points_per_task, total_cls=100, total_task=10, shift=1):
+def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
     x = data_x.copy()
     y = data_y.copy()
-    idx = class_idx.copy()
+    idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
     
     batch_per_task=5000//num_points_per_task
     sample_per_class = num_points_per_task//total_task
@@ -129,35 +129,9 @@ def cross_val_data(data_x, data_y, class_idx, num_points_per_task, total_cls=100
             
     return train_x, train_y, test_x, test_y
 
-'''def cross_val_data(data_x, data_y, class_idx, num_points_per_task, total_cls=100, shift=1):
-    x = data_x.copy()
-    y = data_y.copy()
-    idx = class_idx.copy()
-    
-    
-    for i in range(total_cls):
-        indx = np.roll(idx[i],(shift-1)*100)
-        
-        if i==0:
-
-            train_x = x[indx[0:num_points_per_task//10],:]
-            test_x = x[indx[500:600],:]
-
-            train_y = y[indx[0:num_points_per_task//10]]
-            test_y = y[indx[500:600]]
-        else:
-            train_x = np.concatenate((train_x, x[indx[0:num_points_per_task//10],:]), axis=0)
-            test_x = np.concatenate((test_x, x[indx[500:600],:]), axis=0)
-
-            train_y = np.concatenate((train_y, y[indx[0:num_points_per_task//10]]), axis=0)
-            test_y = np.concatenate((test_y, y[indx[500:600]]), axis=0)
-        
-        
-    return train_x, train_y, test_x, test_y'''
-
 #%%
-def run_parallel_exp(data_x, data_y, class_idx, n_trees, model, num_points_per_task, total_cls=100, slot=0, shift=1):
-    train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, class_idx, num_points_per_task, shift=shift)
+def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0, shift=1):
+    train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, num_points_per_task, shift=shift)
     
     if model == "dnn":
         with tf.device('/gpu:'+str(shift % 4)):
@@ -179,8 +153,6 @@ data_y = np.concatenate([y_train, y_test])
 data_y = data_y[:, 0]
 
 
-class_idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
-
 #%%
 if model == "uf":
     slot_fold = range(10)
@@ -189,13 +161,13 @@ if model == "uf":
     iterable = product(n_trees,shift_fold,slot_fold)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
-                data_x, data_y, class_idx, ntree, model, num_points_per_task, total_cls=100, slot=slot, shift=shift
+                data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
                 ) for ntree,shift,slot in iterable
                 )
 elif model == "dnn":
     
     def perform_shift(shift):
-        return run_parallel_exp(data_x, data_y, class_idx, 0, model, num_points_per_task, total_cls=100, shift=shift)
+        return run_parallel_exp(data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift)
     
     print("Performing Stage 1 Shifts")
     stage_1_shifts = range(1, 5)
@@ -204,10 +176,7 @@ elif model == "dnn":
     
     print("Performing Stage 2 Shifts")
     stage_2_shifts = range(5, 7)
-    Parallel(n_jobs=-2,verbose=1)(
-        delayed(run_parallel_exp)(
-                data_x, data_y, class_idx, 0, model, num_points_per_task, total_cls=100, shift=shift
-                ) for shift in stage_2_shifts
-                )
+    with Pool(4) as p:
+        p.map(perform_shift, stage_2_shifts) 
 
 # %%
