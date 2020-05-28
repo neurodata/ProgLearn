@@ -183,7 +183,7 @@ class_idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
 
 #%%
 if model == "uf":
-    slot_fold = range(1,10)
+    slot_fold = range(10)
     shift_fold = range(1,7,1)
     n_trees=[10,20,30,40,50]
     iterable = product(n_trees,shift_fold,slot_fold)
