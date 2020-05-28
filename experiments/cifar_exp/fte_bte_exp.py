@@ -16,10 +16,9 @@ import sys
 sys.path.append("../../src/")
 from lifelong_dnn import LifeLongDNN
 from joblib import Parallel, delayed
+from multiprocessing import Pool
 
 import tensorflow as tf
-
-from numba import cuda
 
 #%%
 def unpickle(file):
@@ -194,16 +193,15 @@ if model == "uf":
                 ) for ntree,shift,slot in iterable
                 )
 elif model == "dnn":
-    '''
+    
+    def perform_shift(shift):
+        return run_parallel_exp(data_x, data_y, class_idx, 0, model, num_points_per_task, total_cls=100, shift=shift)
+    
     print("Performing Stage 1 Shifts")
     stage_1_shifts = range(1, 5)
-    Parallel(n_jobs=-2,verbose=1)(
-        delayed(run_parallel_exp)(
-                data_x, data_y, class_idx, 0, model, num_points_per_task, total_cls=100, shift=shift
-                ) for shift in stage_1_shifts
-                )
-    '''
-    cuda.close()
+    with Pool(4) as p:
+        p.map(perform_shift, stage_1_shifts) 
+    
     print("Performing Stage 2 Shifts")
     stage_2_shifts = range(5, 7)
     Parallel(n_jobs=-2,verbose=1)(
