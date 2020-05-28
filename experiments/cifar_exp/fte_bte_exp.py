@@ -189,7 +189,7 @@ if model == "uf":
     iterable = product(n_trees,shift_fold,slot_fold)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
-                data_x, data_y, class_idx, ntree, model, num_points_per_task, total_cls=100, shift=shift
+                data_x, data_y, class_idx, ntree, model, num_points_per_task, total_cls=100, slot=slot, shift=shift
                 ) for ntree,shift,slot in iterable
                 )
 elif model == "dnn":
