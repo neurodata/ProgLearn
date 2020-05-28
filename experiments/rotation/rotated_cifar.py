@@ -126,10 +126,11 @@ data_y = data_y[:, 0]
 def perform_angle(angle):
     LF_experiment(data_x, data_y, angle, model, reps=reps, ntrees=16, acorn=1)
 
-for angle_adder in range(0, 360, granularity * 4):
-    angles = angle_adder + np.arange(0, granularity * 4, granularity)
-    with Pool(4) as p:
-        p.map(perform_angle, angles)
-        
-#angles = np.arange(0,360,2)
-#Parallel(n_jobs=-1)(delayed(LF_experiment)(data_x, data_y, angle, model, reps=20, ntrees=16, acorn=1) for angle in angles)
+if model == "dnn"
+    for angle_adder in range(0, 360, granularity * 4):
+        angles = angle_adder + np.arange(0, granularity * 4, granularity)
+        with Pool(4) as p:
+            p.map(perform_angle, angles)
+elif model == "uf":
+    angles = np.arange(0,360,2)
+    Parallel(n_jobs=-1)(delayed(LF_experiment)(data_x, data_y, angle, model, reps=20, ntrees=16, acorn=1) for angle in angles)
