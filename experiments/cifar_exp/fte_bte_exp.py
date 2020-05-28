@@ -139,7 +139,7 @@ def run_parallel_exp(data_x, data_y, class_idx, n_trees, model, num_points_per_t
 #%%
 ### MAIN HYPERPARAMS ###
 model = "dnn"
-num_points_per_task = 50
+num_points_per_task = 500
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()

@@ -97,7 +97,7 @@ class HonestDNN(BaseEstimator, ClassifierMixin):
         #format y
         check_classification_targets(y)
         
-        self.knn = KNeighborsClassifier(int(np.log2(len(X))), n_jobs = self.n_jobs, weights = "distance", p = 1)
+        self.knn = KNeighborsClassifier(16 * int(np.log2(len(X))), n_jobs = self.n_jobs, weights = "distance", p = 1)
         self.knn.fit(X, y)
         
         #make sure to flag that we're fit
