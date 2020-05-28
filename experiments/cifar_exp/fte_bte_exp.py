@@ -139,7 +139,7 @@ def run_parallel_exp(data_x, data_y, class_idx, n_trees, model, num_points_per_t
 #%%
 ### MAIN HYPERPARAMS ###
 model = "dnn"
-num_points_per_task = 500
+num_points_per_task = 50
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
@@ -169,12 +169,13 @@ elif model == "dnn":
     
     print("Performing Stage 1 Shifts")
     stage_1_shifts = range(1, 5)
-    p = Pool(4)
-    p.map(perform_shift, stage_1_shifts) 
+    with Pool(4) as p:
+        p.map(perform_shift, stage_1_shifts) 
     
     print("Performing Stage 2 Shifts")
     stage_2_shifts = range(5, 7)
-    p.map(perform_shift, stage_2_shifts) 
+    with Pool(4) as p:
+        p.map(perform_shift, stage_2_shifts) 
 
 
 # %%
