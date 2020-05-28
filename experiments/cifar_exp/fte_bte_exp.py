@@ -206,7 +206,7 @@ elif model == "dnn":
     stage_2_shifts = range(5, 7)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
-                data_x, data_y, class_idx, 0, model, num_points_per_task, total_cls=100, slot=slot, shift=shift
+                data_x, data_y, class_idx, 0, model, num_points_per_task, total_cls=100, shift=shift
                 ) for shift in stage_2_shifts
                 )
 
