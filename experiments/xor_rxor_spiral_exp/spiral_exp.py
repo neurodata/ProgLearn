@@ -87,9 +87,9 @@ def generate_spirals(N, D=2, K=5, noise = 0.5, acorn = None, density=0.3):
     return np.vstack(X), np.array(Y).astype(int)
 
 #%%
-def experiment(n_xor, n_rxor, n_test, reps, n_trees, max_depth, acorn=None):
+def experiment(n_spiral3, n_spiral5, n_test, reps, n_trees, max_depth, acorn=None):
     #print(1)
-    if n_xor==0 and n_rxor==0:
+    if n_spiral3==0 and n_rxor==0:
         raise ValueError('Wake up and provide samples to train!!!')
     
     if acorn != None:
@@ -101,50 +101,50 @@ def experiment(n_xor, n_rxor, n_test, reps, n_trees, max_depth, acorn=None):
         l2f = LifeLongDNN()
         uf = LifeLongDNN()
         #source data
-        xor, label_xor = generate_spirals(n_xor,cov_scale=0.1,angle_params=0)
-        test_xor, test_label_xor = generate_spirals(n_test,cov_scale=0.1,angle_params=0)
+        spiral3, label_spiral3 = generate_spirals(n_spiral3, 2, 3, noise = 2.5)
+        test_spiral3, test_label_spiral3 = generate_spirals(n_test, 2, 3, noise = 2.5)
     
         #target data
-        nxor, label_nxor = generate_spirals(n_rxor,cov_scale=0.1,angle_params=np.pi/4)
-        test_nxor, test_label_nxor = generate_spirals(n_test,cov_scale=0.1,angle_params=np.pi/4)
+        spiral5, label_spiral5 = generate_spirals(n_spiral5, 2, 5, noise = 2.5)
+        test_spiral5, test_label_spiral5 = generate_spirals(n_test, 2, 5, noise = 2.5)
     
-        if n_xor == 0:
-            l2f.new_forest(nxor, label_nxor, n_estimators=n_trees,max_depth=max_depth)
+        if n_spiral3 == 0:
+            l2f.new_forest(spiral5, label_spiral5, n_estimators=n_trees,max_depth=max_depth)
             
             errors[i,0] = 0.5
             errors[i,1] = 0.5
             
-            uf_task2=l2f.predict(test_nxor, representation=0, decider=0)
-            l2f_task2=l2f.predict(test_nxor, representation='all', decider=0)
+            uf_task2=l2f.predict(test_spiral5, representation=0, decider=0)
+            l2f_task2=l2f.predict(test_spiral5, representation='all', decider=0)
             
-            errors[i,2] = 1 - np.sum(uf_task2 == test_label_nxor)/n_test
-            errors[i,3] = 1 - np.sum(l2f_task2 == test_label_nxor)/n_test
-        elif n_rxor == 0:
-            l2f.new_forest(xor, label_xor, n_estimators=n_trees,max_depth=max_depth)
+            errors[i,2] = 1 - np.sum(uf_task2 == test_label_spiral5)/n_test
+            errors[i,3] = 1 - np.sum(l2f_task2 == test_label_spiral5)/n_test
+        elif n_spiral5 == 0:
+            l2f.new_forest(spiral3, label_spiral3, n_estimators=n_trees,max_depth=max_depth)
             
-            uf_task1=l2f.predict(test_xor, representation=0, decider=0)
-            l2f_task1=l2f.predict(test_xor, representation='all', decider=0)
+            uf_task1=l2f.predict(test_spiral3, representation=0, decider=0)
+            l2f_task1=l2f.predict(test_spiral3, representation='all', decider=0)
             
-            errors[i,0] = 1 - np.sum(uf_task1 == test_label_xor)/n_test
-            errors[i,1] = 1 - np.sum(l2f_task1 == test_label_xor)/n_test
+            errors[i,0] = 1 - np.sum(uf_task1 == test_label_spiral3)/n_test
+            errors[i,1] = 1 - np.sum(l2f_task1 == test_label_spiral3)/n_test
             errors[i,2] = 0.5
             errors[i,3] = 0.5
         else:
-            l2f.new_forest(xor, label_xor, n_estimators=n_trees,max_depth=max_depth)
-            l2f.new_forest(nxor, label_nxor, n_estimators=n_trees,max_depth=max_depth)
+            l2f.new_forest(spiral3, label_spiral3, n_estimators=n_trees,max_depth=max_depth)
+            l2f.new_forest(spiral5, label_spiral5, n_estimators=n_trees,max_depth=max_depth)
             
-            uf.new_forest(xor, label_xor, n_estimators=2*n_trees,max_depth=max_depth)
-            uf.new_forest(nxor, label_nxor, n_estimators=2*n_trees,max_depth=max_depth)
+            uf.new_forest(spiral3, label_spiral3, n_estimators=2*n_trees,max_depth=max_depth)
+            uf.new_forest(spiral5, label_spiral5, n_estimators=2*n_trees,max_depth=max_depth)
 
-            uf_task1=uf.predict(test_xor, representation=0, decider=0)
-            l2f_task1=l2f.predict(test_xor, representation='all', decider=0)
-            uf_task2=uf.predict(test_nxor, representation=1, decider=1)
-            l2f_task2=l2f.predict(test_nxor, representation='all', decider=1)
+            uf_task1=uf.predict(test_spiral3, representation=0, decider=0)
+            l2f_task1=l2f.predict(test_spiral3, representation='all', decider=0)
+            uf_task2=uf.predict(test_spiral5, representation=1, decider=1)
+            l2f_task2=l2f.predict(test_spiral5, representation='all', decider=1)
             
-            errors[i,0] = 1 - np.sum(uf_task1 == test_label_xor)/n_test
-            errors[i,1] = 1 - np.sum(l2f_task1 == test_label_xor)/n_test
-            errors[i,2] = 1 - np.sum(uf_task2 == test_label_nxor)/n_test
-            errors[i,3] = 1 - np.sum(l2f_task2 == test_label_nxor)/n_test
+            errors[i,0] = 1 - np.sum(uf_task1 == test_label_spiral3)/n_test
+            errors[i,1] = 1 - np.sum(l2f_task1 == test_label_spiral3)/n_test
+            errors[i,2] = 1 - np.sum(uf_task2 == test_label_spiral5)/n_test
+            errors[i,3] = 1 - np.sum(l2f_task2 == test_label_spiral5)/n_test
 
     return np.mean(errors,axis=0)
 
@@ -152,7 +152,7 @@ def experiment(n_xor, n_rxor, n_test, reps, n_trees, max_depth, acorn=None):
 mc_rep = 1000
 n_test = 1000
 n_trees = 10
-n_spiral3 = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_spiral3 = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
 n_spiral5 = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 
 mean_error = np.zeros((4, len(n_spiral3)+len(n_spiral5)))
@@ -162,7 +162,7 @@ mean_te = np.zeros((2, len(n_spiral3)+len(n_spiral5)))
 std_te = np.zeros((2, len(n_spiral3)+len(n_spiral5)))
 
 for i,n1 in enumerate(n_spiral3):
-    print('starting to compute %s xor\n'%n1)
+    print('starting to compute %s spiral 3\n'%n1)
     error = np.array(
         Parallel(n_jobs=40,verbose=1)(
         delayed(experiment)(n1,0,n_test,1,n_trees=n_trees,max_depth=ceil(log2(750))) for _ in range(mc_rep)
@@ -177,7 +177,7 @@ for i,n1 in enumerate(n_spiral3):
     
     if n1==n_spiral3[-1]:
         for j,n2 in enumerate(n_spiral5):
-            print('starting to compute %s rxor\n'%n2)
+            print('starting to compute %s spiral 5\n'%n2)
             
             error = np.array(
                 Parallel(n_jobs=40,verbose=1)(
@@ -208,7 +208,7 @@ with open('result/std_te_spiral.pickle','wb') as f:
 mean_error = unpickle('result/mean_spiral.pickle')
 std_error = unpickle('result/std_spiral.pickle')
 
-n_xor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
 n_rxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 
 n1s = n_xor
@@ -250,10 +250,10 @@ ax1.plot(ns, mean_error[1], label=algorithms[1], c=colors[0], ls=ls[np.sum(1 > 1
 
 ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontname="Arial", fontsize=fontsize)
 ax1.legend(loc='upper right', fontsize=20, frameon=False)
-ax1.set_ylim(0.1, 0.21)
+ax1.set_ylim(0.24, 0.57)
 ax1.set_xlabel('Total Sample Size', fontname="Arial", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
-ax1.set_yticks([0.15, 0.2])
+ax1.set_yticks([0.3, 0.4,.5])
 ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
@@ -262,12 +262,12 @@ right_side.set_visible(False)
 top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=25)
+ax1.text(200, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=25)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
 
 plt.tight_layout()
 
-plt.savefig('result/fig/generalization_error_3spiral.pdf',dpi=500)
+plt.savefig('./result/figs/generalization_error_3spiral.pdf',dpi=500)
 
 #%%
 mean_error = unpickle('result/mean_spiral.pickle')
@@ -305,11 +305,11 @@ ax1.legend(loc='upper right', fontsize=20, frameon=False)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 # ax1.set_yticks([0.15, 0.25, 0.35])
-ax1.set_yticks([0.15, 0.2])
+ax1.set_yticks([0.5,.6,.7])
 ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
-ax1.set_ylim(0.11, 0.21)
+ax1.set_ylim(0.49, 0.72)
 
 ax1.set_xlim(-10)
 right_side = ax1.spines["right"]
@@ -318,21 +318,21 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
 # ax1.set_ylim(0.14, 0.36)
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=25)
+ax1.text(200, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=25)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
 
 plt.tight_layout()
 
-plt.savefig('result/fig/generalization_error_5spiral.pdf',dpi=500)
+plt.savefig('result/figs/generalization_error_5spiral.pdf',dpi=500)
 
 #%%
-mean_error = unpickle('result/mean_te_xor_rxor.pickle')
-std_error = unpickle('result/std_te_xor_rxor.pickle')
+mean_error = unpickle('result/mean_te_spiral.pickle')
+std_error = unpickle('result/std_te_spiral.pickle')
 
 algorithms = ['Forward Transfer', 'Backward Transfer']
 
-TASK1='XOR'
-TASK2='R-XOR'
+TASK1='3 spirals'
+TASK2='5 spirals'
 
 fig1 = plt.figure(figsize=(8,8))
 ax1 = fig1.add_subplot(1,1,1)
@@ -357,10 +357,10 @@ ax1.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[
 
 ax1.set_ylabel('Transfer Efficiency', fontsize=fontsize)
 ax1.legend(loc='upper right', fontsize=20, frameon=False)
-ax1.set_ylim(0.98, 1.055)
+ax1.set_ylim(0.92, 1.09)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
-ax1.set_yticks([1, 1.05])
+ax1.set_yticks([0.95,1, 1.05])
 ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 right_side = ax1.spines["right"]
@@ -369,17 +369,17 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
 
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=25)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
+ax1.text(200, np.mean(ax1.get_ylim())+.01, "%s"%(TASK1), fontsize=25)
+ax1.text(900, np.mean(ax1.get_ylim())+.01, "%s"%(TASK2), fontsize=25)
 
 plt.tight_layout()
 
-plt.savefig('result/fig/TE_spiral.pdf',dpi=500)
+plt.savefig('./result/figs/TE_spiral.pdf',dpi=500)
 
 #%%
-colors = sns.color_palette('Dark2', n_colors=2)
+colors = sns.color_palette('Dark2', n_colors=3)
 
-X, Y = generate_spirals(750, 2, 5, noise = 2.5)
+X, Y = generate_spirals(750, 2, 3, noise = 2.5)
 Z, W = generate_spirals(750, 2, 5, noise = 2.5)
 
 fig, ax = plt.subplots(1,1, figsize=(8,8))
@@ -391,10 +391,10 @@ ax.set_title('3 spirals', fontsize=30)
 
 plt.tight_layout()
 ax.axis('off')
-plt.savefig('result/fig/spiral3.pdf')
+plt.savefig('./result/figs/spiral3.pdf')
 
 #%%
-colors = sns.color_palette('Dark2', n_colors=2)
+colors = sns.color_palette('Dark2', n_colors=5)
 fig, ax = plt.subplots(1,1, figsize=(8,8))
 ax.scatter(Z[:, 0], Z[:, 1], c=get_colors(colors, W), s=50)
 
@@ -403,6 +403,6 @@ ax.set_yticks([])
 ax.set_title('5 spirals', fontsize=30)
 ax.axis('off')
 plt.tight_layout()
-plt.savefig('result/fig/spiral5.pdf')
+plt.savefig('./result/figs/spiral5.pdf')
 
 # %%
