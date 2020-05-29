@@ -151,7 +151,7 @@ def experiment(n_xor, n_rxor, n_test, reps, n_trees, max_depth, acorn=None):
 #%%
 mc_rep = 1000
 n_test = 1000
-n_trees = 20
+n_trees = 10
 n_spiral3 = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 n_spiral5 = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 

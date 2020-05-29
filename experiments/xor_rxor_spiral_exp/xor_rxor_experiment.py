@@ -145,7 +145,7 @@ def experiment(n_xor, n_rxor, n_test, reps, n_trees, max_depth, acorn=None):
 #%%
 mc_rep = 1000
 n_test = 1000
-n_trees = 20
+n_trees = 10
 n_xor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 n_rxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 
@@ -299,11 +299,11 @@ ax1.legend(loc='upper right', fontsize=20, frameon=False)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 # ax1.set_yticks([0.15, 0.25, 0.35])
-ax1.set_yticks([0.15, 0.2])
+ax1.set_yticks([0.12, 0.15])
 ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
-ax1.set_ylim(0.11, 0.21)
+ax1.set_ylim(0.115, 0.17)
 
 ax1.set_xlim(-10)
 right_side = ax1.spines["right"]
@@ -351,10 +351,10 @@ ax1.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[
 
 ax1.set_ylabel('Transfer Efficiency', fontsize=fontsize)
 ax1.legend(loc='upper right', fontsize=20, frameon=False)
-ax1.set_ylim(0.97, 1.055)
+ax1.set_ylim(0.96, 1.045)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
-ax1.set_yticks([1, 1.05])
+ax1.set_yticks([1, 1.04])
 ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 right_side = ax1.spines["right"]
