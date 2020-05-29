@@ -146,7 +146,7 @@ def experiment(n_xor, n_rxor, n_test, reps, n_trees, max_depth, acorn=None):
 mc_rep = 1000
 n_test = 1000
 n_trees = 10
-n_xor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
 n_rxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 
 mean_error = np.zeros((4, len(n_xor)+len(n_rxor)))
@@ -202,7 +202,7 @@ with open('result/std_te_xor_rxor.pickle','wb') as f:
 mean_error = unpickle('result/mean_xor_rxor.pickle')
 std_error = unpickle('result/std_xor_rxor.pickle')
 
-n_xor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
 n_rxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 
 n1s = n_xor
