@@ -48,10 +48,10 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             )
         
         llf_task=lifelong_forest.predict(
-            test_x[task_ii*1000:(task_ii+1)*1000,:], representation="all", decider=0
+            test_x[:1000], representation="all", decider=0
             )
         acc = np.mean(
-                    llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
+                    llf_task == test_y[:1000]
                     )
         accuracies_across_tasks.append(acc)
         shifts.append(shift)

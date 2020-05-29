@@ -56,7 +56,6 @@ for slot in range(slots):
     for shift in range(shifts):
         filename = 'result/'+model+str(ntrees)+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
         multitask_df = unpickle(filename)
-        print(multitask_df)
 
         err = []
 
