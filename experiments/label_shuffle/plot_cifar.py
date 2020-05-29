@@ -8,7 +8,7 @@ from itertools import product
 import seaborn as sns
 
 ### MAIN HYPERPARAMS ###
-ntrees = 50
+ntrees = 10
 slots = 10
 shifts = 6
 alg_num = 1
@@ -26,7 +26,7 @@ def get_bte(err):
     bte = []
     
     for i in range(10):
-        bte.append(err[0] / err[i])
+        bte.append(err[i] / err[0])
     
     return bte
 
