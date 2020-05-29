@@ -8,12 +8,12 @@ from itertools import product
 import seaborn as sns
 
 ### MAIN HYPERPARAMS ###
-ntrees = 10
+ntrees = 0
 slots = 10
 shifts = 6
 alg_num = 1
 task_num = 10
-model = "uf"
+model = "dnn"
 ########################
 
 #%%

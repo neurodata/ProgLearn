@@ -110,7 +110,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 500
 ########################
 
