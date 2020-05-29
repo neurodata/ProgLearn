@@ -262,7 +262,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
 
 plt.tight_layout()
 
-plt.savefig('./result/generalization_error_xor.pdf',dpi=500)
+plt.savefig('./result/figs/generalization_error_xor.pdf',dpi=500)
 
 #%%
 mean_error = unpickle('result/mean_xor_nxor.pickle')
@@ -318,7 +318,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
 
 plt.tight_layout()
 
-plt.savefig('./result/generalization_error_nxor.pdf',dpi=500)
+plt.savefig('./result/figs/generalization_error_nxor.pdf',dpi=500)
 
 #%%
 mean_error = unpickle('result/mean_te_xor_nxor.pickle')
@@ -352,7 +352,7 @@ ax1.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[
 
 ax1.set_ylabel('Transfer Efficiency', fontsize=fontsize)
 ax1.legend(loc='upper right', fontsize=20, frameon=False)
-ax1.set_ylim(0.95, 1.5)
+ax1.set_ylim(0.95, 1.42)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([1, 1.4])
@@ -369,7 +369,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
 
 plt.tight_layout()
 
-plt.savefig('./result/TE.pdf',dpi=500)
+plt.savefig('./result/figs/TE.pdf',dpi=500)
 
 #%%
 colors = sns.color_palette('Dark2', n_colors=2)
@@ -386,7 +386,7 @@ ax.set_title('Gaussian XOR', fontsize=30)
 
 plt.tight_layout()
 ax.axis('off')
-plt.savefig('./result/gaussian-xor.pdf')
+plt.savefig('./result/figs/gaussian-xor.pdf')
 
 #%%
 colors = sns.color_palette('Dark2', n_colors=2)
@@ -398,6 +398,6 @@ ax.set_yticks([])
 ax.set_title('Gaussian N-XOR', fontsize=30)
 ax.axis('off')
 plt.tight_layout()
-plt.savefig('./result/gaussian-nxor.pdf')
+plt.savefig('./result/figs/gaussian-nxor.pdf')
 
 # %%
