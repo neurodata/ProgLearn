@@ -215,22 +215,22 @@ ax[0][1].plot(ns[len(n1s):], mean_error[1, len(n1s):], label='Backward Transfer'
 
 ax[0][1].set_ylabel('Transfer Efficiency', fontsize=fontsize)
 #ax[0][1].legend(loc='upper right', fontsize=22.5)
-ax[0][1].set_ylim(0.98, 1.055)
+ax[0][1].set_ylim(0.96, 1.05)
 ax[0][1].set_xlabel('Total Sample Size', fontsize=fontsize)
 ax[0][1].tick_params(labelsize=labelsize)
-ax[0][1].set_yticks([1, 1.05])
+ax[0][1].set_yticks([1, 1.04])
 ax[0][1].set_xticks([250, 750, 1500])
 ax[0][1].axvline(x=ns[len(n1s)], c='grey', linestyle='dashed', linewidth=1.5)
 ax[0][1].hlines(1, 100,1500, colors='grey', linestyle='dashed', linewidth=1.5)
 
-ax[0][1].text(400, np.mean(ax[0][1].get_ylim()), "%s"%(TASK1), fontsize=25)
-ax[0][1].text(900, np.mean(ax[0][1].get_ylim()), "%s"%(TASK2), fontsize=25)
+ax[0][1].text(200, np.mean(ax[0][1].get_ylim())-.015, "%s"%(TASK1), fontsize=25)
+ax[0][1].text(910, np.mean(ax[0][1].get_ylim())-.015, "%s"%(TASK2), fontsize=25)
 right_side = ax[0][1].spines["right"]
 right_side.set_visible(False)
 top_side = ax[0][1].spines["top"]
 top_side.set_visible(False)
-ax[0][1].text(800, np.mean(ax[0][1].get_ylim())-.025, "Forward Transfer", fontsize=22)
-ax[0][1].text(800, np.mean(ax[0][1].get_ylim())+.03, "Backward Transfer", fontsize=22)
+ax[0][1].text(970, np.mean(ax[0][1].get_ylim())-.028, "Forward Transfer", fontsize=16)
+ax[0][1].text(960, np.mean(ax[0][1].get_ylim())+.03, "Backward Transfer", fontsize=16)
 
 colors = sns.color_palette('Dark2', n_colors=5)
 Z, W = generate_spirals(750, 2, 5, noise = 2.5)
@@ -249,7 +249,7 @@ ax[1][0].axis('off')
 
 
 
-n_mc = 500 # number of simulation repititions
+#n_mc = 500 # number of simulation repititions
 
 h=0.5
 
@@ -322,16 +322,16 @@ ax[1][1].axvline(x=ns[len(n1s)], c='grey', linestyle='dashed', linewidth=1.5)
 
 # ax1.set_ylim(0.99, 1.061)
 
-ax[1][1].text(10,  np.mean(ax[1][1].get_ylim()), "%s"%(TASK1), fontsize=22)
-ax[1][1].text(600,  np.mean(ax[1][1].get_ylim()), "%s"%(TASK2), fontsize=22)
+ax[1][1].text(200,  np.mean(ax[1][1].get_ylim())-.015, "%s"%(TASK1), fontsize=25)
+ax[1][1].text(910,  np.mean(ax[1][1].get_ylim())-.015, "%s"%(TASK2), fontsize=25)
 
-ax[1][1].hlines(1, 100,1200, colors='grey', linestyle='dashed', linewidth=1.5)
+ax[1][1].hlines(1, 100,1500, colors='grey', linestyle='dashed', linewidth=1.5)
 right_side = ax[1][1].spines["right"]
 right_side.set_visible(False)
 top_side = ax[1][1].spines["top"]
 top_side.set_visible(False)
-ax[1][1].text(900, np.mean(ax[1][1].get_ylim()), "Backward Transfer", fontsize=18)
-ax[1][1].text(880, np.mean(ax[1][1].get_ylim())+.06, "Forward Transfer", fontsize=18)
+ax[1][1].text(970, np.mean(ax[1][1].get_ylim()), "Backward Transfer", fontsize=16)
+ax[1][1].text(960, np.mean(ax[1][1].get_ylim())+.06, "Forward Transfer", fontsize=16)
 
 plt.tight_layout()
 plt.savefig('./result/figs/xor_rxor_spiral.pdf',dpi=500)
