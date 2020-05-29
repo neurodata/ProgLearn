@@ -318,7 +318,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
 
 plt.tight_layout()
 
-plt.savefig('./result/fgeneralization_error_nxor.pdf',dpi=500)
+plt.savefig('./result/generalization_error_nxor.pdf',dpi=500)
 
 #%%
 mean_error = unpickle('result/mean_te_xor_nxor.pickle')
