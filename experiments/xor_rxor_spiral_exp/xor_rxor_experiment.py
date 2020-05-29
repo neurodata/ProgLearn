@@ -261,7 +261,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
 
 plt.tight_layout()
 
-plt.savefig('result/fig/generalization_error_xor.pdf',dpi=500)
+plt.savefig('result/figs/generalization_error_xor.pdf',dpi=500)
 
 #%%
 mean_error = unpickle('result/mean_xor_rxor.pickle')
@@ -317,7 +317,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
 
 plt.tight_layout()
 
-plt.savefig('result/fig/generalization_error_rxor.pdf',dpi=500)
+plt.savefig('result/figs/generalization_error_rxor.pdf',dpi=500)
 
 #%%
 mean_error = unpickle('result/mean_te_xor_rxor.pickle')
@@ -368,7 +368,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
 
 plt.tight_layout()
 
-plt.savefig('result/fig/TE.pdf',dpi=500)
+plt.savefig('result/figs/TE.pdf',dpi=500)
 
 #%%
 colors = sns.color_palette('Dark2', n_colors=2)
@@ -385,7 +385,7 @@ ax.set_title('Gaussian XOR', fontsize=30)
 
 plt.tight_layout()
 ax.axis('off')
-plt.savefig('result/fig/gaussian-xor.pdf')
+plt.savefig('result/figs/gaussian-xor.pdf')
 
 #%%
 colors = sns.color_palette('Dark2', n_colors=2)
@@ -397,6 +397,6 @@ ax.set_yticks([])
 ax.set_title('Gaussian R-XOR', fontsize=30)
 ax.axis('off')
 plt.tight_layout()
-plt.savefig('result/fig/gaussian-rxor.pdf')
+plt.savefig('result/figs/gaussian-rxor.pdf')
 
 # %%
