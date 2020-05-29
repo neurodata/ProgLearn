@@ -229,8 +229,8 @@ right_side = ax[0][1].spines["right"]
 right_side.set_visible(False)
 top_side = ax[0][1].spines["top"]
 top_side.set_visible(False)
-ax[0][1].text(970, np.mean(ax[0][1].get_ylim())-.028, "Forward Transfer", fontsize=16)
-ax[0][1].text(960, np.mean(ax[0][1].get_ylim())+.03, "Backward Transfer", fontsize=16)
+ax[0][1].text(970, np.mean(ax[0][1].get_ylim())-.028, "Forward Transfer", fontsize=20)
+ax[0][1].text(960, np.mean(ax[0][1].get_ylim())+.03, "Backward Transfer", fontsize=20)
 
 colors = sns.color_palette('Dark2', n_colors=5)
 Z, W = generate_spirals(750, 2, 5, noise = 2.5)
@@ -330,8 +330,8 @@ right_side = ax[1][1].spines["right"]
 right_side.set_visible(False)
 top_side = ax[1][1].spines["top"]
 top_side.set_visible(False)
-ax[1][1].text(970, np.mean(ax[1][1].get_ylim()), "Backward Transfer", fontsize=16)
-ax[1][1].text(960, np.mean(ax[1][1].get_ylim())+.06, "Forward Transfer", fontsize=16)
+ax[1][1].text(970, np.mean(ax[1][1].get_ylim()), "Backward Transfer", fontsize=20)
+ax[1][1].text(960, np.mean(ax[1][1].get_ylim())+.06, "Forward Transfer", fontsize=20)
 
 plt.tight_layout()
 plt.savefig('./result/figs/xor_rxor_spiral.pdf',dpi=500)
