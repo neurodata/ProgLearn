@@ -8,12 +8,12 @@ from itertools import product
 import seaborn as sns
 
 ### MAIN HYPERPARAMS ###
-ntrees = 50
+ntrees = 0
 slots = 10
 shifts = 6
 alg_num = 1
 task_num = 10
-model = "uf"
+model = "dnn"
 ########################
 
 #%%
@@ -162,9 +162,7 @@ for i in range(n_tasks):
     
 ax[0][1].set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax[0][1].set_ylabel('BTE', fontsize=fontsize)
-ax[0][1].set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
 #ax[0][1].set_xticks(np.arange(1,10))
-ax[0][1].set_ylim(0.89, 1.15)
 ax[0][1].tick_params(labelsize=ticksize)
 ax[0][1].hlines(1, 1,n_tasks, colors='grey', linestyles='dashed',linewidth=1.5)
 
@@ -179,9 +177,7 @@ for i in range(n_tasks):
     
 ax[1][0].set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax[1][0].set_ylabel('Transfer Efficiency', fontsize=fontsize)
-ax[1][0].set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
 #ax[1][0].set_xticks(np.arange(1,10))
-ax[1][0].set_ylim(0.89, 1.15)
 ax[1][0].tick_params(labelsize=ticksize)
 ax[1][0].hlines(1, 1,n_tasks, colors='grey', linestyles='dashed',linewidth=1.5)
 
