@@ -50,7 +50,11 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         llf_task=lifelong_forest.predict(
             test_x[task_ii*1000:(task_ii+1)*1000,:], representation="all", decider=0
             )
-        accuracies_across_tasks.append(llf_task)
+        acc = np.mean(
+                    llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
+                    )
+        accuracies_across_tasks.append(acc)
+        shifts.append(shift)
             
     df['data_fold'] = shifts
     df['task'] = range(1, 11)
@@ -76,16 +80,19 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
                 
                 if batch==0 and class_no==0 and task==0:
                     train_x = x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]
-                    train_y = y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]
                     test_x = x[indx[batch*total_task+num_points_per_task:(batch+1)*total_task+num_points_per_task],:]
-                    test_y = y[indx[batch*total_task+num_points_per_task:(batch+1)*total_task+num_points_per_task]]
+                    train_y = np.random.randint(low = 0, high = total_task, size = sample_per_class)
+                    test_y = np.random.randint(low = 0, high = total_task, size = total_task)
                 else:
                     train_x = np.concatenate((train_x, x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]), axis=0)
-                    train_y = np.concatenate((train_y, y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]), axis=0)
                     test_x = np.concatenate((test_x, x[indx[batch*total_task+num_points_per_task:(batch+1)*total_task+num_points_per_task],:]), axis=0)
-                    test_y = np.concatenate((test_y, y[indx[batch*total_task+num_points_per_task:(batch+1)*total_task+num_points_per_task]]), axis=0)
+                    if task == 0:
+                        train_y = np.concatenate((train_y, y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]), axis=0)
+                        test_y = np.concatenate((test_y, y[indx[batch*total_task+num_points_per_task:(batch+1)*total_task+num_points_per_task]]), axis=0)
+                    else:
+                        train_y = np.concatenate((train_y, np.random.randint(low = 0, high = total_task, size = sample_per_class)), axis=0)
+                        test_y = np.concatenate((test_y, np.random.randint(low = 0, high = total_task, size = total_task)), axis = 0)
                 
-            
     return train_x, train_y, test_x, test_y
 
 #%%
@@ -103,7 +110,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 num_points_per_task = 500
 ########################
 
