@@ -244,7 +244,7 @@ ax1.plot(ns, mean_error[1], label=algorithms[1], c=colors[0], ls=ls[np.sum(1 > 1
 #        interpolate=True)
 
 ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontname="Arial", fontsize=fontsize)
-ax1.legend(loc='upper right', fontsize=20, frameon=False)
+ax1.legend(loc='upper right', fontsize=24, frameon=False)
 ax1.set_ylim(0.1, 0.21)
 ax1.set_xlabel('Total Sample Size', fontname="Arial", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
@@ -257,8 +257,8 @@ right_side.set_visible(False)
 top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=25)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
 plt.tight_layout()
 
@@ -295,7 +295,7 @@ ax1.plot(ns[len(n1s):], mean_error[3, len(n1s):], label=algorithms[1], c=colors[
 #        interpolate=True)
 
 ax1.set_ylabel('Generalization Error (%s)'%(TASK2), fontsize=fontsize)
-ax1.legend(loc='upper right', fontsize=20, frameon=False)
+ax1.legend(loc='upper right', fontsize=24, frameon=False)
 #         ax1.set_ylim(-0.01, 0.22)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
@@ -313,8 +313,8 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
 # ax1.set_ylim(0.14, 0.36)
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=25)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
 plt.tight_layout()
 
@@ -351,7 +351,7 @@ ax1.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[
 #        interpolate=True)
 
 ax1.set_ylabel('Transfer Efficiency', fontsize=fontsize)
-ax1.legend(loc='upper right', fontsize=20, frameon=False)
+ax1.legend(loc='upper right', fontsize=24, frameon=False)
 ax1.set_ylim(0.95, 1.42)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
@@ -364,8 +364,8 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
 
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=25)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=25)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
 plt.tight_layout()
 
