@@ -223,14 +223,14 @@ ax[0][1].set_xticks([250, 750, 1500])
 ax[0][1].axvline(x=ns[len(n1s)], c='grey', linestyle='dashed', linewidth=1.5)
 ax[0][1].hlines(1, 100,1500, colors='grey', linestyle='dashed', linewidth=1.5)
 
-ax[0][1].text(200, np.mean(ax[0][1].get_ylim()), "%s"%(TASK1), fontsize=25)
-ax[0][1].text(910, np.mean(ax[0][1].get_ylim()), "%s"%(TASK2), fontsize=25)
+ax[0][1].text(200, np.mean(ax[0][1].get_ylim()), "%s"%(TASK1), fontsize=26)
+ax[0][1].text(910, np.mean(ax[0][1].get_ylim()), "%s"%(TASK2), fontsize=26)
 right_side = ax[0][1].spines["right"]
 right_side.set_visible(False)
 top_side = ax[0][1].spines["top"]
 top_side.set_visible(False)
-ax[0][1].text(970, np.mean(ax[0][1].get_ylim())-.028, "Forward Transfer", fontsize=20)
-ax[0][1].text(960, np.mean(ax[0][1].get_ylim())+.03, "Backward Transfer", fontsize=20)
+ax[0][1].text(970, np.mean(ax[0][1].get_ylim())-.028, "Forward Transfer", fontsize=22)
+ax[0][1].text(960, np.mean(ax[0][1].get_ylim())+.03, "Backward Transfer", fontsize=22)
 
 colors = sns.color_palette('Dark2', n_colors=5)
 Z, W = generate_spirals(750, 2, 5, noise = 2.5)
@@ -322,16 +322,16 @@ ax[1][1].axvline(x=ns[len(n1s)], c='grey', linestyle='dashed', linewidth=1.5)
 
 # ax1.set_ylim(0.99, 1.061)
 
-ax[1][1].text(200,  np.mean(ax[1][1].get_ylim())-.015, "%s"%(TASK1), fontsize=25)
-ax[1][1].text(910,  np.mean(ax[1][1].get_ylim())-.015, "%s"%(TASK2), fontsize=25)
+ax[1][1].text(200,  np.mean(ax[1][1].get_ylim())-.017, "%s"%(TASK1), fontsize=26)
+ax[1][1].text(910,  np.mean(ax[1][1].get_ylim())-.017, "%s"%(TASK2), fontsize=26)
 
 ax[1][1].hlines(1, 100,1500, colors='grey', linestyle='dashed', linewidth=1.5)
 right_side = ax[1][1].spines["right"]
 right_side.set_visible(False)
 top_side = ax[1][1].spines["top"]
 top_side.set_visible(False)
-ax[1][1].text(970, np.mean(ax[1][1].get_ylim()), "Backward Transfer", fontsize=20)
-ax[1][1].text(960, np.mean(ax[1][1].get_ylim())+.06, "Forward Transfer", fontsize=20)
+ax[1][1].text(970, np.mean(ax[1][1].get_ylim()), "Backward Transfer", fontsize=22)
+ax[1][1].text(960, np.mean(ax[1][1].get_ylim())+.06, "Forward Transfer", fontsize=22)
 
 plt.tight_layout()
 plt.savefig('./result/figs/xor_rxor_spiral.pdf',dpi=500)
