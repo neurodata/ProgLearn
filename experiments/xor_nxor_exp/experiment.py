@@ -217,7 +217,7 @@ algorithms = ['Uncertainty Forest', 'Lifelong Forest']
 TASK1='XOR'
 TASK2='N-XOR'
 
-fontsize=30
+fontsize=35
 labelsize=27.5
 
 colors = sns.color_palette("Set1", n_colors = 2)
@@ -257,8 +257,8 @@ right_side.set_visible(False)
 top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=30)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=30)
 
 plt.tight_layout()
 
@@ -313,8 +313,8 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
 # ax1.set_ylim(0.14, 0.36)
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=30)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=30)
 
 plt.tight_layout()
 
@@ -364,8 +364,8 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
 
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=30)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=30)
 
 plt.tight_layout()
 
