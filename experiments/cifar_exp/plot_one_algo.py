@@ -8,12 +8,12 @@ from itertools import product
 import seaborn as sns
 
 ### MAIN HYPERPARAMS ###
-ntrees = 0
+ntrees = 50
 slots = 10
 shifts = 6
 alg_num = 1
 task_num = 10
-model = "dnn"
+model = "uf"
 ########################
 
 #%%
@@ -70,7 +70,7 @@ def calc_mean_te(tes,task_num=10,reps=6):
 def calc_mean_fte(ftes,task_num=10,reps=6):
     fte = np.asarray(ftes)
     
-    return list(np.mean(np.asarray(fte_tmp),axis=0))
+    return list(np.mean(np.asarray(fte),axis=0))
 
 def calc_mean_err(err,task_num=10,reps=6):
     mean_err = [[] for i in range(task_num)]
