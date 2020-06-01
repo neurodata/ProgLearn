@@ -316,6 +316,6 @@ top_side.set_visible(False)
 
 plt.tight_layout()
 # lgd = fig.legend(algos, bbox_to_anchor=(1, 0.45), loc='center left', fontsize=18)
-plt.savefig('result/figs/cifar_plot.pdf', dpi=500)
+plt.savefig('result/figs/benchmark.pdf', dpi=500)
 
 # %%
