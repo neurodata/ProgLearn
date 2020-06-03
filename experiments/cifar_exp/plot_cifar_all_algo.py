@@ -85,8 +85,8 @@ slots = 10
 task_num = 10
 shifts = 6
 total_alg = 9
-alg_name = ['L2F(cap.)', 'L2F', 'L2N','Prog-NN', 'DF-CNN','EWC','O-EWC','SI','LwF']
-model_file = ['uf10','fixed_uf10','dnn0','Prog_NN','DF_CNN','EWC', 'Online_EWC', 'SI', 'LwF']
+alg_name = ['L2F','L2F(minus)','L2N','Prog-NN', 'DF-CNN','EWC','O-EWC','SI','LwF']
+model_file = ['fixed_uf10','uf10','dnn0','Prog_NN','DF_CNN','EWC', 'Online_EWC', 'SI', 'LwF']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
@@ -143,7 +143,7 @@ for alg in range(3,total_alg):
     btes[alg].extend(calc_mean_bte(bte_tmp,reps=reps))
     ftes[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 #%%
-te = {'L2Fc':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float), 'L2N':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float)}
+te = {'L2F':np.zeros(10,dtype=float),'L2Fc':np.zeros(10,dtype=float),'L2N':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float)}
 
 for count,name in enumerate(te.keys()):
     for i in range(10):
@@ -152,7 +152,7 @@ for count,name in enumerate(te.keys()):
 df = pd.DataFrame.from_dict(te)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 
-mean_te = {'L2Fc':[np.mean(te['L2Fc'])], 'L2F':[np.mean(te['L2F'])], 
+mean_te = {'L2F':[np.mean(te['L2F'])], 'L2Fc':[np.mean(te['L2Fc'])],
            'L2N':[np.mean(te['L2N'])], 'Prog-NN':[np.mean(te['Prog-NN'])], 
            'DF-CNN':[np.mean(te['DF-CNN'])],'EWC':[np.mean(te['EWC'])], 
            'Online EWC':[np.mean(te['Online EWC'])], 'SI':[np.mean(te['SI'])], 
@@ -171,7 +171,7 @@ fig, ax = plt.subplots(2,2, figsize=(16,11.5))
 # plt.subplots_adjust(right=0.5)
 for i, fte in enumerate(ftes):
     if i == 0:
-        ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', markersize=14, label=alg_name[i], linewidth=3)
+        ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', markersize=12, label=alg_name[i], linewidth=3)
         continue
         
     if i == 1:
@@ -190,7 +190,7 @@ ax[0][0].tick_params(labelsize=ticksize)
 ax[0][0].set_ylabel('Forward Transfer Efficiency', fontsize=fontsize)
 ax[0][0].set_xlabel('Number of tasks seen', fontsize=fontsize)
 
-ax[0][0].grid(axis='x')
+#ax[0][0].grid(axis='x')
 
 for i in range(task_num - 1):
 
@@ -203,19 +203,19 @@ for i in range(task_num - 1):
     for j in range(0,total_alg):
         if j == 0:
             if i == 0:
-                ax[0][1].plot(ns, et[j,:], label = alg_name[j], c=c[j], linewidth = 2.6)
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linewidth = 2.6)
             else:
-                ax[0][1].plot(ns, et[j,:], c=c[j], linewidth = 2.6)
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linewidth = 2.6)
         elif j==1:
             if i == 0:
-                ax[0][1].plot(ns, et[j,:], label = alg_name[j], c=c[j], linestyle='dashed')
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linestyle='dashed')
             else:
-                ax[0][1].plot(ns, et[j,:], c=c[j], linestyle='dashed')
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linestyle='dashed')
         else:
             if i == 0:
-                ax[0][1].plot(ns, et[j,:], label = alg_name[j], c=c[j])
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j])
             else:
-                ax[0][1].plot(ns, et[j,:], c=c[j])
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, c=c[j])
 
 
 # ax[1].set_title(ttle, fontsize=20)
@@ -231,7 +231,7 @@ ax[0][1].set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
 ax[0][1].set_xticks(np.arange(1,11))
 ax[0][1].set_ylim(0.85, 1.19)
 ax[0][1].tick_params(labelsize=ticksize)
-ax[0][1].grid(axis='x')
+#ax[0][1].grid(axis='x')
 
 
 for i in range(task_num- 1):
@@ -245,20 +245,20 @@ for i in range(task_num- 1):
     for j in range(0,total_alg):
         if j == 0:
             if i == 0 or i==1:
-                ax[1][0].plot(ns, et[j,:], label = alg_name[j], c=c[j], linewidth = 2.6)
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linewidth = 2.6)
             else:
-                ax[1][0].plot(ns, et[j,:], c=c[j], linewidth = 2.6)
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linewidth = 2.6)
                 
         elif j == 1:
             if i == 0 or i==1:
-                ax[1][0].plot(ns, et[j,:], label = alg_name[j], c=c[j], linestyle='dashed')
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linestyle='dashed')
             else:
-                ax[1][0].plot(ns, et[j,:], c=c[j], linestyle='dashed')
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linestyle='dashed')
         else:
             if i == 0 or i==1:
-                ax[1][0].plot(ns, et[j,:], label = alg_name[j], c=c[j])
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j])
             else:
-                ax[1][0].plot(ns, et[j,:], c=c[j])
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, c=c[j])
 
 
 # ax[1].set_title(ttle, fontsize=20)
@@ -274,7 +274,7 @@ ax[1][0].set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
 ax[1][0].set_xticks(np.arange(1,11))
 ax[1][0].set_ylim(0.85, 1.26)
 ax[1][0].tick_params(labelsize=ticksize)
-ax[1][0].grid(axis='x')
+#ax[1][0].grid(axis='x')
 
 ax[0][0].hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 ax[0][1].hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
@@ -290,7 +290,7 @@ ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_.set_xlabel('Algorithms', fontsize=fontsize)
 ax_.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2F(cap.)','L2F','L2N','Prog-NN','DF-CNN','EWC','O-EWC','SI','LwF'],
+    ['L2F','L2F(minus)','L2N','Prog-NN','DF-CNN','EWC','O-EWC','SI','LwF'],
     fontsize=12,rotation=45,ha="right",rotation_mode='anchor'
     )
 
@@ -318,4 +318,4 @@ plt.tight_layout()
 # lgd = fig.legend(algos, bbox_to_anchor=(1, 0.45), loc='center left', fontsize=18)
 plt.savefig('result/figs/benchmark.pdf', dpi=500)
 
-# %%
+#%%
