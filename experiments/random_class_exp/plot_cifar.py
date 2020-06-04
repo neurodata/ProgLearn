@@ -8,7 +8,7 @@ from itertools import product
 
 ### MAIN HYPERPARAMS ###
 slots = 10
-shifts = 4
+shifts = 6
 alg_num = 1
 task_num = 10
 model_ntree_pairs = [("uf", 10), ("dnn", 0)]

@@ -1,4 +1,6 @@
 #%%
+import warnings
+warnings.simplefilter("ignore")
 import random
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -56,12 +58,10 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
         ))
     print(accuracies_across_tasks)
     
-    for task_ii in range(9):
+    for task_ii in range(29):
         train_x, train_y, _, _ = cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=shift, slot=slot, task = task_ii)
         
         print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))
-        if acorn is not None:
-            np.random.seed(acorn)
             
 
         lifelong_forest.new_forest(
@@ -91,7 +91,7 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
 
 #%%
 def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1, slot=0, task=0):
-    skf = StratifiedKFold(n_splits=6, random_state = 12345)
+    skf = StratifiedKFold(n_splits=6)
     for _ in range(shift + 1):
         train_idx, test_idx = next(skf.split(data_x, data_y))
         
@@ -101,7 +101,7 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1, 
     selected_classes = np.random.choice(range(0, 100), 10)
     train_idxs_of_selected_class = np.array([np.where(data_y_train == y_val)[0] for y_val in selected_classes])
     num_points_per_class_per_slot = [int(len(train_idxs_of_selected_class[class_idx]) // 10) for class_idx in range(len(selected_classes))]
-    selected_idxs = np.concatenate([train_idxs_of_selected_class[class_idx][slot*num_points_per_class_per_slot[class_idx]:(slot+1)*num_points_per_class_per_slot[class_idx]] for class_idx in range(len(selected_classes))])
+    selected_idxs = np.concatenate([np.random.choice(train_idxs_of_selected_class[class_idx], num_points_per_class_per_slot[class_idx]) for class_idx in range(len(selected_classes))])
     train_idxs = np.random.choice(selected_idxs, num_points_per_task)
     data_x_train = data_x_train[train_idxs]
     data_y_train = data_y_train[train_idxs]
@@ -136,7 +136,7 @@ data_y = data_y[:, 0]
 
 
 #%%
-slot_fold = range(10)
+slot_fold = range(3, 10)
 if model == "uf":
     shift_fold = range(1,7,1)
     n_trees=[10]
@@ -147,6 +147,7 @@ if model == "uf":
                 ) for ntree,shift,slot in iterable
                 )
 elif model == "dnn":
+    '''
     print("Performing Stage 1 Shifts")
     for slot in slot_fold:
         
@@ -156,7 +157,7 @@ elif model == "dnn":
         stage_1_shifts = range(1, 5)
         with Pool(4) as p:
             p.map(perform_shift, stage_1_shifts) 
-    
+    '''
     print("Performing Stage 2 Shifts")
     for slot in slot_fold:
         
