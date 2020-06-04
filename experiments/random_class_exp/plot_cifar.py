@@ -5,56 +5,67 @@ from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
 import numpy as np
 from itertools import product
-import seaborn as sns
 
 ### MAIN HYPERPARAMS ###
-ntrees = 10
 slots = 10
-shifts = 6
+shifts = 4
 alg_num = 1
 task_num = 10
-model = "uf"
+model_ntree_pairs = [("uf", 10), ("dnn", 0)]
 ########################
 
-#%%
-def unpickle(file):
-    with open(file, 'rb') as fo:
-        dict = pickle.load(fo, encoding='bytes')
-    return dict
+ax = plt.subplot(111)
+
+# Hide the right and top spines
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+
+# Only show ticks on the left and bottom spines
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+
+for pair in model_ntree_pairs:
+    model = pair[0]
+    ntrees = pair[1]
+    #%%
+    def unpickle(file):
+        with open(file, 'rb') as fo:
+            dict = pickle.load(fo, encoding='bytes')
+        return dict
 
 
-#%%
-reps = slots *shifts
+    #%%
+    reps = slots *shifts
 
-btes = []
+    btes = []
 
-for slot in range(0, slots):
-    for shift in range(shifts):
-        filename = 'result/'+model+str(ntrees)+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
-        df = unpickle(filename)
+    for slot in range(0, slots):
+        for shift in range(shifts):
+            filename = 'result/'+model+str(ntrees)+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+            df = unpickle(filename)
 
-        err = 1 - df['accuracy']
-        bte = err[0] / err
-    
-        btes.append(bte)
+            err = 1 - df['accuracy']
+            bte = err[0] / err
 
-    
-bte = np.mean(btes, axis = 0)
+            btes.append(bte)
 
-#%%
-sns.set()
 
-fontsize=22
-ticksize=20
+    bte = np.mean(btes, axis = 0)
 
-#fig.suptitle('ntrees = '+str(ntrees),fontsize=25)
-plt.plot(range(len(bte)), bte, c='red', marker='.', markersize=14, linewidth=3, linestyle="dashed" if model == "dnn" else "solid", label = "L2N" if model == "dnn" else "L2F")
-plt.hlines(1, 0, len(bte), colors='grey', linestyles="dashed",linewidth=1.5)
-plt.tick_params(labelsize=ticksize)
-plt.xlabel('Number of tasks seen', fontsize=fontsize)
-plt.ylabel('Transfer Efficiency (Task 1)', fontsize=fontsize)
-plt.legend()
+    #%%
+    fontsize=22
+    ticksize=20
 
+    #fig.suptitle('ntrees = '+str(ntrees),fontsize=25)
+    ax.plot(range(len(bte)), bte, c="blue" if model == "dnn" else "red", linewidth=3, linestyle="solid", label = "L2N" if model == "dnn" else "L2F")
+
+ax.set_xlabel('Number of Tasks Seen', fontsize=fontsize)
+ax.set_ylabel('Transfer Efficiency (Task 1)', fontsize=fontsize)
+ax.set_yticks([1.0, 1.1, 1.2])
+ax.tick_params(labelsize=ticksize)
+ax.legend(fontsize=22)
+
+plt.tight_layout()
 plt.savefig('./result/figs/fig_trees'+str(ntrees)+"__"+model+'.pdf',dpi=300)
 
 # %%
