@@ -85,8 +85,8 @@ slots = 10
 task_num = 10
 shifts = 6
 total_alg = 9
-alg_name = ['L2F','L2F(minus)','L2N','Prog-NN', 'DF-CNN','EWC','O-EWC','SI','LwF']
-model_file = ['fixed_uf10','uf10','dnn0','Prog_NN','DF_CNN','EWC', 'Online_EWC', 'SI', 'LwF']
+alg_name = ['L2N','L2F','L2F(minus)','Prog-NN', 'DF-CNN','EWC','O-EWC','SI','LwF']
+model_file = ['dnn0','fixed_uf10','uf10','Prog_NN','DF_CNN','EWC', 'Online_EWC', 'SI', 'LwF']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
@@ -103,7 +103,7 @@ for alg in range(3):
 
     for slot in range(slots):
         for shift in range(shifts):
-            filename = 'result/'+model_file[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+            filename = 'result/result/'+model_file[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             multitask_df, single_task_df = unpickle(filename)
 
             single_err, err = get_error_matrix(filename)
@@ -143,7 +143,7 @@ for alg in range(3,total_alg):
     btes[alg].extend(calc_mean_bte(bte_tmp,reps=reps))
     ftes[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 #%%
-te = {'L2F':np.zeros(10,dtype=float),'L2Fc':np.zeros(10,dtype=float),'L2N':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float)}
+te = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float),'L2Fc':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float)}
 
 for count,name in enumerate(te.keys()):
     for i in range(10):
@@ -152,8 +152,8 @@ for count,name in enumerate(te.keys()):
 df = pd.DataFrame.from_dict(te)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 
-mean_te = {'L2F':[np.mean(te['L2F'])], 'L2Fc':[np.mean(te['L2Fc'])],
-           'L2N':[np.mean(te['L2N'])], 'Prog-NN':[np.mean(te['Prog-NN'])], 
+mean_te = {'L2N':[np.mean(te['L2N'])],'L2F':[np.mean(te['L2F'])], 'L2Fc':[np.mean(te['L2Fc'])],
+            'Prog-NN':[np.mean(te['Prog-NN'])], 
            'DF-CNN':[np.mean(te['DF-CNN'])],'EWC':[np.mean(te['EWC'])], 
            'Online EWC':[np.mean(te['Online EWC'])], 'SI':[np.mean(te['SI'])], 
            'LwF':[np.mean(te['LwF'])]}
@@ -161,7 +161,7 @@ mean_df = pd.DataFrame.from_dict(mean_te)
 mean_df = pd.melt(mean_df,var_name='Algorithms', value_name='Transfer Efficieny')
 
 #%%
-clr = ["#e41a1c", "#e41a1c", "#00008B", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
+clr = ["#00008B", "#e41a1c", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
 c = sns.color_palette(clr, n_colors=len(clr))
 
 fontsize=24
@@ -181,7 +181,7 @@ for i, fte in enumerate(ftes):
     ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', markersize=12, label=alg_name[i])
     
 ax[0][0].set_xticks(np.arange(1,11))
-ax[0][0].set_yticks([0.9, 1.1, 1.3])
+ax[0][0].set_yticks([1, 1.1, 1.2, 1.3,1.4])
 ax[0][0].set_ylim(0.85, 1.41)
 ax[0][0].tick_params(labelsize=ticksize)
 # ax[0].legend(algos, loc='upper left', fontsize=14)
@@ -290,7 +290,7 @@ ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_.set_xlabel('Algorithms', fontsize=fontsize)
 ax_.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2F','L2F(minus)','L2N','Prog-NN','DF-CNN','EWC','O-EWC','SI','LwF'],
+    ['L2N','L2F','L2F(minus)','Prog-NN','DF-CNN','EWC','O-EWC','SI','LwF'],
     fontsize=12,rotation=45,ha="right",rotation_mode='anchor'
     )
 
