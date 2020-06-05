@@ -173,9 +173,13 @@ for i, fte in enumerate(ftes):
     if i == 0:
         ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', markersize=12, label=alg_name[i], linewidth=3)
         continue
-        
+
     if i == 1:
-        ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', linestyle='dashed', markersize=12, label=alg_name[i])
+        ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', markersize=12, label=alg_name[i], linewidth=3)
+        continue
+
+    if i == 2:
+        ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', linestyle='dashed', markersize=12, label=alg_name[i], linewidth=3)
         continue
     
     ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', markersize=12, label=alg_name[i])
@@ -203,14 +207,19 @@ for i in range(task_num - 1):
     for j in range(0,total_alg):
         if j == 0:
             if i == 0:
-                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linewidth = 2.6)
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linewidth = 3)
             else:
-                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linewidth = 2.6)
-        elif j==1:
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linewidth = 3)
+        elif j == 1:
             if i == 0:
-                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linestyle='dashed')
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linewidth = 3)
             else:
-                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linestyle='dashed')
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linewidth = 3)
+        elif j==2:
+            if i == 0:
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linestyle='dashed', linewidth = 3)
+            else:
+                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linestyle='dashed', linewidth = 3)
         else:
             if i == 0:
                 ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j])
@@ -245,15 +254,19 @@ for i in range(task_num- 1):
     for j in range(0,total_alg):
         if j == 0:
             if i == 0 or i==1:
-                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linewidth = 2.6)
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linewidth = 3)
             else:
-                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linewidth = 2.6)
-                
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linewidth = 3)
         elif j == 1:
             if i == 0 or i==1:
-                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linestyle='dashed')
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linewidth = 3)
             else:
-                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linestyle='dashed')
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linewidth = 3)        
+        elif j == 2:
+            if i == 0 or i==1:
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linestyle='dashed', linewidth = 3)
+            else:
+                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linestyle='dashed', linewidth = 3)
         else:
             if i == 0 or i==1:
                 ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j])
