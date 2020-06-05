@@ -185,7 +185,7 @@ for i, fte in enumerate(ftes):
     ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', markersize=12, label=alg_name[i])
     
 ax[0][0].set_xticks(np.arange(1,11))
-ax[0][0].set_yticks([1, 1.1, 1.2, 1.3,1.4])
+ax[0][0].set_yticks([0.9, 1, 1.1, 1.2, 1.3,1.4])
 ax[0][0].set_ylim(0.85, 1.41)
 ax[0][0].tick_params(labelsize=ticksize)
 # ax[0].legend(algos, loc='upper left', fontsize=14)
