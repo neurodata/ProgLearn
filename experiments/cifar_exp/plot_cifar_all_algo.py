@@ -95,7 +95,7 @@ tes = [[] for i in range(total_alg)]
 #%% code for L2F and L2N
 reps = slots*shifts
 
-for alg in range(3): 
+for alg in range(total_alg): 
     count = 0 
     te_tmp = [[] for _ in range(reps)]
     bte_tmp = [[] for _ in range(reps)]
@@ -103,7 +103,11 @@ for alg in range(3):
 
     for slot in range(slots):
         for shift in range(shifts):
-            filename = 'result/result/'+model_file[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+            if alg < 3:
+                filename = 'result/result/'+model_file[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+            else:
+                filename = 'benchmarking_algorthms_result/'+model_file[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+
             multitask_df, single_task_df = unpickle(filename)
 
             single_err, err = get_error_matrix(filename)
@@ -118,30 +122,6 @@ for alg in range(3):
     btes[alg].extend(calc_mean_bte(bte_tmp,reps=reps))
     ftes[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 
-#%%
-reps = shifts
-
-for alg in range(3,total_alg): 
-    count = 0  
-    te_tmp = [[] for _ in range(reps)]
-    bte_tmp = [[] for _ in range(reps)]
-    fte_tmp = [[] for _ in range(reps)]
-
-    for shift in range(shifts):
-        filename = 'benchmarking_algorthms_result/'+model_file[alg]+'_'+str(shift+1)+'.pickle'
-        multitask_df, single_task_df = unpickle(filename)
-
-        single_err, err = get_error_matrix(filename)
-        fte, bte, te = get_fte_bte(err,single_err,ntrees)
-         
-        te_tmp[count].extend(te)
-        bte_tmp[count].extend(bte)
-        fte_tmp[count].extend(fte)
-        count+=1
-    
-    tes[alg].extend(calc_mean_te(te_tmp,reps=reps))
-    btes[alg].extend(calc_mean_bte(bte_tmp,reps=reps))
-    ftes[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 #%%
 te = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float),'L2Fc':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float)}
 
