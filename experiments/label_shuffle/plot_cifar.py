@@ -23,7 +23,7 @@ def get_bte(err):
     bte = []
     
     for i in range(10):
-        bte.append(err[i] / err[0])
+        bte.append(err[0] / err[i])
     
     return bte
 
