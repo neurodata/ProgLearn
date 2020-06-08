@@ -8,12 +8,9 @@ from itertools import product
 import seaborn as sns
 
 ### MAIN HYPERPARAMS ###
-ntrees = 0
 slots = 10
 shifts = 6
-alg_num = 1
-task_num = 10
-model = "dnn"
+alg_name = ['L2N','L2F','Prog_NN', 'DF_CNN','LwF','EWC','Online_EWC','SI']
 ########################
 
 #%%
@@ -46,49 +43,61 @@ def calc_mean_bte(btes,task_num=10,reps=6):
 
 #%%
 reps = slots*shifts
+btes = np.zeros((len(alg_name),10),dtype=float)
 
-err_ = []
+for alg_no,alg in enumerate(alg_name):
+    bte_tmp = [[] for _ in range(reps)]
 
-bte_tmp = [[] for _ in range(reps)]
+    count = 0   
+    for slot in range(slots):
+        for shift in range(shifts):
+            if alg_no==0:
+                filename = 'result/dnn0_'+str(shift+1)+'_'+str(slot)+'.pickle'
+            elif alg_no==1:
+                filename = 'result/uf10_'+str(shift+1)+'_'+str(slot)+'.pickle'
+            else:
+                filename = 'benchmarking_algorthms_result/'+alg+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
 
-count = 0   
-for slot in range(slots):
-    for shift in range(shifts):
-        filename = 'result/'+model+str(ntrees)+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
-        multitask_df = unpickle(filename)
+            multitask_df = unpickle(filename)
 
-        err = []
+            err = []
 
-        for ii in range(10):
-            err.extend(
-             1 - np.array(
-                 multitask_df[multitask_df['task']==ii+1]['task_1_accuracy']
-             )
-            )
-        bte = get_bte(err)
+            for ii in range(10):
+                err.extend(
+                1 - np.array(
+                    multitask_df[multitask_df['task']==ii+1]['task_1_accuracy']
+                )
+                )
+            bte = get_bte(err)
         
-        bte_tmp[count].extend(bte)
-        count+=1
+            bte_tmp[count].extend(bte)
+            count+=1
     
-bte = np.mean(bte_tmp, axis = 0)
+    btes[alg_no] = np.mean(bte_tmp, axis = 0)
 
 #%%
-sns.set()
+clr = ["#00008B", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
+c = sns.color_palette(clr, n_colors=len(clr))
+fig, ax = plt.subplots(1,1, figsize=(8,8))
 
-n_tasks=10
-clr = ["#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
-#c = sns.color_palette(clr, n_colors=len(clr))
+for alg_no,alg in enumerate(alg_name):
+    if alg_no<2:
+        ax.plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
+    else:
+        ax.plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no])
 
-fontsize=22
-ticksize=20
-
-plt.plot(range(1, n_tasks + 1), bte)
-    
-plt.xlabel('Number of tasks seen', fontsize=fontsize)
-plt.ylabel('BTE', fontsize=fontsize)
-plt.tick_params(labelsize=ticksize)
-plt.hlines(1, 1,n_tasks, colors='grey', linestyles='dashed',linewidth=1.5)
-
-plt.savefig('./result/figs/fig_trees'+str(ntrees)+"__"+model+'.pdf',dpi=300)
-
+ax.set_yticks([.9,.95, 1, 1.05,1.1])
+ax.set_ylim([0.87,1.12])
+ax.set_xticks(np.arange(1,11))
+ax.tick_params(labelsize=20)
+ax.set_xlabel('Number of tasks seen', fontsize=24)
+ax.set_ylabel('Transfer Efficiency', fontsize=24)
+ax.set_title("Label Shuffled CIFAR", fontsize = 24)
+ax.hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
+right_side = ax.spines["right"]
+right_side.set_visible(False)
+top_side = ax.spines["top"]
+top_side.set_visible(False)
+plt.tight_layout()
+plt.savefig('result/figs/label_shufffle.pdf', dpi=500)
 # %%
