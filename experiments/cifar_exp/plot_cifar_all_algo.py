@@ -85,8 +85,8 @@ slots = 10
 task_num = 10
 shifts = 6
 total_alg = 9
-alg_name = ['L2N','L2F','L2F(minus)','Prog-NN', 'DF-CNN','EWC','O-EWC','SI','LwF']
-model_file = ['dnn0','fixed_uf10','uf10','Prog_NN','DF_CNN','EWC', 'Online_EWC', 'SI', 'LwF']
+alg_name = ['L2N','L2F','L2F(minus)','Prog-NN','LwF', 'DF-CNN','EWC','O-EWC','SI']
+model_file = ['dnn0','fixed_uf10','uf10','Prog_NN', 'LwF','DF_CNN','EWC', 'Online_EWC', 'SI']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
@@ -123,7 +123,7 @@ for alg in range(total_alg):
     ftes[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 
 #%%
-te = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float),'L2Fc':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float)}
+te = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float),'L2Fc':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
 
 for count,name in enumerate(te.keys()):
     for i in range(10):
@@ -133,10 +133,10 @@ df = pd.DataFrame.from_dict(te)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 
 mean_te = {'L2N':[np.mean(te['L2N'])],'L2F':[np.mean(te['L2F'])], 'L2Fc':[np.mean(te['L2Fc'])],
-            'Prog-NN':[np.mean(te['Prog-NN'])], 
+            'Prog-NN':[np.mean(te['Prog-NN'])], 'LwF':[np.mean(te['LwF'])],
            'DF-CNN':[np.mean(te['DF-CNN'])],'EWC':[np.mean(te['EWC'])], 
-           'Online EWC':[np.mean(te['Online EWC'])], 'SI':[np.mean(te['SI'])], 
-           'LwF':[np.mean(te['LwF'])]}
+           'Online EWC':[np.mean(te['Online EWC'])], 'SI':[np.mean(te['SI'])]
+           }
 mean_df = pd.DataFrame.from_dict(mean_te)
 mean_df = pd.melt(mean_df,var_name='Algorithms', value_name='Transfer Efficieny')
 
