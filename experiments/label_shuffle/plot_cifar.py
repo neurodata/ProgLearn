@@ -78,7 +78,7 @@ for alg_no,alg in enumerate(alg_name):
 #%%
 clr = ["#00008B", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
 c = sns.color_palette(clr, n_colors=len(clr))
-fig, ax = plt.subplots(1,1, figsize=(8,8))
+fig, ax = plt.subplots(1,1, figsize=(10,8))
 
 for alg_no,alg in enumerate(alg_name):
     if alg_no<2:
@@ -99,5 +99,6 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 plt.tight_layout()
+ax.legend(loc='center left', bbox_to_anchor=(1,0.5), fontsize=22)
 plt.savefig('result/figs/label_shufffle.pdf', dpi=500)
 # %%
