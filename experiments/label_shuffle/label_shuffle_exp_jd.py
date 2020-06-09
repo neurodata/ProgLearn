@@ -43,6 +43,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         tmp = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
         if task_ii!=0:
             np.random.shuffle(tmp)
+            #tmp=np.random.randint(low = 0, high = 10, size = num_points_per_task)
             
         lifelong_forest.new_forest(
             train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:], 
@@ -126,7 +127,7 @@ if model == "uf":
     shift_fold = range(1,7,1)
     n_trees=[10]
     iterable = product(n_trees,shift_fold,slot_fold)
-    Parallel(n_jobs=20,verbose=1)(
+    Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
                 data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
                 ) for ntree,shift,slot in iterable
