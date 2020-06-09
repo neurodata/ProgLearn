@@ -109,7 +109,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 #%%
 ### MAIN HYPERPARAMS ###
 model = "uf"
-num_points_per_task = 5000
+num_points_per_task = 500
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
@@ -124,7 +124,7 @@ data_y = data_y[:, 0]
 if model == "uf":
     slot_fold = range(5000//num_points_per_task)
     shift_fold = range(1,7,1)
-    n_trees=[50]
+    n_trees=[10]
     iterable = product(n_trees,shift_fold,slot_fold)
     Parallel(n_jobs=20,verbose=1)(
         delayed(run_parallel_exp)(
