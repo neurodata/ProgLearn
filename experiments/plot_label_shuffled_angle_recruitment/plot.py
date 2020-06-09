@@ -10,7 +10,7 @@ def unpickle(file):
     return dict
 # %%
 fontsize=80
-ticksize=70
+ticksize=65
 fig, ax = plt.subplots(1,3, figsize=(60,20))
 
 btes = unpickle('./label_shuffle_result/res.pickle')
