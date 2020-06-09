@@ -9,8 +9,8 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 # %%
-fontsize=46
-ticksize=40
+fontsize=86
+ticksize=80
 fig, ax = plt.subplots(1,3, figsize=(58,20))
 
 btes = unpickle('./label_shuffle_result/res.pickle')
@@ -108,7 +108,7 @@ ax[2].set_title("CIFAR Recruitment",fontsize=fontsize)
 ax[2].set_xticks([500, 2000, 5000])
 ax[2].set_yticks([0.35, 0.45, 0.55])
 
-ax[2].legend(fontsize=24)
+ax[2].legend(fontsize=34)
 
 right_side = ax[2].spines["right"]
 right_side.set_visible(False)
