@@ -9,9 +9,9 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 # %%
-fontsize=80
-ticksize=80
-fig, ax = plt.subplots(1,3, figsize=(70,20))
+fontsize=70
+ticksize=70
+fig, ax = plt.subplots(1,3, figsize=(60,20))
 
 btes = unpickle('./label_shuffle_result/res.pickle')
 alg_name = ['L2N','L2F','Prog_NN', 'DF_CNN','LwF','EWC','Online_EWC','SI']
