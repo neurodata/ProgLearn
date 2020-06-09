@@ -20,9 +20,9 @@ c = sns.color_palette(clr, n_colors=len(clr))
 
 for alg_no,alg in enumerate(alg_name):
     if alg_no<2:
-        ax[0].plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
+        ax[0].plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=6)
     else:
-        ax[0].plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no])
+        ax[0].plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=4)
 
 ax[0].set_yticks([.9,.95, 1, 1.05,1.1])
 ax[0].set_ylim([0.87,1.12])
@@ -47,9 +47,9 @@ c = sns.color_palette(clr, n_colors=len(clr))
 
 for alg_no,alg in enumerate(alg_name):
     if alg_no<2:
-        ax[1].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
+        ax[1].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=6)
     else:
-        ax[1].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no])
+        ax[1].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=4)
 
 ax[1].set_yticks([.9,.95, 1, 1.05])
 ax[1].set_ylim([0.85,1.08])
