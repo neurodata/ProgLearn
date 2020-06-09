@@ -40,9 +40,13 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         if acorn is not None:
             np.random.seed(acorn)
 
+        tmp = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
+        if task_ii!=0:
+            np.random.shuffle(tmp)
+            
         lifelong_forest.new_forest(
             train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:], 
-            train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
+            tmp, 
             max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees
             )
         
@@ -73,6 +77,7 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
     
     batch_per_task=5000//num_points_per_task
     sample_per_class = num_points_per_task//total_task
+    test_data_slot=100//batch_per_task
 
     for task in range(total_task):
         for batch in range(batch_per_task):
@@ -82,22 +87,13 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
                 if batch==0 and class_no==0 and task==0:
                     train_x = x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]
                     train_y = y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]
-                elif task==0:
-                    train_x = np.concatenate((train_x, x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]), axis=0)
-                    train_y = np.concatenate((train_y, y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]), axis=0)
+                    test_x = x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]
+                    test_y = y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]
                 else:
                     train_x = np.concatenate((train_x, x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]), axis=0)
-                    tmp = y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]
-                    np.random.shuffle(tmp)
-                    train_y = np.concatenate((train_y,tmp), axis=0)
-
-        if task==0:
-            test_x = x[indx[500:600],:]
-            test_y = y[indx[500:600]]
-        else:
-            test_x = np.concatenate((test_x, x[indx[500:600],:]), axis=0)
-            test_y = np.concatenate((test_y, y[indx[500:600]]), axis=0)
-            
+                    train_y = np.concatenate((train_y, y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]), axis=0)
+                    test_x = np.concatenate((test_x, x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]), axis=0)
+                    test_y = np.concatenate((test_y, y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]), axis=0)
     return train_x, train_y, test_x, test_y
 
 #%%
@@ -113,7 +109,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 #%%
 ### MAIN HYPERPARAMS ###
 model = "uf"
-num_points_per_task = 500
+num_points_per_task = 5000
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
@@ -126,11 +122,11 @@ data_y = data_y[:, 0]
 
 #%%
 if model == "uf":
-    slot_fold = range(10)
+    slot_fold = range(5000//num_points_per_task)
     shift_fold = range(1,7,1)
-    n_trees=[10]
+    n_trees=[50]
     iterable = product(n_trees,shift_fold,slot_fold)
-    Parallel(n_jobs=-2,verbose=1)(
+    Parallel(n_jobs=20,verbose=1)(
         delayed(run_parallel_exp)(
                 data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
                 ) for ntree,shift,slot in iterable
