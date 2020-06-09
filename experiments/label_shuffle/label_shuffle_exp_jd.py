@@ -30,30 +30,9 @@ def unpickle(file):
 def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, num_points_per_task, acorn=None):
        
     df = pd.DataFrame()
-    single_task_accuracies = np.zeros(10,dtype=float)
     shifts = []
-    tasks = []
     base_tasks = []
     accuracies_across_tasks = []
-
-    for task_ii in range(10):
-        if model == "uf":
-            single_task_learner = LifeLongDNN(model = "uf", parallel = True)
-
-            if acorn is not None:
-                np.random.seed(acorn)
-
-            single_task_learner.new_forest(
-                train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:],
-                 train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
-                max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees*(task_ii+1)
-                )
-            llf_task=single_task_learner.predict(
-                test_x[task_ii*1000:(task_ii+1)*1000,:], representation=0, decider=0
-                )
-            single_task_accuracies[task_ii] = np.mean(
-                    llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
-                    )
 
     lifelong_forest = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
     for task_ii in range(10):
@@ -66,40 +45,25 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
             max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees
             )
-        if model == "dnn":
-            llf_task=lifelong_forest.predict(
-                test_x[task_ii*1000:(task_ii+1)*1000,:], representation=task_ii, decider=task_ii
-                )
-            single_task_accuracies[task_ii] = np.mean(
-                    llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
-                    )
         
-        for task_jj in range(task_ii+1):
-            llf_task=lifelong_forest.predict(
-                test_x[task_jj*1000:(task_jj+1)*1000,:], representation='all', decider=task_jj
+        llf_task=lifelong_forest.predict(
+                test_x[0:1000,:], representation='all', decider=0
                 )
             
-            shifts.append(shift)
-            tasks.append(task_jj+1)
-            base_tasks.append(task_ii+1)
-            accuracies_across_tasks.append(np.mean(
-                llf_task == test_y[task_jj*1000:(task_jj+1)*1000]
-                ))
+        shifts.append(shift)
+        base_tasks.append(task_ii+1)
+        accuracies_across_tasks.append(np.mean(
+        llf_task == test_y[0:1000]
+            )
+        )
             
     df['data_fold'] = shifts
-    df['task'] = tasks
-    df['base_task'] = base_tasks
-    df['accuracy'] = accuracies_across_tasks
+    df['task'] = base_tasks
+    df['task_1_accuracy'] = accuracies_across_tasks
 
-    df_single_task = pd.DataFrame()
-    df_single_task['task'] = range(1, 11)
-    df_single_task['data_fold'] = shift
-    df_single_task['accuracy'] = single_task_accuracies
-
-    summary = (df,df_single_task)
     file_to_save = 'result/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
-        pickle.dump(summary, f)
+        pickle.dump(df, f)
 
 #%%
 def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
@@ -109,7 +73,6 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
     
     batch_per_task=5000//num_points_per_task
     sample_per_class = num_points_per_task//total_task
-    test_data_slot=100//batch_per_task
 
     for task in range(total_task):
         for batch in range(batch_per_task):
@@ -119,13 +82,21 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
                 if batch==0 and class_no==0 and task==0:
                     train_x = x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]
                     train_y = y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]
-                    test_x = x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]
-                    test_y = y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]
-                else:
+                elif task==0:
                     train_x = np.concatenate((train_x, x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]), axis=0)
                     train_y = np.concatenate((train_y, y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]), axis=0)
-                    test_x = np.concatenate((test_x, x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]), axis=0)
-                    test_y = np.concatenate((test_y, y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]), axis=0)
+                else:
+                    train_x = np.concatenate((train_x, x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]), axis=0)
+                    tmp = y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]
+                    np.random.shuffle(tmp)
+                    train_y = np.concatenate((train_y,tmp), axis=0)
+
+        if task==0:
+            test_x = x[indx[500:600],:]
+            test_y = y[indx[500:600]]
+        else:
+            test_x = np.concatenate((test_x, x[indx[500:600],:]), axis=0)
+            test_y = np.concatenate((test_y, y[indx[500:600]]), axis=0)
             
     return train_x, train_y, test_x, test_y
 
@@ -135,9 +106,9 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
     
     if model == "dnn":
         with tf.device('/gpu:'+str(shift % 4)):
-            LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, model, num_points_per_task, acorn=12345)
+            LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, model, num_points_per_task, acorn=None)
     else:
-        LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, model, num_points_per_task, acorn=12345)
+        LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, model, num_points_per_task, acorn=None)
 
 #%%
 ### MAIN HYPERPARAMS ###
@@ -157,7 +128,7 @@ data_y = data_y[:, 0]
 if model == "uf":
     slot_fold = range(10)
     shift_fold = range(1,7,1)
-    n_trees=[10,20,30,40,50]
+    n_trees=[10]
     iterable = product(n_trees,shift_fold,slot_fold)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
