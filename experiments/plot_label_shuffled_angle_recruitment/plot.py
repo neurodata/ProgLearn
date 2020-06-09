@@ -11,7 +11,7 @@ def unpickle(file):
 # %%
 fontsize=80
 ticksize=80
-fig, ax = plt.subplots(1,3, figsize=(58,20))
+fig, ax = plt.subplots(1,3, figsize=(60,20))
 
 btes = unpickle('./label_shuffle_result/res.pickle')
 alg_name = ['L2N','L2F','Prog_NN', 'DF_CNN','LwF','EWC','Online_EWC','SI']
