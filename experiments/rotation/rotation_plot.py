@@ -26,6 +26,9 @@ for algo_no,alg in enumerate(alg_name):
                 )
             tes[algo_no].append(orig_error / transfer_error)
 
+with open('../plot_label_shuffled_angle_recruitment/rotation_result/res.pickle','wb') as f:
+    pickle.dump(tes,f)
+
 # %%
 clr = ["#00008B", "#e41a1c", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
 c = sns.color_palette(clr, n_colors=len(clr))

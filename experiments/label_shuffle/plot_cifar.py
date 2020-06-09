@@ -74,6 +74,9 @@ for alg_no,alg in enumerate(alg_name):
             count+=1
     
     btes[alg_no] = np.mean(bte_tmp, axis = 0)
+    
+with open('../plot_label_shuffled_angle_recruitment/label_shuffle_result/res.pickle','wb') as f:
+    pickle.dump(btes,f)
 
 #%%
 clr = ["#00008B", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
