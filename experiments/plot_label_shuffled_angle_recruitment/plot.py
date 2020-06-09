@@ -9,8 +9,8 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 # %%
-fontsize=28
-ticksize=32
+fontsize=46
+ticksize=40
 fig, ax = plt.subplots(1,3, figsize=(58,20))
 
 btes = unpickle('./label_shuffle_result/res.pickle')
