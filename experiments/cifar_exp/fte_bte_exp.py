@@ -134,14 +134,15 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
     train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, num_points_per_task, shift=shift)
     
     if model == "dnn":
-        with tf.device('/gpu:'+str(shift % 4)):
-            LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, model, num_points_per_task, acorn=12345)
+        #with tf.device('/gpu:'+str(shift % 4)):
+        #    LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, model, num_points_per_task, acorn=12345)
+        LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, model, num_points_per_task, acorn=12345)
     else:
         LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, model, num_points_per_task, acorn=12345)
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 5000
 ########################
 
@@ -156,15 +157,23 @@ data_y = data_y[:, 0]
 #%%
 if model == "uf":
     slot_fold = range(5000//num_points_per_task)
-    shift_fold = range(1,7,1)
-    n_trees=[40]
+    shift_fold = range(3,7,1)
+    n_trees=[0]
     iterable = product(n_trees,shift_fold,slot_fold)
-    Parallel(n_jobs=20,verbose=1)(
+    Parallel(n_jobs=1,verbose=1)(
         delayed(run_parallel_exp)(
                 data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
                 ) for ntree,shift,slot in iterable
                 )
 elif model == "dnn":
+    slot_fold = range(5000//num_points_per_task)
+    shift_fold = range(1,7,1)
+    iterable = product(shift_fold,slot_fold)
+
+    for shift,slot in iterable:
+        run_parallel_exp(data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift)
+
+'''elif model == "dnn":
     
     def perform_shift(shift):
         return run_parallel_exp(data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift)
@@ -177,6 +186,8 @@ elif model == "dnn":
     print("Performing Stage 2 Shifts")
     stage_2_shifts = range(5, 7)
     with Pool(4) as p:
-        p.map(perform_shift, stage_2_shifts) 
+        p.map(perform_shift, stage_2_shifts) '''
+    
+        
 
 # %%
