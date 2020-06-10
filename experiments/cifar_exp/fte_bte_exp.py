@@ -97,7 +97,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     df_single_task['accuracy'] = single_task_accuracies
 
     summary = (df,df_single_task)
-    file_to_save = 'result/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
+    file_to_save = 'result/result/'+model+str(num_points_per_task)+'_'+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(summary, f)
 
@@ -142,7 +142,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 #%%
 ### MAIN HYPERPARAMS ###
 model = "uf"
-num_points_per_task = 500
+num_points_per_task = 5000
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
@@ -155,11 +155,11 @@ data_y = data_y[:, 0]
 
 #%%
 if model == "uf":
-    slot_fold = range(10)
+    slot_fold = range(5000//num_points_per_task)
     shift_fold = range(1,7,1)
-    n_trees=[10,20,30,40,50]
+    n_trees=[40]
     iterable = product(n_trees,shift_fold,slot_fold)
-    Parallel(n_jobs=-2,verbose=1)(
+    Parallel(n_jobs=20,verbose=1)(
         delayed(run_parallel_exp)(
                 data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
                 ) for ntree,shift,slot in iterable
