@@ -1,3 +1,9 @@
+'''
+Primary Author: Will LeVine
+Email: levinewill@icloud.com
+Latest Update: June 11, 2020
+'''
+
 #Model
 from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier

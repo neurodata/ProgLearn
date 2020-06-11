@@ -57,7 +57,7 @@ for pair in model_ntree_pairs:
     ticksize=20
 
     #fig.suptitle('ntrees = '+str(ntrees),fontsize=25)
-    ax.plot(range(len(bte)), bte, c="blue" if model == "dnn" else "red", linewidth=3, linestyle="solid", label = "L2N" if model == "dnn" else "L2F")
+    ax.plot(range(len(bte)), bte, c="#00008B" if model == "dnn" else "#e41a1c", linewidth=3, linestyle="solid", label = "L2N" if model == "dnn" else "L2F")
 
 ax.set_xlabel('Number of Tasks Seen', fontsize=fontsize)
 ax.set_ylabel('Transfer Efficiency (Task 1)', fontsize=fontsize)
