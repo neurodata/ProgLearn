@@ -10,7 +10,7 @@ def unpickle(file):
     return dict
 # %%
 fontsize=20
-ticksize=20
+ticksize=18
 fig, ax = plt.subplots(2,2, figsize=(10,10))
 
 btes_org, btes = unpickle('./label_shuffle_result/res.pickle')
@@ -75,6 +75,7 @@ for alg_no,alg in enumerate(alg_name):
 ax[1][0].set_yticks([.9,.95, 1, 1.05])
 ax[1][0].set_ylim([0.85,1.08])
 ax[1][0].set_xticks([0,30,60,90,120,150,180])
+ax[1][0].hlines(1,0,180, colors='grey', linestyles='dashed',linewidth=1.5)
 ax[1][0].tick_params(labelsize=ticksize)
 ax[1][0].set_xlabel('Angle of Rotation (Degrees)', fontsize=fontsize)
 ax[1][0].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
@@ -137,8 +138,5 @@ top_side = ax[1][1].spines["top"]
 top_side.set_visible(False)
 
 plt.savefig('figs/real_adversary_recruit.pdf', dpi=500)#
-
-# %%
-
 
 # %%
