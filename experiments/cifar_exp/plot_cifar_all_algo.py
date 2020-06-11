@@ -104,7 +104,7 @@ slots = 10
 task_num = 10
 shifts = 6
 total_alg = 9
-alg_name = ['L2N','L2F','L2F(minus)','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
+alg_name = ['L2N','L2F','L2F(-)','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
 model_file_500 = ['dnn0','fixed_uf10','uf10','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
 model_file_5000 = ['dnn0','fixed_uf5000_40','uf5000_40','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
 btes_500 = [[] for i in range(total_alg)]
@@ -211,9 +211,9 @@ c = sns.color_palette(clr, n_colors=len(clr))
 fontsize=20
 ticksize=20
 
-fig, ax = plt.subplots(2,3, figsize=(16,11.5))
+fig, ax = plt.subplots(2,2, figsize=(13,10))
 # plt.subplots_adjust(right=0.5)
-for i, fte in enumerate(ftes_5000):
+for i, fte in enumerate(ftes_500):
     if i == 0:
         ax[0][0].plot(np.arange(1,11), fte, color=clr[i], marker='.', markersize=12, label=alg_name[i], linewidth=3)
         continue
@@ -245,7 +245,7 @@ for i in range(task_num - 1):
     et = np.zeros((total_alg,task_num-i))
 
     for j in range(0,total_alg):
-        et[j,:] = np.asarray(btes_5000[j][i])
+        et[j,:] = np.asarray(btes_500[j][i])
 
     ns = np.arange(i + 1, task_num + 1)
     for j in range(0,total_alg):
@@ -286,20 +286,6 @@ ax[0][1].set_ylim(0.85, 1.19)
 ax[0][1].tick_params(labelsize=ticksize)
 #ax[0][1].grid(axis='x')
 
-ax[0][2].tick_params(labelsize=22)
-#ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
-ax[0][2].hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
-#sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
-ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_5000, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax[0][2])
-#ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
-ax_.set_xlabel('', fontsize=fontsize)
-ax[0][2].set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
-ax_.set_xticklabels(
-    ['L2N','L2F','L2F(minus)','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
-    fontsize=12,rotation=45,ha="right",rotation_mode='anchor'
-    )
-
-stratified_scatter(te_5000,ax[0][2],10,c)
 
 right_side = ax[0][0].spines["right"]
 right_side.set_visible(False)
@@ -311,17 +297,11 @@ right_side.set_visible(False)
 top_side = ax[0][1].spines["top"]
 top_side.set_visible(False)
 
-right_side = ax[0][2].spines["right"]
-right_side.set_visible(False)
-top_side = ax[0][2].spines["top"]
-top_side.set_visible(False)
-
 ax[0][0].hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 ax[0][1].hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
-ax[0][2].hlines(1, 1,9, colors='grey', linestyles='dashed',linewidth=1.5)
 
 ######################################
-for i, fte in enumerate(ftes_500):
+for i, fte in enumerate(ftes_5000):
     if i == 0:
         ax[1][0].plot(np.arange(1,11), fte, color=clr[i], marker='.', markersize=12, label=alg_name[i], linewidth=3)
         continue
@@ -353,7 +333,7 @@ for i in range(task_num - 1):
     et = np.zeros((total_alg,task_num-i))
 
     for j in range(0,total_alg):
-        et[j,:] = np.asarray(btes_500[j][i])
+        et[j,:] = np.asarray(btes_5000[j][i])
 
     ns = np.arange(i + 1, task_num + 1)
     for j in range(0,total_alg):
@@ -394,21 +374,6 @@ ax[1][1].set_ylim(0.85, 1.19)
 ax[1][1].tick_params(labelsize=ticksize)
 #ax[0][1].grid(axis='x')
 
-ax[1][2].tick_params(labelsize=22)
-#ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
-ax[1][2].hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
-#sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
-ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax[1][2])
-#ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
-ax_.set_xlabel('', fontsize=fontsize)
-ax[1][2].set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
-ax_.set_xticklabels(
-    ['L2N','L2F','L2F(minus)','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
-    fontsize=12,rotation=45,ha="right",rotation_mode='anchor'
-    )
-
-stratified_scatter(te_500,ax[1][2],10,c)
-
 right_side = ax[1][0].spines["right"]
 right_side.set_visible(False)
 top_side = ax[1][0].spines["top"]
@@ -419,20 +384,63 @@ right_side.set_visible(False)
 top_side = ax[1][1].spines["top"]
 top_side.set_visible(False)
 
-right_side = ax[1][2].spines["right"]
-right_side.set_visible(False)
-top_side = ax[1][2].spines["top"]
-top_side.set_visible(False)
-
 ax[1][0].hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 ax[1][1].hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
-ax[1][2].hlines(1, 1,9, colors='grey', linestyles='dashed',linewidth=1.5)
-
 
 plt.tight_layout()
-ax[1][1].legend(loc='upper center', bbox_to_anchor=(0.5, -0.3),
-          fancybox=True, shadow=True, ncol=3,fontsize=15)
+#ax[0][1].legend(loc='upper center', bbox_to_anchor=(0.5, -0.3),
+#          fancybox=True, shadow=True, ncol=3,fontsize=15)
+ax[0][1].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=18)
 # lgd = fig.legend(algos, bbox_to_anchor=(1, 0.45), loc='center left', fontsize=18)
 plt.savefig('result/figs/benchmark.pdf', dpi=500)
 
 #%%
+fig, ax = plt.subplots(1,2, figsize=(13,5))
+
+ax[0].tick_params(labelsize=22)
+#ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
+ax[0].hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
+#sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
+ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax[0])
+#ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
+ax_.set_xlabel('', fontsize=fontsize)
+ax[0].set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
+ax_.set_xticklabels(
+    ['L2N','L2F','L2F(-)','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
+    fontsize=12,rotation=45,ha="right",rotation_mode='anchor'
+    )
+
+stratified_scatter(te_500,ax[0],10,c)
+
+right_side = ax[0].spines["right"]
+right_side.set_visible(False)
+top_side = ax[0].spines["top"]
+top_side.set_visible(False)
+ax[0].hlines(1, 1,9, colors='grey', linestyles='dashed',linewidth=1.5)
+
+
+ax[1].tick_params(labelsize=22)
+#ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
+ax[1].hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
+#sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
+ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_5000, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax[1])
+#ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
+ax_.set_xlabel('', fontsize=fontsize)
+ax[1].set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
+ax_.set_xticklabels(
+    ['L2N','L2F','L2F(-)','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
+    fontsize=12,rotation=45,ha="right",rotation_mode='anchor'
+    )
+
+stratified_scatter(te_5000,ax[1],10,c)
+
+
+right_side = ax[1].spines["right"]
+right_side.set_visible(False)
+top_side = ax[1].spines["top"]
+top_side.set_visible(False)
+
+ax[1].hlines(1, 1,9, colors='grey', linestyles='dashed',linewidth=1.5)
+
+plt.savefig('result/figs/final_TE.pdf', dpi=500)
+# %%

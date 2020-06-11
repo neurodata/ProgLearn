@@ -54,6 +54,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
                     llf_task == test_y[:1000]
                     )
         accuracies_across_tasks.append(acc)
+        print(accuracies_across_tasks)
         shifts.append(shift)
             
     df['data_fold'] = shifts
@@ -110,7 +111,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 num_points_per_task = 500
 ########################
 
