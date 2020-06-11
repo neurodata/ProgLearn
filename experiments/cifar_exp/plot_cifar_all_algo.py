@@ -407,7 +407,7 @@ ax_.set_xlabel('', fontsize=fontsize)
 ax[0].set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
     ['L2N','L2F','L2F(-)','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
-    fontsize=12,rotation=45,ha="right",rotation_mode='anchor'
+    fontsize=16,rotation=45,ha="right",rotation_mode='anchor'
     )
 
 stratified_scatter(te_500,ax[0],10,c)
