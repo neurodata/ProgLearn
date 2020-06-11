@@ -11,7 +11,7 @@ def unpickle(file):
 # %%
 fontsize=20
 ticksize=20
-fig, ax = plt.subplots(2,2, figsize=(12,10))
+fig, ax = plt.subplots(2,2, figsize=(10,10))
 
 btes_org, btes = unpickle('./label_shuffle_result/res.pickle')
 alg_name = ['L2N','L2F','Prog_NN', 'DF_CNN','LwF','EWC','Online_EWC','SI']
@@ -30,7 +30,7 @@ ax[0][0].set_xticks(np.arange(1,11))
 ax[0][0].tick_params(labelsize=ticksize)
 ax[0][0].set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax[0][0].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
-ax[0][0].set_title("Label Shuffled CIFAR", fontsize = fontsize)
+ax[0][0].set_title("CIFAR 10X10", fontsize = fontsize)
 ax[0][0].hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 right_side = ax[0][0].spines["right"]
 right_side.set_visible(False)
