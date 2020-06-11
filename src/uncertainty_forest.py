@@ -24,8 +24,6 @@ from sklearn.utils.multiclass import check_classification_targets
 from joblib import Parallel, delayed
 import numpy as np
 
-from tqdm import tqdm
-
 def _finite_sample_correction(posteriors, num_points_in_partition, num_classes):
     '''
     encourage posteriors to approach uniform when there is low data
