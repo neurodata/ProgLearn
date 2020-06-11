@@ -14,7 +14,7 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 
-def get_fte_bte(err, single_err, ntrees):
+def get_fte_bte(err, single_err):
     bte = [[] for i in range(10)]
     te = [[] for i in range(10)]
     fte = []
@@ -134,7 +134,7 @@ for alg in range(total_alg):
         multitask_df, single_task_df = unpickle(filename)
 
         single_err, err = get_error_matrix(filename)
-        fte, bte, te = get_fte_bte(err,single_err,ntrees)
+        fte, bte, te = get_fte_bte(err,single_err)
             
         te_tmp[count].extend(te)
         bte_tmp[count].extend(bte)
@@ -165,7 +165,7 @@ for alg in range(total_alg):
             multitask_df, single_task_df = unpickle(filename)
 
             single_err, err = get_error_matrix(filename)
-            fte, bte, te = get_fte_bte(err,single_err,ntrees)
+            fte, bte, te = get_fte_bte(err,single_err)
             
             te_tmp[count].extend(te)
             bte_tmp[count].extend(bte)
