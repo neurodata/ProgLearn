@@ -211,7 +211,7 @@ c = sns.color_palette(clr, n_colors=len(clr))
 fontsize=24
 ticksize=20
 
-fig, ax = plt.subplots(2,2, figsize=(15,12))
+fig, ax = plt.subplots(2,2, figsize=(14.5,12))
 fig.tight_layout(pad=12.0)
 # plt.subplots_adjust(right=0.5)
 for i, fte in enumerate(ftes_500):
