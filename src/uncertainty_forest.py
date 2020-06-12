@@ -1,3 +1,9 @@
+'''
+Primary Author: Will LeVine
+Email: levinewill@icloud.com
+Latest Update: June 11, 2020
+'''
+
 #Model
 from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -17,8 +23,6 @@ from sklearn.utils.multiclass import check_classification_targets
 #Utils
 from joblib import Parallel, delayed
 import numpy as np
-
-from tqdm import tqdm
 
 def _finite_sample_correction(posteriors, num_points_in_partition, num_classes):
     '''
