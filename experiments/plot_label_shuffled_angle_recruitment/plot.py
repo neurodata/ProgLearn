@@ -25,7 +25,7 @@ for alg_no,alg in enumerate(alg_name):
         ax[0][0].plot(np.arange(1,11),btes_org[alg_no], c=c[alg_no], label=alg_name[alg_no])
 
 ax[0][0].set_yticks([.9,.95, 1, 1.05,1.1,1.15])
-#ax[0][0].set_ylim([0.87,1.12])
+ax[0][0].set_ylim([0.91,1.17])
 ax[0][0].set_xticks(np.arange(1,11))
 ax[0][0].tick_params(labelsize=ticksize)
 ax[0][0].set_xlabel('Number of tasks seen', fontsize=fontsize)
@@ -46,7 +46,7 @@ for alg_no,alg in enumerate(alg_name):
         ax[0][1].plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no])
 
 ax[0][1].set_yticks([.9,.95, 1, 1.05,1.1,1.15])
-#ax[0][1].set_ylim([0.87,1.12])
+ax[0][1].set_ylim([0.91,1.17])
 ax[0][1].set_xticks(np.arange(1,11))
 ax[0][1].tick_params(labelsize=ticksize)
 ax[0][1].set_xlabel('Number of tasks seen', fontsize=fontsize)
