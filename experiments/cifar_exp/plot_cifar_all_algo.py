@@ -104,7 +104,7 @@ slots = 10
 task_num = 10
 shifts = 6
 total_alg = 9
-alg_name = ['L2N','L2F','L2F(-)','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
+alg_name = ['L2N','L2F','L2F-','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
 model_file_500 = ['dnn0','fixed_uf10','uf10','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
 model_file_5000 = ['dnn0','fixed_uf5000_40','uf5000_40','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
 btes_500 = [[] for i in range(total_alg)]
@@ -208,10 +208,10 @@ df_5000 = pd.melt(df_5000,var_name='Algorithms', value_name='Transfer Efficieny'
 clr = ["#00008B", "#e41a1c", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
 c = sns.color_palette(clr, n_colors=len(clr))
 
-fontsize=20
+fontsize=24
 ticksize=20
 
-fig, ax = plt.subplots(2,2, figsize=(13,10))
+fig, ax = plt.subplots(2,2, figsize=(15,12))
 # plt.subplots_adjust(right=0.5)
 for i, fte in enumerate(ftes_500):
     if i == 0:
@@ -387,7 +387,8 @@ top_side.set_visible(False)
 ax[1][0].hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 ax[1][1].hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
-plt.tight_layout()
+#plt.tight_layout()
+
 #ax[0][1].legend(loc='upper center', bbox_to_anchor=(0.5, -0.3),
 #          fancybox=True, shadow=True, ncol=3,fontsize=15)
 ax[0][1].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=18)
@@ -395,7 +396,7 @@ ax[0][1].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=18)
 plt.savefig('result/figs/benchmark.pdf', dpi=500)
 
 #%%
-fig, ax = plt.subplots(1,2, figsize=(13,5))
+fig, ax = plt.subplots(1,2, figsize=(15,5))
 
 ax[0].tick_params(labelsize=22)
 #ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
@@ -406,7 +407,7 @@ ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=Fals
 ax_.set_xlabel('', fontsize=fontsize)
 ax[0].set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2N','L2F','L2F(-)','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
+    ['L2N','L2F','L2F-','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
     fontsize=16,rotation=45,ha="right",rotation_mode='anchor'
     )
 
@@ -428,7 +429,7 @@ ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_5000, join=Fal
 ax_.set_xlabel('', fontsize=fontsize)
 ax[1].set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2N','L2F','L2F(-)','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
+    ['L2N','L2F','L2F-','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
     fontsize=16,rotation=45,ha="right",rotation_mode='anchor'
     )
 
