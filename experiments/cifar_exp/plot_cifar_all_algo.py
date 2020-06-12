@@ -397,7 +397,7 @@ ax[0][1].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=18)
 plt.savefig('result/figs/benchmark.pdf', dpi=500)
 
 #%%
-fig, ax = plt.subplots(1,2, figsize=(15,5))
+fig, ax = plt.subplots(1,2, figsize=(12,5))
 
 ax[0].tick_params(labelsize=22)
 #ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
