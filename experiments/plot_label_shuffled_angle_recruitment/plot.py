@@ -175,11 +175,11 @@ ax.fill_between(ns,
 
 
 #ax.set_title('CIFAR Recruitment Experiment', fontsize=30)
-ax.set_ylabel('Accuracy', fontsize=fontsize)
-ax.set_xlabel('Number of Task 10 Samples', fontsize=fontsize)
-ax.tick_params(labelsize=ticksize)
+ax.set_ylabel('Accuracy', fontsize=28)
+ax.set_xlabel('Number of Task 10 Samples', fontsize=30)
+ax.tick_params(labelsize=28)
 ax.set_ylim(0.325, 0.575)
-ax.set_title("CIFAR Recruitment",fontsize=fontsize)
+ax.set_title("CIFAR Recruitment",fontsize=30)
 ax.set_xticks([500, 2000, 5000])
 ax.set_yticks([0.35, 0.45, 0.55])
 
