@@ -34,12 +34,13 @@ ax.set_xticks(range(0, 90 + 15, 15))
 ax.tick_params(labelsize=20)
 ax.set_xlabel('Angle of Rotation (Degrees)', fontsize=24)
 ax.set_ylabel('Backward Transfer Efficiency', fontsize=24)
-ax.set_title("Rotation Experiment", fontsize = 24)
+ax.set_title("XOR vs. Rotated-XOR", fontsize = 24)
 right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 plt.tight_layout()
+plt.hlines(1,1,90, colors='grey', linestyles='dashed',linewidth=1.5)
 #x.legend(fontsize = 24)
 plt.savefig('results/figs/rotation.pdf', dpi=500)
 # %%
