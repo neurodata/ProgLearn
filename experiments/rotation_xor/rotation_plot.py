@@ -40,7 +40,7 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 plt.tight_layout()
-plt.hlines(1,1,90, colors='grey', linestyles='dashed',linewidth=1.5)
+plt.hlines(1,0,90, colors='grey', linestyles='dashed',linewidth=1.5)
 #x.legend(fontsize = 24)
 plt.savefig('results/figs/rotation.pdf', dpi=500)
 # %%

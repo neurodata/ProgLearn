@@ -66,6 +66,7 @@ ax.tick_params(labelsize=ticksize)
 ax.legend(fontsize=22)
 
 plt.tight_layout()
+plt.hlines(1,0,30, colors='grey', linestyles='dashed',linewidth=1.5)
 plt.savefig('./result/figs/fig_trees'+str(ntrees)+"__"+model+'.pdf',dpi=300)
 
 # %%
