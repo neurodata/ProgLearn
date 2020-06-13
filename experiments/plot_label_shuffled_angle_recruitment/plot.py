@@ -137,6 +137,59 @@ right_side.set_visible(False)
 top_side = ax[1][1].spines["top"]
 top_side.set_visible(False)
 
-plt.savefig('figs/real_adversary_recruit.pdf', dpi=500)#
+plt.savefig('figs/real_adversary_recruit.pdf', dpi=500)
+
+# %%
+fig, ax = plt.subplots(1,1, figsize=(8,8))
+mean_error = unpickle('recruitment_result/recruitment_mean.pickle')
+std_error = unpickle('recruitment_result/recruitment_std.pickle')
+ns = 10*np.array([50, 100, 200, 350, 500])
+colors = sns.color_palette('Set1', n_colors=mean_error.shape[0]+2)
+
+#labels = ['recruiting', 'Uncertainty Forest', 'hybrid', '50 Random', 'BF', 'building']
+labels = ['hybrid', 'building', 'recruiting','50 Random', 'BF', 'Uncertainty Forest' ]
+not_included = ['BF', '50 Random']
+    
+adjust = 0
+for i, error_ in enumerate(mean_error[:-1]):
+    if labels[i] in not_included:
+        adjust +=1
+        continue
+    ax.plot(ns, mean_error[i], c=colors[i+1-adjust], label=labels[i])
+    ax.fill_between(ns, 
+            mean_error[i] + 1.96*std_error[i], 
+            mean_error[i] - 1.96*std_error[i], 
+            where=mean_error[i] + 1.96*std_error[i] >= mean_error[i] - 1.96*std_error[i], 
+            facecolor=colors[i+1-adjust], 
+            alpha=0.15,
+            interpolate=False)
+
+ax.plot(ns, mean_error[-1], c=colors[0], label=labels[-1])
+ax.fill_between(ns, 
+        mean_error[-1] + 1.96*std_error[-1], 
+        mean_error[-1] - 1.96*std_error[-1], 
+        where=mean_error[-1] + 1.96*std_error[i] >= mean_error[-1] - 1.96*std_error[-1], 
+        facecolor=colors[0], 
+        alpha=0.15,
+        interpolate=False)
+
+
+#ax.set_title('CIFAR Recruitment Experiment', fontsize=30)
+ax.set_ylabel('Accuracy', fontsize=fontsize)
+ax.set_xlabel('Number of Task 10 Samples', fontsize=fontsize)
+ax.tick_params(labelsize=ticksize)
+ax.set_ylim(0.325, 0.575)
+ax.set_title("CIFAR Recruitment",fontsize=fontsize)
+ax.set_xticks([500, 2000, 5000])
+ax.set_yticks([0.35, 0.45, 0.55])
+
+ax.legend(fontsize=12)
+
+right_side = ax.spines["right"]
+right_side.set_visible(False)
+top_side = ax.spines["top"]
+top_side.set_visible(False)
+
+plt.savefig('figs/recruit.pdf', dpi=500)
 
 # %%
