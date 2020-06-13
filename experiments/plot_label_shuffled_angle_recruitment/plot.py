@@ -11,7 +11,7 @@ def unpickle(file):
 # %%
 fontsize=20
 ticksize=18
-fig, ax = plt.subplots(2,2, figsize=(10,10))
+fig, ax = plt.subplots(1,3, figsize=(15,5))
 
 btes_org, btes = unpickle('./label_shuffle_result/res.pickle')
 alg_name = ['L2N','L2F','Prog_NN', 'DF_CNN','LwF','EWC','Online_EWC','SI']
@@ -20,42 +20,42 @@ c = sns.color_palette(clr, n_colors=len(clr))
 
 for alg_no,alg in enumerate(alg_name):
     if alg_no<2:
-        ax[0][0].plot(np.arange(1,11),btes_org[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
+        ax[0].plot(np.arange(1,11),btes_org[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
     else:
-        ax[0][0].plot(np.arange(1,11),btes_org[alg_no], c=c[alg_no], label=alg_name[alg_no])
+        ax[0].plot(np.arange(1,11),btes_org[alg_no], c=c[alg_no], label=alg_name[alg_no])
 
-ax[0][0].set_yticks([.9,.95, 1, 1.05,1.1,1.15])
-ax[0][0].set_ylim([0.91,1.17])
-ax[0][0].set_xticks(np.arange(1,11))
-ax[0][0].tick_params(labelsize=ticksize)
-ax[0][0].set_xlabel('Number of tasks seen', fontsize=fontsize)
-ax[0][0].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
-ax[0][0].set_title("CIFAR 10X10", fontsize = fontsize)
-ax[0][0].hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
-right_side = ax[0][0].spines["right"]
+ax[0].set_yticks([.9,.95, 1, 1.05,1.1,1.15])
+ax[0].set_ylim([0.91,1.17])
+ax[0].set_xticks(np.arange(1,11))
+ax[0].tick_params(labelsize=ticksize)
+ax[0].set_xlabel('Number of tasks seen', fontsize=fontsize)
+ax[0].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax[0].set_title("CIFAR 10X10", fontsize = fontsize)
+ax[0].hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
+right_side = ax[0].spines["right"]
 right_side.set_visible(False)
-top_side = ax[0][0].spines["top"]
+top_side = ax[0].spines["top"]
 top_side.set_visible(False)
 plt.tight_layout()
 
 
 for alg_no,alg in enumerate(alg_name):
     if alg_no<2:
-        ax[0][1].plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
+        ax[1].plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
     else:
-        ax[0][1].plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no])
+        ax[1].plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no])
 
-ax[0][1].set_yticks([.9,.95, 1, 1.05,1.1,1.15])
-ax[0][1].set_ylim([0.91,1.17])
-ax[0][1].set_xticks(np.arange(1,11))
-ax[0][1].tick_params(labelsize=ticksize)
-ax[0][1].set_xlabel('Number of tasks seen', fontsize=fontsize)
-ax[0][1].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
-ax[0][1].set_title("Label Shuffled CIFAR", fontsize = fontsize)
-ax[0][1].hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
-right_side = ax[0][1].spines["right"]
+ax[1].set_yticks([.9,.95, 1, 1.05,1.1,1.15])
+ax[1].set_ylim([0.91,1.17])
+ax[1].set_xticks(np.arange(1,11))
+ax[1].tick_params(labelsize=ticksize)
+ax[1].set_xlabel('Number of tasks seen', fontsize=fontsize)
+ax[1].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax[1].set_title("Label Shuffled CIFAR", fontsize = fontsize)
+ax[1].hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
+right_side = ax[1].spines["right"]
 right_side.set_visible(False)
-top_side = ax[0][1].spines["top"]
+top_side = ax[1].spines["top"]
 top_side.set_visible(False)
 plt.tight_layout()
 
@@ -68,27 +68,27 @@ c = sns.color_palette(clr, n_colors=len(clr))
 
 for alg_no,alg in enumerate(alg_name):
     if alg_no<2:
-        ax[1][0].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
+        ax[2].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
     else:
-        ax[1][0].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no])
+        ax[2].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no])
 
-ax[1][0].set_yticks([.9,.95, 1, 1.05])
-ax[1][0].set_ylim([0.85,1.08])
-ax[1][0].set_xticks([0,30,60,90,120,150,180])
-ax[1][0].hlines(1,0,180, colors='grey', linestyles='dashed',linewidth=1.5)
-ax[1][0].tick_params(labelsize=ticksize)
-ax[1][0].set_xlabel('Angle of Rotation (Degrees)', fontsize=fontsize)
-ax[1][0].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
-ax[1][0].set_title("Rotation Experiment", fontsize=fontsize)
-right_side = ax[1][0].spines["right"]
+ax[2].set_yticks([.9,.95, 1, 1.05])
+ax[2].set_ylim([0.85,1.08])
+ax[2].set_xticks([0,30,60,90,120,150,180])
+ax[2].hlines(1,0,180, colors='grey', linestyles='dashed',linewidth=1.5)
+ax[2].tick_params(labelsize=ticksize)
+ax[2].set_xlabel('Angle of Rotation (Degrees)', fontsize=fontsize)
+ax[2].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax[2].set_title("Rotation Experiment", fontsize=fontsize)
+right_side = ax[2].spines["right"]
 right_side.set_visible(False)
-top_side = ax[1][0].spines["top"]
+top_side = ax[2].spines["top"]
 top_side.set_visible(False)
 plt.tight_layout()
 
 
 
-mean_error = unpickle('recruitment_result/recruitment_mean.pickle')
+'''mean_error = unpickle('recruitment_result/recruitment_mean.pickle')
 std_error = unpickle('recruitment_result/recruitment_std.pickle')
 ns = 10*np.array([50, 100, 200, 350, 500])
 colors = sns.color_palette('Set1', n_colors=mean_error.shape[0]+2)
@@ -135,7 +135,7 @@ ax[1][1].legend(fontsize=12)
 right_side = ax[1][1].spines["right"]
 right_side.set_visible(False)
 top_side = ax[1][1].spines["top"]
-top_side.set_visible(False)
+top_side.set_visible(False)'''
 
 plt.savefig('figs/real_adversary_recruit.pdf', dpi=500)
 
