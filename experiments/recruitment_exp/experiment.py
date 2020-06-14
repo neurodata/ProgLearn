@@ -191,7 +191,7 @@ for ns in task_10_sample:
             )
 
         error_across_trees = np.zeros(9*ntrees)
-        validation_target = test_y_across_task[9][task_10_train_indx[estimation_sample_no:]]
+        validation_target = train_y_across_task[9][task_10_train_indx[estimation_sample_no:]]
         for tree in range(9*ntrees):
             res = np.argmax(posteriors_across_trees[tree],axis=1) + 90
             error_across_trees[tree] = 1-np.mean(
