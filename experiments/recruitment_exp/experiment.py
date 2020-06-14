@@ -256,7 +256,7 @@ for ns in task_10_sample:
             axis=0
         )
         hybrid_res = np.argmax(hybrid_posterior,axis=1) + 90
-        hybrid[res] = 1 - np.mean(
+        hybrid[rep] = 1 - np.mean(
                 test_y_across_task[9]==hybrid_res
             )
     mean_accuracy_dict['hybrid'].extend(np.mean(hybrid))
