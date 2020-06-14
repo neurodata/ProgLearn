@@ -190,7 +190,7 @@ for ns in task_10_sample:
             )
 
         best_50_tree = np.argsort(error_across_trees)[:50]
-        best_25_tree = np.argsort(error_across_trees)[:25]
+        best_25_tree = best_50_tree[:25]
 
         ## uf trees validation
         posteriors_across_trees = estimate_posteriors(
