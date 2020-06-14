@@ -221,7 +221,7 @@ for ns in task_10_sample:
             )
 
         building_res = l2f.predict(
-            test_y_across_task[9],
+            test_x_across_task[9],
             representation=[0,1,2,3,4,5,6,7,8,9],
             decider=9
         )
@@ -230,7 +230,7 @@ for ns in task_10_sample:
             )
 
         uf_res = l2f_.predict(
-            test_y_across_task[9],
+            test_x_across_task[9],
             representation=9,
             decider=9
         )
