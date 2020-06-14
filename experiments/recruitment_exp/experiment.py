@@ -119,7 +119,6 @@ def estimate_posteriors(l2f, X, representation = 0, decider = 0):
                 )    
         else:'''
         posteriors_across_tasks = np.array([worker(transformer_task_idx) for transformer_task_idx in representation])    
-        print(posteriors_across_tasks)
 
         return posteriors_across_tasks
 
@@ -229,7 +228,7 @@ for ns in task_10_sample:
                 test_y_across_task[9]==building_res
             )
 
-        uf_res = l2f_.predict(
+        uf_res = l2f.predict(
             test_x_across_task[9],
             representation=9,
             decider=9
@@ -241,8 +240,8 @@ for ns in task_10_sample:
         posteriors_across_trees_hybrid_uf = estimate_posteriors(
             l2f_,
             test_x_across_task[9],
-            representation=10,
-            decider=10
+            representation=0,
+            decider=0
             )
 
         hybrid_posterior_all = np.concatenate(
