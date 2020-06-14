@@ -167,22 +167,23 @@ for ns in task_10_sample:
             n_estimators=ntrees
             )
 
-        l2f.new_forest(
-            train_x_across_task[9][task_10_train_indx[:estimation_sample_no]], 
-            train_y_across_task[9][task_10_train_indx[:estimation_sample_no]], 
-            max_depth=ceil(log2(estimation_sample_no)),
+        l2f_ = LifeLongDNN(model = "uf", parallel = True)
+        l2f_.new_forest(
+            train_x_across_task[9][task_10_train_indx], 
+            train_y_across_task[9][task_10_train_indx], 
+            max_depth=ceil(log2(ns)),
             n_estimators=hybrid_comp_trees
             )
 
+        
+        ## validation
         posteriors_across_trees = estimate_posteriors(
             l2f,
             train_x_across_task[9][task_10_train_indx[estimation_sample_no:]],
             representation=[0,1,2,3,4,5,6,7,8],
             decider=9
             )
-
         
-        ## validation
         posteriors_across_trees = posteriors_across_trees.reshape(
             9*ntrees,
             validation_sample_no,
@@ -228,7 +229,7 @@ for ns in task_10_sample:
                 test_y_across_task[9]==building_res
             )
 
-        uf_res = l2f.predict(
+        uf_res = l2f_.predict(
             test_y_across_task[9],
             representation=9,
             decider=9
@@ -238,7 +239,7 @@ for ns in task_10_sample:
             )
 
         posteriors_across_trees_hybrid_uf = estimate_posteriors(
-            l2f,
+            l2f_,
             test_x_across_task[9],
             representation=10,
             decider=10
