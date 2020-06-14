@@ -167,7 +167,7 @@ for ns in task_10_sample:
             )
 
         
-        ## validation
+        ## L2F validation
         posteriors_across_trees = estimate_posteriors(
             l2f,
             train_x_across_task[9][task_10_train_indx[estimation_sample_no:]],
