@@ -247,7 +247,7 @@ for ns in task_10_sample:
         hybrid_posterior_all = np.concatenate(
             (
                 posteriors_across_trees[best_25_tree],
-                posteriors_across_trees_hybrid_uf
+                posteriors_across_trees_hybrid_uf[0]
             ),
             axis=0
         )
