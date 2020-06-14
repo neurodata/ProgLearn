@@ -1,0 +1,6 @@
+keras
+tensorflow
+scikit-learn
+keras-rectified-adam
+numpy
+joblib

@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: proglearn
+Version: 0.0.1
+Summary: A package to implement and extend the methods desribed in 'A General Approach to Progressive Learning'
+Home-page: https://github.com/neurodata/progressive-learning/
+Author: Will Levine, Jayanta Dey, Hayden Helm
+Author-email: levinewill@icloud.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN

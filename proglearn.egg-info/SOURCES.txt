@@ -1,0 +1,10 @@
+setup.py
+proglearn/__init__.py
+proglearn/honest_dnn.py
+proglearn/lifelong_dnn.py
+proglearn/uncertainty_forest.py
+proglearn.egg-info/PKG-INFO
+proglearn.egg-info/SOURCES.txt
+proglearn.egg-info/dependency_links.txt
+proglearn.egg-info/requires.txt
+proglearn.egg-info/top_level.txt
