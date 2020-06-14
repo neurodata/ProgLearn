@@ -11,7 +11,7 @@ import numpy as np
 from joblib import Parallel, delayed
 
 class LifeLongDNN():
-    def __init__(self, acorn = None, verbose = False, model = "uf", parallel = True):
+    def __init__(self, acorn = None, verbose = False, model = "uf"):
         self.X_across_tasks = []
         self.y_across_tasks = []
         
@@ -29,8 +29,6 @@ class LifeLongDNN():
         self.verbose = verbose
         
         self.model = model
-        
-        self.parallel = parallel
         
     def check_task_idx_(self, task_idx):
         if task_idx >= self.n_tasks:
@@ -109,7 +107,7 @@ class LifeLongDNN():
         
         self.n_tasks += 1
         
-    def _estimate_posteriors(self, X, representation = 0, decider = 0):
+    def _estimate_posteriors(self, X, representation = 0, decider = 0, parallel = True, n_jobs = -1):
         self.check_task_idx_(decider)
         
         if representation == "all":
@@ -127,7 +125,7 @@ class LifeLongDNN():
         
         if self.parallel:
             posteriors_across_tasks = np.array(
-                        Parallel(n_jobs=-1)(
+                        Parallel(n_jobs=n_jobs)(
                                 delayed(worker)(transformer_task_idx) for transformer_task_idx in representation
                         )
                 )    
@@ -136,7 +134,7 @@ class LifeLongDNN():
             
         return np.mean(posteriors_across_tasks, axis = 0)
         
-    def predict(self, X, representation = 0, decider = 0):
+    def predict(self, X, representation = 0, decider = 0, parallel = True, n_jobs = -1):
         task_classes = self.classes_across_tasks[decider]
-        return task_classes[np.argmax(self._estimate_posteriors(X, representation, decider), axis = -1)]
+        return task_classes[np.argmax(self._estimate_posteriors(X, representation, decider, parallel, n_jobs), axis = -1)]
         
