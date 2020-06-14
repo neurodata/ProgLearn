@@ -166,14 +166,6 @@ for ns in task_10_sample:
             n_estimators=ntrees
             )
 
-        l2f_ = LifeLongDNN(model = "uf", parallel = True)
-        l2f_.new_forest(
-            train_x_across_task[9][task_10_train_indx], 
-            train_y_across_task[9][task_10_train_indx], 
-            max_depth=ceil(log2(ns)),
-            n_estimators=hybrid_comp_trees
-            )
-
         
         ## validation
         posteriors_across_trees = estimate_posteriors(
@@ -199,6 +191,23 @@ for ns in task_10_sample:
 
         best_50_tree = np.argsort(error_across_trees)[:50]
         best_25_tree = np.argsort(error_across_trees)[:25]
+
+        ## uf trees validation
+        posteriors_across_trees = estimate_posteriors(
+            l2f,
+            train_x_across_task[9][task_10_train_indx[estimation_sample_no:]],
+            representation=9,
+            decider=9
+            )[0]
+
+        error_across_trees = np.zeros(ntrees)
+        validation_target = train_y_across_task[9][task_10_train_indx[estimation_sample_no:]]
+        for tree in range(ntrees):
+            res = np.argmax(posteriors_across_trees[tree],axis=1) + 90
+            error_across_trees[tree] = 1-np.mean(
+                validation_target==res
+            )
+        best_25_uf_tree = np.argsort(error_across_trees)[:25]
 
         ## evaluation
         posteriors_across_trees = estimate_posteriors(
@@ -238,16 +247,16 @@ for ns in task_10_sample:
             )
 
         posteriors_across_trees_hybrid_uf = estimate_posteriors(
-            l2f_,
+            l2f,
             test_x_across_task[9],
-            representation=0,
-            decider=0
-            )
+            representation=9,
+            decider=9
+            )[0]
 
         hybrid_posterior_all = np.concatenate(
             (
                 posteriors_across_trees[best_25_tree],
-                posteriors_across_trees_hybrid_uf[0]
+                posteriors_across_trees_hybrid_uf[best_25_uf_tree]
             ),
             axis=0
         )
