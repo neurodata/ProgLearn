@@ -27,7 +27,7 @@ estimation_set = 0.63
 validation_set= 1-estimation_set
 num_points_per_task = 5000
 reps = 20
-task_10_sample = range(500,num_points_per_task+500,500)
+task_10_sample = 10*np.array([50, 100, 200, 350, 500])
 
 #%%
 def sort_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
