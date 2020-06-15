@@ -260,10 +260,10 @@ for alg_no,alg in enumerate(alg_name):
 
 
 ax[1][0].set_xticks(range(0, 90 + 15, 15))
-ax[1][0].tick_params(labelsize=25)
-ax[1][0].set_xlabel('Angle of Rotation (Degrees)', fontsize=24)
-ax[1][0].set_ylabel('Backward Transfer Efficiency', fontsize=24)
-ax[1][0].set_title("XOR vs. Rotated-XOR", fontsize = 24)
+ax[1][0].tick_params(labelsize=labelsize)
+ax[1][0].set_xlabel('Angle of Rotation (Degrees)', fontsize=fontsize)
+ax[1][0].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax[1][0].set_title("XOR vs. Rotated-XOR", fontsize = fontsize)
 ax[1][0].hlines(1,0,90, colors='grey', linestyles='dashed',linewidth=1.5)
 
 right_side = ax[1][0].spines["right"]
@@ -283,11 +283,11 @@ for n1 in n1_ra:
     te_ra.append(np.mean(te_across_reps))
 
 ax[1][1].plot(n1_ra, te_ra, c="#e41a1c", linewidth = 2.6)
-ax[1][1].tick_params(labelsize=25)
+ax[1][1].tick_params(labelsize=labelsize)
 ax[1][1].hlines(1, 1, max(n1_ra), colors='grey', linestyles='dashed',linewidth=1.5)
-ax[1][1].set_xlabel('Number of Task 1 Training Samples', fontsize=24)
-ax[1][1].set_ylabel('Backward Transfer Efficiency', fontsize=24)
-ax[1][1].set_title("Training Set Size Effect", fontsize = 24)
+ax[1][1].set_xlabel('Number of Task 1 Training Samples', fontsize=fontsize)
+ax[1][1].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax[1][1].set_title("Training Set Size Effect", fontsize = fontsize)
 
 right_side = ax[1][1].spines["right"]
 right_side.set_visible(False)
