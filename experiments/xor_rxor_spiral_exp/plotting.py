@@ -13,6 +13,11 @@ from tqdm import tqdm_notebook as tqdm
 from joblib import Parallel, delayed
 
 # %%
+def unpickle(file):
+    with open(file, 'rb') as fo:
+        dict = pickle.load(fo, encoding='bytes')
+    return dict
+
 def generate_2d_rotation(theta=0, acorn=None):
     if acorn is not None:
         np.random.seed(acorn)
@@ -151,14 +156,14 @@ colors = sns.color_palette('Dark2', n_colors=2)
 X, Y = generate_gaussian_parity(750, cov_scale=0.1, angle_params=0)
 Z, W = generate_gaussian_parity(750, cov_scale=0.1, angle_params=np.pi/4)
 
-fig, ax = plt.subplots(1,2, figsize=(16,8))
+fig, ax = plt.subplots(2,2, figsize=(16,16))
 
-ax[0].scatter(Z[:, 0], Z[:, 1], c=get_colors(colors, W), s=50)
+ax[0][0].scatter(Z[:, 0], Z[:, 1], c=get_colors(colors, W), s=50)
 
-ax[0].set_xticks([])
-ax[0].set_yticks([])
-ax[0].set_title('Gaussian R-XOR', fontsize=30)
-ax[0].axis('off')
+ax[0][0].set_xticks([])
+ax[0][0].set_yticks([])
+ax[0][0].set_title('Gaussian R-XOR', fontsize=30)
+ax[0][0].axis('off')
 
 
 
@@ -195,7 +200,7 @@ TASK2='R-XOR'
 colors = sns.color_palette("Set1", n_colors = 2)
 
 
-ax[1].plot(ns, mean_error[0], label='Forard Transfer', c=colors[0], ls=ls[0], lw=3)
+ax[0][1].plot(ns, mean_error[0], label='Forard Transfer', c=colors[0], ls=ls[0], lw=3)
 #ax[0][1].fill_between(ns, 
 #        mean_error[0] + 1.96*std_error[0], 
 #        mean_error[0] - 1.96*std_error[0], 
@@ -204,7 +209,7 @@ ax[1].plot(ns, mean_error[0], label='Forard Transfer', c=colors[0], ls=ls[0], lw
 #        alpha=0.15,
 #        interpolate=True)
 
-ax[1].plot(ns[len(n1s):], mean_error[1, len(n1s):], label='Backward Transfer', c=colors[0], ls=ls[1], lw=3)
+ax[0][1].plot(ns[len(n1s):], mean_error[1, len(n1s):], label='Backward Transfer', c=colors[0], ls=ls[1], lw=3)
 #ax[0][1].fill_between(ns[len(n1s):], 
 #        mean_error[1, len(n1s):] + 1.96*std_error[1, len(n1s):], 
 #        mean_error[1, len(n1s):] - 1.96*std_error[1, len(n1s):], 
@@ -213,25 +218,81 @@ ax[1].plot(ns[len(n1s):], mean_error[1, len(n1s):], label='Backward Transfer', c
 #        alpha=0.15,
 #        interpolate=True)
 
-ax[1].set_ylabel('Transfer Efficiency', fontsize=fontsize)
+ax[0][1].set_ylabel('Transfer Efficiency', fontsize=fontsize)
 #ax[0][1].legend(loc='upper right', fontsize=22.5)
-ax[1].set_ylim(0.96, 1.04)
-ax[1].set_xlabel('Total Sample Size', fontsize=fontsize)
-ax[1].tick_params(labelsize=labelsize)
-ax[1].set_yticks([0.96,1, 1.04])
-ax[1].set_xticks([250, 750, 1500])
-ax[1].axvline(x=ns[len(n1s)], c='grey', linestyle='dashed', linewidth=1.5)
-ax[1].hlines(1, 100,1500, colors='grey', linestyle='dashed', linewidth=1.5)
+ax[0][1].set_ylim(0.96, 1.04)
+ax[0][1].set_xlabel('Total Sample Size', fontsize=fontsize)
+ax[0][1].tick_params(labelsize=labelsize)
+ax[0][1].set_yticks([0.96,1, 1.04])
+ax[0][1].set_xticks([250, 750, 1500])
+ax[0][1].axvline(x=ns[len(n1s)], c='grey', linestyle='dashed', linewidth=1.5)
+ax[0][1].hlines(1, 100,1500, colors='grey', linestyle='dashed', linewidth=1.5)
 
-ax[1].text(200, np.mean(ax[1].get_ylim())+.005, "%s"%(TASK1), fontsize=26)
-ax[1].text(910, np.mean(ax[1].get_ylim())+.005, "%s"%(TASK2), fontsize=26)
-right_side = ax[1].spines["right"]
+ax[0][1].text(200, np.mean(ax[0][1].get_ylim())+.005, "%s"%(TASK1), fontsize=26)
+ax[0][1].text(910, np.mean(ax[0][1].get_ylim())+.005, "%s"%(TASK2), fontsize=26)
+right_side = ax[0][1].spines["right"]
 right_side.set_visible(False)
-top_side = ax[1].spines["top"]
+top_side = ax[0][1].spines["top"]
 top_side.set_visible(False)
-ax[1].text(970, np.mean(ax[1].get_ylim())-.024, "Backward Transfer", fontsize=22)
-ax[1].text(960, np.mean(ax[1].get_ylim())+.036, "Forward Transfer", fontsize=22)
+ax[0][1].text(970, np.mean(ax[0][1].get_ylim())-.024, "Backward Transfer", fontsize=22)
+ax[0][1].text(960, np.mean(ax[0][1].get_ylim())+.036, "Forward Transfer", fontsize=22)
 
+#####
+alg_name = ['L2F']
+angles = np.arange(0,91,1)
+tes = [[] for _ in range(len(alg_name))]
+
+for algo_no,alg in enumerate(alg_name):
+    for angle in angles:
+        orig_error, transfer_error = pickle.load(
+                open("../rotation_xor/bte_90/results/angle_" + str(angle) + ".pickle", "rb")
+                )
+        tes[algo_no].append(orig_error / transfer_error)
+
+clr = ["#e41a1c"]
+c = sns.color_palette(clr, n_colors=len(clr))
+
+for alg_no,alg in enumerate(alg_name):
+    if alg_no<2:
+        ax[1][0].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
+    else:
+        ax[1][0].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no])
+
+
+ax[1][0].set_xticks(range(0, 90 + 15, 15))
+ax[1][0].tick_params(labelsize=25)
+ax[1][0].set_xlabel('Angle of Rotation (Degrees)', fontsize=24)
+ax[1][0].set_ylabel('Backward Transfer Efficiency', fontsize=24)
+ax[1][0].set_title("XOR vs. Rotated-XOR", fontsize = 24)
+ax[1][0].hlines(1,0,90, colors='grey', linestyles='dashed',linewidth=1.5)
+
+right_side = ax[1][0].spines["right"]
+right_side.set_visible(False)
+top_side = ax[1][0].spines["top"]
+top_side.set_visible(False)
+
+
+te_ra = []
+n1_ra = range(10, 5000, 50)
+for n1 in n1_ra:
+    te_across_reps = []
+    for rep in range(500):
+        filename = '../rotation_xor/te_exp/result/'+str(n1)+'_'+str(rep)+'.pickle'
+        df = unpickle(filename)
+        te_across_reps.append(float(df['te']))
+    te_ra.append(np.mean(te_across_reps))
+
+ax[1][1].plot(n1_ra, te_ra, c="#e41a1c", linewidth = 2.6)
+ax[1][1].tick_params(labelsize=25)
+ax[1][1].hlines(1, 1, max(n1_ra), colors='grey', linestyles='dashed',linewidth=1.5)
+ax[1][1].set_xlabel('Number of Task 1 Training Samples', fontsize=24)
+ax[1][1].set_ylabel('Backward Transfer Efficiency', fontsize=24)
+ax[1][1].set_title("Training Set Size Effect", fontsize = 24)
+
+right_side = ax[1][1].spines["right"]
+right_side.set_visible(False)
+top_side = ax[1][1].spines["top"]
+top_side.set_visible(False)
 '''colors = sns.color_palette('Dark2', n_colors=5)
 Z, W = generate_spirals(750, 2, 5, noise = 2.5)
 
@@ -334,6 +395,6 @@ ax[1][1].text(970, np.mean(ax[1][1].get_ylim()), "Backward Transfer", fontsize=2
 ax[1][1].text(960, np.mean(ax[1][1].get_ylim())+.06, "Forward Transfer", fontsize=22)'''
 
 plt.tight_layout()
-plt.savefig('./result/figs/xor_rxor.pdf',dpi=500)
+plt.savefig('./result/figs/xor_rxor.pdf')
 
 # %%
