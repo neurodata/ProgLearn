@@ -16,6 +16,8 @@ from lifelong_dnn import LifeLongDNN
 from joblib import Parallel, delayed
 
 import tensorflow as tf
+import warnings
+warnings.simplefilter("ignore")
 
 #%%
 ############################
