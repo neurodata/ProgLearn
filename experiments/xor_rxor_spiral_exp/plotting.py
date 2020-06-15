@@ -223,8 +223,8 @@ ax[1].set_xticks([250, 750, 1500])
 ax[1].axvline(x=ns[len(n1s)], c='grey', linestyle='dashed', linewidth=1.5)
 ax[1].hlines(1, 100,1500, colors='grey', linestyle='dashed', linewidth=1.5)
 
-ax[1].text(200, np.mean(ax[1].get_ylim()), "%s"%(TASK1), fontsize=26)
-ax[1].text(910, np.mean(ax[1].get_ylim()), "%s"%(TASK2), fontsize=26)
+ax[1].text(200, np.mean(ax[1].get_ylim())+.005, "%s"%(TASK1), fontsize=26)
+ax[1].text(910, np.mean(ax[1].get_ylim())+.005, "%s"%(TASK2), fontsize=26)
 right_side = ax[1].spines["right"]
 right_side.set_visible(False)
 top_side = ax[1].spines["top"]
