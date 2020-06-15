@@ -8,3 +8,7 @@ proglearn.egg-info/SOURCES.txt
 proglearn.egg-info/dependency_links.txt
 proglearn.egg-info/requires.txt
 proglearn.egg-info/top_level.txt
+src/__init__.py
+src/honest_dnn.py
+src/lifelong_dnn.py
+src/uncertainty_forest.py

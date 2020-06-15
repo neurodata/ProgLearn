@@ -144,7 +144,7 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
     return np.mean(errors,axis=0)
 
 #%%
-mc_rep = 1000
+mc_rep = 10
 n_test = 1000
 n_trees = 10
 n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
@@ -186,17 +186,17 @@ for i,n1 in enumerate(n_xor):
             std_te[0,i+j+1] = np.std(error[:,0]/error[:,1],ddof=1)
             std_te[1,i+j+1] = np.std(error[:,2]/error[:,3],ddof=1)
             
-with open('./result/mean_xor_nxor.pickle','wb') as f:
-    pickle.dump(mean_error,f)
+# with open('./result/mean_xor_nxor.pickle','wb') as f:
+#     pickle.dump(mean_error,f)
     
-with open('./result/std_xor_nxor.pickle','wb') as f:
-    pickle.dump(std_error,f)
+# with open('./result/std_xor_nxor.pickle','wb') as f:
+#     pickle.dump(std_error,f)
     
-with open('./result/mean_te_xor_nxor.pickle','wb') as f:
-    pickle.dump(mean_te,f)
+# with open('./result/mean_te_xor_nxor.pickle','wb') as f:
+#     pickle.dump(mean_te,f)
     
-with open('./result/std_te_xor_nxor.pickle','wb') as f:
-    pickle.dump(std_te,f)
+# with open('./result/std_te_xor_nxor.pickle','wb') as f:
+#     pickle.dump(std_te,f)
 
 #%% Plotting the result
 #mc_rep = 50
@@ -262,7 +262,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=30)
 
 plt.tight_layout()
 
-plt.savefig('./result/figs/generalization_error_xor.pdf',dpi=500)
+# plt.savefig('./result/figs/generalization_error_xor.pdf',dpi=500)
 
 #%%
 mean_error = unpickle('result/mean_xor_nxor.pickle')
@@ -318,7 +318,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=30)
 
 plt.tight_layout()
 
-plt.savefig('./result/figs/generalization_error_nxor.pdf',dpi=500)
+# plt.savefig('./result/figs/generalization_error_nxor.pdf',dpi=500)
 
 #%%
 mean_error = unpickle('result/mean_te_xor_nxor.pickle')
@@ -369,7 +369,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=30)
 
 plt.tight_layout()
 
-plt.savefig('./result/figs/TE.pdf',dpi=500)
+# plt.savefig('./result/figs/TE.pdf',dpi=500)
 
 #%%
 colors = sns.color_palette('Dark2', n_colors=2)
@@ -386,7 +386,7 @@ ax.set_title('Gaussian XOR', fontsize=30)
 
 plt.tight_layout()
 ax.axis('off')
-plt.savefig('./result/figs/gaussian-xor.pdf')
+# plt.savefig('./result/figs/gaussian-xor.pdf')
 
 #%%
 colors = sns.color_palette('Dark2', n_colors=2)
@@ -398,6 +398,6 @@ ax.set_yticks([])
 ax.set_title('Gaussian N-XOR', fontsize=30)
 ax.axis('off')
 plt.tight_layout()
-plt.savefig('./result/figs/gaussian-nxor.pdf')
+# plt.savefig('./result/figs/gaussian-nxor.pdf')
 
 # %%
