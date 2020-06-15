@@ -151,14 +151,14 @@ colors = sns.color_palette('Dark2', n_colors=2)
 X, Y = generate_gaussian_parity(750, cov_scale=0.1, angle_params=0)
 Z, W = generate_gaussian_parity(750, cov_scale=0.1, angle_params=np.pi/4)
 
-fig, ax = plt.subplots(2,2, figsize=(16,16))
+fig, ax = plt.subplots(1,2, figsize=(16,8))
 
-ax[0][0].scatter(Z[:, 0], Z[:, 1], c=get_colors(colors, W), s=50)
+ax[0].scatter(Z[:, 0], Z[:, 1], c=get_colors(colors, W), s=50)
 
-ax[0][0].set_xticks([])
-ax[0][0].set_yticks([])
-ax[0][0].set_title('Gaussian R-XOR', fontsize=30)
-ax[0][0].axis('off')
+ax[0].set_xticks([])
+ax[0].set_yticks([])
+ax[0].set_title('Gaussian R-XOR', fontsize=30)
+ax[0].axis('off')
 
 
 
@@ -195,7 +195,7 @@ TASK2='R-XOR'
 colors = sns.color_palette("Set1", n_colors = 2)
 
 
-ax[0][1].plot(ns, mean_error[0], label='Forard Transfer', c=colors[0], ls=ls[0], lw=3)
+ax[1].plot(ns, mean_error[0], label='Forard Transfer', c=colors[0], ls=ls[0], lw=3)
 #ax[0][1].fill_between(ns, 
 #        mean_error[0] + 1.96*std_error[0], 
 #        mean_error[0] - 1.96*std_error[0], 
@@ -204,7 +204,7 @@ ax[0][1].plot(ns, mean_error[0], label='Forard Transfer', c=colors[0], ls=ls[0],
 #        alpha=0.15,
 #        interpolate=True)
 
-ax[0][1].plot(ns[len(n1s):], mean_error[1, len(n1s):], label='Backward Transfer', c=colors[0], ls=ls[1], lw=3)
+ax[1].plot(ns[len(n1s):], mean_error[1, len(n1s):], label='Backward Transfer', c=colors[0], ls=ls[1], lw=3)
 #ax[0][1].fill_between(ns[len(n1s):], 
 #        mean_error[1, len(n1s):] + 1.96*std_error[1, len(n1s):], 
 #        mean_error[1, len(n1s):] - 1.96*std_error[1, len(n1s):], 
@@ -213,26 +213,26 @@ ax[0][1].plot(ns[len(n1s):], mean_error[1, len(n1s):], label='Backward Transfer'
 #        alpha=0.15,
 #        interpolate=True)
 
-ax[0][1].set_ylabel('Transfer Efficiency', fontsize=fontsize)
+ax[1].set_ylabel('Transfer Efficiency', fontsize=fontsize)
 #ax[0][1].legend(loc='upper right', fontsize=22.5)
-ax[0][1].set_ylim(0.96, 1.05)
-ax[0][1].set_xlabel('Total Sample Size', fontsize=fontsize)
-ax[0][1].tick_params(labelsize=labelsize)
-ax[0][1].set_yticks([1, 1.04])
-ax[0][1].set_xticks([250, 750, 1500])
-ax[0][1].axvline(x=ns[len(n1s)], c='grey', linestyle='dashed', linewidth=1.5)
-ax[0][1].hlines(1, 100,1500, colors='grey', linestyle='dashed', linewidth=1.5)
+ax[1].set_ylim(0.96, 1.04)
+ax[1].set_xlabel('Total Sample Size', fontsize=fontsize)
+ax[1].tick_params(labelsize=labelsize)
+ax[1].set_yticks([0.96,1, 1.04])
+ax[1].set_xticks([250, 750, 1500])
+ax[1].axvline(x=ns[len(n1s)], c='grey', linestyle='dashed', linewidth=1.5)
+ax[1].hlines(1, 100,1500, colors='grey', linestyle='dashed', linewidth=1.5)
 
-ax[0][1].text(200, np.mean(ax[0][1].get_ylim()), "%s"%(TASK1), fontsize=26)
-ax[0][1].text(910, np.mean(ax[0][1].get_ylim()), "%s"%(TASK2), fontsize=26)
-right_side = ax[0][1].spines["right"]
+ax[1].text(200, np.mean(ax[1].get_ylim()), "%s"%(TASK1), fontsize=26)
+ax[1].text(910, np.mean(ax[1].get_ylim()), "%s"%(TASK2), fontsize=26)
+right_side = ax[1].spines["right"]
 right_side.set_visible(False)
-top_side = ax[0][1].spines["top"]
+top_side = ax[1].spines["top"]
 top_side.set_visible(False)
-ax[0][1].text(970, np.mean(ax[0][1].get_ylim())-.028, "Forward Transfer", fontsize=22)
-ax[0][1].text(960, np.mean(ax[0][1].get_ylim())+.03, "Backward Transfer", fontsize=22)
+ax[1].text(970, np.mean(ax[1].get_ylim())-.024, "Backward Transfer", fontsize=22)
+ax[1].text(960, np.mean(ax[1].get_ylim())+.036, "Forward Transfer", fontsize=22)
 
-colors = sns.color_palette('Dark2', n_colors=5)
+'''colors = sns.color_palette('Dark2', n_colors=5)
 Z, W = generate_spirals(750, 2, 5, noise = 2.5)
 
 #ax[1][0].scatter(Z[:, 0], Z[:, 1], c=get_colors(colors, Y), s=10)
@@ -331,9 +331,9 @@ right_side.set_visible(False)
 top_side = ax[1][1].spines["top"]
 top_side.set_visible(False)
 ax[1][1].text(970, np.mean(ax[1][1].get_ylim()), "Backward Transfer", fontsize=22)
-ax[1][1].text(960, np.mean(ax[1][1].get_ylim())+.06, "Forward Transfer", fontsize=22)
+ax[1][1].text(960, np.mean(ax[1][1].get_ylim())+.06, "Forward Transfer", fontsize=22)'''
 
 plt.tight_layout()
-plt.savefig('./result/figs/xor_rxor_spiral.pdf',dpi=500)
+plt.savefig('./result/figs/xor_rxor.pdf',dpi=500)
 
 # %%
