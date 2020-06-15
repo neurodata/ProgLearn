@@ -14,10 +14,10 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 
-fig, ax = plt.subplots(1,2, figsize=(22,10))
+fig, ax = plt.subplots(1,2, figsize=(18, 8))
 
 alg_name = ['L2F']
-angles = np.arange(0,92,2)
+angles = np.arange(0,91,1)
 tes = [[] for _ in range(len(alg_name))]
 
 for algo_no,alg in enumerate(alg_name):
@@ -39,25 +39,25 @@ for alg_no,alg in enumerate(alg_name):
 
 
 ax[0].set_xticks(range(0, 90 + 15, 15))
-ax[0].tick_params(labelsize=20)
+ax[0].tick_params(labelsize=25)
 ax[0].set_xlabel('Angle of Rotation (Degrees)', fontsize=24)
 ax[0].set_ylabel('Backward Transfer Efficiency', fontsize=24)
 ax[0].set_title("XOR vs. Rotated-XOR", fontsize = 24)
 ax[0].hlines(1,0,90, colors='grey', linestyles='dashed',linewidth=1.5)
 
 
+
 #%%
 te_ra = []
-n1_ra = range(10, 1000, 25)
+n1_ra = range(10, 5000, 50)
 for n1 in n1_ra:
     te_across_reps = []
-    for rep in range(50):
+    for rep in range(500):
         filename = 'te_exp/result/'+str(n1)+'_'+str(rep)+'.pickle'
         df = unpickle(filename)
         te_across_reps.append(float(df['te']))
-    te_ra.append(np.nanmean(np.array(te_across_reps)[~np.isinf(te_across_reps)]))
-    
-print(te_ra)
+    te_ra.append(np.mean(te_across_reps))
+
 
 #%%
 sns.set()
@@ -66,7 +66,7 @@ fontsize=22
 ticksize=20
 
 ax[1].plot(n1_ra, te_ra, c="#e41a1c", linewidth = 2.6)
-
+ax[1].tick_params(labelsize=25)
 ax[1].hlines(1, 1, max(n1_ra), colors='grey', linestyles='dashed',linewidth=1.5)
 ax[1].set_xlabel('Number of Task 1 Training Samples', fontsize=24)
 ax[1].set_ylabel('Backward Transfer Efficiency', fontsize=24)
@@ -79,4 +79,4 @@ for a in ax:
     top_side.set_visible(False)
 plt.tight_layout()
 
-plt.savefig('figs/rotation_te_exp.png')
+plt.savefig('figs/rotation_te_exp.pdf')

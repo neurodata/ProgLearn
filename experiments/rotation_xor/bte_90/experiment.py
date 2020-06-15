@@ -16,7 +16,7 @@ from joblib import Parallel, delayed
 from multiprocessing import Pool
 
 import sys
-sys.path.append("../../src")
+sys.path.append("../../../src")
 
 from lifelong_dnn import LifeLongDNN
 
@@ -66,7 +66,7 @@ def LF_experiment(angle, reps=1, ntrees=10, acorn=None):
 
 ### MAIN HYPERPARAMS ###
 granularity = 1
-reps = 40
+reps = 100
 ########################
 
 
