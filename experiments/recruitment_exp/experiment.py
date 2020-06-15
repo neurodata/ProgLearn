@@ -27,7 +27,7 @@ estimation_set = 0.63
 validation_set= 1-estimation_set
 num_points_per_task = 5000
 num_points_per_forest = 5000
-reps = 30
+reps = 20
 task_10_sample = 10*np.array([50, 100, 200, 350, 500])
 
 #%%
