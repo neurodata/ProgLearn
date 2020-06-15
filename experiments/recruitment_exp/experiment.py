@@ -17,7 +17,7 @@ from joblib import Parallel, delayed
 
 import tensorflow as tf
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings(action='once')
 
 #%%
 ############################
