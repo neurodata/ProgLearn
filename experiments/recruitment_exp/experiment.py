@@ -26,6 +26,7 @@ hybrid_comp_trees = 25
 estimation_set = 0.63
 validation_set= 1-estimation_set
 num_points_per_task = 5000
+num_points_per_forest = 5000
 reps = 20
 task_10_sample = 10*np.array([50, 100, 200, 350, 500])
 
@@ -150,10 +151,11 @@ for ns in task_10_sample:
         l2f = LifeLongDNN(model = "uf", parallel = True)
 
         for task in range(9):
+            indx = np.random.choice(num_points_per_task, num_points_per_forest, replace=False)
             l2f.new_forest(
-            train_x_across_task[task], 
-            train_y_across_task[task], 
-            max_depth=ceil(log2(num_points_per_task)),
+            train_x_across_task[task][indx], 
+            train_y_across_task[task][indx], 
+            max_depth=ceil(log2(num_points_per_forest)),
             n_estimators=ntrees
             )
 
@@ -268,17 +270,17 @@ for ns in task_10_sample:
         hybrid[rep] = 1 - np.mean(
                 test_y_across_task[9]==hybrid_res
             )
-    mean_accuracy_dict['hybrid'].extend(np.mean(hybrid))
-    std_accuracy_dict['hybrid'].extend(hybrid,ddof=1)
+    mean_accuracy_dict['hybrid'].append(np.mean(hybrid))
+    std_accuracy_dict['hybrid'].append(hybrid,ddof=1)
 
-    mean_accuracy_dict['building'].extend(np.mean(building))
-    std_accuracy_dict['building'].extend(building,ddof=1)
+    mean_accuracy_dict['building'].append(np.mean(building))
+    std_accuracy_dict['building'].append(building,ddof=1)
 
-    mean_accuracy_dict['recruiting'].extend(np.mean(recruiting))
-    std_accuracy_dict['hybrid'].extend(recruiting,ddof=1)
+    mean_accuracy_dict['recruiting'].append(np.mean(recruiting))
+    std_accuracy_dict['hybrid'].append(recruiting,ddof=1)
 
-    mean_accuracy_dict['UF'].extend(np.mean(uf))
-    std_accuracy_dict['hybrid'].extend(uf,ddof=1)
+    mean_accuracy_dict['UF'].append(np.mean(uf))
+    std_accuracy_dict['hybrid'].append(uf,ddof=1)
 
 summary = (mean_accuracy_dict,std_accuracy_dict)
 
