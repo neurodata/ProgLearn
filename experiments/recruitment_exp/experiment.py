@@ -284,6 +284,6 @@ for ns in task_10_sample:
 
 summary = (mean_accuracy_dict,std_accuracy_dict)
 
-with open('result/recruitment_exp.pickle','wb') as f:
+with open('result/recruitment_exp_'+str(num_points_per_forest)+'.pickle','wb') as f:
     pickle.dump(summary,f)
 # %%
