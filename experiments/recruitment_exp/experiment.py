@@ -26,7 +26,7 @@ hybrid_comp_trees = 25
 estimation_set = 0.63
 validation_set= 1-estimation_set
 num_points_per_task = 5000
-num_points_per_forest = 500
+num_points_per_forest = 5000
 reps = 30
 task_10_sample = 10*np.array([50, 100, 200, 350, 500])
 
@@ -271,16 +271,16 @@ for ns in task_10_sample:
                 test_y_across_task[9]==hybrid_res
             )
     mean_accuracy_dict['hybrid'].append(np.mean(hybrid))
-    std_accuracy_dict['hybrid'].append(hybrid,ddof=1)
+    std_accuracy_dict['hybrid'].append(np.std(hybrid,ddof=1))
 
     mean_accuracy_dict['building'].append(np.mean(building))
-    std_accuracy_dict['building'].append(building,ddof=1)
+    std_accuracy_dict['building'].append(np.std(building,ddof=1))
 
     mean_accuracy_dict['recruiting'].append(np.mean(recruiting))
-    std_accuracy_dict['hybrid'].append(recruiting,ddof=1)
+    std_accuracy_dict['hybrid'].append(np.std(recruiting,ddof=1))
 
     mean_accuracy_dict['UF'].append(np.mean(uf))
-    std_accuracy_dict['hybrid'].append(uf,ddof=1)
+    std_accuracy_dict['hybrid'].append(np.std(uf,ddof=1))
 
 summary = (mean_accuracy_dict,std_accuracy_dict)
 
