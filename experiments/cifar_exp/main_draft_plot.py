@@ -171,7 +171,7 @@ for alg in range(total_alg_bottom):
     ftes_bottom[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 
 # %%
-fig = plt.figure(constrained_layout=True,figsize=(21,14))
+fig = plt.figure(constrained_layout=True,figsize=(21,15))
 gs = fig.add_gridspec(14, 21)
 
 clr_top = ["#00008B", "#e41a1c", "#a65628", "#377eb8"]
@@ -245,7 +245,7 @@ ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
 
 ax.set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
 ax.set_xticks(np.arange(1,11))
-ax.set_ylim(0.99, 1.19)
+ax.set_ylim(0.99, 1.2)
 ax.tick_params(labelsize=ticksize)
 #ax[0][1].grid(axis='x')
 
