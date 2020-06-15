@@ -217,13 +217,14 @@ algorithms = ['Uncertainty Forest', 'Lifelong Forest']
 TASK1='XOR'
 TASK2='N-XOR'
 
-fontsize=35
-labelsize=27.5
+fontsize=30
+labelsize=28
 
 colors = sns.color_palette("Set1", n_colors = 2)
 
-fig1 = plt.figure(figsize=(8,8))
-ax1 = fig1.add_subplot(1,1,1)
+fig = plt.figure(constrained_layout=True,figsize=(21,14))
+gs = fig.add_gridspec(14, 21)
+ax1 = fig.add_subplot(gs[7:,:6])
 # for i, algo in enumerate(algorithms):
 ax1.plot(ns, mean_error[0], label=algorithms[0], c=colors[1], ls=ls[np.sum(0 > 1).astype(int)], lw=3)
 #ax1.fill_between(ns, 
@@ -243,10 +244,10 @@ ax1.plot(ns, mean_error[1], label=algorithms[1], c=colors[0], ls=ls[np.sum(1 > 1
 #        alpha=0.15,
 #        interpolate=True)
 
-ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontname="Arial", fontsize=fontsize)
-ax1.legend(loc='upper right', fontsize=24, frameon=False)
+ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontsize=fontsize)
+ax1.legend(loc='upper right', fontsize=20, frameon=False)
 ax1.set_ylim(0.1, 0.21)
-ax1.set_xlabel('Total Sample Size', fontname="Arial", fontsize=fontsize)
+ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.15, 0.2])
 ax1.set_xticks([250,750,1500])
@@ -257,14 +258,14 @@ right_side.set_visible(False)
 top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=30)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=30)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
-plt.tight_layout()
+#plt.tight_layout()
 
-plt.savefig('./result/figs/generalization_error_xor.pdf',dpi=500)
+#plt.savefig('./result/figs/generalization_error_xor.pdf',dpi=500)
 
-#%%
+#####
 mean_error = unpickle('result/mean_xor_nxor.pickle')
 std_error = unpickle('result/std_xor_nxor.pickle')
 
@@ -273,8 +274,7 @@ algorithms = ['Uncertainty Forest', 'Lifelong Forest']
 TASK1='XOR'
 TASK2='N-XOR'
 
-fig1 = plt.figure(figsize=(8,8))
-ax1 = fig1.add_subplot(1,1,1)
+ax1 = fig.add_subplot(gs[7:,7:13])
 # for i, algo in enumerate(algorithms):
 ax1.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[0], c=colors[1], ls=ls[1], lw=3)
 #ax1.fill_between(ns[len(n1s):], 
@@ -295,7 +295,7 @@ ax1.plot(ns[len(n1s):], mean_error[3, len(n1s):], label=algorithms[1], c=colors[
 #        interpolate=True)
 
 ax1.set_ylabel('Generalization Error (%s)'%(TASK2), fontsize=fontsize)
-ax1.legend(loc='upper right', fontsize=24, frameon=False)
+ax1.legend(loc='upper right', fontsize=20, frameon=False)
 #         ax1.set_ylim(-0.01, 0.22)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
@@ -313,24 +313,23 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
 # ax1.set_ylim(0.14, 0.36)
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=30)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=30)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
-plt.tight_layout()
+#plt.tight_layout()
 
-plt.savefig('./result/figs/generalization_error_nxor.pdf',dpi=500)
+#plt.savefig('./result/figs/generalization_error_nxor.pdf',dpi=500)
 
-#%%
+#####
 mean_error = unpickle('result/mean_te_xor_nxor.pickle')
 std_error = unpickle('result/std_te_xor_nxor.pickle')
 
-algorithms = ['Forward Transfer', 'Backward Transfer']
+algorithms = ['Backward Transfer', 'Forward Transfer']
 
 TASK1='XOR'
 TASK2='N-XOR'
 
-fig1 = plt.figure(figsize=(8,8))
-ax1 = fig1.add_subplot(1,1,1)
+ax1 = fig.add_subplot(gs[7:,14:])
 
 ax1.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 #ax1.fill_between(ns, 
@@ -351,7 +350,7 @@ ax1.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[
 #        interpolate=True)
 
 ax1.set_ylabel('Transfer Efficiency', fontsize=fontsize)
-ax1.legend(loc='upper right', fontsize=24, frameon=False)
+ax1.legend(loc='upper right', fontsize=20, frameon=False)
 ax1.set_ylim(0.95, 1.42)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
@@ -364,20 +363,20 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
 
-ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=30)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=30)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
-plt.tight_layout()
+#plt.tight_layout()
 
-plt.savefig('./result/figs/TE.pdf',dpi=500)
+#plt.savefig('./result/figs/TE.pdf',dpi=500)
 
-#%%
+#####
 colors = sns.color_palette('Dark2', n_colors=2)
 
 X, Y = generate_gaussian_parity(750, cov_scale=0.1, angle_params=0)
 Z, W = generate_gaussian_parity(750, cov_scale=0.1, angle_params=np.pi/2)
 
-fig, ax = plt.subplots(1,1, figsize=(8,8))
+ax = fig.add_subplot(gs[:6,4:10])
 ax.scatter(X[:, 0], X[:, 1], c=get_colors(colors, Y), s=50)
 
 ax.set_xticks([])
@@ -386,18 +385,19 @@ ax.set_title('Gaussian XOR', fontsize=30)
 
 plt.tight_layout()
 ax.axis('off')
-plt.savefig('./result/figs/gaussian-xor.pdf')
+#plt.savefig('./result/figs/gaussian-xor.pdf')
 
-#%%
+###
 colors = sns.color_palette('Dark2', n_colors=2)
-fig, ax = plt.subplots(1,1, figsize=(8,8))
+
+ax = fig.add_subplot(gs[:6,11:16])
 ax.scatter(Z[:, 0], Z[:, 1], c=get_colors(colors, W), s=50)
 
 ax.set_xticks([])
 ax.set_yticks([])
 ax.set_title('Gaussian N-XOR', fontsize=30)
 ax.axis('off')
-plt.tight_layout()
-plt.savefig('./result/figs/gaussian-nxor.pdf')
+#plt.tight_layout()
+plt.savefig('./result/figs/xor_nxor_exp.pdf')
 
 # %%
