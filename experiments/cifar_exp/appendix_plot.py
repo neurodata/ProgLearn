@@ -143,7 +143,7 @@ for alg in range(total_alg):
     ftes_5000[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 
 #%%
-clr = ["#00008B", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
+clr = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
 c = sns.color_palette(clr, n_colors=len(clr))
 
 fontsize=24
