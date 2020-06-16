@@ -15,7 +15,7 @@ fig, ax = plt.subplots(1,2, figsize=(10,5))
 
 btes_org, btes = unpickle('./label_shuffle_result/res.pickle')
 alg_name = ['L2N','L2F','Prog_NN', 'DF_CNN','LwF','EWC','Online_EWC','SI']
-clr = ["#00008B", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
+clr = [ "#377eb8","#e41a1c","#4daf4a","#984ea3","#ff7f00","#ffff33", "#a65628", "#f781bf"]
 c = sns.color_palette(clr, n_colors=len(clr))
 
 '''for alg_no,alg in enumerate(alg_name):
@@ -63,7 +63,7 @@ plt.tight_layout()
 tes = unpickle('rotation_result/res.pickle')
 angles = np.arange(0,180,2)
 alg_name = ['L2N','L2F','LwF','EWC','Online_EWC','SI']
-clr = ["#00008B", "#e41a1c", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
+clr = ["#377eb8", "#e41a1c", "#ff7f00","#ffff33", "#a65628", "#f781bf"]
 c = sns.color_palette(clr, n_colors=len(clr))
 
 for alg_no,alg in enumerate(alg_name):
