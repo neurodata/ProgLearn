@@ -173,7 +173,7 @@ for alg in range(total_alg_bottom):
 
 # %%
 fig = plt.figure(constrained_layout=True,figsize=(24,16))
-gs = fig.add_gridspec(13, 24)
+gs = fig.add_gridspec(16, 24)
 
 clr_top = ["#e41a1c", "#377eb8",  "#4daf4a", "#984ea3"]
 c_top = sns.color_palette(clr_top, n_colors=len(clr_top))
@@ -188,7 +188,7 @@ fontsize=25
 ticksize=22
 legendsize=14
 
-ax = fig.add_subplot(gs[:6,:7])
+ax = fig.add_subplot(gs[:7,:7])
 
 for i, fte in enumerate(ftes_top):
     if i == 0:
@@ -216,7 +216,7 @@ top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
 #ax[0][0].grid(axis='x')
-ax = fig.add_subplot(gs[:6,8:15])
+ax = fig.add_subplot(gs[:7,8:15])
 
 for i in range(task_num - 1):
 
@@ -262,7 +262,7 @@ ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 #ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=legendsize+6)
 
 #########################################################
-ax = fig.add_subplot(gs[7:13,:7])
+ax = fig.add_subplot(gs[8:15,:7])
 
 for i, fte in enumerate(ftes_bottom):
     if i == 0:
@@ -290,7 +290,7 @@ top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
 #ax[0][0].grid(axis='x')
-ax = fig.add_subplot(gs[7:13,8:15])
+ax = fig.add_subplot(gs[8:15,8:15])
 
 for i in range(0,total_alg_bottom-1):
     ax.plot(1,0,color=c_combined[i], marker='.', markersize=8,label=combined_alg_name[i])
@@ -340,7 +340,7 @@ ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -.2), fontsize=legendsize+6,
  shadow=True, ncol=3)
 ###############################
-ax = fig.add_subplot(gs[7:13,15:21])
+ax = fig.add_subplot(gs[8:15,15:22])
 mean_error = unpickle('../plot_label_shuffled_angle_recruitment/recruitment_result/recruitment_mean.pickle')
 std_error = unpickle('../plot_label_shuffled_angle_recruitment/recruitment_result/recruitment_std.pickle')
 ns = 10*np.array([50, 100, 200, 350, 500])
