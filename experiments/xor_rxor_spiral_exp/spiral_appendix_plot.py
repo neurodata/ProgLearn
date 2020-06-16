@@ -130,6 +130,7 @@ ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.2, 0.4,.6])
 ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+ax1.set_title('3 spirals', fontsize=30)
 
 right_side = ax1.spines["right"]
 right_side.set_visible(False)
@@ -184,7 +185,7 @@ ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
 ax1.set_ylim(0.5, 0.71)
 
-ax1.set_xlim(-10)
+ax1.set_title('5 spirals', fontsize=30)
 right_side = ax1.spines["right"]
 right_side.set_visible(False)
 top_side = ax1.spines["top"]
