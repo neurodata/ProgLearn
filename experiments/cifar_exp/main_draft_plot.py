@@ -427,7 +427,7 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-fig.legend(handles, labels_, bbox_to_anchor=(.8, .9), fontsize=legendsize+12)
+fig.legend(handles, labels_, bbox_to_anchor=(.8, .93), fontsize=legendsize+12, frameon=False)
 plt.savefig('result/figs/cifar_exp.pdf')
 
 # %%
