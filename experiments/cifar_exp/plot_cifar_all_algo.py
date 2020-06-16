@@ -104,10 +104,10 @@ ntrees = 10
 slots = 10
 task_num = 10
 shifts = 6
-total_alg = 8
-alg_name = ['L2N','L2F','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
-model_file_500 = ['dnn0','fixed_uf10','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
-model_file_5000 = ['dnn0','fixed_uf5000_40','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
+total_alg = 9
+alg_name = ['L2N','L2F','L2F-','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
+model_file_500 = ['dnn0','fixed_uf10','uf10','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
+model_file_5000 = ['dnn0','fixed_uf5000_40','uf5000_40','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
 btes_500 = [[] for i in range(total_alg)]
 ftes_500 = [[] for i in range(total_alg)]
 tes_500 = [[] for i in range(total_alg)]
@@ -127,7 +127,7 @@ for alg in range(total_alg):
     fte_tmp = [[] for _ in range(reps)] 
 
     for shift in range(shifts):
-        if alg < 2:
+        if alg < 3:
             filename = 'result/result/'+model_file_5000[alg]+'_'+str(shift+1)+'_0'+'.pickle'
         else:
             filename = 'benchmarking_algorthms_result/'+model_file_5000[alg]+'_'+str(shift+1)+'.pickle'
@@ -158,7 +158,7 @@ for alg in range(total_alg):
 
     for slot in range(slots):
         for shift in range(shifts):
-            if alg < 2:
+            if alg < 3:
                 filename = 'result/result/'+model_file_500[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             else:
                 filename = 'benchmarking_algorthms_result/'+model_file_500[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
@@ -178,7 +178,7 @@ for alg in range(total_alg):
     ftes_500[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 
 #%%
-te_500 = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
+te_500 = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float),'L2Fc':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
 
 for count,name in enumerate(te_500.keys()):
     for i in range(10):
@@ -196,7 +196,7 @@ mean_df = pd.DataFrame.from_dict(mean_te)
 mean_df = pd.melt(mean_df,var_name='Algorithms', value_name='Transfer Efficieny')'''
 
 #%%
-te_5000 = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
+te_5000 = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float),'L2Fc':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
 
 for count,name in enumerate(te_5000.keys()):
     for i in range(10):
@@ -206,7 +206,7 @@ df_5000 = pd.DataFrame.from_dict(te_5000)
 df_5000 = pd.melt(df_5000,var_name='Algorithms', value_name='Transfer Efficieny')
 
 #%%
-clr = ["#00008B", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
+clr = ["#00008B", "#e41a1c", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
 c = sns.color_palette(clr, n_colors=len(clr))
 
 fontsize=24
@@ -402,14 +402,14 @@ fig, ax = plt.subplots(1,2, figsize=(12,6))
 
 ax[0].tick_params(labelsize=22)
 #ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
-#ax[0].hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
+ax[0].hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
 ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax[0])
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_.set_xlabel('', fontsize=fontsize)
 ax[0].set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2N','L2F','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
+    ['L2N','L2F','L2F-','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
     fontsize=16,rotation=45,ha="right",rotation_mode='anchor'
     )
 
@@ -419,19 +419,19 @@ right_side = ax[0].spines["right"]
 right_side.set_visible(False)
 top_side = ax[0].spines["top"]
 top_side.set_visible(False)
-ax[0].hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
+ax[0].hlines(1, 1,9, colors='grey', linestyles='dashed',linewidth=1.5)
 
 
 ax[1].tick_params(labelsize=22)
 #ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
-#ax[1].hlines(1, -1,6, colors='grey', linestyles='dashed',linewidth=1.5)
+ax[1].hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
 ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_5000, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax[1])
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_.set_xlabel('', fontsize=fontsize)
 ax[1].set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2N','L2F','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
+    ['L2N','L2F','L2F-','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
     fontsize=16,rotation=45,ha="right",rotation_mode='anchor'
     )
 
@@ -443,7 +443,7 @@ right_side.set_visible(False)
 top_side = ax[1].spines["top"]
 top_side.set_visible(False)
 
-ax[1].hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
+ax[1].hlines(1, 1,9, colors='grey', linestyles='dashed',linewidth=1.5)
 
 plt.savefig('result/figs/final_TE.pdf', dpi=500)
 # %%
