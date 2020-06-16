@@ -106,7 +106,8 @@ shifts = 6
 total_alg_top = 4
 total_alg_bottom = 5
 alg_name_top = ['L2N','L2F','Prog-NN', 'DF-CNN']
-alg_name_bottom = ['L2F-','LwF','EWC','O-EWC','SI']
+alg_name_bottom = ['L2F','LwF','EWC','O-EWC','SI']
+combined_alg_name = ['L2N','L2F','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
 model_file_top = ['dnn0','fixed_uf10','Prog_NN','DF_CNN']
 model_file_bottom = ['uf10','LwF','EWC','Online_EWC','SI']
 btes_top = [[] for i in range(total_alg_top)]
@@ -171,18 +172,21 @@ for alg in range(total_alg_bottom):
     ftes_bottom[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 
 # %%
-fig = plt.figure(constrained_layout=True,figsize=(21,15))
-gs = fig.add_gridspec(14, 21)
+fig = plt.figure(constrained_layout=True,figsize=(21,14))
+gs = fig.add_gridspec(13, 21)
 
-clr_top = ["#00008B", "#e41a1c", "#a65628", "#377eb8"]
+clr_top = ["#e41a1c", "#377eb8",  "#4daf4a", "#984ea3"]
 c_top = sns.color_palette(clr_top, n_colors=len(clr_top))
 
-clr_bottom = ["#e41a1c", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
+clr_bottom = ["#e41a1c", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
 c_bottom = sns.color_palette(clr_bottom, n_colors=len(clr_bottom))
 
-fontsize=24
-ticksize=20
-legendsize=14
+clr_combined = ["#e41a1c", "#377eb8",  "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
+c_combined = sns.color_palette(clr_combined, n_colors=total_alg_top+total_alg_bottom-1)
+
+fontsize=25
+ticksize=22
+legendsize=12
 
 ax = fig.add_subplot(gs[:6,:6])
 
@@ -202,7 +206,7 @@ ax.set_yticks([0.9, 1, 1.1, 1.2, 1.3,1.4])
 ax.set_ylim(0.89, 1.41)
 ax.tick_params(labelsize=ticksize)
 
-ax.set_ylabel('Forward Transfer Efficiency', fontsize=fontsize)
+ax.set_ylabel('Forward Transfer Efficiency (FTE)', fontsize=fontsize)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 right_side = ax.spines["right"]
@@ -212,7 +216,7 @@ top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
 #ax[0][0].grid(axis='x')
-ax = fig.add_subplot(gs[:6,7:13])
+ax = fig.add_subplot(gs[:6,7:14])
 
 for i in range(task_num - 1):
 
@@ -240,8 +244,11 @@ for i in range(task_num - 1):
                 ax.plot(ns, et[j,:], marker='.', markersize=8, color=c_top[j])
 
 
+for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
+    ax.plot(1,0,color=c_combined[i],label=combined_alg_name[i])
+
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
-ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax.set_ylabel('Backward Transfer Efficiency (BTE)', fontsize=fontsize)
 
 ax.set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
 ax.set_xticks(np.arange(1,11))
@@ -255,8 +262,7 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, -.2), fontsize=legendsize+6,
- shadow=True, ncol=3)
+ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=legendsize+6)
 
 #########################################################
 ax = fig.add_subplot(gs[7:13,:6])
@@ -274,10 +280,10 @@ for i, fte in enumerate(ftes_bottom):
     
 ax.set_xticks(np.arange(1,11))
 ax.set_yticks([0.95, 1, 1.05])
-ax.set_ylim(0.95, 1.06)
+ax.set_ylim(0.95, 1.05)
 ax.tick_params(labelsize=ticksize)
 
-ax.set_ylabel('Forward Transfer Efficiency', fontsize=fontsize)
+ax.set_ylabel('Resource Constrained FTE', fontsize=fontsize)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 right_side = ax.spines["right"]
@@ -287,7 +293,7 @@ top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
 #ax[0][0].grid(axis='x')
-ax = fig.add_subplot(gs[7:13,7:13])
+ax = fig.add_subplot(gs[7:13,7:14])
 
 for i in range(task_num - 1):
 
@@ -316,11 +322,11 @@ for i in range(task_num - 1):
 
 
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
-ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax.set_ylabel('Resource Constrained BTE', fontsize=fontsize)
 
 ax.set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
 ax.set_xticks(np.arange(1,11))
-ax.set_ylim(0.85, 1.19)
+ax.set_ylim(0.85, 1.17)
 ax.tick_params(labelsize=ticksize)
 #ax[0][1].grid(axis='x')
 
@@ -330,8 +336,8 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, -.2), fontsize=legendsize+6,
- shadow=True, ncol=3)
+#ax.legend(loc='upper center', bbox_to_anchor=(0.5, -.2), fontsize=legendsize+6,
+# shadow=True, ncol=3)
 ###############################
 ax = fig.add_subplot(gs[7:13,14:20])
 mean_error = unpickle('../plot_label_shuffled_angle_recruitment/recruitment_result/recruitment_mean.pickle')
@@ -384,6 +390,6 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 
 
-plt.savefig('result/figs/cifar_exp.pdf', dpi=500)
+plt.savefig('result/figs/cifar_exp.pdf')
 
 # %%
