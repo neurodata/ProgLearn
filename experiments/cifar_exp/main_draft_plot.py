@@ -340,7 +340,7 @@ ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -.2), fontsize=legendsize+6,
  shadow=True, ncol=3)
 ###############################
-ax = fig.add_subplot(gs[8:15,15:22])
+'''ax = fig.add_subplot(gs[8:15,15:22])
 mean_error = unpickle('../plot_label_shuffled_angle_recruitment/recruitment_result/recruitment_mean.pickle')
 std_error = unpickle('../plot_label_shuffled_angle_recruitment/recruitment_result/recruitment_std.pickle')
 ns = 10*np.array([50, 100, 200, 350, 500])
@@ -388,8 +388,44 @@ ax.legend(fontsize=legendsize)
 right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
-top_side.set_visible(False)
+top_side.set_visible(False)'''
 
+ax = fig.add_subplot(gs[8:15,15:22])
+mean_error, std_error = unpickle('../recruitment_exp/result/recruitment_exp_500.pickle')
+ns = 10*np.array([50, 100, 200, 350, 500])
+colors = sns.color_palette('Set1', n_colors=4)
+
+#labels = ['recruiting', 'Uncertainty Forest', 'hybrid', '50 Random', 'BF', 'building']
+labels = ['hybrid', 'building', 'recruiting', 'Uncertainty Forest' ]
+    
+adjust = 0
+for i,key in enumerate(mean_error.keys()):
+    acc = 1- np.array(mean_error[key])
+    ax.plot(ns, acc, c=colors[i], label=labels[i])
+    ax.fill_between(ns, 
+            acc + 1.96*np.array(std_error[key]), 
+            acc - 1.96*np.array(std_error[key]), 
+            where=acc + 1.96*np.array(std_error[key]) >= acc - 1.96*np.array(std_error[key]), 
+            facecolor=colors[i], 
+            alpha=0.15,
+            interpolate=False)
+
+
+#ax.set_title('CIFAR Recruitment Experiment', fontsize=30)
+ax.set_ylabel('Accuracy', fontsize=fontsize)
+ax.set_xlabel('Number of Task 10 Samples', fontsize=fontsize)
+ax.tick_params(labelsize=ticksize)
+#ax.set_ylim(0.325, 0.575)
+#ax.set_title("CIFAR Recruitment",fontsize=titlesize)
+ax.set_xticks([500, 2000, 5000])
+ax.set_yticks([0.35, 0.45, 0.55])
+
+ax.legend(fontsize=legendsize)
+
+right_side = ax.spines["right"]
+right_side.set_visible(False)
+top_side = ax.spines["top"]
+top_side.set_visible(False)
 
 plt.savefig('result/figs/cifar_exp.pdf')
 
