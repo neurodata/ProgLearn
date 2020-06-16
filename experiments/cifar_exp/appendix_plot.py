@@ -192,11 +192,6 @@ for i in range(task_num - 1):
                 ax[1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], color=clr[j], linewidth = 3)
             else:
                 ax[1].plot(ns, et[j,:], marker='.', markersize=8, color=clr[j], linewidth = 3)
-        elif j==2:
-            if i == 0:
-                ax[1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], color=clr[j], linestyle='dashed', linewidth = 3)
-            else:
-                ax[1].plot(ns, et[j,:], marker='.', markersize=8, color=clr[j], linestyle='dashed', linewidth = 3)
         else:
             if i == 0:
                 ax[1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], color=clr[j])
