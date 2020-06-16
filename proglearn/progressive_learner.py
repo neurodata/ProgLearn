@@ -5,6 +5,8 @@ import numpy as np
 
 from joblib import Parallel, delayed
 
+import itertools
+
 class ProgressiveLearner():
     def __init__(self, acorn = None, verbose = False):
         self.X_across_tasks = []
@@ -35,7 +37,8 @@ class ProgressiveLearner():
                    X, 
                    y,
                    model='uf',
-                   **model_args,
+                   model_kwargs=None,
+                   n_jobs=-1,
                    acorn = None):
 
         if acorn is not None:
@@ -43,33 +46,24 @@ class ProgressiveLearner():
 
         self.models.append(model)
         
+        # model_ is a temporary solution to the two voters/transformers not being uniform
         if model == "dnn":
-            from .honest_dnn import HonestDNN as model
+            from .honest_dnn import HonestDNN as model_
         if model == "uf":
-            from .uncertainty_forest import UncertaintyForest as model
+            from .uncertainty_forest import UncertaintyForest as model_
         
         self.X_across_tasks.append(X)
         self.y_across_tasks.append(y)
 
-        new_model = model(**model_args)
-        new_model.fit(X, y)
+        if model_kwargs is None:
+            model_kwargs = {}
 
+        new_model = model_(**model_kwargs)
+        new_model.fit(X, y, n_jobs=n_jobs)
 
-        # if self.model == "dnn":
-        #     new_honest_dnn = HonestDNN(verbose = self.verbose)
-        #     new_honest_dnn.fit(X, y, epochs = epochs, lr = lr)
-        # if self.model == "uf":
-        #     new_honest_dnn = UncertaintyForest(n_estimators = n_estimators,
-        #                                        max_samples = max_samples,
-        #                                        bootstrap = bootstrap,
-        #                                        max_depth = max_depth,
-        #                                        min_samples_leaf = min_samples_leaf,
-        #                                        parallel = self.parallel)
-        #     new_honest_dnn.fit(X, y)
-
-        new_transformer = new_model.get_transformer()
+        new_transformer = new_model.get_transformer(n_jobs=n_jobs)
         new_voter = new_model.get_voter()
-        new_classes = new_honest_dnn.classes_
+        new_classes = new_model.classes_
         
         self.transformers_across_tasks.append(new_transformer)
         self.classes_across_tasks.append(new_classes)
@@ -77,29 +71,35 @@ class ProgressiveLearner():
         #add one voter to previous task voter lists under the new transformation
         for task_idx in range(self.n_tasks):
             X_of_task, y_of_task = self.X_across_tasks[task_idx], self.y_across_tasks[task_idx]
-            if self.model == "dnn":
+            if model == "dnn":
                 X_of_task_under_new_transform = new_transformer.predict(X_of_task) 
-            if self.model == "uf":
+            if model == "uf":
                 X_of_task_under_new_transform = new_transformer(X_of_task) 
+
             unfit_task_voter_under_new_transformation = clone(self.voters_across_tasks_matrix[task_idx][0])
-            if self.model == "uf":
+            if model == "uf":
                 unfit_task_voter_under_new_transformation.classes_ = self.voters_across_tasks_matrix[task_idx][0].classes_
-            task_voter_under_new_transformation = unfit_task_voter_under_new_transformation.fit(X_of_task_under_new_transform, y_of_task)
+
+            task_voter_under_new_transformation = unfit_task_voter_under_new_transformation.fit(X_of_task_under_new_transform, y_of_task, n_jobs)
 
             self.voters_across_tasks_matrix[task_idx].append(task_voter_under_new_transformation)
             
         #add n_tasks voters to new task voter list under previous transformations 
         new_voters_under_previous_task_transformation = []
         for task_idx in range(self.n_tasks):
+            other_task_model = self.models[task_idx]
             transformer_of_task = self.transformers_across_tasks[task_idx]
-            if self.model == "dnn":
+
+            if other_task_model == "dnn":
                 X_under_task_transformation = transformer_of_task.predict(X)
-            if self.model == "uf":
+            if other_task_model == "uf":
                 X_under_task_transformation = transformer_of_task(X)
+
             unfit_new_task_voter_under_task_transformation = clone(new_voter)
-            if self.model == "uf":
+            if other_task_model == "uf":
                 unfit_new_task_voter_under_task_transformation.classes_ = new_voter.classes_
-            new_task_voter_under_task_transformation = unfit_new_task_voter_under_task_transformation.fit(X_under_task_transformation, y)
+
+            new_task_voter_under_task_transformation = unfit_new_task_voter_under_task_transformation.fit(X_under_task_transformation, y, n_jobs)
             new_voters_under_previous_task_transformation.append(new_task_voter_under_task_transformation)
             
         #make sure to add the voter of the new task under its own transformation
@@ -111,6 +111,8 @@ class ProgressiveLearner():
         
     def _estimate_posteriors(self, X, representation = 0, decider = 0, n_jobs=-1):
         self.check_task_idx_(decider)
+
+        print(n_jobs)
         
         if representation == "all":
             representation = range(self.n_tasks)
@@ -125,14 +127,16 @@ class ProgressiveLearner():
             if model == "dnn":
                 return voter.predict_proba(transformer.predict(X))
             if model == "uf":
-                return voter.predict_proba(transformer(X))
+                return voter.predict_proba(transformer(X), n_jobs=n_jobs)
+
+        posteriors_across_tasks = np.array([worker(transformer_task_idx) for transformer_task_idx in representation])
         
         # if 
-        posteriors_across_tasks = np.array(
-            Parallel(n_jobs=n_jobs)(
-                delayed(worker)(transformer_task_idx) for transformer_task_idx in representation
-            )
-        )    
+        # posteriors_across_tasks = np.array(
+        #     Parallel(n_jobs=n_jobs)(
+        #         delayed(worker)(transformer_task_idx) for transformer_task_idx in representation
+        #     )
+        # )    
         # else:
         #     posteriors_across_tasks = np.array([worker(transformer_task_idx) for transformer_task_idx in representation])    
             
@@ -152,6 +156,7 @@ class ProgressiveLearner():
         grid_1d = np.arange(0, 1+grid_step, step=grid_step)
 
         # Naively loop over ever elements of [0,1]^J
+        n_correct_best=0
         for cart_prod in itertools.product(*(grid_1d for i in range(J))):
             # Only unique convex combinations
             if not np.isclose(np.sum(cart_prod), 1):
@@ -184,8 +189,10 @@ class ProgressiveLearner():
         else:
             if representation == "all":
                 representation = np.arange(self.n_tasks)
+
             if len(weights) != len(representation):
                 raise ValueError('Length of weight vector must be the same as the number of representations used.')
+
             if np.sum(weights) == 0:
                 warnings.warn("Weight vector sums to 0, using simple average.")
                 combined_posteriors_across_tasks = np.mean(posteriors_across_tasks, axis=0)
@@ -195,4 +202,4 @@ class ProgressiveLearner():
                 weights = weights / np.sum(weights)
                 combined_posteriors_across_tasks = np.average(posteriors_across_tasks, axis=0, weights=weights) 
 
-        return task_classes[np.argmax(combined_posteriors_across_tasks, axis = -1)]        
+        return task_classes[np.argmax(combined_posteriors_across_tasks, axis = -1)]

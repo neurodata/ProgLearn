@@ -45,7 +45,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         max_features_tree = "auto",
         n_estimators=100,
         bootstrap=False,
-        parallel=True):
+        ):
 
         #Tree parameters.
         self.max_depth = max_depth
@@ -58,7 +58,6 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         self.max_samples = max_samples
 
         #Model parameters.
-        self.parallel = parallel
         self.fitted = False
 
     def _check_fit(self):
@@ -72,7 +71,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                 )
                 raise NotFittedError(msg % {"name": type(self).__name__})
 
-    def transform(self, X):
+    def transform(self, X, n_jobs=-1):
         '''
         get the estimated posteriors across trees
         '''
@@ -84,28 +83,24 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
             return tree.apply(X)
             
 
-        if self.parallel:
-            return np.array(
-                    Parallel(n_jobs=-1)(
-                            delayed(worker)(tree_idx, tree) for tree_idx, tree in enumerate(self.ensemble.estimators_)
-                    )
-            )         
-        else:
-            return np.array(
-                    [worker(tree_idx, tree) for tree_idx, tree in enumerate(self.ensemble.estimators_)]
-                    )
+
+        return np.array(
+                Parallel(n_jobs=n_jobs)(
+                        delayed(worker)(tree_idx, tree) for tree_idx, tree in enumerate(self.ensemble.estimators_)
+                )
+        )         
         
-    def get_transformer(self):
-        return lambda X : self.transform(X)
+    def get_transformer(self, n_jobs=-1):
+        return lambda X : self.transform(X, n_jobs=-1)
         
-    def vote(self, nodes_across_trees):
-        return self.voter.predict(nodes_across_trees)
+    def vote(self, nodes_across_trees, n_jobs=-1):
+        return self.voter.predict(nodes_across_trees, n_jobs)
         
     def get_voter(self):
         return self.voter
         
                         
-    def fit(self, X, y):
+    def fit(self, X, y, n_jobs=-1):
 
         #format X and y
         X, y = check_X_y(X, y)
@@ -122,17 +117,15 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
             n_estimators=self.n_estimators,
             max_samples=self.max_samples,
             bootstrap=self.bootstrap,
-            n_jobs = -1
         )
         
         #fit the ensemble
         self.ensemble.fit(X, y)
         
         class Voter(BaseEstimator):
-            def __init__(self, estimators_samples_, classes, parallel = True):
+            def __init__(self, estimators_samples_, classes):
                 self.n_estimators = len(estimators_samples_)
                 self.classes_ = classes
-                self.parallel = parallel
                 self.estimators_samples_ = estimators_samples_
             
             def fit(self, nodes_across_trees, y, fitting = False):
@@ -166,7 +159,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                 return self
                         
                         
-            def predict_proba(self, nodes_across_trees):
+            def predict_proba(self, nodes_across_trees, n_jobs=-1):
                 def worker(tree_idx):
                     #get the node_ids_to_posterior_map for this tree
                     node_ids_to_posterior_map = self.tree_idx_to_node_ids_to_posterior_map[tree_idx]
@@ -187,25 +180,20 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                             posteriors.append(np.ones((len(np.unique(self.classes_)))) / len(self.classes_))
                     return posteriors
 
-                if self.parallel:
-                    return np.mean(
-                            Parallel(n_jobs=-1)(
-                                    delayed(worker)(tree_idx) for tree_idx in range(self.n_estimators)
-                            ), axis = 0
-                    )
-
-                else:
-                    return np.mean(
-                            [worker(tree_idx) for tree_idx in range(self.n_estimators)], axis = 0)
+                return np.mean(
+                        Parallel(n_jobs=n_jobs)(
+                                delayed(worker)(tree_idx) for tree_idx in range(self.n_estimators)
+                        ), axis = 0
+                )
                 
         #get the nodes of the calibration set
-        nodes_across_trees = self.transform(X) 
-        self.voter = Voter(estimators_samples_ = self.ensemble.estimators_samples_, classes = self.classes_, parallel = self.parallel)
+        nodes_across_trees = self.transform(X, n_jobs=-1) 
+        self.voter = Voter(estimators_samples_ = self.ensemble.estimators_samples_, classes = self.classes_)
         self.voter.fit(nodes_across_trees, y, fitting = True)
         self.fitted = True
 
-    def predict(self, X):
-        return self.classes_[np.argmax(self.predict_proba(X), axis=-1)]
+    def predict(self, X, n_jobs=-1):
+        return self.classes_[np.argmax(self.predict_proba(X, n_jobs), axis=-1)]
 
-    def predict_proba(self, X):
-        return self.voter.predict_proba(self.transform(X))
+    def predict_proba(self, X, n_jobs=-1):
+        return self.voter.predict_proba(self.transform(X, n_jobs), n_jobs)

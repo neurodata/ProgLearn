@@ -1,1 +1,1 @@
-from .lifelong_dnn import *
+from .progressive_learner import *
