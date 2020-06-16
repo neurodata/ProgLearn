@@ -279,10 +279,10 @@ for ns in task_10_sample:
     std_accuracy_dict['building'].append(np.std(building,ddof=1))
 
     mean_accuracy_dict['recruiting'].append(np.mean(recruiting))
-    std_accuracy_dict['hybrid'].append(np.std(recruiting,ddof=1))
+    std_accuracy_dict['recruiting'].append(np.std(recruiting,ddof=1))
 
     mean_accuracy_dict['UF'].append(np.mean(uf))
-    std_accuracy_dict['hybrid'].append(np.std(uf,ddof=1))
+    std_accuracy_dict['UF'].append(np.std(uf,ddof=1))
 
 summary = (mean_accuracy_dict,std_accuracy_dict)
 
