@@ -105,8 +105,8 @@ slots = 10
 task_num = 10
 shifts = 6
 total_alg = 8
-alg_name = ['L2N','L2F','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
-model_file_5000 = ['dnn0','fixed_uf5000_40','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
+alg_name = ['L2F','L2N','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
+model_file_5000 = ['fixed_uf5000_40','dnn0','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
 
 btes_5000 = [[] for i in range(total_alg)]
 ftes_5000 = [[] for i in range(total_alg)]
@@ -143,7 +143,7 @@ for alg in range(total_alg):
     ftes_5000[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 
 #%%
-clr = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
+clr = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
 c = sns.color_palette(clr, n_colors=len(clr))
 
 fontsize=24
