@@ -244,6 +244,9 @@ for i in range(task_num - 1):
                 ax.plot(ns, et[j,:], marker='.', markersize=8, color=c_top[j])
 
 
+for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
+    ax.plot(1,0,color=c_combined[i], marker='.', markersize=8,label=combined_alg_name[i])
+
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency (BTE)', fontsize=fontsize)
 
@@ -259,7 +262,8 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
-#ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=legendsize+6)
+handles, labels_ = ax.get_legend_handles_labels()
+#ax.legend(loc='center left', bbox_to_anchor=(.8, 0.5), fontsize=legendsize+16)
 
 #########################################################
 ax = fig.add_subplot(gs[8:15,:7])
@@ -291,10 +295,6 @@ ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
 #ax[0][0].grid(axis='x')
 ax = fig.add_subplot(gs[8:15,8:15])
-
-for i in range(0,total_alg_bottom-1):
-    ax.plot(1,0,color=c_combined[i], marker='.', markersize=8,label=combined_alg_name[i])
-
 
 for i in range(task_num - 1):
 
@@ -337,8 +337,8 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, -.2), fontsize=legendsize+6,
- shadow=True, ncol=3)
+#ax.legend(loc='upper center', bbox_to_anchor=(0.5, -.2), fontsize=legendsize+6,
+# shadow=True, ncol=3)
 ###############################
 '''ax = fig.add_subplot(gs[8:15,15:22])
 mean_error = unpickle('../plot_label_shuffled_angle_recruitment/recruitment_result/recruitment_mean.pickle')
@@ -390,7 +390,7 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)'''
 
-ax = fig.add_subplot(gs[8:15,15:22])
+ax = fig.add_subplot(gs[8:15,16:23])
 mean_error, std_error = unpickle('../recruitment_exp/result/recruitment_exp_500.pickle')
 ns = 10*np.array([50, 100, 200, 350, 500])
 colors = sns.color_palette('Set1', n_colors=4)
@@ -420,13 +420,14 @@ ax.tick_params(labelsize=ticksize)
 ax.set_xticks([500, 2000, 5000])
 ax.set_yticks([0.35, 0.45, 0.55])
 
-ax.legend(fontsize=legendsize)
+ax.legend(loc='lower right',fontsize=legendsize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
+fig.legend(handles, labels_, bbox_to_anchor=(.8, .9), fontsize=legendsize+12)
 plt.savefig('result/figs/cifar_exp.pdf')
 
 # %%
