@@ -172,6 +172,6 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-plt.savefig('result/bayes_error.pdf')
+plt.savefig('result/figs/bayes_error.pdf')
 
 # %%
