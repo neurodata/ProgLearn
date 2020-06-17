@@ -29,12 +29,12 @@ for i in range(reps):
 fontsize = 24
 ticksize = 20
 fig, ax = plt.subplots(1,1, figsize=(8,8))
-mean_acc = np.mean(task_acc_single,axis=1)
-std_acc = np.std(task_acc_single,axis=1,ddof=1)
-
 colors = sns.color_palette('Set1', n_colors=3)
+
+mean_acc = np.mean(task_acc_l2f,axis=1)
+std_acc = np.std(task_acc_l2f,axis=1,ddof=1)
     
-ax.plot(np.arange(1, 11), mean_acc, c=colors[0], label='UF fixed tree')
+ax.plot(np.arange(1, 11), mean_acc, c=colors[0], label='L2F')
 ax.fill_between(np.arange(1, 11), 
         mean_acc+ 1.96*np.array(std_acc), 
         mean_acc - 1.96*np.array(std_acc), 
@@ -43,13 +43,10 @@ ax.fill_between(np.arange(1, 11),
         alpha=0.15,
         interpolate=False)
 
+mean_acc = np.mean(task_acc_single,axis=1)
+std_acc = np.std(task_acc_single,axis=1,ddof=1)
 
-mean_acc = np.mean(task_acc_uf,axis=1)
-std_acc = np.std(task_acc_uf,axis=1,ddof=1)
-
-colors = sns.color_palette('Set1', n_colors=3)
-    
-ax.plot(np.arange(1, 11), mean_acc, c=colors[1], label='UF increasing tree')
+ax.plot(np.arange(1, 11), mean_acc, c=colors[1], label='UF fixed tree')
 ax.fill_between(np.arange(1, 11), 
         mean_acc+ 1.96*np.array(std_acc), 
         mean_acc - 1.96*np.array(std_acc), 
@@ -59,12 +56,12 @@ ax.fill_between(np.arange(1, 11),
         interpolate=False)
 
 
-mean_acc = np.mean(task_acc_l2f,axis=1)
-std_acc = np.std(task_acc_l2f,axis=1,ddof=1)
+mean_acc = np.mean(task_acc_uf,axis=1)
+std_acc = np.std(task_acc_uf,axis=1,ddof=1)
 
 colors = sns.color_palette('Set1', n_colors=3)
     
-ax.plot(np.arange(1, 11), mean_acc, c=colors[2], label='L2F')
+ax.plot(np.arange(1, 11), mean_acc, c=colors[2], label='UF increasing tree')
 ax.fill_between(np.arange(1, 11), 
         mean_acc+ 1.96*np.array(std_acc), 
         mean_acc - 1.96*np.array(std_acc), 
@@ -72,6 +69,7 @@ ax.fill_between(np.arange(1, 11),
         facecolor=colors[2], 
         alpha=0.15,
         interpolate=False)
+
 
 #ax.set_title('CIFAR Recruitment Experiment', fontsize=30)
 ax.set_ylabel('Accuracy', fontsize=fontsize)
