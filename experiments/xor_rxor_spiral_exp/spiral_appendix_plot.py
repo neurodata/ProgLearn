@@ -100,8 +100,8 @@ labelsize=28
 
 colors = sns.color_palette("Set1", n_colors = 2)
 
-fig = plt.figure(constrained_layout=True,figsize=(21,14))
-gs = fig.add_gridspec(14, 21)
+fig = plt.figure(constrained_layout=True,figsize=(23,14))
+gs = fig.add_gridspec(14, 23)
 ax1 = fig.add_subplot(gs[7:,:6])
 # for i, algo in enumerate(algorithms):
 ax1.plot(ns, mean_error[0], label=algorithms[0], c=colors[1], ls=ls[np.sum(0 > 1).astype(int)], lw=3)
@@ -153,7 +153,7 @@ algorithms = ['Uncertainty Forest', 'Lifelong Forest']
 TASK1='3 spirals'
 TASK2='5 spirals'
 
-ax1 = fig.add_subplot(gs[7:,7:13])
+ax1 = fig.add_subplot(gs[7:,8:14])
 # for i, algo in enumerate(algorithms):
 ax1.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[0], c=colors[1], ls=ls[1], lw=3)
 #ax1.fill_between(ns[len(n1s):], 
@@ -184,7 +184,7 @@ ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
 ax1.set_ylim(0.5, 0.71)
-
+ax1.set_xlim(0,1500)
 ax1.set_title('5 spirals', fontsize=30)
 right_side = ax1.spines["right"]
 right_side.set_visible(False)
@@ -208,7 +208,7 @@ algorithms = ['Backward Transfer', 'Forward Transfer']
 TASK1='3 spirals'
 TASK2='5 spirals'
 
-ax1 = fig.add_subplot(gs[7:,14:])
+ax1 = fig.add_subplot(gs[7:,16:22])
 
 ax1.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 #ax1.fill_between(ns, 
@@ -262,7 +262,7 @@ ax.set_xticks([])
 ax.set_yticks([])
 ax.set_title('3 spirals', fontsize=30)
 
-plt.tight_layout()
+#plt.tight_layout()
 ax.axis('off')
 #plt.savefig('./result/figs/gaussian-xor.pdf')
 
