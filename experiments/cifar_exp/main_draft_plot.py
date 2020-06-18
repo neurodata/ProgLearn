@@ -391,7 +391,7 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)'''
 
 ax = fig.add_subplot(gs[8:15,16:23])
-mean_error, std_error = unpickle('../recruitment_exp/result/recruitment_exp_5000.pickle')
+mean_error, std_error = unpickle('../recruitment_exp/result/recruitment_exp_500.pickle')
 ns = 10*np.array([50, 100, 200, 350, 500])
 colors = sns.color_palette('Set1', n_colors=4)
 
@@ -435,6 +435,6 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 
 fig.legend(handles, labels_, bbox_to_anchor=(.8, .93), fontsize=legendsize+12, frameon=False)
-plt.savefig('result/figs/cifar_exp_5000_recruit.pdf')
+plt.savefig('result/figs/cifar_exp.pdf')
 
 # %%

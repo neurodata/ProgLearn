@@ -114,52 +114,53 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, num_poi
 
 
 
-        for task_ii in range(10):
-            print("Starting RF Task {} For Fold {}".format(task_ii, shift))
-            RF = BaggingClassifier(
-                    DecisionTreeClassifier(
-                    max_depth=ceil(log2(num_points_per_task*(task_ii+1))),
-                    min_samples_leaf=1,
-                    max_features="auto"
+    for task_ii in range(10):
+        print("Starting RF Task {} For Fold {}".format(task_ii, shift))
+        RF = BaggingClassifier(
+                DecisionTreeClassifier(
+                max_depth=ceil(log2(num_points_per_task*(task_ii+1))),
+                min_samples_leaf=1,
+                max_features="auto"
+            ),
+            n_estimators=(task_ii+1)*ntrees,
+            max_samples=0.63,
+            n_jobs = -1
+        )
+
+        if acorn is not None:
+            np.random.seed(acorn)
+
+        if task_ii== 0:
+            train_data_x = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:]
+            train_data_y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
+        else:
+            train_data_x = np.concatenate(
+                (
+                    train_data_x,
+                    train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:]
                 ),
-                n_estimators=(task_ii+1)*ntrees,
-                max_samples=0.63,
-                n_jobs = -1
+                axis = 0
             )
-
-            if acorn is not None:
-                np.random.seed(acorn)
-
-            if task_ii== 0:
-                train_data_x = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:]
-                train_data_y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
-            else:
-                train_data_x = np.concatenate(
-                    (
-                        train_data_x,
-                        train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:]
-                    ),
-                    axis = 0
-                )
-                train_data_y = np.concatenate(
-                    (
-                        train_data_y,
-                        train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
-                    ),
-                    axis = 0
-                )
-            RF.fit(
-                train_data_x, 
-                train_data_y
-                )
+            train_data_y = np.concatenate(
+                (
+                    train_data_y,
+                    train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
+                ),
+                axis = 0
+            )
+        RF.fit(
+            train_data_x, 
+            train_data_y
+            )
         
-            llf_task=RF.predict(
-                test_x[task_ii*1000:(task_ii+1)*1000,:]
-                )
-            rf_accuracies[task_ii] = np.mean(
-                llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
-                )
-
+        llf_task=RF.predict(
+            test_x[task_ii*1000:(task_ii+1)*1000,:]
+            )
+        rf_accuracies[task_ii] = np.mean(
+            llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
+            )
+        print(rf_accuracies[task_ii])
+        
     return single_task_accuracies,uf_accuracies,rf_accuracies,l2f_accuracies
 
 #%%
