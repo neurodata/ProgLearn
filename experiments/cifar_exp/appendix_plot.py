@@ -8,7 +8,7 @@ import pandas as pd
 from itertools import product
 import seaborn as sns
 import matplotlib.gridspec as gridspec
-
+import matplotlib
 #%%
 def unpickle(file):
     with open(file, 'rb') as fo:
@@ -160,6 +160,7 @@ c = sns.color_palette(clr, n_colors=len(clr))
 
 fontsize=24
 ticksize=20
+legendsize=14
 
 ax = fig.add_subplot(gs[:7,:7])
 for i, fte in enumerate(ftes_5000):
@@ -183,9 +184,17 @@ ax.tick_params(labelsize=ticksize)
 ax.set_ylabel('Forward Transfer Efficiency', fontsize=fontsize)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
+right_side = ax.spines["right"]
+right_side.set_visible(False)
+top_side = ax.spines["top"]
+top_side.set_visible(False)
+
+
+ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
+
 #ax[0][0].grid(axis='x')
 
-
+ax = fig.add_subplot(gs[:7,8:15])
 for i in range(task_num - 1):
 
     et = np.zeros((total_alg,task_num-i))
@@ -197,55 +206,113 @@ for i in range(task_num - 1):
     for j in range(0,total_alg):
         if j == 0:
             if i == 0:
-                ax[1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], color=clr[j], linewidth = 3)
+                ax.plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], color=clr[j], linewidth = 3)
             else:
-                ax[1].plot(ns, et[j,:], marker='.', markersize=8, color=clr[j], linewidth = 3)
+                ax.plot(ns, et[j,:], marker='.', markersize=8, color=clr[j], linewidth = 3)
         elif j == 1:
             if i == 0:
-                ax[1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], color=clr[j], linewidth = 3)
+                ax.plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], color=clr[j], linewidth = 3)
             else:
-                ax[1].plot(ns, et[j,:], marker='.', markersize=8, color=clr[j], linewidth = 3)
+                ax.plot(ns, et[j,:], marker='.', markersize=8, color=clr[j], linewidth = 3)
         else:
             if i == 0:
-                ax[1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], color=clr[j])
+                ax.plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], color=clr[j])
             else:
-                ax[1].plot(ns, et[j,:], marker='.', markersize=8, color=clr[j])
+                ax.plot(ns, et[j,:], marker='.', markersize=8, color=clr[j])
 
 
 # ax[1].set_title(ttle, fontsize=20)
-ax[1].set_xlabel('Number of tasks seen', fontsize=fontsize)
-ax[1].set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
+ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
 # ax.set_ylim(0.05 - 0.01, 0.5 + 0.01)
 # box = ax.get_position()
 # ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 # ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 # ax[1].legend(loc='upper left', fontsize=12)
 #ax[0][1].legend(loc='center left', bbox_to_anchor=(1,0.5), fontsize=22)
-ax[1].set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
-ax[1].set_xticks(np.arange(1,11))
-ax[1].set_ylim(0.85, 1.19)
-ax[1].tick_params(labelsize=ticksize)
+ax.set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
+ax.set_xticks(np.arange(1,11))
+ax.set_ylim(0.85, 1.19)
+ax.tick_params(labelsize=ticksize)
 #ax[0][1].grid(axis='x')
 
-right_side = ax[0].spines["right"]
+right_side = ax.spines["right"]
 right_side.set_visible(False)
-top_side = ax[0].spines["top"]
+top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-right_side = ax[1].spines["right"]
+ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
+
+##############################
+ax = fig.add_subplot(gs[8:,:7])
+ax.tick_params(labelsize=22)
+#ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
+ax.hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
+#sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
+ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_5000, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
+#ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
+ax_.set_xlabel('', fontsize=fontsize)
+ax.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
+ax_.set_xticklabels(
+    ['L2F','L2N','Prog-NN','DF-CNN','L2F (cap.)','LwF','EWC','O-EWC','SI'],
+    fontsize=20,rotation=45,ha="right",rotation_mode='anchor'
+    )
+
+stratified_scatter(te_5000,ax,10,c)
+
+
+right_side = ax.spines["right"]
 right_side.set_visible(False)
-top_side = ax[1].spines["top"]
+top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-ax[0].hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
-ax[1].hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
+######################################
+ax = fig.add_subplot(gs[8:,8:25])
+mean_error, std_error = unpickle('../recruitment_exp/result/recruitment_exp_5000.pickle')
+ns = 10*np.array([50, 100, 200, 350, 500])
+clr = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3"]
+colors = sns.color_palette(clr, n_colors=len(clr))
 
-#plt.tight_layout()
+#labels = ['recruiting', 'Uncertainty Forest', 'hybrid', '50 Random', 'BF', 'building']
+labels = ['L2F (building)', 'UF (new)', 'recruiting', 'hybrid']
+algo = ['building', 'UF', 'recruiting', 'hybrid']
+adjust = 0
+for i,key in enumerate(algo):
+    err = np.array(mean_error[key])
+    ax.plot(ns, err, c=colors[i], label=labels[i])
+    #ax.fill_between(ns, 
+    #        acc + 1.96*np.array(std_error[key]), 
+    #        acc - 1.96*np.array(std_error[key]), 
+    #        where=acc + 1.96*np.array(std_error[key]) >= acc - 1.96*np.array(std_error[key]), 
+    #        facecolor=colors[i], 
+    #        alpha=0.15,
+    #        interpolate=False)
 
-#ax[0][1].legend(loc='upper center', bbox_to_anchor=(0.5, -0.3),
-#          fancybox=True, shadow=True, ncol=3,fontsize=15)
-ax[1].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=18)
-# lgd = fig.legend(algos, bbox_to_anchor=(1, 0.45), loc='center left', fontsize=18)
+
+#ax.set_title('CIFAR Recruitment Experiment', fontsize=30)
+ax.set_xscale('log')
+ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+ax.set_ylabel('Generalization Error (Task 10)', fontsize=fontsize)
+ax.set_xlabel('')
+ax.tick_params(labelsize=ticksize)
+#ax.set_ylim(0.325, 0.575)
+#ax.set_title("CIFAR Recruitment",fontsize=titlesize)
+ax.set_xticks([])
+ax.set_yticks([0.45, 0.55, 0.65])
+
+#ax.text(50, 1, "50", fontsize=ticksize)
+ax.text(500, 0.430, "500", fontsize=ticksize)
+ax.text(5000, 0.430, "5000", fontsize=ticksize)
+ax.text(550, 0.419, "Number of Task 10 Samples", fontsize=fontsize)
+
+ax.legend(loc='lower left',fontsize=legendsize, frameon=False)
+
+right_side = ax.spines["right"]
+right_side.set_visible(False)
+top_side = ax.spines["top"]
+top_side.set_visible(False)
+
+
 plt.savefig('result/figs/benchmark_5000.pdf', dpi=500)
 
 
