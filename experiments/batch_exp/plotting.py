@@ -23,7 +23,7 @@ task_acc_uf = np.zeros((10,reps),dtype=float)
 task_acc_l2f= np.zeros((10,reps),dtype=float)
 
 for i in range(reps):
-    task_acc_single[:,i], task_acc_uf[:,i], task_acc_l2f[:,i] = res[i]
+    task_acc_single[:,i], task_acc_uf[:,i],_, task_acc_l2f[:,i] = res[i]
 
 #%%
 fontsize = 24

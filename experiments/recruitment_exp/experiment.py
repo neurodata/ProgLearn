@@ -30,7 +30,7 @@ validation_set= 1-estimation_set
 num_points_per_task = 5000
 num_points_per_forest = 500
 reps = 30
-task_10_sample = 10*np.array([5, 50, 100, 200, 350, 500])
+task_10_sample = 10*np.array([10, 50, 100, 200, 350, 500])
 
 #%%
 def sort_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
