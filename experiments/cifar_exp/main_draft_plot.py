@@ -420,14 +420,14 @@ ax.tick_params(labelsize=ticksize)
 #ax.set_ylim(0.325, 0.575)
 #ax.set_title("CIFAR Recruitment",fontsize=titlesize)
 ax.set_xticks([])
-ax.set_yticks([0.35, 0.45, 0.55])
+ax.set_yticks([0.45, 0.55, 0.65])
 
 #ax.text(50, 1, "50", fontsize=ticksize)
-ax.text(500, 0.34, "500", fontsize=ticksize)
-ax.text(5000, 0.34, "5000", fontsize=ticksize)
-ax.text(500, 0.327, "Number of Task 10 Samples", fontsize=fontsize)
+ax.text(500, 0.440, "500", fontsize=ticksize)
+ax.text(5000, 0.440, "5000", fontsize=ticksize)
+ax.text(550, 0.429, "Number of Task 10 Samples", fontsize=fontsize)
 
-ax.legend(loc='lower right',fontsize=legendsize)
+ax.legend(loc='lower left',fontsize=legendsize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
