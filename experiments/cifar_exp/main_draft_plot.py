@@ -82,6 +82,7 @@ def get_error_matrix(filename):
 def stratified_scatter(te_dict,axis_handle,s,color):
     algo = list(te_dict.keys())
     total_alg = len(algo)
+
     total_points = len(te_dict[algo[0]])
 
     pivot_points = np.arange(-.25, (total_alg+1)*1, step=1)
@@ -112,8 +113,10 @@ model_file_top = ['fixed_uf10','dnn0','Prog_NN','DF_CNN']
 model_file_bottom = ['uf10','LwF','EWC','Online_EWC','SI']
 btes_top = [[] for i in range(total_alg_top)]
 ftes_top = [[] for i in range(total_alg_top)]
+tes_top = [[] for i in range(total_alg_top)]
 btes_bottom = [[] for i in range(total_alg_bottom)]
 ftes_bottom = [[] for i in range(total_alg_bottom)]
+tes_bottom = [[] for i in range(total_alg_bottom)]
 
 ########################
 
@@ -124,6 +127,7 @@ for alg in range(total_alg_top):
     count = 0 
     bte_tmp = [[] for _ in range(reps)]
     fte_tmp = [[] for _ in range(reps)] 
+    te_tmp = [[] for _ in range(reps)] 
 
     for slot in range(slots):
         for shift in range(shifts):
@@ -135,14 +139,16 @@ for alg in range(total_alg_top):
             multitask_df, single_task_df = unpickle(filename)
 
             single_err, err = get_error_matrix(filename)
-            fte, bte, _ = get_fte_bte(err,single_err)
+            fte, bte, te = get_fte_bte(err,single_err)
             
             bte_tmp[count].extend(bte)
             fte_tmp[count].extend(fte)
+            te_tmp[count].extend(te)
             count+=1
     
     btes_top[alg].extend(calc_mean_bte(bte_tmp,reps=reps))
     ftes_top[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
+    tes_top[alg].extend(calc_mean_bte(te_tmp,reps=reps))
 
 # %%
 reps = slots*shifts
@@ -151,6 +157,7 @@ for alg in range(total_alg_bottom):
     count = 0 
     bte_tmp = [[] for _ in range(reps)]
     fte_tmp = [[] for _ in range(reps)] 
+    te_tmp = [[] for _ in range(reps)]
 
     for slot in range(slots):
         for shift in range(shifts):
@@ -162,14 +169,31 @@ for alg in range(total_alg_bottom):
             multitask_df, single_task_df = unpickle(filename)
 
             single_err, err = get_error_matrix(filename)
-            fte, bte, _ = get_fte_bte(err,single_err)
+            fte, bte, te = get_fte_bte(err,single_err)
             
             bte_tmp[count].extend(bte)
             fte_tmp[count].extend(fte)
+            te_tmp[count].extend(te)
             count+=1
     
     btes_bottom[alg].extend(calc_mean_bte(bte_tmp,reps=reps))
     ftes_bottom[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
+    tes_bottom[alg].extend(calc_mean_te(te_tmp,reps=reps))
+
+#%%
+te_500 = {'L2F':np.zeros(10,dtype=float), 'L2N':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float),
+        'DF-CNN':np.zeros(10,dtype=float), 'L2Fc':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
+        'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
+
+for count,name in enumerate(te_500.keys()):
+    for i in range(10):
+        if count <4:
+            te_500[name][i] = tes_top[count][i][9-i]
+        else:
+            te_500[name][i] = tes_bottom[count-4][i][9-i]
+
+df_500 = pd.DataFrame.from_dict(te_500)
+df_500 = pd.melt(df_500,var_name='Algorithms', value_name='Transfer Efficieny')
 
 # %%
 fig = plt.figure(constrained_layout=True,figsize=(24,16))
@@ -181,8 +205,8 @@ c_top = sns.color_palette(clr_top, n_colors=len(clr_top))
 clr_bottom = ["#e41a1c", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
 c_bottom = sns.color_palette(clr_bottom, n_colors=len(clr_bottom))
 
-clr_combined = ["#e41a1c", "#377eb8",  "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
-c_combined = sns.color_palette(clr_combined, n_colors=total_alg_top+total_alg_bottom-1)
+clr_combined = ["#e41a1c", "#377eb8",  "#4daf4a", "#984ea3", "#e41a1c", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
+c_combined = sns.color_palette(clr_combined, n_colors=total_alg_top+total_alg_bottom)
 
 fontsize=25
 ticksize=22
@@ -244,8 +268,8 @@ for i in range(task_num - 1):
                 ax.plot(ns, et[j,:], marker='.', markersize=8, color=c_top[j])
 
 
-for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
-    ax.plot(1,0,color=c_combined[i], marker='.', markersize=8,label=combined_alg_name[i])
+#for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
+#    ax.plot(1,0,color=c_combined[i], marker='.', markersize=8,label=combined_alg_name[i])
 
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency (BTE)', fontsize=fontsize)
@@ -262,8 +286,30 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
-handles, labels_ = ax.get_legend_handles_labels()
+#handles, labels_ = ax.get_legend_handles_labels()
 #ax.legend(loc='center left', bbox_to_anchor=(.8, 0.5), fontsize=legendsize+16)
+
+ax = fig.add_subplot(gs[:7,16:23])
+ax.tick_params(labelsize=22)
+#ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
+ax.hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
+#sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
+ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
+#ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
+ax_.set_xlabel('', fontsize=fontsize)
+ax.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
+ax_.set_xticklabels(
+    ['L2F','L2N','Prog-NN','DF-CNN','L2F (cap.)','LwF','EWC','O-EWC','SI'],
+    fontsize=16,rotation=45,ha="right",rotation_mode='anchor'
+    )
+
+stratified_scatter(te_500,ax,10,c_combined)
+
+
+right_side = ax.spines["right"]
+right_side.set_visible(False)
+top_side = ax.spines["top"]
+top_side.set_visible(False)
 
 #########################################################
 ax = fig.add_subplot(gs[8:15,:7])
@@ -337,58 +383,6 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
-#ax.legend(loc='upper center', bbox_to_anchor=(0.5, -.2), fontsize=legendsize+6,
-# shadow=True, ncol=3)
-###############################
-'''ax = fig.add_subplot(gs[8:15,15:22])
-mean_error = unpickle('../plot_label_shuffled_angle_recruitment/recruitment_result/recruitment_mean.pickle')
-std_error = unpickle('../plot_label_shuffled_angle_recruitment/recruitment_result/recruitment_std.pickle')
-ns = 10*np.array([50, 100, 200, 350, 500])
-colors = sns.color_palette('Set1', n_colors=mean_error.shape[0]+2)
-
-#labels = ['recruiting', 'Uncertainty Forest', 'hybrid', '50 Random', 'BF', 'building']
-labels = ['hybrid', 'building', 'recruiting','50 Random', 'BF', 'Uncertainty Forest' ]
-not_included = ['BF', '50 Random']
-    
-adjust = 0
-for i, error_ in enumerate(mean_error[:-1]):
-    if labels[i] in not_included:
-        adjust +=1
-        continue
-    ax.plot(ns, mean_error[i], c=colors[i+1-adjust], label=labels[i])
-    ax.fill_between(ns, 
-            mean_error[i] + 1.96*std_error[i], 
-            mean_error[i] - 1.96*std_error[i], 
-            where=mean_error[i] + 1.96*std_error[i] >= mean_error[i] - 1.96*std_error[i], 
-            facecolor=colors[i+1-adjust], 
-            alpha=0.15,
-            interpolate=False)
-
-ax.plot(ns, mean_error[-1], c=colors[0], label=labels[-1])
-ax.fill_between(ns, 
-        mean_error[-1] + 1.96*std_error[-1], 
-        mean_error[-1] - 1.96*std_error[-1], 
-        where=mean_error[-1] + 1.96*std_error[i] >= mean_error[-1] - 1.96*std_error[-1], 
-        facecolor=colors[0], 
-        alpha=0.15,
-        interpolate=False)
-
-
-#ax.set_title('CIFAR Recruitment Experiment', fontsize=30)
-ax.set_ylabel('Accuracy', fontsize=fontsize)
-ax.set_xlabel('Number of Task 10 Samples', fontsize=fontsize)
-ax.tick_params(labelsize=ticksize)
-ax.set_ylim(0.325, 0.575)
-#ax.set_title("CIFAR Recruitment",fontsize=titlesize)
-ax.set_xticks([500, 2000, 5000])
-ax.set_yticks([0.35, 0.45, 0.55])
-
-ax.legend(fontsize=legendsize)
-
-right_side = ax.spines["right"]
-right_side.set_visible(False)
-top_side = ax.spines["top"]
-top_side.set_visible(False)'''
 
 ax = fig.add_subplot(gs[8:15,16:23])
 mean_error, std_error = unpickle('../recruitment_exp/result/recruitment_exp_500.pickle')
@@ -434,7 +428,10 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-fig.legend(handles, labels_, bbox_to_anchor=(.8, .93), fontsize=legendsize+12, frameon=False)
+#fig.legend(handles, labels_, bbox_to_anchor=(.8, .93), fontsize=legendsize+12, frameon=False)
 plt.savefig('result/figs/cifar_exp_500_recruit.pdf')
+
+# %%
+
 
 # %%
