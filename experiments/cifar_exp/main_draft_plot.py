@@ -414,17 +414,19 @@ for i,key in enumerate(mean_error.keys()):
 #ax.set_title('CIFAR Recruitment Experiment', fontsize=30)
 ax.set_xscale('log')
 ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-ax.set_ylabel('Accuracy', fontsize=fontsize)
-ax.set_xlabel('Number of Task 10 Samples', fontsize=fontsize)
+ax.set_ylabel('Generalization Error (Task 10)', fontsize=fontsize)
+ax.set_xlabel('')
 ax.tick_params(labelsize=ticksize)
 #ax.set_ylim(0.325, 0.575)
 #ax.set_title("CIFAR Recruitment",fontsize=titlesize)
 ax.set_xticks([])
 ax.set_yticks([0.35, 0.45, 0.55])
 
-ax.text(50, 1, "50", fontsize=ticksize)
-ax.text(500, 1, "500", fontsize=ticksize)
-ax.text(5000, 1, "5000", fontsize=ticksize)
+#ax.text(50, 1, "50", fontsize=ticksize)
+ax.text(500, 0.34, "500", fontsize=ticksize)
+ax.text(5000, 0.34, "5000", fontsize=ticksize)
+ax.text(500, 0.327, "Number of Task 10 Samples", fontsize=fontsize)
+
 ax.legend(loc='lower right',fontsize=legendsize)
 
 right_side = ax.spines["right"]
