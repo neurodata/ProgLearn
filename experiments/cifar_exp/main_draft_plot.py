@@ -400,8 +400,8 @@ labels = ['hybrid', 'building', 'recruiting', 'Uncertainty Forest' ]
     
 adjust = 0
 for i,key in enumerate(mean_error.keys()):
-    acc = 1- np.array(mean_error[key])
-    ax.plot(ns, acc, c=colors[i], label=labels[i])
+    err = np.array(mean_error[key])
+    ax.plot(ns, err, c=colors[i], label=labels[i])
     #ax.fill_between(ns, 
     #        acc + 1.96*np.array(std_error[key]), 
     #        acc - 1.96*np.array(std_error[key]), 
@@ -435,6 +435,6 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 
 fig.legend(handles, labels_, bbox_to_anchor=(.8, .93), fontsize=legendsize+12, frameon=False)
-plt.savefig('result/figs/cifar_exp.pdf')
+plt.savefig('result/figs/cifar_exp_5000_recruit.pdf')
 
 # %%
