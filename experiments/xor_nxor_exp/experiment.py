@@ -252,6 +252,7 @@ ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.15, 0.2])
 ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+ax1.set_title('XOR', fontsize=30)
 
 right_side = ax1.spines["right"]
 right_side.set_visible(False)
@@ -316,6 +317,7 @@ top_side.set_visible(False)
 ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
+ax1.set_title('N-XOR', fontsize=30)
 #plt.tight_layout()
 
 #plt.savefig('./result/figs/generalization_error_nxor.pdf',dpi=500)

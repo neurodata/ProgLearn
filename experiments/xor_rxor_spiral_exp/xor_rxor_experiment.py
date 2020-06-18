@@ -197,7 +197,7 @@ with open('result/mean_te_xor_rxor.pickle','wb') as f:
 with open('result/std_te_xor_rxor.pickle','wb') as f:
     pickle.dump(std_te,f)
 
-#%%
+#%% plotting
 #mc_rep = 50
 mean_error = unpickle('result/mean_xor_rxor.pickle')
 std_error = unpickle('result/std_xor_rxor.pickle')
