@@ -254,7 +254,7 @@ ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_5000, join=Fal
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2F','L2N','Prog-NN','DF-CNN','L2F (cap.)','LwF','EWC','O-EWC','SI'],
+    ['L2F','L2N','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
     fontsize=20,rotation=45,ha="right",rotation_mode='anchor'
     )
 
@@ -299,7 +299,7 @@ ax.tick_params(labelsize=ticksize)
 #ax.set_title("CIFAR Recruitment",fontsize=titlesize)
 ax.set_xticks([])
 ax.set_yticks([0.45, 0.55, 0.65])
-
+ax.set_ylim([0.43,0.62])
 #ax.text(50, 1, "50", fontsize=ticksize)
 ax.text(500, 0.430, "500", fontsize=ticksize)
 ax.text(5000, 0.430, "5000", fontsize=ticksize)
