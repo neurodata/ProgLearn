@@ -8,7 +8,7 @@ import pandas as pd
 from itertools import product
 import seaborn as sns
 import matplotlib.gridspec as gridspec
-
+import matplotlib
 #%%
 def unpickle(file):
     with open(file, 'rb') as fo:
@@ -402,24 +402,29 @@ adjust = 0
 for i,key in enumerate(mean_error.keys()):
     acc = 1- np.array(mean_error[key])
     ax.plot(ns, acc, c=colors[i], label=labels[i])
-    ax.fill_between(ns, 
-            acc + 1.96*np.array(std_error[key]), 
-            acc - 1.96*np.array(std_error[key]), 
-            where=acc + 1.96*np.array(std_error[key]) >= acc - 1.96*np.array(std_error[key]), 
-            facecolor=colors[i], 
-            alpha=0.15,
-            interpolate=False)
+    #ax.fill_between(ns, 
+    #        acc + 1.96*np.array(std_error[key]), 
+    #        acc - 1.96*np.array(std_error[key]), 
+    #        where=acc + 1.96*np.array(std_error[key]) >= acc - 1.96*np.array(std_error[key]), 
+    #        facecolor=colors[i], 
+    #        alpha=0.15,
+    #        interpolate=False)
 
 
 #ax.set_title('CIFAR Recruitment Experiment', fontsize=30)
+ax.set_xscale('log')
+ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 ax.set_ylabel('Accuracy', fontsize=fontsize)
 ax.set_xlabel('Number of Task 10 Samples', fontsize=fontsize)
 ax.tick_params(labelsize=ticksize)
 #ax.set_ylim(0.325, 0.575)
 #ax.set_title("CIFAR Recruitment",fontsize=titlesize)
-ax.set_xticks([500, 2000, 5000])
+ax.set_xticks([])
 ax.set_yticks([0.35, 0.45, 0.55])
 
+ax.text(50, 1, "50", fontsize=ticksize)
+ax.text(500, 1, "500", fontsize=ticksize)
+ax.text(5000, 1, "5000", fontsize=ticksize)
 ax.legend(loc='lower right',fontsize=legendsize)
 
 right_side = ax.spines["right"]
