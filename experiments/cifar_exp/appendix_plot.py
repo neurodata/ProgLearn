@@ -143,35 +143,48 @@ for alg in range(total_alg):
     ftes_5000[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 
 #%%
+te_5000 = {'L2F':np.zeros(10,dtype=float), 'L2N':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
+
+for count,name in enumerate(te_5000.keys()):
+    for i in range(10):
+        te_5000[name][i] = tes_5000[count][i][9-i]
+
+df_5000 = pd.DataFrame.from_dict(te_5000)
+df_5000 = pd.melt(df_5000,var_name='Algorithms', value_name='Transfer Efficieny')
+
+#%%
+fig = plt.figure(constrained_layout=True,figsize=(16,16))
+gs = fig.add_gridspec(16, 16)
 clr = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
 c = sns.color_palette(clr, n_colors=len(clr))
 
 fontsize=24
 ticksize=20
 
-fig, ax = plt.subplots(1,2, figsize=(16,6))
+ax = fig.add_subplot(gs[:7,:7])
 for i, fte in enumerate(ftes_5000):
     if i == 0:
-        ax[0].plot(np.arange(1,11), fte, color=clr[i], marker='.', markersize=12, label=alg_name[i], linewidth=3)
+        ax.plot(np.arange(1,11), fte, color=clr[i], marker='.', markersize=12, label=alg_name[i], linewidth=3)
         continue
 
     if i == 1:
-        ax[0].plot(np.arange(1,11), fte, color=clr[i], marker='.', markersize=12, label=alg_name[i], linewidth=3)
+        ax.plot(np.arange(1,11), fte, color=clr[i], marker='.', markersize=12, label=alg_name[i], linewidth=3)
         continue
     
-    ax[0].plot(np.arange(1,11), fte, color=clr[i], marker='.', markersize=12, label=alg_name[i])
+    ax.plot(np.arange(1,11), fte, color=clr[i], marker='.', markersize=12, label=alg_name[i])
     
-ax[0].set_xticks(np.arange(1,11))
-ax[0].set_yticks([0.9, 1, 1.1, 1.2, 1.3,1.4])
-ax[0].set_ylim(0.9, 1.37)
-ax[0].tick_params(labelsize=ticksize)
+ax.set_xticks(np.arange(1,11))
+ax.set_yticks([0.9, 1, 1.1, 1.2, 1.3,1.4])
+ax.set_ylim(0.9, 1.37)
+ax.tick_params(labelsize=ticksize)
 # ax[0].legend(algos, loc='upper left', fontsize=14)
 # ax[0].legend(algos, bbox_to_anchor=(1.2, -.2), loc=2, borderaxespad=0)
 
-ax[0].set_ylabel('Forward Transfer Efficiency', fontsize=fontsize)
-ax[0].set_xlabel('Number of tasks seen', fontsize=fontsize)
+ax.set_ylabel('Forward Transfer Efficiency', fontsize=fontsize)
+ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 #ax[0][0].grid(axis='x')
+
 
 for i in range(task_num - 1):
 
