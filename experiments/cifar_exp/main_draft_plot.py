@@ -387,13 +387,14 @@ ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 ax = fig.add_subplot(gs[8:15,16:23])
 mean_error, std_error = unpickle('../recruitment_exp/result/recruitment_exp_500.pickle')
 ns = 10*np.array([50, 100, 200, 350, 500])
-colors = sns.color_palette('Set1', n_colors=4)
+clr = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3"]
+colors = sns.color_palette(clr, n_colors=len(clr))
 
 #labels = ['recruiting', 'Uncertainty Forest', 'hybrid', '50 Random', 'BF', 'building']
-labels = ['hybrid', 'building', 'recruiting', 'Uncertainty Forest' ]
-    
+labels = ['L2F (building)', 'UF (new)', 'recruiting', 'hybrid']
+algo = ['building', 'UF', 'recruiting', 'hybrid']
 adjust = 0
-for i,key in enumerate(mean_error.keys()):
+for i,key in enumerate(algo):
     err = np.array(mean_error[key])
     ax.plot(ns, err, c=colors[i], label=labels[i])
     #ax.fill_between(ns, 
@@ -415,13 +416,13 @@ ax.tick_params(labelsize=ticksize)
 #ax.set_title("CIFAR Recruitment",fontsize=titlesize)
 ax.set_xticks([])
 ax.set_yticks([0.45, 0.55, 0.65])
-
+#ax.set_ylim([0.43,0.62])
 #ax.text(50, 1, "50", fontsize=ticksize)
 ax.text(500, 0.440, "500", fontsize=ticksize)
 ax.text(5000, 0.440, "5000", fontsize=ticksize)
-ax.text(550, 0.429, "Number of Task 10 Samples", fontsize=fontsize)
+ax.text(700, 0.429, "Number of Task 10 Samples", fontsize=fontsize)
 
-ax.legend(loc='lower left',fontsize=legendsize)
+ax.legend(loc='lower left',fontsize=legendsize, frameon=False)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
