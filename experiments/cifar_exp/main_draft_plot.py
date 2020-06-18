@@ -182,15 +182,15 @@ for alg in range(total_alg_bottom):
 
 #%%
 te_500 = {'L2F':np.zeros(10,dtype=float), 'L2N':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float),
-        'DF-CNN':np.zeros(10,dtype=float), 'L2Fc':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
+        'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
         'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
 
 for count,name in enumerate(te_500.keys()):
     for i in range(10):
         if count <4:
             te_500[name][i] = tes_top[count][i][9-i]
-        else:
-            te_500[name][i] = tes_bottom[count-4][i][9-i]
+        elif count>3:
+            te_500[name][i] = tes_bottom[count-3][i][9-i]
 
 df_500 = pd.DataFrame.from_dict(te_500)
 df_500 = pd.melt(df_500,var_name='Algorithms', value_name='Transfer Efficieny')
@@ -205,7 +205,7 @@ c_top = sns.color_palette(clr_top, n_colors=len(clr_top))
 clr_bottom = ["#e41a1c", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
 c_bottom = sns.color_palette(clr_bottom, n_colors=len(clr_bottom))
 
-clr_combined = ["#e41a1c", "#377eb8",  "#4daf4a", "#984ea3", "#e41a1c", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
+clr_combined = ["#e41a1c", "#377eb8",  "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
 c_combined = sns.color_palette(clr_combined, n_colors=total_alg_top+total_alg_bottom)
 
 fontsize=25
@@ -299,8 +299,8 @@ ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=Fals
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2F','L2N','Prog-NN','DF-CNN','L2F (cap.)','LwF','EWC','O-EWC','SI'],
-    fontsize=16,rotation=45,ha="right",rotation_mode='anchor'
+    ['L2F','L2N','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
+    fontsize=20,rotation=45,ha="right",rotation_mode='anchor'
     )
 
 stratified_scatter(te_500,ax,10,c_combined)
