@@ -28,8 +28,8 @@ hybrid_comp_trees = 25
 estimation_set = 0.63
 validation_set= 1-estimation_set
 num_points_per_task = 5000
-num_points_per_forest = 5000
-reps = 20
+num_points_per_forest = 500
+reps = 30
 task_10_sample = 10*np.array([10])
 
 #%%
