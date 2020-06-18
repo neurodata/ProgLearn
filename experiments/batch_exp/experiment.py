@@ -8,7 +8,8 @@ import pandas as pd
 
 import numpy as np
 import pickle
-
+from sklearn.ensemble import BaggingClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import StratifiedKFold
 from math import log2, ceil 
 
@@ -30,6 +31,7 @@ def unpickle(file):
 def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, num_points_per_task, acorn=None):
        
     uf_accuracies = np.zeros(10,dtype=float)
+    rf_accuracies = np.zeros(10,dtype=float)
     single_task_accuracies = np.zeros(10,dtype=float)
     l2f_accuracies = np.zeros(10,dtype=float)
 
@@ -108,7 +110,57 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, num_poi
                 llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
                 )
 
-    return single_task_accuracies,uf_accuracies,l2f_accuracies
+
+
+
+
+        for task_ii in range(10):
+            print("Starting RF Task {} For Fold {}".format(task_ii, shift))
+            RF = BaggingClassifier(
+                    DecisionTreeClassifier(
+                    max_depth=ceil(log2(num_points_per_task*(task_ii+1))),
+                    min_samples_leaf=1,
+                    max_features="auto"
+                ),
+                n_estimators=(task_ii+1)*ntrees,
+                max_samples=0.63,
+                n_jobs = -1
+            )
+
+            if acorn is not None:
+                np.random.seed(acorn)
+
+            if task_ii== 0:
+                train_data_x = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:]
+                train_data_y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
+            else:
+                train_data_x = np.concatenate(
+                    (
+                        train_data_x,
+                        train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:]
+                    ),
+                    axis = 0
+                )
+                train_data_y = np.concatenate(
+                    (
+                        train_data_y,
+                        train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
+                    ),
+                    axis = 0
+                )
+            RF.fit(
+                train_data_x, 
+                train_data_y
+                )
+        
+            llf_task=RF.predict(
+                test_x[task_ii*1000:(task_ii+1)*1000,:]
+                )
+            rf_accuracies[task_ii] = np.mean(
+                llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
+                )
+
+    return single_task_accuracies,uf_accuracies,rf_accuracies,l2f_accuracies
 
 #%%
 def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
@@ -142,9 +194,9 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
 def run_parallel_exp(data_x, data_y, n_trees, num_points_per_task, slot=0, shift=1):
     train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, num_points_per_task, shift=shift)
     
-    single_task_accuracies,uf_accuracies,l2f_accuracies = LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, num_points_per_task, acorn=12345)
+    single_task_accuracies,uf_accuracies,rf_accuracies,l2f_accuracies = LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, num_points_per_task, acorn=12345)
 
-    return single_task_accuracies,uf_accuracies,l2f_accuracies
+    return single_task_accuracies,uf_accuracies,rf_accuracies,l2f_accuracies
 #%%
 ### MAIN HYPERPARAMS ###
 model = "uf"
