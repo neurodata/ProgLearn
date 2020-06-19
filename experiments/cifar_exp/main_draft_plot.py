@@ -435,5 +435,3 @@ plt.savefig('result/figs/cifar_exp_500_recruit.pdf')
 
 # %%
 
-
-# %%

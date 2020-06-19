@@ -269,7 +269,7 @@ top_side.set_visible(False)
 ######################################
 ax = fig.add_subplot(gs[8:,8:25])
 mean_error, std_error = unpickle('../recruitment_exp/result/recruitment_exp_5000.pickle')
-ns = 10*np.array([50, 100, 200, 350, 500])
+ns = 10*np.array([10, 50, 100, 200, 350, 500])
 clr = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3"]
 colors = sns.color_palette(clr, n_colors=len(clr))
 
@@ -298,12 +298,13 @@ ax.tick_params(labelsize=ticksize)
 #ax.set_ylim(0.325, 0.575)
 #ax.set_title("CIFAR Recruitment",fontsize=titlesize)
 ax.set_xticks([])
-ax.set_yticks([0.45, 0.55, 0.65])
-ax.set_ylim([0.43,0.62])
+ax.set_yticks([0.45, 0.55, 0.65,0.75])
+#ax.set_ylim([0.43,0.62])
 #ax.text(50, 1, "50", fontsize=ticksize)
+ax.text(100, 0.420, "100", fontsize=ticksize)
 ax.text(500, 0.420, "500", fontsize=ticksize)
 ax.text(5000, 0.420, "5000", fontsize=ticksize)
-ax.text(700, 0.409, "Number of Task 10 Samples", fontsize=fontsize)
+ax.text(120, 0.404, "Number of Task 10 Samples", fontsize=fontsize)
 
 ax.legend(loc='lower left',fontsize=legendsize, frameon=False)
 

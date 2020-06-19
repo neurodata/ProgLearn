@@ -28,9 +28,9 @@ hybrid_comp_trees = 25
 estimation_set = 0.63
 validation_set= 1-estimation_set
 num_points_per_task = 5000
-num_points_per_forest = 5000
-reps = 20
-task_10_sample = 10*np.array([10])
+num_points_per_forest = 500
+reps = 30
+task_10_sample = 10*np.array([10, 50, 100, 200, 350, 500])
 
 #%%
 def sort_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
@@ -286,6 +286,6 @@ for ns in task_10_sample:
 
 summary = (mean_accuracy_dict,std_accuracy_dict)
 
-with open('result/recruitment_exp_'+str(num_points_per_forest)+'tmp.pickle','wb') as f:
+with open('result/recruitment_exp_'+str(num_points_per_forest)+'.pickle','wb') as f:
     pickle.dump(summary,f)
 # %%
