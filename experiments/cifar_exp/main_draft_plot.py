@@ -148,7 +148,7 @@ for alg in range(total_alg_top):
     
     btes_top[alg].extend(calc_mean_bte(bte_tmp,reps=reps))
     ftes_top[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
-    tes_top[alg].extend(calc_mean_bte(te_tmp,reps=reps))
+    tes_top[alg].extend(calc_mean_te(te_tmp,reps=reps))
 
 # %%
 reps = slots*shifts
