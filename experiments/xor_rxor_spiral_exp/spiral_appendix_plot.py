@@ -124,7 +124,7 @@ ax1.plot(ns, mean_error[1], label=algorithms[1], c=colors[0], ls=ls[np.sum(1 > 1
 
 ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontsize=fontsize)
 ax1.legend(loc='upper right', fontsize=20, frameon=False)
-ax1.set_ylim(0.2, 0.61)
+ax1.set_ylim(0.2, 0.7)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.2, 0.4,.6])
@@ -178,12 +178,12 @@ ax1.legend(loc='upper right', fontsize=20, frameon=False)
 #         ax1.set_ylim(-0.01, 0.22)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
-ax1.set_yticks([0.5, 0.6, 0.7])
+ax1.set_yticks([0.2, 0.4, 0.6])
 #ax1.set_yticks([0.15, 0.2])
 ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
-ax1.set_ylim(0.5, 0.71)
+ax1.set_ylim(0.2, 0.7)
 ax1.set_xlim(0,1500)
 ax1.set_title('5 spirals', fontsize=30)
 right_side = ax1.spines["right"]
