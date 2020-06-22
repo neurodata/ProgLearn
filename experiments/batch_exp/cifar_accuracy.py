@@ -119,7 +119,7 @@ acc = np.zeros(len(n_trees),dtype=float)
 
 for ii,ntree in enumerate(n_trees):
     iterable = product(shift_fold,slot_fold)
-    
+
     res = Parallel(n_jobs=3,verbose=1)(
         delayed(run_parallel_exp)(
                 data_x, data_y, ntree, num_points_per_task, slot=slot, shift=shift
@@ -130,5 +130,25 @@ for ii,ntree in enumerate(n_trees):
 
 with open('result/cifar_acc.pickle','wb') as f:
     pickle.dump(acc,f)      
+
+# %%
+n_trees=[5,10,15,20,25,30,35,40,45]
+acc = unpickle('result/cifar_acc.pickle')
+
+fontsize = 24
+ticksize = 20
+fig, ax = plt.subplots(1,1, figsize=(8,8))
+
+ax.plot(n_trees, acc, c='k', label='L2F')
+ax.set_ylabel('Accuracy', fontsize=fontsize)
+ax.set_xlabel('Tree #', fontsize=fontsize)
+ax.tick_params(labelsize=ticksize)
+
+right_side = ax.spines["right"]
+right_side.set_visible(False)
+top_side = ax.spines["top"]
+top_side.set_visible(False)
+
+plt.savefig('result/accuracy.pdf')
 
 # %%
