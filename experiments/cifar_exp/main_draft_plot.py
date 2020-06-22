@@ -293,7 +293,7 @@ ax = fig.add_subplot(gs[:7,16:23])
 ax.tick_params(labelsize=22)
 ax_ = sns.boxplot(
     x="Algorithms", y="Transfer Efficieny", data=df_500, palette=c_combined, whis=np.inf,
-    ax=ax, showbox=False, showfliers=False
+    ax=ax, showfliers=False, notch=1
     )
 ax.hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
@@ -307,7 +307,7 @@ ax_.set_xticklabels(
     )
 
 stratified_scatter(te_500,ax,16,c_combined)
-
+ax.vlines(2,.9,1.3)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
