@@ -100,14 +100,15 @@ def stratified_scatter(te_dict,axis_handle,s,color):
 
 
 #%%
-task_num=10
-filename = 'result/PL_llf_language.p'
+task_num=15
+#filename = 'result/PL_llf_language.p'
 #filename = 'result/satori_llf_overlap_random_batch.p'
 #filename = 'result/satori_llf_nonoverlap_batch.p'
+filename = 'result/PL_llf_language_random_overlap_batches.p'
 res = unpickle(filename)
 
 # %%
-reps = 10
+reps = 15
 count = 0
 bte_tmp = [[] for _ in range(reps)]
 fte_tmp = [[] for _ in range(reps)] 
@@ -176,7 +177,7 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.hlines(1, 1,task_num, colors='grey', linestyles='dashed',linewidth=1.5)
 
-plt.savefig('result/PL_llf.pdf')
+plt.savefig('result/PL_llf_overlap.pdf')
 #plt.savefig('result/satori_overlap.pdf')
 #plt.savefig('result/satori_nonoverlap.pdf')
 # %%
