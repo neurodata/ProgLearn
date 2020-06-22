@@ -82,6 +82,7 @@ def get_error_matrix(filename):
 def stratified_scatter(te_dict,axis_handle,s,color):
     algo = list(te_dict.keys())
     total_alg = len(algo)
+
     total_points = len(te_dict[algo[0]])
 
     pivot_points = np.arange(-.25, (total_alg+1)*1, step=1)
@@ -93,7 +94,7 @@ def stratified_scatter(te_dict,axis_handle,s,color):
                 pivot_points[algo_no]+interval*no,
                 te_dict[alg][no],
                 s=s,
-                c=color[algo_no]
+                c='k'
                 )
 
    
@@ -105,8 +106,8 @@ slots = 10
 task_num = 10
 shifts = 6
 total_alg = 8
-alg_name = ['L2F','L2N','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
-model_file_5000 = ['fixed_uf5000_40','dnn0','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
+alg_name = ['L2N','L2F','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
+model_file_5000 = ['dnn0','fixed_uf5000_40','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
 
 btes_5000 = [[] for i in range(total_alg)]
 ftes_5000 = [[] for i in range(total_alg)]
@@ -143,7 +144,7 @@ for alg in range(total_alg):
     ftes_5000[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 
 #%%
-te_5000 = {'L2F':np.zeros(10,dtype=float), 'L2N':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
+te_5000 = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
 
 for count,name in enumerate(te_5000.keys()):
     for i in range(10):
@@ -155,7 +156,7 @@ df_5000 = pd.melt(df_5000,var_name='Algorithms', value_name='Transfer Efficieny'
 #%%
 fig = plt.figure(constrained_layout=True,figsize=(16,16))
 gs = fig.add_gridspec(16, 16)
-clr = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
+clr = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
 c = sns.color_palette(clr, n_colors=len(clr))
 
 fontsize=24
@@ -249,8 +250,11 @@ ax.tick_params(labelsize=22)
 #ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
 ax.hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
-ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_5000, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
+#ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_5000, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
+ax_ = sns.boxplot(
+    x="Algorithms", y="Transfer Efficieny", data=df_5000, palette=c, whis=np.inf, ax=ax
+    )
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
@@ -258,7 +262,7 @@ ax_.set_xticklabels(
     fontsize=20,rotation=45,ha="right",rotation_mode='anchor'
     )
 
-stratified_scatter(te_5000,ax,10,c)
+stratified_scatter(te_5000,ax,16,c)
 
 
 right_side = ax.spines["right"]
