@@ -307,7 +307,6 @@ ax_.set_xticklabels(
     )
 
 stratified_scatter(te_500,ax,16,c_combined)
-ax.vlines(2,.9,1.3)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
