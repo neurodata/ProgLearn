@@ -39,3 +39,39 @@ def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
     return img_as_ubyte(image_aug_)
 
 # %%
+(X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
+
+fig, ax = plt.subplots(1,2, figsize=(8,4))
+cif = X_train[29,:,:,:]
+rotated_cif = image_aug(cif,45)
+ax[0].imshow(cif)
+ax[1].imshow(rotated_cif)
+
+ax[0].set_title('CIFAR image', fontsize=14)
+ax[1].set_title('45$^\circ$ rotated CIFAR image', fontsize=14)
+
+ax[0].set_xticks([])
+ax[0].set_yticks([])
+ax[1].set_xticks([])
+ax[1].set_yticks([])
+
+right_side = ax[0].spines["right"]
+right_side.set_visible(False)
+top_side = ax[0].spines["top"]
+top_side.set_visible(False)
+left_side = ax[0].spines["left"]
+left_side.set_visible(False)
+bottom_side = ax[0].spines["bottom"]
+bottom_side.set_visible(False)
+
+right_side = ax[1].spines["right"]
+right_side.set_visible(False)
+top_side = ax[1].spines["top"]
+top_side.set_visible(False)
+left_side = ax[1].spines["left"]
+left_side.set_visible(False)
+bottom_side = ax[1].spines["bottom"]
+bottom_side.set_visible(False)
+
+plt.savefig("results/figs/rotated_cifar.pdf")
+# %%
