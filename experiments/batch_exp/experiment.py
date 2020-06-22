@@ -199,7 +199,7 @@ def run_parallel_exp(data_x, data_y, n_trees, num_points_per_task, slot=0, shift
 
     return single_task_accuracies,uf_accuracies,rf_accuracies,l2f_accuracies
 #%%
-### MAIN HYPERPARAMS ###
+### MAIN H≈YPERPARAMS ###
 model = "uf"
 num_points_per_task = 5000
 ########################
@@ -214,10 +214,10 @@ data_y = data_y[:, 0]
 #%%
 slot_fold = range(5000//num_points_per_task)
 shift_fold = range(1,7,1)
-n_trees=[10]
+n_trees=[40]
 iterable = product(n_trees,shift_fold,slot_fold)
 
-res = Parallel(n_jobs=1,verbose=1)(
+res = Parallel(n_jobs=3,verbose=1)(
     delayed(run_parallel_exp)(
             data_x, data_y, ntree, num_points_per_task, slot=slot, shift=shift
             ) for ntree,shift,slot in iterable
