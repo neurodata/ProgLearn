@@ -253,7 +253,8 @@ ax.hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
 #ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_5000, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_ = sns.boxplot(
-    x="Algorithms", y="Transfer Efficieny", data=df_5000, palette=c, whis=np.inf, ax=ax
+    x="Algorithms", y="Transfer Efficieny", data=df_5000, palette=c, 
+    whis=np.inf, ax=ax,  showfliers=False, notch=1
     )
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
@@ -319,7 +320,4 @@ top_side.set_visible(False)
 
 
 plt.savefig('result/figs/benchmark_5000.pdf', dpi=500)
-
-
-
 # %%
