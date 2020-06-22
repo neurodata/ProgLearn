@@ -41,8 +41,7 @@ for alg_no,alg in enumerate(alg_name):
 ax[0].set_xticks(range(0, 90 + 15, 15))
 ax[0].tick_params(labelsize=25)
 ax[0].set_xlabel('Angle of Rotation (Degrees)', fontsize=24)
-ax[0].set_ylabel('Backward Transfer Efficiency', fontsize=24)
-ax[0].set_title("XOR vs. Rotated-XOR", fontsize = 24)
+ax[0].set_ylabel('Backward Transfer Efficiency (XOR)', fontsize=24)
 ax[0].hlines(1,0,90, colors='grey', linestyles='dashed',linewidth=1.5)
 
 
@@ -66,11 +65,11 @@ fontsize=22
 ticksize=20
 
 ax[1].plot(n1_ra, te_ra, c="#e41a1c", linewidth = 2.6)
+ax[1].set_xticks([100, 1000, 2500, 5000])
 ax[1].tick_params(labelsize=25)
 ax[1].hlines(1, 1, max(n1_ra), colors='grey', linestyles='dashed',linewidth=1.5)
-ax[1].set_xlabel('Number of Task 1 Training Samples', fontsize=24)
-ax[1].set_ylabel('Backward Transfer Efficiency', fontsize=24)
-ax[1].set_title("Training Set Size Effect", fontsize = 24)
+ax[1].set_xlabel(r'Number of $10^\circ$-XOR Training Samples', fontsize=24)
+ax[1].set_ylabel('Backward Transfer Efficiency (XOR)', fontsize=24)
 
 for a in ax:
     right_side = a.spines["right"]
@@ -79,4 +78,4 @@ for a in ax:
     top_side.set_visible(False)
 plt.tight_layout()
 
-plt.savefig('figs/rotation_te_exp.pdf')
+plt.savefig('figs/RXOR_suite.pdf')
