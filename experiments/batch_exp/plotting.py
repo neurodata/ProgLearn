@@ -14,7 +14,7 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 # %%
-file_to_load = 'result/res.pickle'
+file_to_load = 'result/res_5000.pickle'
 res = unpickle(file_to_load)
 reps = len(res)
 
