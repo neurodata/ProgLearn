@@ -115,10 +115,11 @@ data_y = data_y[:, 0]
 slot_fold = range(2)
 shift_fold = range(1,2,1)
 n_trees=[5,10,15,20,25,30,35,40,45]
-iterable = product(shift_fold,slot_fold)
 acc = np.zeros(len(n_trees),dtype=float)
 
 for ii,ntree in enumerate(n_trees):
+    iterable = product(shift_fold,slot_fold)
+    
     res = Parallel(n_jobs=3,verbose=1)(
         delayed(run_parallel_exp)(
                 data_x, data_y, ntree, num_points_per_task, slot=slot, shift=shift
