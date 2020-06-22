@@ -14,7 +14,7 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 # %%
-file_to_load = 'result/res_5000.pickle'
+file_to_load = 'result/res.pickle'
 res = unpickle(file_to_load)
 reps = len(res)
 
@@ -97,5 +97,5 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-plt.savefig('result/batch_exp_5000.pdf')
+plt.savefig('result/batch_exp.pdf')
 # %%
