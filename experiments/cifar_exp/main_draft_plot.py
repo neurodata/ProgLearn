@@ -94,7 +94,7 @@ def stratified_scatter(te_dict,axis_handle,s,color):
                 pivot_points[algo_no]+interval*no,
                 te_dict[alg][no],
                 s=s,
-                c=color[algo_no]
+                c='k'
                 )
 
 
@@ -291,10 +291,12 @@ handles, labels_ = ax.get_legend_handles_labels()
 
 ax = fig.add_subplot(gs[:7,16:23])
 ax.tick_params(labelsize=22)
-#ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
+ax_ = sns.boxplot(
+    x="Algorithms", y="Transfer Efficieny", data=df_500, palette=c_combined, whis=np.inf, ax=ax
+    )
 ax.hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
-ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
+#ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
@@ -303,7 +305,7 @@ ax_.set_xticklabels(
     fontsize=20,rotation=45,ha="right",rotation_mode='anchor'
     )
 
-stratified_scatter(te_500,ax,10,c_combined)
+stratified_scatter(te_500,ax,16,c_combined)
 
 
 right_side = ax.spines["right"]
