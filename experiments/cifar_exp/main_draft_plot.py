@@ -292,7 +292,8 @@ handles, labels_ = ax.get_legend_handles_labels()
 ax = fig.add_subplot(gs[:7,16:23])
 ax.tick_params(labelsize=22)
 ax_ = sns.boxplot(
-    x="Algorithms", y="Transfer Efficieny", data=df_500, palette=c_combined, whis=np.inf, ax=ax
+    x="Algorithms", y="Transfer Efficieny", data=df_500, palette=c_combined, whis=np.inf,
+    ax=ax, showbox=False, showfliers=False
     )
 ax.hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
