@@ -97,5 +97,5 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-plt.savefig('result/batch_exp.pdf')
+plt.savefig('result/batch_exp_5000.pdf')
 # %%
