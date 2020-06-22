@@ -139,7 +139,7 @@ legendsize=14
 ax = fig.add_subplot(gs[:7,:7])
 ax.plot(np.arange(1,task_num+1), fte, color='r', marker='.', markersize=12, linewidth=3)
 
-ax.set_xticks(np.arange(1,11))
+ax.set_xticks(np.arange(1,task_num+1,2))
 #ax.set_yticks([0.9, 1, 1.1, 1.2, 1.3,1.4])
 #ax.set_ylim(0.89, 1.41)
 ax.tick_params(labelsize=ticksize)
@@ -166,11 +166,11 @@ ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency (BTE)', fontsize=fontsize)
 
 #ax.set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
-ax.set_xticks(np.arange(1,task_num+1))
+ax.set_xticks(np.arange(1,task_num+1,2))
 #ax.set_ylim(0.99, 1.2)
 ax.tick_params(labelsize=ticksize)
 #ax[0][1].grid(axis='x')
-
+ax.set_ylim([.09,1.5])
 right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
