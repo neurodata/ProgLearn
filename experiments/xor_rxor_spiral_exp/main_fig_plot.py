@@ -84,8 +84,8 @@ fontsize=30
 labelsize=28
 
 
-fig = plt.figure(constrained_layout=True,figsize=(21,21))
-gs = fig.add_gridspec(21, 21)
+fig = plt.figure(constrained_layout=True,figsize=(21,28))
+gs = fig.add_gridspec(28, 21)
 
 colors = sns.color_palette('Dark2', n_colors=2)
 
@@ -141,7 +141,7 @@ TASK2='N-XOR'
 
 colors = sns.color_palette("Set1", n_colors = 2)
 
-ax = fig.add_subplot(gs[7:13,4:10])
+ax = fig.add_subplot(gs[7:13,2:9])
 
 ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[1], ls=ls[np.sum(0 > 1).astype(int)], lw=3)
 ax.plot(ns, mean_error[1], label=algorithms[1], c=colors[0], ls=ls[np.sum(1 > 1).astype(int)], lw=3)
@@ -172,8 +172,7 @@ algorithms = ['Uncertainty Forest', 'Lifelong Forest']
 
 TASK1='XOR'
 TASK2='N-XOR'
-
-ax = fig.add_subplot(gs[7:13,12:18])
+ax = fig.add_subplot(gs[7:13,12:19])
 
 ax.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[0], c=colors[1], ls=ls[1], lw=3)
 ax.plot(ns[len(n1s):], mean_error[3, len(n1s):], label=algorithms[1], c=colors[0], ls=ls[1], lw=3)
@@ -208,7 +207,7 @@ algorithms = ['Backward Transfer', 'Forward Transfer']
 TASK1='XOR'
 TASK2='N-XOR'
 
-ax = fig.add_subplot(gs[14:20,4:10])
+ax = fig.add_subplot(gs[15:21,2:9])
 
 ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
@@ -240,7 +239,7 @@ algorithms = ['Backward Transfer', 'Forward Transfer']
 TASK1='XOR'
 TASK2='R-XOR'
 
-ax = fig.add_subplot(gs[14:20,12:18])
+ax = fig.add_subplot(gs[15:21,12:19])
 
 ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
@@ -264,6 +263,64 @@ ax.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
 ax.text(400, np.mean(ax.get_ylim())+.005, "%s"%(TASK1), fontsize=26)
 ax.text(900, np.mean(ax.get_ylim())+.005, "%s"%(TASK2), fontsize=26)
 
+########################################################
+ax = fig.add_subplot(gs[23:,2:9])
+alg_name = ['L2F']
+angles = np.arange(0,91,1)
+tes = [[] for _ in range(len(alg_name))]
+
+for algo_no,alg in enumerate(alg_name):
+    for angle in angles:
+        orig_error, transfer_error = pickle.load(
+                open("../rotation_xor/bte_90/results/angle_" + str(angle) + ".pickle", "rb")
+                )
+        tes[algo_no].append(orig_error / transfer_error)
+
+clr = ["#e41a1c"]
+c = sns.color_palette(clr, n_colors=len(clr))
+
+for alg_no,alg in enumerate(alg_name):
+    if alg_no<2:
+        ax.plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
+    else:
+        ax.plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no])
+
+
+ax.set_xticks(range(0, 90 + 15, 15))
+ax.tick_params(labelsize=labelsize)
+ax.set_xlabel('Angle of Rotation (Degrees)', fontsize=fontsize)
+ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax.set_title("XOR vs. Rotated-XOR", fontsize = fontsize)
+ax.hlines(1,0,90, colors='grey', linestyles='dashed',linewidth=1.5)
+
+right_side = ax.spines["right"]
+right_side.set_visible(False)
+top_side = ax.spines["top"]
+top_side.set_visible(False)
+
+
+ax = fig.add_subplot(gs[23:,12:19])
+te_ra = []
+n1_ra = range(10, 5000, 50)
+for n1 in n1_ra:
+    te_across_reps = []
+    for rep in range(500):
+        filename = '../rotation_xor/te_exp/result/'+str(n1)+'_'+str(rep)+'.pickle'
+        df = unpickle(filename)
+        te_across_reps.append(float(df['te']))
+    te_ra.append(np.mean(te_across_reps))
+
+ax.plot(n1_ra, te_ra, c="#e41a1c", linewidth = 2.6)
+ax.tick_params(labelsize=labelsize)
+ax.hlines(1, 1, max(n1_ra), colors='grey', linestyles='dashed',linewidth=1.5)
+ax.set_xlabel('Number of Task 1 Training Samples', fontsize=fontsize)
+ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax.set_title("Training Set Size Effect", fontsize = fontsize)
+
+right_side = ax.spines["right"]
+right_side.set_visible(False)
+top_side = ax.spines["top"]
+top_side.set_visible(False)
 
 plt.savefig('./result/figs/xor_nxor_rxor_exp.pdf')
 
