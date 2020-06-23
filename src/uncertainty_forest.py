@@ -1,7 +1,6 @@
 '''
 Primary Author: Will LeVine
 Email: levinewill@icloud.com
-Latest Update: June 11, 2020
 '''
 
 #Model
@@ -49,7 +48,8 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
         max_features_tree = "auto",
         n_estimators=100,
         bootstrap=False,
-        parallel=True):
+        parallel=True,
+        n_jobs = None):
 
         #Tree parameters.
         self.max_depth = max_depth
@@ -63,6 +63,10 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
 
         #Model parameters.
         self.parallel = parallel
+        if self.parallel and n_jobs == None:
+            self.n_jobs = self.n_estimators
+        else:
+            self.n_jobs = n_jobs
         self.fitted = False
 
     def _check_fit(self):
@@ -90,7 +94,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
 
         if self.parallel:
             return np.array(
-                    Parallel(n_jobs=-1)(
+                    Parallel(n_jobs=self.n_jobs)(
                             delayed(worker)(tree_idx, tree) for tree_idx, tree in enumerate(self.ensemble.estimators_)
                     )
             )         
@@ -126,18 +130,19 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
             n_estimators=self.n_estimators,
             max_samples=self.max_samples,
             bootstrap=self.bootstrap,
-            n_jobs = -1
+            n_jobs = self.n_jobs
         )
         
         #fit the ensemble
         self.ensemble.fit(X, y)
         
         class Voter(BaseEstimator):
-            def __init__(self, estimators_samples_, classes, parallel = True):
+            def __init__(self, estimators_samples_, classes, parallel, n_jobs):
                 self.n_estimators = len(estimators_samples_)
                 self.classes_ = classes
                 self.parallel = parallel
                 self.estimators_samples_ = estimators_samples_
+                self.n_jobs = n_jobs
             
             def fit(self, nodes_across_trees, y, fitting = False):
                 self.tree_idx_to_node_ids_to_posterior_map = {}
@@ -193,7 +198,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
 
                 if self.parallel:
                     return np.mean(
-                            Parallel(n_jobs=-1)(
+                            Parallel(n_jobs=self.n_jobs)(
                                     delayed(worker)(tree_idx) for tree_idx in range(self.n_estimators)
                             ), axis = 0
                     )
@@ -204,7 +209,7 @@ class UncertaintyForest(BaseEstimator, ClassifierMixin):
                 
         #get the nodes of the calibration set
         nodes_across_trees = self.transform(X) 
-        self.voter = Voter(estimators_samples_ = self.ensemble.estimators_samples_, classes = self.classes_, parallel = self.parallel)
+        self.voter = Voter(estimators_samples_ = self.ensemble.estimators_samples_, classes = self.classes_, parallel = self.parallel, n_jobs = self.n_jobs)
         self.voter.fit(nodes_across_trees, y, fitting = True)
         self.fitted = True
 
