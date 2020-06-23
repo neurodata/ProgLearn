@@ -135,8 +135,8 @@ tes2 = calc_mean_te(te_tmp,task_num=task_num2,reps=reps)
 fig = plt.figure(constrained_layout=True,figsize=(16,8))
 gs = fig.add_gridspec(8, 16)
 
-fontsize=25
-ticksize=22
+fontsize=30
+ticksize=26
 legendsize=14
 
 ax = fig.add_subplot(gs[:7,:7])
@@ -150,7 +150,7 @@ ax.plot(task_num1, btes1[task_num1-1], marker='.', markersize=8, color='r', line
 
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
-
+ax.tick_params(labelsize=ticksize)
 #ax.set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
 ax.set_xticks(np.arange(1,task_num1+1,2))
 #ax.set_ylim(0.99, 1.2)
@@ -176,6 +176,7 @@ ax.plot(task_num2, btes2[task_num2-1], marker='.', markersize=8, color='r', line
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
 
+ax.tick_params(labelsize=ticksize)
 ax.set_yticks([0.98,1,1.02,1.04,1.06])
 ax.set_xticks(np.arange(1,task_num2+1,2))
 #ax.set_ylim(0.99, 1.2)
