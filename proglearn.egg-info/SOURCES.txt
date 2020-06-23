@@ -2,6 +2,7 @@ setup.py
 proglearn/__init__.py
 proglearn/honest_dnn.py
 proglearn/lifelong_dnn.py
+proglearn/progressive_learner.py
 proglearn/uncertainty_forest.py
 proglearn.egg-info/PKG-INFO
 proglearn.egg-info/SOURCES.txt
