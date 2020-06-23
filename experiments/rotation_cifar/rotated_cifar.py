@@ -101,7 +101,7 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, 
     
     errors = errors/reps
     print("Errors For Angle {}: {}".format(angle, errors))
-    with open('rotation_results/angle_'+str(angle)+'_'+model+'.pickle', 'wb') as f:
+    with open('results/angle_'+str(angle)+'_'+model+'.pickle', 'wb') as f:
         pickle.dump(errors, f, protocol = 2)
         
 def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
