@@ -11,7 +11,7 @@ import numpy as np
 from joblib import Parallel, delayed
 
 class LifeLongDNN():
-    def __init__(self, acorn = None, verbose = False, model = "uf", parallel = True):
+    def __init__(self, acorn = None, verbose = False, model = "uf", parallel = True, n_jobs = None):
         self.X_across_tasks = []
         self.y_across_tasks = []
         
@@ -32,6 +32,8 @@ class LifeLongDNN():
         
         self.parallel = parallel
         
+        self.n_jobs = n_jobs
+        
     def check_task_idx_(self, task_idx):
         if task_idx >= self.n_tasks:
             raise Exception("Invalid Task IDX")
@@ -46,7 +48,9 @@ class LifeLongDNN():
                    bootstrap = False,
                    max_depth = 30,
                    min_samples_leaf = 1,
-                   acorn = None):
+                   acorn = None,
+                   parallel = False,
+                   n_jobs = None):
         
         if self.model == "dnn":
             from honest_dnn import HonestDNN 
@@ -65,7 +69,8 @@ class LifeLongDNN():
                                                bootstrap = bootstrap,
                                                max_depth = max_depth,
                                                min_samples_leaf = min_samples_leaf,
-                                               parallel = self.parallel)
+                                               parallel = parallel,
+                                               n_jobs = n_jobs)
             new_honest_dnn.fit(X, y)
         new_transformer = new_honest_dnn.get_transformer()
         new_voter = new_honest_dnn.get_voter()
@@ -127,7 +132,7 @@ class LifeLongDNN():
         
         if self.parallel:
             posteriors_across_tasks = np.array(
-                        Parallel(n_jobs=-1)(
+                        Parallel(n_jobs=self.n_jobs if self.n_jobs != None else len(representation))(
                                 delayed(worker)(transformer_task_idx) for transformer_task_idx in representation
                         )
                 )    
