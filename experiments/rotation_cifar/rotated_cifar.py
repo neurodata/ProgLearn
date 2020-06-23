@@ -65,25 +65,33 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, 
         print("Starting Rep {} of Angle {}".format(rep, angle))
         train_x1, train_y1, train_x2, train_y2, test_x, test_y = cross_val_data(data_x, data_y, total_cls=10)
     
-    
-        #change data angle for second task
-        tmp_data = train_x2.copy()
+        #change data angle for first task
+        tmp_data1 = train_x1.copy()
         _tmp_ = np.zeros((32,32,3), dtype=int)
-        total_data = tmp_data.shape[0]
+        total_data = tmp_data1.shape[0]
         
         for i in range(total_data):
-            tmp_ = image_aug(tmp_data[i],angle)
-            tmp_data[i] = tmp_
+            tmp_ = image_aug(tmp_data1[i],0)
+            tmp_data1[i] = tmp_
+
+        #change data angle for second task
+        tmp_data2 = train_x2.copy()
+        _tmp_ = np.zeros((32,32,3), dtype=int)
+        total_data = tmp_data2.shape[0]
+        
+        for i in range(total_data):
+            tmp_ = image_aug(tmp_data2[i],angle)
+            tmp_data2[i] = tmp_
         
         if model == "uf":
-            train_x1 = train_x1.reshape((train_x1.shape[0], train_x1.shape[1] * train_x1.shape[2] * train_x1.shape[3]))
-            tmp_data = tmp_data.reshape((tmp_data.shape[0], tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3]))
+            tmp_data1 = tmp_data1.reshape((tmp_data1.shape[0], tmp_data1.shape[1] * tmp_data1.shape[2] * tmp_data1.shape[3]))
+            tmp_data2 = tmp_data2.reshape((tmp_data2.shape[0], tmp_data2.shape[1] * tmp_data2.shape[2] * tmp_data2.shape[3]))
             test_x = test_x.reshape((test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3]))
             
         with tf.device('/gpu:'+str(int(angle //  granularity) % 4)):
             lifelong_forest = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
-            lifelong_forest.new_forest(train_x1, train_y1, n_estimators=ntrees)
-            lifelong_forest.new_forest(tmp_data, train_y2, n_estimators=ntrees)
+            lifelong_forest.new_forest(tmp_data1, train_y1, n_estimators=ntrees)
+            lifelong_forest.new_forest(tmp_data2, train_y2, n_estimators=ntrees)
 
             llf_task1=lifelong_forest.predict(test_x, representation='all', decider=0)
             llf_single_task=lifelong_forest.predict(test_x, representation=0, decider=0)
