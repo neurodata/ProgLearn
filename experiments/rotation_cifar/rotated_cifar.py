@@ -120,7 +120,7 @@ def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
     return img_as_ubyte(image_aug_)
 
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 granularity = 2
 reps = 20
 ########################
