@@ -11,7 +11,7 @@ import numpy as np
 from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from itertools import product
-import keras
+import tensorflow.keras as keras
 
 from joblib import Parallel, delayed
 from multiprocessing import Pool
