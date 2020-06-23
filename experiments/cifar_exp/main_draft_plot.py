@@ -94,7 +94,7 @@ def stratified_scatter(te_dict,axis_handle,s,color):
                 pivot_points[algo_no]+interval*no,
                 te_dict[alg][no],
                 s=s,
-                c=color[algo_no]
+                c='k'
                 )
 
 
@@ -106,10 +106,10 @@ task_num = 10
 shifts = 6
 total_alg_top = 4
 total_alg_bottom = 5
-alg_name_top = ['L2F','L2N','Prog-NN', 'DF-CNN']
+alg_name_top = ['L2N','L2F','Prog-NN', 'DF-CNN']
 alg_name_bottom = ['L2F','LwF','EWC','O-EWC','SI']
 combined_alg_name = ['L2F','L2N','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
-model_file_top = ['fixed_uf10','dnn0','Prog_NN','DF_CNN']
+model_file_top = ['dnn0','fixed_uf10','Prog_NN','DF_CNN']
 model_file_bottom = ['uf10','LwF','EWC','Online_EWC','SI']
 btes_top = [[] for i in range(total_alg_top)]
 ftes_top = [[] for i in range(total_alg_top)]
@@ -181,7 +181,7 @@ for alg in range(total_alg_bottom):
     tes_bottom[alg].extend(calc_mean_te(te_tmp,reps=reps))
 
 #%%
-te_500 = {'L2F':np.zeros(10,dtype=float), 'L2N':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float),
+te_500 = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float),
         'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
         'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
 
@@ -196,16 +196,16 @@ df_500 = pd.DataFrame.from_dict(te_500)
 df_500 = pd.melt(df_500,var_name='Algorithms', value_name='Transfer Efficieny')
 
 # %%
-fig = plt.figure(constrained_layout=True,figsize=(24,16))
-gs = fig.add_gridspec(16, 24)
+fig = plt.figure(constrained_layout=True,figsize=(26,16))
+gs = fig.add_gridspec(16, 27)
 
-clr_top = ["#e41a1c", "#377eb8",  "#4daf4a", "#984ea3"]
+clr_top = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3"]
 c_top = sns.color_palette(clr_top, n_colors=len(clr_top))
 
 clr_bottom = ["#e41a1c", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
 c_bottom = sns.color_palette(clr_bottom, n_colors=len(clr_bottom))
 
-clr_combined = ["#e41a1c", "#377eb8",  "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
+clr_combined = [ "#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
 c_combined = sns.color_palette(clr_combined, n_colors=total_alg_top+total_alg_bottom)
 
 fontsize=25
@@ -268,8 +268,8 @@ for i in range(task_num - 1):
                 ax.plot(ns, et[j,:], marker='.', markersize=8, color=c_top[j])
 
 
-#for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
-#    ax.plot(1,0,color=c_combined[i], marker='.', markersize=8,label=combined_alg_name[i])
+for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
+    ax.plot(1,0,color=c_combined[i], marker='.', markersize=8,label=combined_alg_name[i])
 
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency (BTE)', fontsize=fontsize)
@@ -286,25 +286,27 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 
-#handles, labels_ = ax.get_legend_handles_labels()
+handles, labels_ = ax.get_legend_handles_labels()
 #ax.legend(loc='center left', bbox_to_anchor=(.8, 0.5), fontsize=legendsize+16)
 
 ax = fig.add_subplot(gs[:7,16:23])
 ax.tick_params(labelsize=22)
-#ax_ = sns.stripplot(x="Algorithms", y="Transfer Efficieny", data=df, palette=c, size=6, ax=ax[1][1])
+ax_ = sns.boxplot(
+    x="Algorithms", y="Transfer Efficieny", data=df_500, palette=c_combined, whis=np.inf,
+    ax=ax, showfliers=False, notch=1
+    )
 ax.hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
-ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
+#ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2F','L2N','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
+    ['L2N','L2F','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
     fontsize=20,rotation=45,ha="right",rotation_mode='anchor'
     )
 
-stratified_scatter(te_500,ax,10,c_combined)
-
+stratified_scatter(te_500,ax,16,c_combined)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
@@ -430,7 +432,7 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-#fig.legend(handles, labels_, bbox_to_anchor=(.8, .93), fontsize=legendsize+12, frameon=False)
+fig.legend(handles, labels_, bbox_to_anchor=(.99, .93), fontsize=legendsize+12, frameon=False)
 plt.savefig('result/figs/cifar_exp_500_recruit.pdf')
 
 # %%
