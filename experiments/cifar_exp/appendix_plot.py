@@ -259,7 +259,7 @@ ax_ = sns.boxplot(
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2F','L2N','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
+    ['L2N','L2F','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
     fontsize=20,rotation=45,ha="right",rotation_mode='anchor'
     )
 
