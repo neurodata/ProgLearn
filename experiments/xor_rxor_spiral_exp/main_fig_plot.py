@@ -84,8 +84,8 @@ fontsize=30
 labelsize=28
 
 
-fig = plt.figure(constrained_layout=True,figsize=(21,28))
-gs = fig.add_gridspec(28, 21)
+fig = plt.figure(constrained_layout=True,figsize=(21,30))
+gs = fig.add_gridspec(30, 21)
 
 colors = sns.color_palette('Dark2', n_colors=2)
 
@@ -264,7 +264,7 @@ ax.text(400, np.mean(ax.get_ylim())+.005, "%s"%(TASK1), fontsize=26)
 ax.text(900, np.mean(ax.get_ylim())+.005, "%s"%(TASK2), fontsize=26)
 
 ########################################################
-ax = fig.add_subplot(gs[23:,2:9])
+ax = fig.add_subplot(gs[23:29,2:9])
 alg_name = ['L2F']
 angles = np.arange(0,91,1)
 tes = [[] for _ in range(len(alg_name))]
@@ -299,7 +299,7 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 
 
-ax = fig.add_subplot(gs[23:,12:19])
+ax = fig.add_subplot(gs[23:29,12:19])
 te_ra = []
 n1_ra = range(10, 5000, 50)
 for n1 in n1_ra:
