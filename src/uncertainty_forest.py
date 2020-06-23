@@ -1,7 +1,6 @@
 '''
 Primary Author: Will LeVine
 Email: levinewill@icloud.com
-Latest Update: June 11, 2020
 '''
 
 #Model
