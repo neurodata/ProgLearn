@@ -12,7 +12,7 @@ for algo_no,alg in enumerate(alg_name):
     for angle in angles:
         if alg=='L2F':
             orig_error, transfer_error = pickle.load(
-                open("results/angle_" + str(angle) + ".pickle", "rb")
+                open("results/angle_" + str(angle) + "_uf.pickle", "rb")
                 )
             tes[algo_no].append(orig_error / transfer_error)
         elif alg=='L2N':

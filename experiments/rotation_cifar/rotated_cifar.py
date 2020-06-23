@@ -67,7 +67,6 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, 
     
         #change data angle for first task
         tmp_data1 = train_x1.copy()
-        _tmp_ = np.zeros((32,32,3), dtype=int)
         total_data = tmp_data1.shape[0]
         
         for i in range(total_data):
@@ -76,12 +75,19 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, 
 
         #change data angle for second task
         tmp_data2 = train_x2.copy()
-        _tmp_ = np.zeros((32,32,3), dtype=int)
         total_data = tmp_data2.shape[0]
         
         for i in range(total_data):
             tmp_ = image_aug(tmp_data2[i],angle)
             tmp_data2[i] = tmp_
+
+        #change data angle for testdata
+        total_data = test_x.shape[0]
+        
+        for i in range(total_data):
+            tmp_ = image_aug(test_x[i],0)
+            test_x[i] = tmp_
+
         
         if model == "uf":
             tmp_data1 = tmp_data1.reshape((tmp_data1.shape[0], tmp_data1.shape[1] * tmp_data1.shape[2] * tmp_data1.shape[3]))
@@ -120,7 +126,7 @@ def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
     return img_as_ubyte(image_aug_)
 
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 granularity = 2
 reps = 20
 ########################
