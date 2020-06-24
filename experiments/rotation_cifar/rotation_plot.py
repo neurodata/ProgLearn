@@ -40,7 +40,7 @@ for alg_no,alg in enumerate(alg_name):
     else:
         ax.plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no])
 
-ax.set_yticks([.9,.95, 1, 1.05,1.1])
+ax.set_yticks([.9,.95, 1, 1.05,1.13])
 ax.set_ylim([0.85,1.1])
 ax.set_xticks([0,30,60,90,120,150,180])
 ax.tick_params(labelsize=20)
