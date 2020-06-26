@@ -24,7 +24,7 @@ class ProgressiveLearner:
         self.y_by_yask_id = {}
 
         self.transformer_id_to_transformer = {} # transformer id to a fitted transformers
-        self.task_id_to_voters = {} # task id to a map from transformer ids to a fitted voter
+        self.transformer_id_to_voters = {} # task id to a map from transformer ids to a fitted voter
         self.task_id_to_deciders = {} # task id to a fitted decider 
         
         self.transformer_id_to_voter_class = {} # might be expensive to keep around and hints at need for default voters
@@ -41,9 +41,107 @@ class ProgressiveLearner:
 
         self.default_decider_class = default_decider_class
         self.default_decider_kwargs = default_decider_kwargs
+        
+    def get_transformer_ids(self):
+        """
+        Doc strings here.
+        """
+        return np.array(transformer_id_to_transformer.keys())
 
+    def get_task_ids(self):
+        """
+        Doc strings here.
+        """
+        return np.array(task_id_to_deciders.keys())
 
+    def set_transformer(self, 
+        X=None, y=None, transformer_id=None, tranformer_class=None, transformer_kwargs={}, default_voter_class = None, default_voter_kwargs = None
+        ):
+        """
+        Doc string here.
+        """
 
+        # Keyword argument checking / default behavior
+
+        transformer_ids = self.get_transformer_ids()
+        if transformer_id is None:
+            transformer_id = len(transformer_ids)
+
+        if X is None and y is None:
+            CHECK_IF_FITTED(transformer_class) # need to define CHECK_IF_FITTED method
+            self.transformer_id_to_transformer[transformer_id] = transformer_class
+            return 
+
+        # Type check X
+
+        if transformer_class is None:
+            if self.default_transformer_class is None:
+                raise ValueError("transformer_class is None and 'default_transformer_class' is None.")
+            else:
+                transformer_class = self.default_transformer_class
+
+        if acorn is not None:
+            np.random.seed(acorn)
+
+        # Fit transformer and new voter
+        if y is None:
+            self.transformer_id_to_transformer[transformer_id] = transformer_class(**transformer_kwargs).fit(X)
+        else:
+            # Type check y
+            self.transformer_id_to_transformer[transformer_id] = transformer_class(**transformer_kwargs).fit(X, y)
+            
+        self.transformer_id_to_voter_class[transformer_id] = default_voter_class
+        self.transformer_id_to_voter_kwargs[transformer_id] = default_voter_kwargs
+
+    def set_voter(self, voter_task_id, transformer_id,
+        X, y, voter_class = None, voter_kwargs = {}):
+
+        # Type check X
+
+        # Type check y
+        if voter_class is None:
+            if self.transformer_id_to_voter_class[transformer_id] is not None:
+                voter_class = self.transformer_id_to_voter_class[transformer_id]
+            elif self.default_voter_class is not None:
+                voter_class = self.default_voter_class
+            else
+                raise ValueError("voter_class is None, the default voter class for the overall learner is None, and the default voter class for this transformer is None.")
+
+        if voter_kwargs is None:
+            if self.transformer_id_to_voter_kwargs[transformer_id] is not None:
+                voter_kwargs = self.transformer_id_to_voter_kwargs[transformer_id]
+            elif self.default_voter_kwargs is not None:
+                voter_kwargs = self.default_voter_kwargs
+            else
+                raise ValueError("voter_kwargs is None, the default voter kwargs for the overall learner is None, and the default voter kwargs for this transformer is None.")
+        
+        transformer = self.transformer_id_to_transformer[transformer_id]
+        self.transformer_id_to_voters[existing_task_id][transformer_id] = voter_class(**voter_kwargs).fit(transformer.transform(X), y)
+
+    def set_decider(self, task_id, transformer_ids,
+        decider_class=None, decider_kwargs={}, X=None, y=None
+        ):
+
+        if decider_class is None:
+            if self.default_decider_class is None:
+                raise ValueError("decider_class is None and 'default_decider_class' is None.")
+            else:
+                decider_class = self.default_decider_class
+
+        if decider_kwargs is None:
+            if self.default_decider_kwargs is None:
+                raise ValueError("decider_kwargs is None and 'default_decider_kwargs' is None.")
+            else:
+                decider_class = self.default_decider_kwargs
+                
+        voters = [self.transformer_id_to_voters[transformer_id][task_id] for transformer_id in transformer_ids]
+        transformers = [self.transformer_id_to_transformer[transformer_id] ffor transformer_id in transformer_ids]
+
+        self.task_id_to_deciders[task_id] = decider_class(**decider_kwargs).fit(voters, transformers, X, y)
+        
+        self.task_id_to_decider_class[task_id] = decider_class
+        self.task_id_to_decider_kwargs[task_id] = decider_kwargs
+        
     def set_triple(self, X, y, transformer_voter_decider_split, task_id=None, 
         tranformer_class=None, transformer_kwargs={}, 
         voter_class=None, voter_kwargs={}, 
@@ -113,10 +211,10 @@ class ProgressiveLearner:
 
         for i, existing_task_id in enumerate(self.get_task_ids()):
             if existing_task_id == task_id:
-                self.set_decider(existing_task_id, self.task_id_to_voters[existing_task_id], decider_class, decider_kwargs, 
+                self.set_decider(existing_task_id, self.transformer_id_to_voters[existing_task_id], decider_class, decider_kwargs, 
                     transformers=self.transformer_transformer_id.values(), X=X[decider_idx], y=y[decider_idx])
             else:
-                self.set_decider(existing_task_id, self.task_id_to_voters[existing_task_id], 
+                self.set_decider(existing_task_id, self.transformer_id_to_voters[existing_task_id], 
                     task_id_to_decider_class[existing_task_id], task_id_to_decider_kwargs[existing_task_id], 
                     transformers=self.transformer_transformer_id.values(), X=X_by_task_id[existing_task_id], y=y_by_task_id[existing_task_id])
 
@@ -170,7 +268,7 @@ class ProgressiveLearner:
         #     existing_decider_kwargs = self.task_id_to_decider_kwargs[existing_task_id]
 
         #     # Get all the voters for the existing task id.
-        #     existing_task_voters = self.task_id_to_voters[existing_task_id].values()
+        #     existing_task_voters = self.transformer_id_to_voters[existing_task_id].values()
 
         #     existing_task_decider_class = self.task_id_to_decider_class[existing_task_id]
         #     existing_task_decider_kwargs = self.task_id_to_decider_kwargs[existing_task_id]
@@ -186,9 +284,9 @@ class ProgressiveLearner:
         # self.X_by_task_id[task_id] = X
         # self.y_by_task_id[task_id] = y
 
-        # self.task_id_to_voters[task_id] = transformer_id_to_voter_new_task_id
+        # self.transformer_id_to_voters[task_id] = transformer_id_to_voter_new_task_id
         # for i, existing_task_id in enumerate(task_ids):
-        #     self.task_id_to_voters[existing_task_id][task_id] = existing_task_id_to_new_voter[existing_transformer_id]
+        #     self.transformer_id_to_voters[existing_task_id][task_id] = existing_task_id_to_new_voter[existing_transformer_id]
         
         # self.task_id_to_deciders = updated_deciders 
         
@@ -197,111 +295,9 @@ class ProgressiveLearner:
 
         # self.task_id_to_decider_class[task_id] = decider_class # task id to uninstantiated decider class
         # self.task_id_to_decider_kwargs[task_id] = decider_kwargs # task id to decider kwargs 
-
-    def set_transformer(self, 
-        X=None, y=None, transformer_id=None, tranformer_class=None, transformer_kwargs={}
-        ):
-        """
-        Doc string here.
-        """
-
-        # Keyword argument checking / default behavior
-
-        transformer_ids = self.get_transformer_ids()
-        if transformer_id is None:
-            transformer_id = len(transformer_ids)
-
-        if X is None and y is None:
-            CHECK_IF_FITTED(transformer_class) # need to define CHECK_IF_FITTED method
-            self.transformer_id_to_transformer[transformer_id] = transformer_class
-            return 
-
-        # Type check X
-
-        if transformer_class is None:
-            if self.default_transformer_class is None:
-                raise ValueError("transformer_class is None and 'default_transformer_class' is None.")
-            else:
-                transformer_class = self.default_transformer_class
-
-        if acorn is not None:
-            np.random.seed(acorn)
-
-        # Fit transformer and new voter
-        if y is None:
-            self.transformer_id_to_transformer[transformer_id] = transformer_class(**transformer_kwargs).fit(X)
-        else:
-            # Type check y
-            self.transformer_id_to_transformer[transformer_id] = transformer_class(**transformer_kwargs).fit(X, y)
-
-    def set_voter(self, voter_task_id, transformer_ids,
-        X, y, voter_class = None, voter_kwargs = {}, add_cross_task=True
-        ):
-
-        # Type check X
-
-        # Type check y
-
-        if voter_class is None:
-            if self.default_voter_class is None:
-                raise ValueError("voter_class is None and 'default_voter_class' is None.")
-            else:
-                voter_class = self.default_voter_class
-
-        if voter_kwargs is None:
-            if self.default_voter_kwargs is None:
-                raise ValueError("voter_kwargs is None and 'default_voter_kwargs' is None.")
-            else:
-                voter_class = self.default_voter_kwargs
-
-        self.transformer_id_to_voter_class[transformer] = voter_class 
-        self.transformer_id_to_voter_kwargs[transformer] = voter_kwargs
-
-        transformer = transformer_id_to_transformer[transformer_id]
-
-        task_ids = self.get_task_ids()
-        for i, existing_task_id in enumerate(task_ids):
-            task_id_to_voters[existing_task_id][transformer_id] = voter_class(**voter_kwargs).fit(transformer.transform(self.X_by_task_id[existing_task_id]), self.y_by_task_id[existing_task_id])
-
-        if X is not None and y is not None and add_cross_task:
-            transformer_ids = self.get_transformer_ids()
-            for i, existing_transformer_id in enumerate(transformer_id):
-                transformer_transformer_id = self.transformer_id_to_transformer[existing_transformer_id]
-                voter_class_transformer_id = self.transformer_id_to_voter_class[existing_transformer_id]
-                voter_kwargs_transformer_id = self.transformer_id_to_voter_kwargs[existing_transformer_id]
-
-                self.task_id_to_voters[task_id][existing_transformer_id] = voter_class_transformer_id(**voter_kwargs_transformer_id).fit(transformer_transformer_id.transform(X), y)
-
-
-    def set_decider(self, task_id, fitted_voters,
-        decider_class=None, decider_kwargs={}, transformers=None, X=None, y=None
-        ):
-
-        if decider_class is None:
-            if self.default_voter_class is None:
-                raise ValueError("decider_class is None and 'default_decider_class' is None.")
-            else:
-                decider_class = self.default_decider_class
-
-        if decider_kwargs is None:
-            if self.default_voter_kwargs is None:
-                raise ValueError("decider_kwargs is None and 'default_decider_kwargs' is None.")
-            else:
-                decider_class = self.default_decider_kwargs
-
-        self.task_id_to_deciders[task_id] = decider_class(**decider_kwargs).fit(fitted_voters, transformers, X, y)
-
-        self.task_id_to_deciders_class[task_id] = decider_class
-        self.task_id_to_deciders_kwargs[task_id] = decider_kwargs
-
-    def get_transformer_ids(self):
-        """
-        Doc strings here.
-        """
-        return np.array(transformer_id_to_transformer.keys())
-
-    def get_task_ids(self):
-        """
-        Doc strings here.
-        """
-        return np.array(task_id_to_deciders.keys())
+        
+    def predict_proba(self):
+        raise Exception("predict_proba unimplemented")
+        
+    def predict(self):
+        raise Exception("predict unimplemented")
