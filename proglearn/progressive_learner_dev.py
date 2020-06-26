@@ -93,12 +93,16 @@ class ProgressiveLearner:
         self.transformer_id_to_voter_class[transformer_id] = default_voter_class
         self.transformer_id_to_voter_kwargs[transformer_id] = default_voter_kwargs
 
-    def set_voter(self, voter_task_id, transformer_id,
-        X, y, voter_class = None, voter_kwargs = {}):
+    def set_voter(self, X, y, transformer_id, voter_task_id = None,
+         voter_class = None, voter_kwargs = {}):
 
         # Type check X
 
         # Type check y
+        
+        if voter_task_id = None:
+            voter_task_id = len(self.get_task_ids())
+            
         if voter_class is None:
             if self.transformer_id_to_voter_class[transformer_id] is not None:
                 voter_class = self.transformer_id_to_voter_class[transformer_id]
