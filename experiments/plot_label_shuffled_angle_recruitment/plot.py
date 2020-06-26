@@ -73,7 +73,7 @@ for alg_no,alg in enumerate(alg_name):
         ax[1].plot(angles,tes[alg_no], c=c[alg_no], label=alg_name[alg_no])
 
 ax[1].set_yticks([.9,.95, 1, 1.05,1.1])
-ax[1].set_ylim([0.85,1.13])
+#ax[1].set_ylim([0.85,1.13])
 ax[1].set_xticks([0,30,60,90,120,150,180])
 ax[1].hlines(1,0,180, colors='grey', linestyles='dashed',linewidth=1.5)
 ax[1].tick_params(labelsize=ticksize)
