@@ -55,7 +55,7 @@ class ProgressiveLearner:
         return np.array(task_id_to_deciders.keys())
 
     def set_transformer(self, 
-        X=None, y=None, transformer_id=None, tranformer_class=None, transformer_kwargs={}, default_voter_class = None, default_voter_kwargs = None
+        X=None, y=None, transformer_id=None, tranformer_class=None, transformer_kwargs={}, default_voter_class = None, default_voter_kwargs = {}
         ):
         """
         Doc string here.
