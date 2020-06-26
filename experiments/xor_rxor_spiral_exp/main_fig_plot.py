@@ -312,6 +312,7 @@ for n1 in n1_ra:
 
 ax.plot(n1_ra, te_ra, c="#e41a1c", linewidth = 2.6)
 ax.tick_params(labelsize=labelsize)
+ax.set_xticks([100, 1000, 2500, 5000])
 ax.hlines(1, 1, max(n1_ra), colors='grey', linestyles='dashed',linewidth=1.5)
 ax.set_xlabel('Number of Task 1 Training Samples', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
