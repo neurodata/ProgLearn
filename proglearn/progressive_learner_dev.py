@@ -300,8 +300,5 @@ class ProgressiveLearner:
         # self.task_id_to_decider_class[task_id] = decider_class # task id to uninstantiated decider class
         # self.task_id_to_decider_kwargs[task_id] = decider_kwargs # task id to decider kwargs 
         
-    def predict_proba(self):
-        raise Exception("predict_proba unimplemented")
-        
-    def predict(self):
+    def predict(self, X, task_id):
         raise Exception("predict unimplemented")
