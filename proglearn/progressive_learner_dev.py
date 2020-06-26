@@ -93,15 +93,15 @@ class ProgressiveLearner:
         self.transformer_id_to_voter_class[transformer_id] = default_voter_class
         self.transformer_id_to_voter_kwargs[transformer_id] = default_voter_kwargs
 
-    def set_voter(self, X, y, transformer_id, voter_task_id = None,
+    def set_voter(self, X, y, transformer_id, task_id = None,
          voter_class = None, voter_kwargs = {}):
 
         # Type check X
 
         # Type check y
         
-        if voter_task_id = None:
-            voter_task_id = len(self.get_task_ids())
+        if task_id = None:
+            task_id = len(self.get_task_ids())
             
         if voter_class is None:
             if self.transformer_id_to_voter_class[transformer_id] is not None:
@@ -120,7 +120,7 @@ class ProgressiveLearner:
                 raise ValueError("voter_kwargs is None, the default voter kwargs for the overall learner is None, and the default voter kwargs for this transformer is None.")
         
         transformer = self.transformer_id_to_transformer[transformer_id]
-        self.transformer_id_to_voters[existing_task_id][transformer_id] = voter_class(**voter_kwargs).fit(transformer.transform(X), y)
+        self.transformer_id_to_voters[transformer_id][task_id] = voter_class(**voter_kwargs).fit(transformer.transform(X), y)
 
     def set_decider(self, task_id, transformer_ids,
         decider_class=None, decider_kwargs={}, X=None, y=None
