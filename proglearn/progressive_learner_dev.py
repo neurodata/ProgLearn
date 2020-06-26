@@ -241,21 +241,15 @@ class ProgressiveLearner:
                     
             self.set_decider(task_id, self.get_transformer_ids(), decider_class, decider_kwargs, X[decider_idx], y[decider_idx])
                     
-         if train_backward_voters:
+         if train_backward_voters and train_transformer:
             for existing_task_id in self.get_task_ids():
                 if existing_task_id == task_id:
                     continue
                 else:
-                    self.set_voter(X[voter_idx], y[voter_idx], transformer_id, task_id, voter_class, voter_kwargs)
-                                   
-        for i, existing_task_id in enumerate(self.get_task_ids()):
-            if existing_task_id == task_id:
-                self.set_decider(existing_task_id, self.transformer_id_to_voters[existing_task_id], decider_class, decider_kwargs, 
-                    transformers=self.transformer_transformer_id.values(), X=X[decider_idx], y=y[decider_idx])
-            else:
-                self.set_decider(existing_task_id, self.transformer_id_to_voters[existing_task_id], 
-                    task_id_to_decider_class[existing_task_id], task_id_to_decider_kwargs[existing_task_id], 
-                    transformers=self.transformer_transformer_id.values(), X=X_by_task_id[existing_task_id], y=y_by_task_id[existing_task_id])
+                    existing_X = self.X_by_task_id[existing_task_id]
+                    existing_y = self.y_by_task_id[existing_task_id]
+                    self.set_voter(existing_X, existing_y, task_id, existing_task_id)
+                    self.set_decider(existing_task_id, self.get_transformer_ids(), X = existing_X, y = existing_y)
 
         
     def predict(self, X, task_id):
