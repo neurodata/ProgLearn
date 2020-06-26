@@ -232,10 +232,10 @@ class ProgressiveLearner:
             self.transformer_id_to_transformer[transformer_id] = transformer_class(**transformer_kwargs).fit(X)
         else:
             # Type check y
-            self.transformer_id_to_transformer[transformer_id] = transformer_class(**transformer_kwargs).fit(X)
+            self.transformer_id_to_transformer[transformer_id] = transformer_class(**transformer_kwargs).fit(X, y)
 
-    def set_voter(self, transformer_id,
-        X=None, y=None, voter_class = None, voter_kwargs = {}, add_cross_task=True
+    def set_voter(self, voter_task_id, transformer_ids,
+        X, y, voter_class = None, voter_kwargs = {}, add_cross_task=True
         ):
 
         # Type check X
@@ -293,10 +293,6 @@ class ProgressiveLearner:
 
         self.task_id_to_deciders_class[task_id] = decider_class
         self.task_id_to_deciders_kwargs[task_id] = decider_kwargs
-
-
-    def set_decider(self):
-        return
 
     def get_transformer_ids(self):
         """
