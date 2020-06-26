@@ -138,10 +138,10 @@ class ProgressiveLearner:
             else:
                 decider_class = self.default_decider_kwargs
                 
-        transformers = [self.transformer_id_to_transformer[transformer_id] for transformer_id in transformer_ids]
-        voters = [self.transformer_id_to_voters[transformer_id][task_id] for transformer_id in transformer_ids]
+        transformer_dict = {transformer_id : self.transformer_id_to_transformer[transformer_id] for transformer_id in transformer_ids}
+        voter_dict = {transformer_id : self.transformer_id_to_voters[transformer_id][task_id] for transformer_id in transformer_ids}
 
-        self.task_id_to_deciders[task_id] = decider_class(**decider_kwargs).fit(transformers, voters, X, y)
+        self.task_id_to_deciders[task_id] = decider_class(**decider_kwargs).fit(transformer_dict, voter_dict, X, y)
         
         self.task_id_to_decider_class[task_id] = decider_class
         self.task_id_to_decider_kwargs[task_id] = decider_kwargs
