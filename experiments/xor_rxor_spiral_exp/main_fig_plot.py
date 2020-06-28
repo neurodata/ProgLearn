@@ -321,7 +321,7 @@ ax.tick_params(labelsize=labelsize)
 #ax.text(5000, 0.434, "2500", fontsize=labelsize)
 #ax.text(5000, 0.434, "5000", fontsize=labelsize)
 
-ax.hlines(1, 1, max(n1_ra), colors='grey', linestyles='dashed',linewidth=1.5)
+ax.hlines(1, min(n1_ra), max(n1_ra), colors='grey', linestyles='dashed',linewidth=1.5)
 ax.set_xlabel('Number of Task 1 Training Samples', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
 ax.set_title("Training Set Size Effect", fontsize = fontsize)
