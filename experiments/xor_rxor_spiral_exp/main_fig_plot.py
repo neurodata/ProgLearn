@@ -301,7 +301,7 @@ top_side.set_visible(False)
 
 ax = fig.add_subplot(gs[23:29,12:19])
 te_ra = []
-n1_ra = range(10, 5000, 50)
+n1_ra = range(10, 6000, 50)
 for n1 in n1_ra:
     te_across_reps = []
     for rep in range(500):
