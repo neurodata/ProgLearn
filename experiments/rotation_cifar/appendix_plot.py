@@ -43,7 +43,7 @@ def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
 
 fig, ax = plt.subplots(1,2, figsize=(8,4))
 cif = image_aug(X_train[34,:,:,:],0)
-rotated_cif = image_aug(cif,45)
+rotated_cif = image_aug(X_train[34,:,:,:],45)
 ax[0].imshow(cif)
 ax[1].imshow(rotated_cif)
 
