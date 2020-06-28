@@ -312,7 +312,7 @@ for n1 in n1_ra:
     
 ax.plot(n1_ra, te_ra, c="#e41a1c", linewidth = 2.6)
 ax.set_xscale('log')
-#ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 ax.set_xticks([])
 ax.tick_params(labelsize=labelsize)
 ax.set_xticks([100, 1000, 2500, 5000])
