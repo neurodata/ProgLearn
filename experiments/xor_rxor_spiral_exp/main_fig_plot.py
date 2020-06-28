@@ -309,17 +309,17 @@ for n1 in n1_ra:
         df = unpickle(filename)
         te_across_reps.append(float(df['te']))
     te_ra.append(np.mean(te_across_reps))
-
+    
 ax.plot(n1_ra, te_ra, c="#e41a1c", linewidth = 2.6)
 ax.set_xscale('log')
-ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+#ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 ax.set_xticks([])
 #ax.tick_params(labelsize=labelsize)
 #ax.set_xticks([100, 1000, 2500, 5000])
-ax.text(100, 0.434, "100", fontsize=labelsize)
-ax.text(500, 0.434, "1000", fontsize=labelsize)
-ax.text(5000, 0.434, "2500", fontsize=labelsize)
-ax.text(5000, 0.434, "5000", fontsize=labelsize)
+#ax.text(100, 0.434, "100", fontsize=labelsize)
+#ax.text(500, 0.434, "1000", fontsize=labelsize)
+#ax.text(5000, 0.434, "2500", fontsize=labelsize)
+#ax.text(5000, 0.434, "5000", fontsize=labelsize)
 
 ax.hlines(1, 1, max(n1_ra), colors='grey', linestyles='dashed',linewidth=1.5)
 ax.set_xlabel('Number of Task 1 Training Samples', fontsize=fontsize)
