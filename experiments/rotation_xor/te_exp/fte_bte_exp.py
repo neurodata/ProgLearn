@@ -19,7 +19,7 @@ from multiprocessing import Pool
 #%%
 def LF_experiment(num_task_1_data, rep):
     
-    l2f = LifeLongDNN(model = "uf", parallel = True)
+    l2f = LifeLongDNN(model = "uf", parallel = False)
     
     X_train_task0, y_train_task0 = generate_gaussian_parity(n = num_task_1_data, angle_params = 0, acorn = 1)
     X_train_task1, y_train_task1 = generate_gaussian_parity(n = 100, angle_params = 10, acorn = 1)
@@ -75,7 +75,7 @@ def generate_gaussian_parity(n, mean=np.array([0, 0]), cov_scale=1, angle_params
 
 
 #%%
-num_task_1_data_ra=range(10, 5000, 50)
+num_task_1_data_ra=range(10, 6000, 50)
 reps = range(500)
 iterable = product(num_task_1_data_ra, reps)
 Parallel(n_jobs=-1,verbose=1)(delayed(LF_experiment)(num_task_1_data, rep) for num_task_1_data, rep in iterable)
