@@ -43,26 +43,20 @@ class BaseTransformer(abc.ABC):
 class ForestTransformer(BaseTransformer):
     def __init__(self,
         bagger=BaggingClassifier,
+        bagger_kwargs = {'n_estimators': 100, 'max_samples': 1.0, 'bootstrap': False},
         learner=DecisionTreeClassifier,
-        max_depth=30,
-        min_samples_leaf=1,
-        max_samples = 0.63,
-        max_features_tree = "auto",
-        n_estimators=100,
-        bootstrap=False,
+        learner_kwargs = {'max_depth':30, 'max_features': 'sqrt', 'min_samples_leaf': 1}
     ):
         """
         Doc strings here.
         """
 
         self.bagger = bagger
+        self.bagger_kwargs = bagger_kwargs
+
         self.learner = learner
-        self.max_depth = max_depth
-        self.min_samples_leaf = min_samples_leaf
-        self.max_samples = max_samples
-        self.max_features_tree = max_features_tree
-        self.n_estimators = n_estimators
-        self.bootstrap = bootstrap
+        self.learner_kwargs = learner_kwargs
+
         self._is_fitted = False
 
 
@@ -74,18 +68,14 @@ class ForestTransformer(BaseTransformer):
         X, y = check_X_y(X, y)
         
         #define the ensemble
-        self.ensemble = self.bagger(
+        self.transformer = self.bagger(
             self.learner(
-                max_depth=self.max_depth,
-                min_samples_leaf=self.min_samples_leaf,
-                max_features=self.max_features_tree
+                **self.learner_kwargs
             ),
-            n_estimators=self.n_estimators,
-            max_samples=self.max_samples,
-            bootstrap=self.bootstrap,
+            **self.bagger_kwargs
         )
 
-        self.ensemble.fit(X, y)
+        self.transformer.fit(X, y)
         self._is_fitted = True
 
 
@@ -102,7 +92,7 @@ class ForestTransformer(BaseTransformer):
             raise NotFittedError(msg % {"name": type(self).__name__})
         
         X = check_array(X)
-        return np.array([tree.apply(X) for tree in self.ensemble.estimators_])
+        return np.array([tree.apply(X) for tree in self.transformer.estimators_]).T
 
 
     def is_fitted(self):

@@ -254,6 +254,9 @@ class ProgressiveLearner:
         
     def predict(self, X, task_id):
         transformer_ids = self.task_id_to_decider[task_id].transformer_ids
-        transformers = [self.transformer_id_to_transformer[transformer_id] for transformer_id in transformer_ids]
-        voters = [self.transformer_id_to_voters[transformer_id][task_id] for transformer_id in transformer_ids]
-        return self.task_id_to_decider[task_id].predict(X, transformers, voters)
+
+        voters = []
+        for i, transformer_id in enumerate(transformer_ids):
+            X_transformed = self.transformer_id_to_transformer[transformer_id].transform(X)
+            voters.append(self.task_id_to_transformer_id_to_voter[task_id][transformer_id].vote(X_transformed))
+        return self.task_id_to_decider[task_id].predict(voters)
