@@ -5,9 +5,7 @@ import numpy as np
 
 from joblib import Parallel, delayed
 
-from deciders import *
-from transformers import *
-from voters import *
+# from deciders import *
 
 import itertools
 
@@ -68,8 +66,10 @@ class ProgressiveLearner:
             transformer_id = len(transformer_ids)
 
         if X is None and y is None:
-            CHECK_IF_FITTED(transformer_class) # need to define CHECK_IF_FITTED method
-            self.transformer_id_to_transformer[transformer_id] = transformer_class
+            if transformer_class.is_fitted(): # need to define CHECK_IF_FITTED method
+                self.transformer_id_to_transformer[transformer_id] = transformer_class
+            else:
+                raise ValueError('transformer_class is not fitted and X is None and y is None.')
             return 
 
         # Type check X
@@ -100,7 +100,7 @@ class ProgressiveLearner:
 
         # Type check y
         
-        if task_id = None:
+        if task_id is None:
             task_id = len(self.get_task_ids())
             
         if voter_class is None:
@@ -108,7 +108,7 @@ class ProgressiveLearner:
                 voter_class = self.transformer_id_to_voter_class[transformer_id]
             elif self.default_voter_class is not None:
                 voter_class = self.default_voter_class
-            else
+            else:
                 raise ValueError("voter_class is None, the default voter class for the overall learner is None, and the default voter class for this transformer is None.")
 
         if voter_kwargs is None:
@@ -116,7 +116,7 @@ class ProgressiveLearner:
                 voter_kwargs = self.transformer_id_to_voter_kwargs[transformer_id]
             elif self.default_voter_kwargs is not None:
                 voter_kwargs = self.default_voter_kwargs
-            else
+            else:
                 raise ValueError("voter_kwargs is None, the default voter kwargs for the overall learner is None, and the default voter kwargs for this transformer is None.")
         
         transformer = self.transformer_id_to_transformer[transformer_id]
@@ -181,7 +181,7 @@ class ProgressiveLearner:
             )
 
             decider_idx = np.random.choice(
-                np.delete(np.arange(n), np.concatenate((transformer_idx, voter_idx)))
+                np.delete(np.arange(n), np.concatenate((transformer_idx, voter_idx))),
                 int(n*transformer_voter_decider_split[2])
             )
 
@@ -241,7 +241,7 @@ class ProgressiveLearner:
                     
             self.set_decider(task_id, self.get_transformer_ids(), decider_class, decider_kwargs, X[decider_idx], y[decider_idx])
                     
-         if train_backward_voters and train_transformer:
+        if train_backward_voters and train_transformer:
             for existing_task_id in self.get_task_ids():
                 if existing_task_id == task_id:
                     continue
