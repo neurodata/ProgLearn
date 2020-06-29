@@ -1,4 +1,5 @@
 import abc
+import numpy as np
 
 class BaseDecider(abc.ABC):
     @abc.abstractmethod
@@ -16,24 +17,18 @@ class Average(BaseDecider):
     Doc string here.
     """
 
-    def __init__(self, transformers, voters, weights='simple'):
-        self._is_fitted = False
+    def __init__(self, transformer_ids='all', weights='simple'):
+        self.transformer_ids = transformer_ids
         self.weights = weights
+        self._is_fitted = False
 
-    def fit(self, X=None, y=None, transformers=None, voters=None, X_is_votes=True):
-        if self.weights == 'simple':
-            if X_is_votes
-            self.weights = np.ones(np.shape(voters)[0]) / np.shape(voters)[0]
+    def fit(self, X=None, y=None):
+        if self.weights is 'simple':
+            self.weights = np.ones(np.shape(X)[0]) / np.shape(X)[0]
         else:
             pass
 
-        self.decider = lambda vs: np.average(vs, weights)
+        self.decider = lambda x: np.average(x, axis=0, weights=self.weights)
 
-    def predict(self, X, transformers, voters):
-        votes = []
-        for i, transformer_id in enumerate(self.transformer_ids):
-            X_transformed = transformers[transformer_id].transform(X)
-            X_votes.append(voters[transformer_id].vote(X_transformed))
-        votes = np.array(votes)
-
-        return np.array([self.decider(vs) for vs in votes])
+    def predict(self, X):
+        return self.decider(X)
