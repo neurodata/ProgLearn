@@ -60,20 +60,26 @@ class NeuralTransformer(BaseTransformer):
             epochs = 100,
             callbacks = [EarlyStopping(patience = 5, monitor = "val_acc")],
             verbose = False,
-            validation_split = .33):
+            validation_split = .33,
+            compile_kwargs = {},
+            fit_kwargs = {}):
         """
         Doc strings here.
         """
         check_classification_targets(y)
         
         #more typechecking
-        self.network.compile(loss = loss, metrics=metrics, optimizer = optimizer)
+        self.network.compile(loss = loss, 
+                             metrics=metrics, 
+                             optimizer = optimizer, 
+                             compile_kwargs**)
         self.network.fit(X, 
                     keras.utils.to_categorical(y), 
                     epochs = epochs, 
                     callbacks = callbacks, 
                     verbose = verbose,
-                    validation_split = validation_split)
+                    validation_split = validation_split,
+                    fit_kwargs**)
         self._is_fitted = True
 
 
