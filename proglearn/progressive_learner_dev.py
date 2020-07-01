@@ -146,7 +146,7 @@ class ProgressiveLearner:
         self.task_id_to_decider_class[task_id] = decider_class
         self.task_id_to_decider_kwargs[task_id] = decider_kwargs
         
-    def add_task(self, X, y, task_id=None, train_transformer=True, transformer_voter_decider_split=None, 
+    def add_task(self, X, y, transformer_voter_decider_split, task_id=None, train_transformer=True,
         tranformer_class=None, transformer_kwargs={}, 
         voter_class=None, voter_kwargs={}, 
         decider_class=None, decider_kwargs={},
