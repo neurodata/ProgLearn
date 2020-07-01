@@ -41,33 +41,43 @@ class BaseVoter(abc.ABC):
 
 
 class ForestVoterClassification(BaseVoter):
-    def __init__(self):
-        pass
+    def __init__(self, sampled_indices_by_tree=None, finite_sample_corretion=False):
         """
         Doc strings here.
         """
 
-     #    self.bagger = bagger
-     #    self.learner = learner
-        # self.max_depth = max_depth
-        # self.min_samples_leaf = min_samples_leaf
-        # self.max_samples = max_samples
-        # self.max_features_tree = max_features_tree
-        # self.n_estimators = n_estimators
-        # self.bootstrap = bootstrap
+        self.finite_sample_corretion = finite_sample_corretion
+        self._is_fitted = False
+
 
     def fit(self, X, y):
         """
         Doc strings here.
         """
+        self.tree_to_leaf_to_posterior = {}
 
         X, y = check_X_y(X, y)
 
+        n, n_trees = X.shape
+
+        for tree_id in range(n_trees):
+            leaf_id_to_posterior = {}
+            leaf_ids = np.unique(X[:, tree_id])
+            for leaf_id in leaf_ids:
+                X_in_leaf_id = np.where(X[:, tree_id] == leaf_id)[0]
+                class_counts = [len(np.where(y[X_in_leaf_id] == y_)[0]) for y_ in np.unique(y)]
+                posteriors = np.nan_to_num(np.array(class_counts) / np.sum(class_counts))
+
+                if self.finite_sample_corretion:
+                    posteriors = self._finite_sample_correction(posteriors, len(X_in_leaf_id), len(np.unique(y)))
+                
+                leaf_id_to_posterior[leaf_id] = posteriors
+            self.tree_to_leaf_to_posterior[tree_id] = leaf_id_to_posterior
+
+        self._is_fitted = True
 
 
-
-
-    def transform(self, X):
+    def vote(self, X):
         """
         Doc strings here.
         """
@@ -75,12 +85,21 @@ class ForestVoterClassification(BaseVoter):
         if not self.is_fitted():
             msg = (
                     "This %(name)s instance is not fitted yet. Call 'fit' with "
-                    "appropriate arguments before using this transformer."
+                    "appropriate arguments before using this voter."
             )
             raise NotFittedError(msg % {"name": type(self).__name__})
         
         X = check_array(X)
-        return np.array([tree.apply(X) for tree in self.ensemble.estimators_])
+
+        n, n_trees = X.shape
+
+        print(self.tree_to_leaf_to_posterior)
+
+        posteriors = []
+        for i, x in enumerate(X):
+            posteriors.append(np.mean([self.tree_to_leaf_to_posterior[tree_id][x[tree_id]] for tree_id in range(n_trees)], axis=0))
+        
+        return np.array(posteriors)
 
 
     def is_fitted(self):
@@ -89,6 +108,19 @@ class ForestVoterClassification(BaseVoter):
         """
 
         return self._is_fitted
+
+    def _finite_sample_correction(posteriors, num_points_in_partition, num_classes):
+        '''
+        encourage posteriors to approach uniform when there is low data
+        '''
+        correction_constant = 1 / (num_classes * num_points_in_partition)
+
+        zero_posterior_idxs = np.where(posteriors == 0)[0]
+        posteriors[zero_posterior_idxs] = correction_constant
+        
+        posteriors /= sum(posteriors)
+        
+        return posteriors
 
 class ForestVoterRegression(BaseVoter):
     pass
