@@ -10,6 +10,8 @@ from sklearn.utils.validation import (
     NotFittedError,
 )
 
+import keras
+
 class BaseTransformer(abc.ABC):
     """
     Doc strings here.
@@ -38,6 +40,65 @@ class BaseTransformer(abc.ABC):
         """
 
         pass
+    
+class NeuralTransformer(BaseTransformer):
+    def __init__(self, network, euclidean_layer_idx, pretrained = False):
+        """
+        Doc strings here.
+        """
+        self.network = network
+        self.encoder = keras.models.Model(inputs = self.network.inputs, outputs = self.network.layers[euclidean_layer_idx].output)
+        self.transformer_fitted_ = pretrained
+
+
+    def fit(self, 
+            X, 
+            y, 
+            optimizer = keras.optimizers.Adam(3e-4),
+            loss = 'categorical_crossentropy', 
+            metrics = ['acc'],
+            epochs = 100,
+            callbacks = [EarlyStopping(patience = 5, monitor = "val_acc")],
+            verbose = False,
+            validation_split = .33):
+        """
+        Doc strings here.
+        """
+        check_classification_targets(y)
+        
+        #more typechecking
+        self.network.compile(loss = loss, metrics=metrics, optimizer = optimizer)
+        self.network.fit(X, 
+                    keras.utils.to_categorical(y), 
+                    epochs = epochs, 
+                    callbacks = callbacks, 
+                    verbose = verbose,
+                    validation_split = validation_split)
+        self._is_fitted = True
+
+
+    def transform(self, X):
+        """
+        Doc strings here.
+        """
+
+        if not self.is_fitted():
+            msg = (
+                    "This %(name)s instance is not fitted yet. Call 'fit' with "
+                    "appropriate arguments before using this transformer."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+            
+        #type check X
+        return self.encoder.predict(X)
+
+
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted
 
 
 class ForestTransformer(BaseTransformer):
