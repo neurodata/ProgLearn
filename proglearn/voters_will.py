@@ -41,21 +41,22 @@ class BaseVoter(abc.ABC):
         pass
     
 class KNNVoterClassification(BaseVoter):
-    def __init__(self, k, weights = "distance", p = 1):
+    def __init__(self):
         """
         Doc strings here.
         """
-        self.k = k
         self._is_fitted = False
-        self.weights = weights
-        self.p = p
         
-    def fit(self, X, y):
+    def fit(self, 
+            X, 
+            y,
+            k,
+            kwargs):
         """
         Doc strings here.
         """
         X, y = check_X_y(X, y)
-        self.knn = KNeighborsClassifier(self.k, weights = self.weights, p = self.p)
+        self.knn = KNeighborsClassifier(k, **kwargs)
         self.knn.fit(X, y)
         self._is_fitted = True
         
