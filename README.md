@@ -1,7 +1,7 @@
 # progressive-learning
 
 
-progressive-learning is a package for exploring and using progressive learning algorithms developed by [neurodata group](https://neurodata.io).
+progressive-learning is a package for exploring and using progressive learning algorithms developed by the [neurodata group](https://neurodata.io).
 
 - [Overview](#overview)
 - [Documentation](#documentation)
