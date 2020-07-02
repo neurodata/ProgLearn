@@ -1,13 +1,5 @@
-import warnings
-
-from sklearn.base import clone 
 import numpy as np
 
-from joblib import Parallel, delayed
-
-# from deciders import *
-
-import itertools
 
 class ProgressiveLearner:
     def __init__(self, default_transformer_class = None, default_transformer_kwargs = {},
@@ -18,8 +10,8 @@ class ProgressiveLearner:
         Doc strings here.
         """
         
-        self.X_by_task_id = {}
-        self.y_by_yask_id = {}
+        self.task_id_to_X = {}
+        self.task_id_to_y = {}
 
         self.transformer_id_to_transformer = {} # transformer id to a fitted transformers
         self.task_id_to_transformer_id_to_voter = {} # task id to a map from transformer ids to a fitted voter
@@ -114,9 +106,6 @@ class ProgressiveLearner:
             else:
                 transformer_class = self.default_transformer_class
 
-        if acorn is not None:
-            np.random.seed(acorn)
-
         # Fit transformer and new voter
         if y is None:
             self._append_transformer(transformer_id, transformer_class(**transformer_kwargs).fit(X))
@@ -187,8 +176,7 @@ class ProgressiveLearner:
     def add_task(self, X, y, task_id=None, transformer_voter_decider_split = None, num_transformers = 1,
         tranformer_class=None, transformer_kwargs={}, 
         voter_class=None, voter_kwargs={}, 
-        decider_class=None, decider_kwargs={},
-        acorn=None):
+        decider_class=None, decider_kwargs={}):
         """
         Doc strings here.
         """
@@ -197,8 +185,8 @@ class ProgressiveLearner:
 
         # Type check y
         
-        self.X_by_task_id[task_id] = X
-        self.y_by_yask_id[task_id] = y
+        self.task_id_to_X[task_id] = X
+        self.task_id_to_y[task_id] = y
 
         # Type check transformer_voter_decider_split
         n = np.shape(X)[0]
@@ -243,9 +231,6 @@ class ProgressiveLearner:
                 raise ValueError("decider_kwargs is None and 'default_decider_kwargs' is None.")
             else:
                 decider_kwargs = self.default_decider_kwargs
-
-        if acorn is not None:
-            np.random.seed(acorn)
         
         for transformer_num in range(num_transformers):
             transformer_idx, voter_idx, decider_idx = self._get_transformer_voter_decider_idx(n, transformer_voter_decider_split)
@@ -267,8 +252,8 @@ class ProgressiveLearner:
                     if existing_task_id == task_id:
                         continue
                     else:
-                        existing_X = self.X_by_task_id[existing_task_id]
-                        existing_y = self.y_by_task_id[existing_task_id]
+                        existing_X = self.task_id_to_X[existing_task_id]
+                        existing_y = self.task_id_to_y[existing_task_id]
                         self.set_voter(existing_X, existing_y, task_id, existing_task_id, bag_id = transformer_num)
                         if transformer_num == num_transformers - 1:
                             self.set_decider(existing_task_id, self.get_transformer_ids(), X = existing_X, y = existing_y)
