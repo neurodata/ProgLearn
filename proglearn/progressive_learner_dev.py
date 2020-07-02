@@ -13,9 +13,9 @@ class ProgressiveLearner:
         self.task_id_to_X = {}
         self.task_id_to_y = {}
 
-        self.transformer_id_to_transformer = {} # transformer id to a fitted transformers
-        self.task_id_to_transformer_id_to_voter = {} # task id to a map from transformer ids to a fitted voter
-        self.task_id_to_deciders = {} # task id to a fitted decider 
+        self.transformer_id_to_transformers = {} # transformer id to a fitted transformers
+        self.task_id_to_transformer_id_to_voters = {} # task id to a map from transformer ids to a fitted voter
+        self.task_id_to_decider = {} # task id to a fitted decider 
         
         self.transformer_id_to_voter_class = {} # might be expensive to keep around and hints at need for default voters
         self.transformer_id_to_voter_kwargs = {}
@@ -36,25 +36,25 @@ class ProgressiveLearner:
         """
         Doc strings here.
         """
-        return np.array(transformer_id_to_transformer.keys())
+        return np.array(transformer_id_to_transformers.keys())
 
     def get_task_ids(self):
         """
         Doc strings here.
         """
-        return np.array(task_id_to_deciders.keys())
+        return np.array(task_id_to_decider.keys())
     
     def _append_transformer(transformer_id, transformer):
         if transformer_id in self.get_transformer_ids():
-            self.transformer_id_to_transformer[transformer_id].append(transformer)
+            self.transformer_id_to_transformers[transformer_id].append(transformer)
         else:
-            self.transformer_id_to_transformer[transformer_id] = [transformer]
+            self.transformer_id_to_transformers[transformer_id] = [transformer]
             
     def _append_voter(transformer_id, task_id, voter):
         if transformer_id in self.get_transformer_ids() and task_id in self.get_task_ids():
-            self.task_id_to_transformer_id_to_voter[task_id][transformer_id].append(voter)
+            self.task_id_to_transformer_id_to_voters[task_id][transformer_id].append(voter)
         else:
-            self.task_id_to_transformer_id_to_voter[task_id][transformer_id] = [voter]
+            self.task_id_to_transformer_id_to_voters[task_id][transformer_id] = [voter]
             
     def _get_transformer_voter_decider_idx(self, n, transformer_voter_decider_split):
         if transformer_voter_decider_split is None:
@@ -143,7 +143,7 @@ class ProgressiveLearner:
                 raise ValueError("voter_kwargs is None, the default voter kwargs for the overall learner is None, and the default voter kwargs for this transformer is None.")
         
         if bag_id == None:
-            transformers = self.transformer_id_to_transformer[transformer_id]
+            transformers = self.transformer_id_to_transformers[transformer_id]
         else:
             transformers = [bag_id]
         for _, transformer in enumerate(transformers):
@@ -165,10 +165,10 @@ class ProgressiveLearner:
             else:
                 decider_class = self.default_decider_kwargs
                 
-        transformer_dict = {transformer_id : self.transformer_id_to_transformer[transformer_id] for transformer_id in transformer_ids}
-        voter_dict = {transformer_id : self.task_id_to_transformer_id_to_voter[transformer_id][task_id] for transformer_id in transformer_ids}
+        transformer_dict = {transformer_id : self.transformer_id_to_transformers[transformer_id] for transformer_id in transformer_ids}
+        voter_dict = {transformer_id : self.task_id_to_transformer_id_to_voters[transformer_id][task_id] for transformer_id in transformer_ids}
 
-        self.task_id_to_deciders[task_id] = decider_class(**decider_kwargs).fit(transformer_dict, voter_dict, X, y)
+        self.task_id_to_decider[task_id] = decider_class(**decider_kwargs).fit(transformer_dict, voter_dict, X, y)
         
         self.task_id_to_decider_class[task_id] = decider_class
         self.task_id_to_decider_kwargs[task_id] = decider_kwargs
@@ -264,9 +264,9 @@ class ProgressiveLearner:
 
         transformer_id_to_votes = {}
         for i, transformer_id in enumerate(transformer_ids):
-            for transformer_num, transformer in enumerate(self.transformer_id_to_transformer[transformer_id]):
+            for transformer_num, transformer in enumerate(self.transformer_id_to_transformers[transformer_id]):
                 X_transformed = transformer.transform(X)
-                vote = self.task_id_to_transformer_id_to_voter[task_id][transformer_id][transformer_num].vote(X_transformed)
+                vote = self.task_id_to_transformer_id_to_voters[task_id][transformer_id][transformer_num].vote(X_transformed)
                 if transformer_num == 0:
                     transformer_id_to_votes[transformer_id] = [vote]
                 else:
