@@ -1,7 +1,7 @@
 # progressive-learning
 
 
-**Gra**ph **S**tatistics in **Py**thon is a package for graph statistical algorithms.
+progressive-learning is a package for exploring and using progressive learning algorithms developed by [neurodata group](https://neurodata.io).
 
 - [Overview](#overview)
 - [Documentation](#documentation)
