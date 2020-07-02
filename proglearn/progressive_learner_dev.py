@@ -87,9 +87,8 @@ class ProgressiveLearner:
 
         # Keyword argument checking / default behavior
 
-        transformer_ids = self.get_transformer_ids()
         if transformer_id is None:
-            transformer_id = len(transformer_ids)
+            transformer_id = len(self.get_transformer_ids())
 
         if X is None and y is None:
             if transformer.is_fitted(): # need to define CHECK_IF_FITTED method
@@ -187,9 +186,6 @@ class ProgressiveLearner:
         
         self.task_id_to_X[task_id] = X
         self.task_id_to_y[task_id] = y
-
-        # Type check transformer_voter_decider_split
-        n = np.shape(X)[0]
         
         # Keyword argument checking / default behavior
 
@@ -233,7 +229,7 @@ class ProgressiveLearner:
                 decider_kwargs = self.default_decider_kwargs
         
         for transformer_num in range(num_transformers):
-            transformer_idx, voter_idx, decider_idx = self._get_transformer_voter_decider_idx(n, transformer_voter_decider_split)
+            transformer_idx, voter_idx, decider_idx = self._get_transformer_voter_decider_idx(len(X), transformer_voter_decider_split)
                 
             self.set_transformer(X[transformer_idx], y[transformer_idx], task_id, tranformer_class, transformer_kwargs, voter_class, voter_kwargs)
         
