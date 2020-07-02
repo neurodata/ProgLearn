@@ -146,11 +146,10 @@ class ProgressiveLearner:
         self.task_id_to_decider_class[task_id] = decider_class
         self.task_id_to_decider_kwargs[task_id] = decider_kwargs
         
-    def add_task(self, X, y, transformer_voter_decider_split, task_id=None, train_transformer=True,
+    def add_task(self, X, y, task_id=None, transformer_voter_decider_split = None, train_transformer=True,
         tranformer_class=None, transformer_kwargs={}, 
         voter_class=None, voter_kwargs={}, 
         decider_class=None, decider_kwargs={},
-        train_backward_voters=True, train_forward_voters=True,
         acorn=None):
         """
         Doc strings here.
@@ -232,16 +231,17 @@ class ProgressiveLearner:
         if train_transformer:
             self.set_transformer(X[transformer_idx], y[transformer_idx], task_id, tranformer_class, transformer_kwargs, voter_class, voter_kwargs)
         
-        if train_forward_voters:
-            for transformer_id in self.get_transformer_ids():
-                if transformer_id == task_id:
-                    self.set_voter(X[voter_idx], y[voter_idx], transformer_id, task_id, voter_class, voter_kwargs)
-                else:
-                    self.set_voter(X, y, transformer_id, task_id)
-                    
-            self.set_decider(task_id, self.get_transformer_ids(), decider_class, decider_kwargs, X[decider_idx], y[decider_idx])
-                    
-        if train_backward_voters and train_transformer:
+        # train voters from previous tasks to new task
+        for transformer_id in self.get_transformer_ids():
+            if transformer_id == task_id:
+                self.set_voter(X[voter_idx], y[voter_idx], transformer_id, task_id, voter_class, voter_kwargs)
+            else:
+                self.set_voter(X, y, transformer_id, task_id)
+
+        self.set_decider(task_id, self.get_transformer_ids(), decider_class, decider_kwargs, X[decider_idx], y[decider_idx])
+        
+        # train voters from new transformer to previous tasks
+        if train_transformer:
             for existing_task_id in self.get_task_ids():
                 if existing_task_id == task_id:
                     continue
