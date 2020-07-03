@@ -207,7 +207,7 @@ algorithms = ['Backward Transfer', 'Forward Transfer']
 TASK1='XOR'
 TASK2='N-XOR'
 
-ax = fig.add_subplot(gs[15:21,2:9])
+ax = fig.add_subplot(gs[16:22,2:9])
 
 ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
@@ -239,7 +239,7 @@ algorithms = ['Backward Transfer', 'Forward Transfer']
 TASK1='XOR'
 TASK2='R-XOR'
 
-ax = fig.add_subplot(gs[15:21,12:19])
+ax = fig.add_subplot(gs[16:22,12:19])
 
 ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
@@ -264,7 +264,7 @@ ax.text(400, np.mean(ax.get_ylim())+.005, "%s"%(TASK1), fontsize=26)
 ax.text(900, np.mean(ax.get_ylim())+.005, "%s"%(TASK2), fontsize=26)
 
 ########################################################
-ax = fig.add_subplot(gs[23:29,2:9])
+ax = fig.add_subplot(gs[24:30,2:9])
 alg_name = ['L2F']
 angles = np.arange(0,91,1)
 tes = [[] for _ in range(len(alg_name))]
@@ -300,7 +300,7 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 
 
-ax = fig.add_subplot(gs[23:29,12:19])
+ax = fig.add_subplot(gs[24:30,12:19])
 te_ra = []
 n1_ra = range(60, 5010, 50)
 for n1 in n1_ra:
