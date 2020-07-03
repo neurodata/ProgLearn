@@ -76,6 +76,8 @@ class ForestVoterClassification(BaseVoter):
 
         self._is_fitted = True
 
+        return self
+
 
     def vote(self, X):
         """

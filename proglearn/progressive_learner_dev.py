@@ -19,7 +19,7 @@ class ProgressiveLearner:
         """
         
         self.X_by_task_id = {}
-        self.y_by_yask_id = {}
+        self.y_by_task_id = {}
 
         self.transformer_id_to_transformer = {} # transformer id to a fitted transformers
         self.task_id_to_transformer_id_to_voter = {} # task id to a map from transformer ids to a fitted voter
@@ -44,23 +44,25 @@ class ProgressiveLearner:
         """
         Doc strings here.
         """
-        return np.array(transformer_id_to_transformer.keys())
+        return np.array(list(self.transformer_id_to_transformer.keys()))
 
     def get_task_ids(self):
         """
         Doc strings here.
         """
-        return np.array(task_id_to_deciders.keys())
+        return np.array(list(self.task_id_to_deciders.keys()))
     
-    def _append_transformer(transformer_id, transformer):
+    def _append_transformer(self, transformer_id, transformer):
         if transformer_id in self.get_transformer_ids():
             self.transformer_id_to_transformer[transformer_id].append(transformer)
         else:
             self.transformer_id_to_transformer[transformer_id] = [transformer]
             
-    def _append_voter(transformer_id, task_id, voter):
+    def _append_voter(self, transformer_id, task_id, voter):
         if transformer_id in self.get_transformer_ids() and task_id in self.get_task_ids():
             self.task_id_to_transformer_id_to_voter[task_id][transformer_id].append(voter)
+        elif task_id not in self.get_task_ids():
+            self.task_id_to_transformer_id_to_voter[task_id] = {transformer_id: [voter]}
         else:
             self.task_id_to_transformer_id_to_voter[task_id][transformer_id] = [voter]
             
@@ -87,8 +89,8 @@ class ProgressiveLearner:
         return transformer_idx, voter_idx, decider_idx
 
     def set_transformer(self, 
-        X=None, y=None, transformer_id=None, tranformer_class=None, transformer_kwargs={}, default_voter_class = None, default_voter_kwargs = {},
-        transformer = None):
+        X=None, y=None, transformer_id=None, transformer_class=None, transformer_kwargs={}, default_voter_class = None, default_voter_kwargs = {},
+        transformer = None, acorn=None):
         """
         Doc string here.
         """
@@ -176,11 +178,13 @@ class ProgressiveLearner:
             else:
                 decider_class = self.default_decider_kwargs
                 
-        transformer_dict = {transformer_id : self.transformer_id_to_transformer[transformer_id] for transformer_id in transformer_ids}
-        voter_dict = {transformer_id : self.task_id_to_transformer_id_to_voter[transformer_id][task_id] for transformer_id in transformer_ids}
+        # transformer_dict = {transformer_id : self.transformer_id_to_transformer[transformer_id] for transformer_id in transformer_ids}
+        # voter_dict = {transformer_id : self.task_id_to_transformer_id_to_voter[transformer_id][task_id] for transformer_id in transformer_ids}
 
-        self.task_id_to_deciders[task_id] = decider_class(**decider_kwargs).fit(transformer_dict, voter_dict, X, y)
+        # self.task_id_to_deciders[task_id] = decider_class(**decider_kwargs).fit(transformer_dict, voter_dict, X, y)
         
+        self.task_id_to_deciders[task_id] = decider_class(**decider_kwargs).fit(X, y)
+
         self.task_id_to_decider_class[task_id] = decider_class
         self.task_id_to_decider_kwargs[task_id] = decider_kwargs
         
