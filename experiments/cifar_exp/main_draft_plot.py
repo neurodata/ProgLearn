@@ -300,7 +300,7 @@ ax.hlines(1, -1,8, colors='grey', linestyles='dashed',linewidth=1.5)
 #ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_.set_xlabel('', fontsize=fontsize)
-ax.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
+ax.set_ylabel('Transfer Efficiency after 10 Tasks', fontsize=fontsize)
 ax_.set_xticklabels(
     ['L2N','L2F','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
     fontsize=20,rotation=45,ha="right",rotation_mode='anchor'
