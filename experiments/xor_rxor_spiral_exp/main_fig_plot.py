@@ -84,8 +84,8 @@ fontsize=30
 labelsize=28
 
 
-fig = plt.figure(constrained_layout=True,figsize=(21,32))
-gs = fig.add_gridspec(32, 21)
+fig = plt.figure(constrained_layout=True,figsize=(21,30))
+gs = fig.add_gridspec(30, 21)
 
 colors = sns.color_palette('Dark2', n_colors=2)
 
@@ -207,7 +207,7 @@ algorithms = ['Backward Transfer', 'Forward Transfer']
 TASK1='XOR'
 TASK2='N-XOR'
 
-ax = fig.add_subplot(gs[15:23,2:9])
+ax = fig.add_subplot(gs[15:21,2:9])
 
 ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
@@ -216,7 +216,7 @@ ax.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[0
 ax.set_title('Transfer Efficiency for XOR and N-XOR',fontsize=fontsize)
 ax.set_ylabel('Transfer Efficiency', fontsize=fontsize)
 ax.legend(loc='upper right', fontsize=20, frameon=False)
-ax.set_ylim(.99, 1.4)
+ax.set_ylim(.99, 1.42)
 ax.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax.tick_params(labelsize=labelsize)
 ax.set_yticks([1,1.2,1.4])
@@ -239,7 +239,7 @@ algorithms = ['Backward Transfer', 'Forward Transfer']
 TASK1='XOR'
 TASK2='R-XOR'
 
-ax = fig.add_subplot(gs[15:23,12:19])
+ax = fig.add_subplot(gs[15:21,12:19])
 
 ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
@@ -248,7 +248,7 @@ ax.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[0
 ax.set_title('Transfer Efficiency for XOR and R-XOR',fontsize=fontsize)
 ax.set_ylabel('Transfer Efficiency', fontsize=fontsize)
 ax.legend(loc='upper right', fontsize=20, frameon=False)
-ax.set_ylim(0.96, 1.04)
+ax.set_ylim(0.96, 1.045)
 ax.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax.tick_params(labelsize=labelsize)
 ax.set_yticks([0.96,1, 1.04])
@@ -264,7 +264,7 @@ ax.text(400, np.mean(ax.get_ylim())+.005, "%s"%(TASK1), fontsize=26)
 ax.text(900, np.mean(ax.get_ylim())+.005, "%s"%(TASK2), fontsize=26)
 
 ########################################################
-ax = fig.add_subplot(gs[25:31,2:9])
+ax = fig.add_subplot(gs[23:29,2:9])
 alg_name = ['L2F']
 angles = np.arange(0,91,1)
 tes = [[] for _ in range(len(alg_name))]
@@ -300,7 +300,7 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 
 
-ax = fig.add_subplot(gs[25:31,12:19])
+ax = fig.add_subplot(gs[23:29,12:19])
 te_ra = []
 n1_ra = range(60, 5010, 50)
 for n1 in n1_ra:
