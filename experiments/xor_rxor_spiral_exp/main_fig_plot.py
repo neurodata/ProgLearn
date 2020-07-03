@@ -84,8 +84,8 @@ fontsize=30
 labelsize=28
 
 
-fig = plt.figure(constrained_layout=True,figsize=(21,30))
-gs = fig.add_gridspec(30, 21)
+fig = plt.figure(constrained_layout=True,figsize=(21,31))
+gs = fig.add_gridspec(31, 21)
 
 colors = sns.color_palette('Dark2', n_colors=2)
 
@@ -207,7 +207,7 @@ algorithms = ['Backward Transfer', 'Forward Transfer']
 TASK1='XOR'
 TASK2='N-XOR'
 
-ax = fig.add_subplot(gs[16:22,2:9])
+ax = fig.add_subplot(gs[15:22,2:9])
 
 ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
@@ -239,7 +239,7 @@ algorithms = ['Backward Transfer', 'Forward Transfer']
 TASK1='XOR'
 TASK2='R-XOR'
 
-ax = fig.add_subplot(gs[16:22,12:19])
+ax = fig.add_subplot(gs[15:22,12:19])
 
 ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
