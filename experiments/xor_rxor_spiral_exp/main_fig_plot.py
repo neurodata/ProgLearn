@@ -213,7 +213,7 @@ ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
 ax.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[0], ls=ls[1], lw=3)
 
-
+ax.set_title('Transfer Efficiency for XOR and N-XOR',fontsize=fontsize)
 ax.set_ylabel('Transfer Efficiency', fontsize=fontsize)
 ax.legend(loc='upper right', fontsize=20, frameon=False)
 ax.set_ylim(.99, 1.4)
@@ -245,7 +245,7 @@ ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
 ax.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[0], ls=ls[1], lw=3)
 
-
+ax.set_title('Transfer Efficiency for XOR and R-XOR',fontsize=fontsize)
 ax.set_ylabel('Transfer Efficiency', fontsize=fontsize)
 ax.legend(loc='upper right', fontsize=20, frameon=False)
 ax.set_ylim(0.96, 1.04)
@@ -287,6 +287,7 @@ for alg_no,alg in enumerate(alg_name):
 
 
 ax.set_xticks(range(0, 90 + 15, 15))
+ax.set_yticks([0.6,1.0,1.8])
 ax.tick_params(labelsize=labelsize)
 ax.set_xlabel('Angle of Rotation (Degrees)', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
@@ -316,6 +317,7 @@ ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 ax.set_xticks([])
 ax.tick_params(labelsize=labelsize)
 ax.set_xticks([100, 500, 5000])
+ax.set_yticks([0.7,1.0,1.2])
 #ax.text(100, 0.1, "100", fontsize=labelsize)
 #ax.text(500, 0.1, "500", fontsize=labelsize)
 #ax.text(2500, 0.434, "2500", fontsize=labelsize)
