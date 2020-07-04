@@ -1,5 +1,4 @@
 import numpy as np
-import abc
 
 from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -10,74 +9,54 @@ from sklearn.utils.validation import (
     NotFittedError,
 )
 
-class BaseTransformer(abc.ABC):
-    """
-    Doc strings here.
-    """
+from sklearn.utils.multiclass import check_classification_targets
 
-    @abc.abstractmethod
-    def fit(self, X, y=None):
+import keras as keras
+
+from base import BaseTransformer
+
+class NeuralTransformer(BaseTransformer):
+    def __init__(self, network, euclidean_layer_idx, pretrained = False):
         """
         Doc strings here.
         """
+        self.network = network
+        self.encoder = keras.models.Model(inputs = self.network.inputs, outputs = self.network.layers[euclidean_layer_idx].output)
+        self.transformer_fitted_ = pretrained
 
-        pass
 
-    @abc.abstractmethod
-    def transform(self, X):
+    def fit(self, 
+            X, 
+            y, 
+            optimizer = keras.optimizers.Adam(3e-4),
+            loss = 'categorical_crossentropy', 
+            metrics = ['acc'],
+            epochs = 100,
+            callbacks = [keras.callbacks.EarlyStopping(patience = 5, monitor = "val_acc")],
+            verbose = False,
+            validation_split = .33,
+            compile_kwargs = {},
+            fit_kwargs = {}):
         """
         Doc strings here.
         """
-
-        pass
-
-    @abc.abstractmethod
-    def is_fitted(self):
-        """
-        Doc strings here.
-        """
-
-        pass
-
-
-class ForestTransformer(BaseTransformer):
-    def __init__(self,
-        bagger=BaggingClassifier,
-        bagger_kwargs = {'n_estimators': 100, 'max_samples': 1.0, 'bootstrap': False},
-        learner=DecisionTreeClassifier,
-        learner_kwargs = {'max_depth':30, 'max_features': 'sqrt', 'min_samples_leaf': 1}
-    ):
-        """
-        Doc strings here.
-        """
-
-        self.bagger = bagger
-        self.bagger_kwargs = bagger_kwargs
-
-        self.learner = learner
-        self.learner_kwargs = learner_kwargs
-
-        self._is_fitted = False
-
-
-    def fit(self, X, y):
-        """
-        Doc strings here.
-        """
-
-        X, y = check_X_y(X, y)
+        check_classification_targets(y)
+        _, y = np.unique(y, return_inverse=True)
         
-        #define the ensemble
-        self.transformer = self.bagger(
-            self.learner(
-                **self.learner_kwargs
-            ),
-            **self.bagger_kwargs
-        )
-
-        self.transformer.fit(X, y)
+        #more typechecking
+        self.network.compile(loss = loss, 
+                             metrics=metrics, 
+                             optimizer = optimizer, 
+                             **compile_kwargs)
+        self.network.fit(X, 
+                    keras.utils.to_categorical(y), 
+                    epochs = epochs, 
+                    callbacks = callbacks, 
+                    verbose = verbose,
+                    validation_split = validation_split,
+                    **fit_kwargs)
         self._is_fitted = True
-
+        
         return self
 
 
@@ -92,9 +71,9 @@ class ForestTransformer(BaseTransformer):
                     "appropriate arguments before using this transformer."
             )
             raise NotFittedError(msg % {"name": type(self).__name__})
-        
-        X = check_array(X)
-        return np.array([tree.apply(X) for tree in self.transformer.estimators_]).T
+            
+        #type check X
+        return self.encoder.predict(X)
 
 
     def is_fitted(self):

@@ -1,5 +1,4 @@
 import numpy as np
-import abc
 
 from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -10,35 +9,7 @@ from sklearn.utils.validation import (
     NotFittedError,
 )
 
-class BaseVoter(abc.ABC):
-    """
-    Doc strings here.
-    """
-
-    @abc.abstractmethod
-    def fit(self, X, y=None):
-        """
-        Doc strings here.
-        """
-
-        pass
-
-    @abc.abstractmethod
-    def vote(self, X):
-        """
-        Doc strings here.
-        """
-
-        pass
-
-    @abc.abstractmethod
-    def is_fitted(self):
-        """
-        Doc strings here.
-        """
-        
-        pass
-
+from base import BaseVoter
 
 class ForestVoterClassification(BaseVoter):
     def __init__(self, sampled_indices_by_tree=None, finite_sample_corretion=False):
@@ -124,5 +95,45 @@ class ForestVoterClassification(BaseVoter):
         
         return posteriors
 
-class ForestVoterRegression(BaseVoter):
-    pass
+class KNNVoterClassification(BaseVoter):
+    def __init__(self, k, kwargs):
+        """
+        Doc strings here.
+        """
+        self._is_fitted = False
+        self.k = k
+        self.kwargs = kwargs
+        
+    def fit(self, 
+            X, 
+            y):
+        """
+        Doc strings here.
+        """
+        X, y = check_X_y(X, y)
+        self.knn = KNeighborsClassifier(self.k, **self.kwargs)
+        self.knn.fit(X, y)
+        self._is_fitted = True
+        
+        return self
+        
+    def vote(self, X):
+        """
+        Doc strings here.
+        """
+        if not self.is_fitted():
+            msg = (
+                    "This %(name)s instance is not fitted yet. Call 'fit' with "
+                    "appropriate arguments before using this transformer."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+        
+        X = check_array(X)
+        return self.knn.predict_proba(X)
+    
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted

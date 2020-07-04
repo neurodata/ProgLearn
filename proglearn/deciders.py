@@ -1,34 +1,31 @@
-import abc
 import numpy as np
 
-class BaseDecider(abc.ABC):
-    @abc.abstractmethod
-    def fit(self, X, y):
-        pass
+from base import BaseDecider
 
 
-    @abc.abstractmethod
-    def predict(self, X):
-        pass
-
-
-class Average(BaseDecider):
+class SimpleAverage(BaseDecider):
     """
     Doc string here.
     """
 
-    def __init__(self, transformer_ids='all', weights='simple'):
-        self.transformer_ids = transformer_ids
-        self.weights = weights
-        self._is_fitted = False
+    def __init__(self):
+        pass
 
-    def fit(self, X, y=None):
-        if self.weights is 'simple':
-            self.weights = np.ones(np.shape(X)[0]) / np.shape(X)[0]
-        else:
-            pass
-
-        self.decider = lambda x: np.average(x, axis=0, weights=self.weights)
+    def fit(self, y, transformer_id_to_transformers, voter_id_to_voters = None, X=None):
+        self.classes = np.unique(y, return_inverse = True)[0]
+        self.transformer_id_to_transformers = transformer_id_to_transformers
+        self.transformer_id_to_voters = transformer_id_to_voters
+        return self
 
     def predict(self, X):
-        return np.argmax(self.decider(X), axis=1)
+        for transformer_id in transformer_id_to_votes.keys():
+            vote_per_bag_id = []
+            for bag_id in range(len(self.transformer_id_to_transformers[transformer_id])):
+                transformer = self.transformer_id_to_transformers[transformer_id][bag_id]
+                X_transformed = transformer.transform(X)
+                voter = self.transformer_id_to_voters[transformer_id][bag_id]
+                vote = voter.vote(X_transformed)
+                vote_per_bag_id.append(vote)
+            vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis = 0))
+        vote_overall = np.mean(vote_per_transformer_id, axis = 0)
+        return self.classes[np.argmax(vote_overall, axis=1)]

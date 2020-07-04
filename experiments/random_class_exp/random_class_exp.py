@@ -4,19 +4,24 @@ warnings.simplefilter("ignore")
 import random
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import tensorflow.keras as keras
 from itertools import product
 import pandas as pd
 
 import numpy as np
 import pickle
 
+import keras
+from keras import layers
+
 from sklearn.model_selection import StratifiedKFold
 from math import log2, ceil 
 
 import sys
-sys.path.append("../../src/")
-from lifelong_dnn import LifeLongDNN
+sys.path.append("../../proglearn/")
+from progressive_learner import ProgressiveLearner
+from deciders import SimpleAverage
+from transformers import NeuralTransformer, TreeTransformer
+from voters import ForestVoterClassification, KNNVoterClassification
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
@@ -40,16 +45,46 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
     accuracies_across_tasks = []
 
     train_x_task0, train_y_task0, test_x_task0, test_y_task0 = cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=shift, slot=slot)
-    lifelong_forest = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
-    lifelong_forest.new_forest(
-            train_x_task0, 
-            train_y_task0, 
-            max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees
+    if model == "dnn":
+        default_transformer_class = NeuralTransformer
+        network = keras.Sequential()
+        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x_task0)[1:]))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+
+        network.add(layers.Flatten())
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.Dense(units=len(np.unique(train_y_task0)), activation = 'softmax'))
+        
+        default_transformer_kwargs = {"network" : network, "euclidean_layer_idx" : -2}
+        
+        default_voter_class = KNNVoterClassification
+        default_voter_kwargs = {"k" : 16 * int(np.log2(len(train_x_task0))), "weights" : "distance", "p" : 1}
+        
+        default_decider_class = SimpleAverage
+    elif model == "uf":
+        pass
+    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                         default_transformer_kwargs = default_transformer_kwargs,
+                                         default_voter_class = default_voter_class,
+                                         default_voter_kwargs = default_voter_kwargs,
+                                         default_decider_class = default_decider_class,
+                                         default_decider_kwargs = {})
+    progressive_learner.add_task(
+            X = train_x_task0, 
+            y = train_y_task0
             )
         
-    task_0_predictions=lifelong_forest.predict(
-        test_x_task0, representation='all', decider=0
-        )
+    task_0_predictions=progressive_learner.predict(
+        test_x_task0, task_id = 0
+    )
 
     shifts.append(shift)
     slots.append(slot)
@@ -64,15 +99,14 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
         print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))
             
 
-        lifelong_forest.new_forest(
-            train_x, 
-            train_y, 
-            max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees
+        progressive_learner.add_task(
+            X = train_x_task0, 
+            y = train_y_task0
             )
         
-        task_0_predictions=lifelong_forest.predict(
-            test_x_task0, representation='all', decider=0
-            )
+        task_0_predictions=progressive_learner.predict(
+            test_x_task0, task_id = 0
+        )
             
         shifts.append(shift)
         slots.append(slot)
@@ -147,7 +181,6 @@ if model == "uf":
                 ) for ntree,shift,slot in iterable
                 )
 elif model == "dnn":
-    '''
     print("Performing Stage 1 Shifts")
     for slot in slot_fold:
         
@@ -157,7 +190,6 @@ elif model == "dnn":
         stage_1_shifts = range(1, 5)
         with Pool(4) as p:
             p.map(perform_shift, stage_1_shifts) 
-    '''
     print("Performing Stage 2 Shifts")
     for slot in slot_fold:
         

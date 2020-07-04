@@ -1,205 +1,279 @@
-import warnings
-
-from sklearn.base import clone 
 import numpy as np
 
-from joblib import Parallel, delayed
 
-import itertools
+class ProgressiveLearner:
+    def __init__(self, default_transformer_class = None, default_transformer_kwargs = None,
+        default_voter_class = None, default_voter_kwargs = None,
+        default_decider_class = None, default_decider_kwargs = None
+    ):
+        """
+        Doc strings here.
+        """
+        
+        self.task_id_to_X = {}
+        self.task_id_to_y = {}
 
-class ProgressiveLearner():
-    def __init__(self, acorn = None, verbose = False):
-        self.X_across_tasks = []
-        self.y_across_tasks = []
+        self.transformer_id_to_transformers = {} # transformer id to a fitted transformers
+        self.task_id_to_transformer_id_to_voters = {} # task id to a map from transformer ids to a fitted voter
+        self.task_id_to_decider = {} # task id to a fitted decider 
         
-        self.transformers_across_tasks = []
-        
-        #element [i, j] votes on decider from task i under representation from task j
-        self.voters_across_tasks_matrix = []
-        self.n_tasks = 0
-        
-        self.classes_across_tasks = []
-        
-        if acorn is not None:
-            np.random.seed(acorn)
-        
-        self.verbose = verbose
+        self.transformer_id_to_voter_class = {} # might be expensive to keep around and hints at need for default voters
+        self.transformer_id_to_voter_kwargs = {}
 
-        # Temporary attribute until Voters and Transformers are more uniform
-        self.models = []
+        self.task_id_to_decider_class = {} # task id to uninstantiated decider class
+        self.task_id_to_decider_kwargs = {} # task id to decider kwargs 
 
+        self.default_transformer_class = default_transformer_class
+        self.default_transformer_kwargs = default_transformer_kwargs
 
-    def check_task_idx_(self, task_idx):
-        if task_idx >= self.n_tasks:
-            raise Exception("Invalid Task IDX")
+        self.default_voter_class = default_voter_class
+        self.default_voter_kwargs = default_voter_kwargs
+
+        self.default_decider_class = default_decider_class
+        self.default_decider_kwargs = default_decider_kwargs
+        
+    def get_transformer_ids(self):
+        """
+        Doc strings here.
+        """
+        return np.array(list(self.transformer_id_to_transformers.keys()))
+
+    def get_task_ids(self):
+        """
+        Doc strings here.
+        """
+        return np.array(list(self.task_id_to_decider.keys()))
     
-    def add_model(self, 
-                   X, 
-                   y,
-                   model='uf',
-                   model_kwargs=None,
-                   n_jobs=-1,
-                   acorn = None):
-
-        if acorn is not None:
-            np.random.seed(acorn)
-
-        self.models.append(model)
-        
-        # model_ is a temporary solution to the two voters/transformers not being uniform
-        if model == "dnn":
-            from .honest_dnn import HonestDNN as model_
-        if model == "uf":
-            from .uncertainty_forest import UncertaintyForest as model_
-        
-        self.X_across_tasks.append(X)
-        self.y_across_tasks.append(y)
-
-        if model_kwargs is None:
-            model_kwargs = {}
-
-        new_model = model_(**model_kwargs)
-        new_model.fit(X, y, n_jobs=n_jobs)
-
-        new_transformer = new_model.get_transformer(n_jobs=n_jobs)
-        new_voter = new_model.get_voter()
-        new_classes = new_model.classes_
-        
-        self.transformers_across_tasks.append(new_transformer)
-        self.classes_across_tasks.append(new_classes)
-        
-        #add one voter to previous task voter lists under the new transformation
-        for task_idx in range(self.n_tasks):
-            X_of_task, y_of_task = self.X_across_tasks[task_idx], self.y_across_tasks[task_idx]
-            if model == "dnn":
-                X_of_task_under_new_transform = new_transformer.predict(X_of_task) 
-            if model == "uf":
-                X_of_task_under_new_transform = new_transformer(X_of_task) 
-
-            unfit_task_voter_under_new_transformation = clone(self.voters_across_tasks_matrix[task_idx][0])
-            if model == "uf":
-                unfit_task_voter_under_new_transformation.classes_ = self.voters_across_tasks_matrix[task_idx][0].classes_
-
-            task_voter_under_new_transformation = unfit_task_voter_under_new_transformation.fit(X_of_task_under_new_transform, y_of_task, n_jobs)
-
-            self.voters_across_tasks_matrix[task_idx].append(task_voter_under_new_transformation)
-            
-        #add n_tasks voters to new task voter list under previous transformations 
-        new_voters_under_previous_task_transformation = []
-        for task_idx in range(self.n_tasks):
-            other_task_model = self.models[task_idx]
-            transformer_of_task = self.transformers_across_tasks[task_idx]
-
-            if other_task_model == "dnn":
-                X_under_task_transformation = transformer_of_task.predict(X)
-            if other_task_model == "uf":
-                X_under_task_transformation = transformer_of_task(X)
-
-            unfit_new_task_voter_under_task_transformation = clone(new_voter)
-            if other_task_model == "uf":
-                unfit_new_task_voter_under_task_transformation.classes_ = new_voter.classes_
-
-            new_task_voter_under_task_transformation = unfit_new_task_voter_under_task_transformation.fit(X_under_task_transformation, y, n_jobs)
-            new_voters_under_previous_task_transformation.append(new_task_voter_under_task_transformation)
-            
-        #make sure to add the voter of the new task under its own transformation
-        new_voters_under_previous_task_transformation.append(new_voter)
-        
-        self.voters_across_tasks_matrix.append(new_voters_under_previous_task_transformation)
-        
-        self.n_tasks += 1
-        
-    def _estimate_posteriors(self, X, representation = 0, decider = 0, n_jobs=-1):
-        self.check_task_idx_(decider)
-
-        print(n_jobs)
-        
-        if representation == "all":
-            representation = range(self.n_tasks)
-        elif isinstance(representation, int):
-            representation = np.array([representation])
-
-        model = self.models[decider]
-        
-        def worker(transformer_task_idx):
-            transformer = self.transformers_across_tasks[transformer_task_idx]
-            voter = self.voters_across_tasks_matrix[decider][transformer_task_idx]
-            if model == "dnn":
-                return voter.predict_proba(transformer.predict(X))
-            if model == "uf":
-                return voter.predict_proba(transformer(X), n_jobs=n_jobs)
-
-        posteriors_across_tasks = np.array([worker(transformer_task_idx) for transformer_task_idx in representation])
-        
-        # if 
-        # posteriors_across_tasks = np.array(
-        #     Parallel(n_jobs=n_jobs)(
-        #         delayed(worker)(transformer_task_idx) for transformer_task_idx in representation
-        #     )
-        # )    
-        # else:
-        #     posteriors_across_tasks = np.array([worker(transformer_task_idx) for transformer_task_idx in representation])    
-            
-        return posteriors_across_tasks
-
-    def get_nonsimple_combination_weights(self, representation, decider, X_val, y_val, grid_step=0.01, n_jobs=-1):
-        task_classes = self.classes_across_tasks[decider]
-
-        posteriors_across_tasks_val = self._estimate_posteriors(X_val, representation, decider, n_jobs)
-
-        if representation == "all":
-            representation = np.arange(self.n_tasks)
-        elif isinstance(representation, int):
-            return np.array([1])
-
-        J = len(representation)
-        grid_1d = np.arange(0, 1+grid_step, step=grid_step)
-
-        # Naively loop over ever elements of [0,1]^J
-        n_correct_best=0
-        for cart_prod in itertools.product(*(grid_1d for i in range(J))):
-            # Only unique convex combinations
-            if not np.isclose(np.sum(cart_prod), 1):
-                continue
-
-            temp_combined_posteriors_across_tasks_val = np.multiply(posteriors_across_tasks_val, cart_prod)
-            temp_combined_posteriors_across_tasks_val = np.divide(
-                                                            temp_combined_posteriors_across_tasks_val, 
-                                                            np.sum(temp_combined_posteriors_across_tasks_val, axis=1)[:, np.newaxis]
-                                                        )
-            temp_predictions_val = task_classes[np.argmax(temp_combined_posteriors_across_tasks_val, axis = -1)]
-            n_correct = np.sum(temp_predictions_val == y_val)
-
-            if n_correct > n_correct_best:
-                n_correct_best = n_correct
-                cart_prod_best = cart_prod
-
-        return cart_prod_best
-
-        
-    def predict(self, X, representation = 0, decider = 0, weights="simple", n_jobs=-1):
-        task_classes = self.classes_across_tasks[decider]
-
-        posteriors_across_tasks = self._estimate_posteriors(X, representation, decider, n_jobs)
-
-        if weights == "simple":
-            combined_posteriors_across_tasks = np.mean(posteriors_across_tasks, axis=0)
-        elif isinstance(representation, int):
-            combined_posteriors_across_tasks = np.mean(posteriors_across_tasks, axis=0)
+    def _append_transformer(transformer_id, transformer):
+        if transformer_id in self.get_transformer_ids():
+            self.transformer_id_to_transformers[transformer_id].append(transformer)
         else:
-            if representation == "all":
-                representation = np.arange(self.n_tasks)
+            self.transformer_id_to_transformers[transformer_id] = [transformer]
+            
+    def _append_voter(transformer_id, task_id, voter):
+        if transformer_id in self.get_transformer_ids() and task_id in self.get_task_ids():
+            self.task_id_to_transformer_id_to_voters[task_id][transformer_id].append(voter)
+        else:
+            self.task_id_to_transformer_id_to_voters[task_id][transformer_id] = [voter]
+            
+    def _get_transformer_voter_decider_idx(self, n, transformer_voter_decider_split):
+        if transformer_voter_decider_split is None:
+            transformer_idx, voter_idx, decider_idx = np.arange(n), np.arange(n), np.arange(n)
+        elif np.sum(transformer_voter_decider_split) > 1:
+            transformer_idx, voter_idx, decider_idx = [np.random.choice(np.arange(n), int(n*split)) for split in transformer_voter_decider_split]
+        else:
+            transformer_idx = np.random.choice(
+                np.arange(n), 
+                int(n*transformer_voter_decider_split[0])
+            )
 
-            if len(weights) != len(representation):
-                raise ValueError('Length of weight vector must be the same as the number of representations used.')
+            voter_idx = np.random.choice(
+                np.delete(np.arange(n), transformer_idx), 
+                int(n*transformer_voter_decider_split[1])
+            )
 
-            if np.sum(weights) == 0:
-                warnings.warn("Weight vector sums to 0, using simple average.")
-                combined_posteriors_across_tasks = np.mean(posteriors_across_tasks, axis=0)
-            elif np.sum(weights < 0):
-                raise ValueError("Negative weight.")
+            decider_idx = np.random.choice(
+                np.delete(np.arange(n), np.concatenate((transformer_idx, voter_idx))),
+                int(n*transformer_voter_decider_split[2])
+            )
+        return transformer_idx, voter_idx, decider_idx
+
+    def set_transformer(self, 
+        X=None, y=None, transformer_id=None, transformer_class=None, transformer_kwargs=None, default_voter_class = None, default_voter_kwargs = None,
+        transformer = None):
+        """
+        Doc string here.
+        """
+
+        # Keyword argument checking / default behavior
+
+        if transformer_id is None:
+            transformer_id = len(self.get_transformer_ids())
+
+        if X is None and y is None:
+            if transformer.is_fitted(): # need to define CHECK_IF_FITTED method
+                self._append_transformer(transformer_id, transformer)
             else:
-                weights = weights / np.sum(weights)
-                combined_posteriors_across_tasks = np.average(posteriors_across_tasks, axis=0, weights=weights) 
+                raise ValueError('transformer_class is not fitted and X is None and y is None.')
+            return 
 
-        return task_classes[np.argmax(combined_posteriors_across_tasks, axis = -1)]
+        # Type check X
+
+        if transformer_class is None:
+            if self.default_transformer_class is None:
+                raise ValueError("transformer_class is None and 'default_transformer_class' is None.")
+            else:
+                transformer_class = self.default_transformer_class
+                
+        if transformer_kwargs is None:
+            if self.default_transformer_kwargs is None:
+                raise ValueError("transformer_kwargs is None and 'default_transformer_kwargs' is None.")
+            else:
+                transformer_kwargs = self.default_transformer_kwargs
+
+        # Fit transformer and new voter
+        if y is None:
+            self._append_transformer(transformer_id, transformer_class(**transformer_kwargs).fit(X))
+        else:
+            # Type check y
+            self._append_transformer(transformer_id, transformer_class(**transformer_kwargs).fit(X, y))
+            
+        self.transformer_id_to_voter_class[transformer_id] = default_voter_class
+        self.transformer_id_to_voter_kwargs[transformer_id] = default_voter_kwargs
+
+    def set_voter(self, X, y, transformer_id, task_id = None,
+         voter_class = None, voter_kwargs = None, bag_id = None):
+
+        # Type check X
+
+        # Type check y
+        
+        if task_id is None:
+            task_id = len(self.get_task_ids())
+            
+        if voter_class is None:
+            if self.transformer_id_to_voter_class[transformer_id] is not None:
+                voter_class = self.transformer_id_to_voter_class[transformer_id]
+            elif self.default_voter_class is not None:
+                voter_class = self.default_voter_class
+            else:
+                raise ValueError("voter_class is None, the default voter class for the overall learner is None, and the default voter class for this transformer is None.")
+
+        if voter_kwargs is None:
+            if self.transformer_id_to_voter_kwargs[transformer_id] is not None:
+                voter_kwargs = self.transformer_id_to_voter_kwargs[transformer_id]
+            elif self.default_voter_kwargs is not None:
+                voter_kwargs = self.default_voter_kwargs
+            else:
+                raise ValueError("voter_kwargs is None, the default voter kwargs for the overall learner is None, and the default voter kwargs for this transformer is None.")
+        
+        if bag_id == None:
+            transformers = self.transformer_id_to_transformers[transformer_id]
+        else:
+            transformers = [bag_id]
+        for _, transformer in enumerate(transformers):
+            self._append_voter(transformer_id, task_id, voter_class(**voter_kwargs).fit(transformer.transform(X), y))
+
+    def set_decider(self, task_id, transformer_ids,
+        decider_class=None, decider_kwargs=None, transformer_id_to_votes=None, y=None
+        ):
+
+        if decider_class is None:
+            if self.default_decider_class is None:
+                raise ValueError("decider_class is None and 'default_decider_class' is None.")
+            else:
+                decider_class = self.default_decider_class
+
+        if decider_kwargs is None:
+            if self.default_decider_kwargs is None:
+                raise ValueError("decider_kwargs is None and 'default_decider_kwargs' is None.")
+            else:
+                decider_class = self.default_decider_kwargs
+                
+        transformer_id_to_transformers = {transformer_id : self.transformer_id_to_transformers[transformer_id] for transformer_id in transformer_ids}
+        transformer_id_to_voters = {transformer_id : self.task_id_to_transformer_id_to_voters[transformer_id][task_id] for transformer_id in transformer_ids}
+
+        self.task_id_to_decider[task_id] = decider_class(**decider_kwargs).fit(transformer_id_to_transformers = transformer_id_to_transformers, 
+                                                                               transformer_id_to_voters = transformer_id_to_voters, 
+                                                                               X=self.task_id_to_X[task_id], 
+                                                                               y=self.task_id_to_y[task_id])
+        
+        self.task_id_to_decider_class[task_id] = decider_class
+        self.task_id_to_decider_kwargs[task_id] = decider_kwargs
+        
+    def add_task(self, X, y, task_id=None, transformer_voter_decider_split = None, num_transformers = 1,
+        transformer_class=None, transformer_kwargs=None, 
+        voter_class=None, voter_kwargs=None, 
+        decider_class=None, decider_kwargs=None):
+        """
+        Doc strings here.
+        """
+    
+        # Type check X
+
+        # Type check y
+        
+        self.task_id_to_X[task_id] = X
+        self.task_id_to_y[task_id] = y
+        
+        # Keyword argument checking / default behavior
+
+        if task_id is None:
+            task_id = max(len(self.get_transformer_ids()), len(self.get_task_ids())) #come up with something that has fewer collisions
+
+        if transformer_class is None and num_transformers > 1:
+            if self.default_transformer_class is None:
+                raise ValueError("transformer_class is None and 'default_transformer_class' is None.")
+            else:
+                transformer_class = self.default_transformer_class
+
+        if voter_class is None:
+            if self.default_voter_class is None:
+                raise ValueError("voter_class is None and 'default_voter_class' is None.")
+            else:
+                voter_class = self.default_voter_class
+
+        if decider_class is None:
+            if self.default_decider_class is None:
+                raise ValueError("decider_class is None and 'default_decider_class' is None.")
+            else:
+                decider_class = self.default_decider_class
+                
+        if transformer_kwargs is None and num_transformers > 1:
+            if self.default_transformer_kwargs is None:
+                raise ValueError("transformer_kwargs is None and 'default_transformer_kwargs' is None.")
+            else:
+                transformer_kwargs = self.default_transformer_kwargs
+
+        if voter_kwargs is None:
+            if self.default_voter_kwargs is None:
+                raise ValueError("voter_kwargs is None and 'default_voter_kwargs' is None.")
+            else:
+                voter_kwargs = self.default_voter_kwargs
+
+        if decider_kwargs is None:
+            if self.default_decider_kwargs is None:
+                raise ValueError("decider_kwargs is None and 'default_decider_kwargs' is None.")
+            else:
+                decider_kwargs = self.default_decider_kwargs
+        
+        for transformer_num in range(num_transformers):
+            transformer_idx, voter_idx, decider_idx = self._get_transformer_voter_decider_idx(len(X), transformer_voter_decider_split)
+                
+            self.set_transformer(X[transformer_idx], y[transformer_idx], task_id, transformer_class, transformer_kwargs, voter_class, voter_kwargs)
+        
+            # train voters from previous tasks to new task
+            for transformer_id in self.get_transformer_ids():
+                if transformer_id == task_id:
+                    self.set_voter(X[voter_idx], y[voter_idx], transformer_id, task_id, voter_class, voter_kwargs, bag_id = transformer_num)
+                else:
+                    self.set_voter(X, y, transformer_id, task_id, bag_id = transformer_num)
+            if transformer_num == num_transformers - 1:
+                self.set_decider(task_id, self.get_transformer_ids(), decider_class, decider_kwargs, X[decider_idx], y[decider_idx])
+
+            # train voters from new transformer to previous tasks
+            if num_transformers > 0:
+                for existing_task_id in self.get_task_ids():
+                    if existing_task_id == task_id:
+                        continue
+                    else:
+                        existing_X = self.task_id_to_X[existing_task_id]
+                        existing_y = self.task_id_to_y[existing_task_id]
+                        self.set_voter(existing_X, existing_y, task_id, existing_task_id, bag_id = transformer_num)
+                        if transformer_num == num_transformers - 1:
+                            self.set_decider(existing_task_id, self.get_transformer_ids(), X = existing_X, y = existing_y)
+
+        
+    def predict(self, X, task_id):
+        transformer_ids = self.task_id_to_decider[task_id].transformer_ids
+
+        transformer_id_to_votes = {}
+        for i, transformer_id in enumerate(transformer_ids):
+            for transformer_num, transformer in enumerate(self.transformer_id_to_transformers[transformer_id]):
+                X_transformed = transformer.transform(X)
+                vote = self.task_id_to_transformer_id_to_voters[task_id][transformer_id][transformer_num].vote(X_transformed)
+                if transformer_num == 0:
+                    transformer_id_to_votes[transformer_id] = [vote]
+                else:
+                    transformer_id_to_votes[transformer_id].append(vote)
+        return self.task_id_to_decider[task_id].predict(transformer_id_to_votes)
