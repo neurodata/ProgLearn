@@ -290,8 +290,8 @@ ax.set_xticks(range(0, 90 + 15, 15))
 ax.set_yticks([0.6,1.0,1.8])
 ax.tick_params(labelsize=labelsize)
 ax.set_xlabel('Angle of Rotation (Degrees)', fontsize=fontsize)
-ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
-ax.set_title("XOR vs. Rotated-XOR", fontsize = fontsize)
+ax.set_ylabel('Backward Transfer Efficiency (XOR)', fontsize=fontsize)
+#ax.set_title("XOR vs. Rotated-XOR", fontsize = fontsize)
 ax.hlines(1,0,90, colors='grey', linestyles='dashed',linewidth=1.5)
 
 right_side = ax.spines["right"]
@@ -302,10 +302,11 @@ top_side.set_visible(False)
 
 ax = fig.add_subplot(gs[23:29,12:19])
 te_ra = []
-n1_ra = range(60, 5010, 50)
+n1_ra = (2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
+#print(n1_ra)
 for n1 in n1_ra:
     te_across_reps = []
-    for rep in range(500):
+    for rep in range(1000):
         filename = '../rotation_xor/te_exp/result/'+str(n1)+'_'+str(rep)+'.pickle'
         df = unpickle(filename)
         te_across_reps.append(float(df['te']))
@@ -314,7 +315,7 @@ for n1 in n1_ra:
 ax.plot(n1_ra, te_ra, c="#e41a1c", linewidth = 2.6)
 ax.set_xscale('log')
 ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-ax.set_xticks([])
+#ax.set_xticks([])
 ax.tick_params(labelsize=labelsize)
 ax.set_xticks([100, 500, 5000])
 ax.set_yticks([0.7,1.0,1.2])
@@ -325,9 +326,9 @@ ax.set_yticks([0.7,1.0,1.2])
 #ax.text(500, 0.43, 'Number of Task 1 Training Samples', fontsize=labelsize)
 
 ax.hlines(1, min(n1_ra), max(n1_ra), colors='grey', linestyles='dashed',linewidth=1.5)
-ax.set_xlabel('Number of Task 1 Training Samples', fontsize=fontsize)
-ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
-ax.set_title("Training Set Size Effect", fontsize = fontsize)
+ax.set_xlabel(r'Number of $10^\circ$-RXOR Training Samples', fontsize=fontsize)
+ax.set_ylabel('Backward Transfer Efficiency (XOR)', fontsize=fontsize)
+#ax.set_title("Training Set Size Effect", fontsize = fontsize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
