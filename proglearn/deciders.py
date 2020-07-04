@@ -11,14 +11,15 @@ class SimpleAverage(BaseDecider):
     def __init__(self):
         pass
 
-    def fit(self, y, transformer_id_to_transformers, voter_id_to_voters = None, X=None):
+    def fit(self, y, transformer_id_to_transformers, transformer_id_to_voters = None, X=None):
         self.classes = np.unique(y, return_inverse = True)[0]
         self.transformer_id_to_transformers = transformer_id_to_transformers
         self.transformer_id_to_voters = transformer_id_to_voters
         return self
 
     def predict(self, X):
-        for transformer_id in transformer_id_to_votes.keys():
+        vote_per_transformer_id = []
+        for transformer_id in self.transformer_id_to_voters.keys():
             vote_per_bag_id = []
             for bag_id in range(len(self.transformer_id_to_transformers[transformer_id])):
                 transformer = self.transformer_id_to_transformers[transformer_id][bag_id]

@@ -63,10 +63,10 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
         network.add(layers.Dense(2000, activation='relu'))
         network.add(layers.Dense(units=len(np.unique(train_y_task0)), activation = 'softmax'))
         
-        default_transformer_kwargs = {"network" : network, "euclidean_layer_idx" : -2}
+        default_transformer_kwargs = {"network" : network, "euclidean_layer_idx" : -2, "epochs" : 1, "verbose" : True}
         
         default_voter_class = KNNVoterClassification
-        default_voter_kwargs = {"k" : 16 * int(np.log2(len(train_x_task0))), "weights" : "distance", "p" : 1}
+        default_voter_kwargs = {"k" : 16 * int(np.log2(len(train_x_task0))), "kwargs" : {"weights" : "distance", "p" : 1}}
         
         default_decider_class = SimpleAverage
     elif model == "uf":
@@ -188,8 +188,10 @@ elif model == "dnn":
             return run_parallel_exp(data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift)
     
         stage_1_shifts = range(1, 5)
-        with Pool(4) as p:
-            p.map(perform_shift, stage_1_shifts) 
+        #with Pool(4) as p:
+        #    p.map(perform_shift, stage_1_shifts)
+        for stage_1_shift in stage_1_shifts:
+            perform_shift(stage_1_shift)
     print("Performing Stage 2 Shifts")
     for slot in slot_fold:
         

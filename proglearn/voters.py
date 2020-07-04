@@ -2,6 +2,7 @@ import numpy as np
 
 from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.utils.validation import (
     check_X_y,

@@ -16,27 +16,39 @@ import keras as keras
 from base import BaseTransformer
 
 class NeuralTransformer(BaseTransformer):
-    def __init__(self, network, euclidean_layer_idx, pretrained = False):
+    def __init__(self, 
+                 network, 
+                 euclidean_layer_idx, 
+                 pretrained = False,
+                 optimizer = keras.optimizers.Adam(3e-4),
+                 loss = "categorical_crossentropy",
+                 metrics = ['acc'],
+                 epochs = 100,
+                 callbacks = [keras.callbacks.EarlyStopping(patience = 5, monitor = "val_acc")],
+                 verbose = False,
+                 validation_split = .33,
+                 compile_kwargs = {},
+                 fit_kwargs = {}):
         """
         Doc strings here.
         """
         self.network = network
         self.encoder = keras.models.Model(inputs = self.network.inputs, outputs = self.network.layers[euclidean_layer_idx].output)
         self.transformer_fitted_ = pretrained
+        self.optimizer = optimizer
+        self.loss = loss
+        self.metrics = metrics
+        self.epochs = epochs 
+        self.callbacks = callbacks
+        self.verbose = verbose 
+        self.validation_split = validation_split 
+        self.compile_kwargs = compile_kwargs
+        self.fit_kwargs = fit_kwargs
 
 
     def fit(self, 
             X, 
-            y, 
-            optimizer = keras.optimizers.Adam(3e-4),
-            loss = 'categorical_crossentropy', 
-            metrics = ['acc'],
-            epochs = 100,
-            callbacks = [keras.callbacks.EarlyStopping(patience = 5, monitor = "val_acc")],
-            verbose = False,
-            validation_split = .33,
-            compile_kwargs = {},
-            fit_kwargs = {}):
+            y):
         """
         Doc strings here.
         """
@@ -44,17 +56,17 @@ class NeuralTransformer(BaseTransformer):
         _, y = np.unique(y, return_inverse=True)
         
         #more typechecking
-        self.network.compile(loss = loss, 
-                             metrics=metrics, 
-                             optimizer = optimizer, 
-                             **compile_kwargs)
+        self.network.compile(loss = self.loss, 
+                             metrics = self.metrics, 
+                             optimizer = self.optimizer, 
+                             **self.compile_kwargs)
         self.network.fit(X, 
                     keras.utils.to_categorical(y), 
-                    epochs = epochs, 
-                    callbacks = callbacks, 
-                    verbose = verbose,
-                    validation_split = validation_split,
-                    **fit_kwargs)
+                    epochs = self.epochs, 
+                    callbacks = self.callbacks, 
+                    verbose = self.verbose,
+                    validation_split = self.validation_split,
+                    **self.fit_kwargs)
         self._is_fitted = True
         
         return self
