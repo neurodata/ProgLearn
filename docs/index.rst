@@ -25,9 +25,5 @@ Documentation
 .. toctree::
    :maxdepth: 6
 
-   install
-   tutorials
-   reference/index
    contributing
-   news
    license
