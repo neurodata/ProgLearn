@@ -8,11 +8,11 @@ class SimpleAverage(BaseDecider):
     Doc string here.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, classes = []):
+        self.classes = classes
 
-    def fit(self, y, transformer_id_to_transformers, transformer_id_to_voters = None, X=None):
-        self.classes = np.unique(y, return_inverse = True)[0]
+    def fit(self, y, transformer_id_to_transformers, classes = None, transformer_id_to_voters = None, X=None):
+        self.classes = self.classes if len(self.classes) > 0 else np.unique(y)
         self.transformer_id_to_transformers = transformer_id_to_transformers
         self.transformer_id_to_voters = transformer_id_to_voters
         return self
