@@ -7,18 +7,17 @@ class ProgressiveLearner:
         default_decider_class = None, default_decider_kwargs = None
     ):
         
-        self.task_id_to_X = {}
-        self.task_id_to_y = {}
+        self.task_id_to_X, self.task_id_to_y, self.transformer_id_to_X, self.transformer_id_to_y = {}, {}, {}, {}
 
-        self.transformer_id_to_transformers = {} # transformer id to a fitted transformers
-        self.task_id_to_transformer_id_to_voters = {} # task id to a map from transformer ids to a fitted voter
-        self.task_id_to_decider = {} # task id to a fitted decider 
+        self.transformer_id_to_transformers = {} 
+        self.task_id_to_transformer_id_to_voters = {} 
+        self.task_id_to_decider = {} 
         
-        self.transformer_id_to_voter_class = {} # might be expensive to keep around and hints at need for default voters
+        self.transformer_id_to_voter_class = {} 
         self.transformer_id_to_voter_kwargs = {}
 
-        self.task_id_to_decider_class = {} # task id to uninstantiated decider class
-        self.task_id_to_decider_kwargs = {} # task id to decider kwargs 
+        self.task_id_to_decider_class = {} 
+        self.task_id_to_decider_kwargs = {} 
         
         self.task_id_to_bag_id_to_voter_data_idx = {}
         self.task_id_to_decider_idx = {} 
@@ -76,14 +75,19 @@ class ProgressiveLearner:
 
     # make sure the below ganular functions work without add_{transformer, task}
     def set_transformer(self, 
-                        X = None, y = None, 
-                        transformer = None,
-                        transformer_id = None, transformer_class = None, transformer_kwargs = None, 
+                        transformer_id = None,
+                        transformer = None, transformer_data_idx = None,
+                        transformer_class = None, transformer_kwargs = None, 
                         default_voter_class = None, default_voter_kwargs = None
                        ):
 
         if transformer_id is None:
             transformer_id = len(self.get_transformer_ids())
+            
+        X = self.transformer_id_to_X[transformer_id] if transformer_id in list(self.transformer_id_to_X.keys()) else self.task_id_to_X[transformer_id]
+        y = self.transformer_id_to_y[transformer_id] if transformer_id in list(self.transformer_id_to_y.keys()) else self.task_id_to_y[transformer_id]
+        if transformer_data_idx is not None:
+            X, y = X[transformer_data_idx], y[transformer_data_idx]
 
         if X is None and y is None:
             if transformer.is_fitted():
@@ -185,17 +189,18 @@ class ProgressiveLearner:
         
         X, y = self.task_id_to_X[task_id], self.task_id_to_y[task_id]
         
-        self.task_id_to_decider[task_id] = decider_class(**decider_kwargs).fit(transformer_id_to_transformers = transformer_id_to_transformers, 
-                                                                               transformer_id_to_voters = transformer_id_to_voters, 
-                                                                               X=X[self.task_id_to_decider_idx[task_id]], 
-                                                                               y=y[self.task_id_to_decider_idx[task_id]])
+        self.task_id_to_decider[task_id] = decider_class(**decider_kwargs)
+        self.task_id_to_decider[task_id].fit(transformer_id_to_transformers = transformer_id_to_transformers,
+                                             transformer_id_to_voters = transformer_id_to_voters,
+                                             X = X[self.task_id_to_decider_idx[task_id]],
+                                             y = y[self.task_id_to_decider_idx[task_id]])
         
         self.task_id_to_decider_class[task_id] = decider_class
         self.task_id_to_decider_kwargs[task_id] = decider_kwargs
         
     def add_transformer(self, 
                         X, y,
-                        transformer_data_proportion = 1,
+                        transformer_data_proportion = 1, transformer_voter_data_idx = None,
                         transformer_id = None, num_transformers = 1,
                         transformer_class = None, transformer_kwargs = None,
                         voter_class = None, voter_kwargs = None,
@@ -206,13 +211,27 @@ class ProgressiveLearner:
             transformer_id = len(self.get_transformer_ids())
         
         backward_task_ids = backward_task_ids if backward_task_ids != None else self.get_task_ids()
+        transformer_voter_data_idx = range(len(X)) if transformer_voter_data_idx is None else transformer_voter_data_idx
+        
+        if transformer_id not in list(self.task_id_to_X.keys()):
+            self.transformer_id_to_X[transformer_id] = X
+        if transformer_id not in list(self.task_id_to_y.keys()):
+            self.transformer_id_to_y[transformer_id] = y
         
         # train new transformers
         for transformer_num in range(num_transformers): 
-            transformer_data_idx = np.random.choice(range(len(X)), int(transformer_data_proportion * len(X)))
-            self.set_transformer(X = X[transformer_data_idx], 
-                                 y = y[transformer_data_idx], 
-                                 transformer_id = transformer_id, 
+            if X is not None:
+                n = len(X)
+            elif y is not None:
+                n = len(y)
+            else:
+                n = None
+            if n is not None:
+                transformer_data_idx = np.random.choice(transformer_voter_data_idx, int(transformer_data_proportion * n))
+            else:
+                transformer_data_idx = None
+            self.set_transformer(transformer_id = transformer_id, 
+                                 transformer_data_idx = transformer_data_idx,
                                  transformer_class = transformer_class, 
                                  transformer_kwargs = transformer_kwargs, 
                                  default_voter_class = voter_class, 
@@ -234,9 +253,6 @@ class ProgressiveLearner:
                  voter_class = None, voter_kwargs = None,
                  decider_class = None, decider_kwargs = None,
                  backward_task_ids = None, forward_transformer_ids = None):
-        # Type check X
-
-        # Type check y
         
         if task_id is None:
             task_id = max(len(self.get_transformer_ids()), len(self.get_task_ids())) #come up with something that has fewer collisions
@@ -244,7 +260,7 @@ class ProgressiveLearner:
         self.task_id_to_X[task_id] = X
         self.task_id_to_y[task_id] = y
                 
-        # split into transformer/voter and decider
+        # split into transformer/voter and decider data
         transformer_voter_data_idx, decider_idx = self._get_split_idxs(range(len(X)), transformer_voter_decider_split)
         self._append_decider_idx(task_id, decider_idx)
         
@@ -252,6 +268,7 @@ class ProgressiveLearner:
         if num_transformers > 0:
             self.add_transformer(X, y,
                                  transformer_data_proportion = transformer_voter_decider_split[0],
+                                 transformer_voter_data_idx = transformer_voter_data_idx,
                                  transformer_id = task_id, num_transformers = num_transformers,
                                  transformer_class = transformer_class, transformer_kwargs = transformer_kwargs,
                                  voter_class = voter_class, voter_kwargs = voter_kwargs,

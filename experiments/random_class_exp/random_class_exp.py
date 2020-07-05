@@ -72,7 +72,7 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
         default_decider_class = SimpleAverage
     elif model == "uf":
         default_transformer_class = TreeClassificationTransformer
-        default_transformer_kwargs = {}
+        default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
         
         default_voter_class = TreeClassificationVoter
         default_voter_kwargs = {}
@@ -82,12 +82,13 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
                                          default_transformer_kwargs = default_transformer_kwargs,
                                          default_voter_class = default_voter_class,
                                          default_voter_kwargs = default_voter_kwargs,
-                                         default_decider_class = default_decider_class,
-                                         default_decider_kwargs = {})
+                                         default_decider_class = default_decider_class)
     progressive_learner.add_task(
             X = train_x_task0, 
             y = train_y_task0,
-            num_transformers = 1 if model == "dnn" else ntrees
+            num_transformers = 1 if model == "dnn" else ntrees,
+            transformer_voter_decider_split = [0.67, 0.33, 0],
+            decider_kwargs = {"classes" : np.unique(train_y_task0)}
             )
         
     task_0_predictions=progressive_learner.predict(
@@ -106,14 +107,13 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
         
         print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))
             
-
-        progressive_learner.add_task(
+        progressive_learner.add_transformer(
             X = train_x, 
             y = train_y,
-            backward_task_ids = [0],
-            forward_transformer_ids = [],
-            num_transformers = 1 if model == "dnn" else ntrees
-            )
+            transformer_data_proportion = 1,
+            num_transformers = 1 if model == "dnn" else ntrees,
+            backward_task_ids = [0]
+        )
         
         task_0_predictions=progressive_learner.predict(
             test_x_task0, task_id = 0
@@ -186,7 +186,7 @@ if model == "uf":
     shift_fold = range(1,7,1)
     n_trees = [10]
     iterable = product(n_trees,shift_fold, slot_fold)
-    Parallel(n_jobs=-2,verbose=1)(
+    Parallel(n_jobs=-1,verbose=1)(
         delayed(run_parallel_exp)(
                 data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
                 ) for ntree,shift,slot in iterable

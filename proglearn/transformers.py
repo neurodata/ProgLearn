@@ -88,7 +88,7 @@ class NeuralClassificationTransformer(BaseTransformer):
         return self._is_fitted
 
 class TreeClassificationTransformer(BaseTransformer):
-    def __init__(self, kwargs = {'max_depth':30}
+    def __init__(self, kwargs = {}
     ):
         """
         Doc strings here.
