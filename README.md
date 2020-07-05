@@ -40,7 +40,7 @@ numpy
 scikit-learn
 joblib
 
-```
+``` 
 
 # Installation Guide
 ## Install from pip
@@ -56,7 +56,7 @@ python3 setup.py install
 ```
 
 # Contributing
-We welcome contributions from anyone. Please see our [contribution guidelines]() before making a pull request. Our 
+We welcome contributions from anyone. Please see our [contribution guidelines](http://docs.neurodata.io/progressive-learning/) before making a pull request. Our 
 [issues](https://github.com/neurodata/progressive-learning/issues) page is full of places we could use help! 
 If you have an idea for an improvement not listed there, please 
 [make an issue](https://github.com/neurodata/progressive-learning/issues/new) first so you can discuss with the 
