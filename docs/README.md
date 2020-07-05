@@ -11,7 +11,7 @@ You will need to install all the dependencies as defined in `requirements.txt` f
     pip3 install -r requirements.txt
 
 in the `docs/` directory.
-
+ 
 ## Pandoc dependency
 
 In addition, you need to install `pandoc` for `nbsphinx`. If you are on linux, you can enter:
