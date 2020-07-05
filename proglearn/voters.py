@@ -10,15 +10,17 @@ from sklearn.utils.validation import (
     NotFittedError,
 )
 
+from sklearn.utils.multiclass import check_classification_targets
+
 from base import BaseVoter
 
-class ForestVoterClassification(BaseVoter):
-    def __init__(self, sampled_indices_by_tree=None, finite_sample_corretion=False):
+class TreeClassificationVoter(BaseVoter):
+    def __init__(self, finite_sample_correction=False):
         """
         Doc strings here.
         """
 
-        self.finite_sample_corretion = finite_sample_corretion
+        self.finite_sample_correction = finite_sample_correction
         self._is_fitted = False
 
 
@@ -26,25 +28,22 @@ class ForestVoterClassification(BaseVoter):
         """
         Doc strings here.
         """
-        self.tree_to_leaf_to_posterior = {}
+        check_classification_targets(y)
+        
+        num_classes = len(np.unique(y))
+        self.uniform_posterior = np.ones(num_classes) / num_classes
+        
+        self.leaf_to_posterior = {}
 
-        X, y = check_X_y(X, y)
+        for leaf_id in np.unique(X):
+            idxs_in_leaf = np.where(X == leaf_id)[0]
+            class_counts = [len(np.where(y[idxs_in_leaf] == y_val)[0]) for y_val in np.unique(y)]
+            posteriors = np.nan_to_num(np.array(class_counts) / np.sum(class_counts))
 
-        n, n_trees = X.shape
+            if self.finite_sample_correction:
+                posteriors = self._finite_sample_correction(posteriors, len(X_in_leaf_id), len(np.unique(y)))
 
-        for tree_id in range(n_trees):
-            leaf_id_to_posterior = {}
-            leaf_ids = np.unique(X[:, tree_id])
-            for leaf_id in leaf_ids:
-                X_in_leaf_id = np.where(X[:, tree_id] == leaf_id)[0]
-                class_counts = [len(np.where(y[X_in_leaf_id] == y_)[0]) for y_ in np.unique(y)]
-                posteriors = np.nan_to_num(np.array(class_counts) / np.sum(class_counts))
-
-                if self.finite_sample_corretion:
-                    posteriors = self._finite_sample_correction(posteriors, len(X_in_leaf_id), len(np.unique(y)))
-                
-                leaf_id_to_posterior[leaf_id] = posteriors
-            self.tree_to_leaf_to_posterior[tree_id] = leaf_id_to_posterior
+            self.leaf_to_posterior[leaf_id] = posteriors
 
         self._is_fitted = True
 
@@ -63,17 +62,13 @@ class ForestVoterClassification(BaseVoter):
             )
             raise NotFittedError(msg % {"name": type(self).__name__})
         
-        X = check_array(X)
-
-        n, n_trees = X.shape
-
-        print(self.tree_to_leaf_to_posterior)
-
-        posteriors = []
-        for i, x in enumerate(X):
-            posteriors.append(np.mean([self.tree_to_leaf_to_posterior[tree_id][x[tree_id]] for tree_id in range(n_trees)], axis=0))
-        
-        return np.array(posteriors)
+        votes_per_example = []
+        for x in X:
+            if x in list(self.leaf_to_posterior.keys()):
+                votes_per_example.append(self.leaf_to_posterior[x])
+            else:
+                votes_per_example.append(self.uniform_posterior)
+        return np.array(votes_per_example)
 
 
     def is_fitted(self):
@@ -96,8 +91,8 @@ class ForestVoterClassification(BaseVoter):
         
         return posteriors
 
-class KNNVoterClassification(BaseVoter):
-    def __init__(self, k, kwargs):
+class KNNClassificationVoter(BaseVoter):
+    def __init__(self, k, kwargs = {}):
         """
         Doc strings here.
         """

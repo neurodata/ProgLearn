@@ -11,7 +11,7 @@ slots = 10
 shifts = 6
 alg_num = 1
 task_num = 10
-model_ntree_pairs = [("uf", 10), ("dnn", 0)]
+model_ntree_pairs = [("uf", 10)]#[("uf", 10), ("dnn", 0)]
 ########################
 
 ax = plt.subplot(111)
@@ -66,6 +66,6 @@ ax.tick_params(labelsize=ticksize)
 ax.legend(fontsize=22)
 
 plt.tight_layout()
-plt.savefig('./result/figs/fig_trees'+str(ntrees)+"__"+model+'.pdf',dpi=300)
+plt.savefig('./result/figs/random_class.pdf',dpi=300)
 
 # %%

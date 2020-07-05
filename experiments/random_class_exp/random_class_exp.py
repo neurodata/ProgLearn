@@ -20,8 +20,8 @@ import sys
 sys.path.append("../../proglearn/")
 from progressive_learner import ProgressiveLearner
 from deciders import SimpleAverage
-from transformers import NeuralTransformer, TreeTransformer
-from voters import ForestVoterClassification, KNNVoterClassification
+from transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
+from voters import TreeClassificationVoter, KNNClassificationVoter
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
@@ -46,31 +46,38 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
 
     train_x_task0, train_y_task0, test_x_task0, test_y_task0 = cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=shift, slot=slot)
     if model == "dnn":
-        default_transformer_class = NeuralTransformer
+        default_transformer_class = NeuralClassificationTransformer
+        
         network = keras.Sequential()
         network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x_task0)[1:]))
-        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
 
         network.add(layers.Flatten())
         network.add(layers.Dense(2000, activation='relu'))
         network.add(layers.Dense(2000, activation='relu'))
-        network.add(layers.Dense(units=len(np.unique(train_y_task0)), activation = 'softmax'))
+        network.add(layers.Dense(units=10, activation = 'softmax'))
         
-        default_transformer_kwargs = {"network" : network, "euclidean_layer_idx" : -2, "epochs" : 1, "verbose" : True}
+        default_transformer_kwargs = {"network" : network, 
+                                      "euclidean_layer_idx" : -2,
+                                      "num_classes" : 10,
+                                      "optimizer" : keras.optimizers.Adam(3e-4)
+                                     }
         
-        default_voter_class = KNNVoterClassification
-        default_voter_kwargs = {"k" : 16 * int(np.log2(len(train_x_task0))), "kwargs" : {"weights" : "distance", "p" : 1}}
+        default_voter_class = KNNClassificationVoter
+        default_voter_kwargs = {"k" : int(np.log2(num_points_per_task))}
         
         default_decider_class = SimpleAverage
     elif model == "uf":
-        pass
+        default_transformer_class = TreeClassificationTransformer
+        default_transformer_kwargs = {}
+        
+        default_voter_class = TreeClassificationVoter
+        default_voter_kwargs = {}
+        
+        default_decider_class = SimpleAverage
     progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
                                          default_transformer_kwargs = default_transformer_kwargs,
                                          default_voter_class = default_voter_class,
@@ -79,7 +86,8 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
                                          default_decider_kwargs = {})
     progressive_learner.add_task(
             X = train_x_task0, 
-            y = train_y_task0
+            y = train_y_task0,
+            num_transformers = 1 if model == "dnn" else ntrees
             )
         
     task_0_predictions=progressive_learner.predict(
@@ -93,15 +101,18 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
         ))
     print(accuracies_across_tasks)
     
-    for task_ii in range(29):
+    for task_ii in range(19):
         train_x, train_y, _, _ = cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=shift, slot=slot, task = task_ii)
         
         print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))
             
 
         progressive_learner.add_task(
-            X = train_x_task0, 
-            y = train_y_task0
+            X = train_x, 
+            y = train_y,
+            backward_task_ids = [0],
+            forward_transformer_ids = [],
+            num_transformers = 1 if model == "dnn" else ntrees
             )
         
         task_0_predictions=progressive_learner.predict(
@@ -157,7 +168,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 num_points_per_task = 500
 ########################
 
@@ -170,10 +181,10 @@ data_y = data_y[:, 0]
 
 
 #%%
-slot_fold = range(3, 10)
+slot_fold = range(10)
 if model == "uf":
     shift_fold = range(1,7,1)
-    n_trees=[10]
+    n_trees = [10]
     iterable = product(n_trees,shift_fold, slot_fold)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
@@ -188,10 +199,9 @@ elif model == "dnn":
             return run_parallel_exp(data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift)
     
         stage_1_shifts = range(1, 5)
-        #with Pool(4) as p:
-        #    p.map(perform_shift, stage_1_shifts)
-        for stage_1_shift in stage_1_shifts:
-            perform_shift(stage_1_shift)
+        with Pool(4) as p:
+            p.map(perform_shift, stage_1_shifts)
+            
     print("Performing Stage 2 Shifts")
     for slot in slot_fold:
         

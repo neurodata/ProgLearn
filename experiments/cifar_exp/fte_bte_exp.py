@@ -18,6 +18,11 @@ from lifelong_dnn import LifeLongDNN
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
+from progressive_learner import ProgressiveLearner
+from deciders import SimpleAverage
+from transformers import NeuralTransformer, TreeTransformer
+from voters import ForestVoterClassification, KNNVoterClassification
+
 import tensorflow as tf
 
 #%%
@@ -35,7 +40,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     tasks = []
     base_tasks = []
     accuracies_across_tasks = []
-
+    
+    '''
     for task_ii in range(10):
         if model == "uf":
             single_task_learner = LifeLongDNN(model = "uf", parallel = True)
@@ -54,21 +60,56 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             single_task_accuracies[task_ii] = np.mean(
                     llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
                     )
+    '''
+    
+    if model == "dnn":
+        default_transformer_class = NeuralTransformer
+        network = keras.Sequential()
+        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x_task0)[1:]))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
 
-    lifelong_forest = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
+        network.add(layers.Flatten())
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(units=len(np.unique(train_y_task0)), activation = 'softmax'))
+        
+        default_transformer_kwargs = {"network" : network, "euclidean_layer_idx" : -2, "epochs" : 100, "verbose" : False}
+        
+        default_voter_class = KNNVoterClassification
+        default_voter_kwargs = {"k" : int(np.log2(len(train_x_task0)))}#, "kwargs" : {"weights" : "distance", "p" : 1}}
+        
+        default_decider_class = SimpleAverage
+    elif model == "uf":
+        pass
+    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                         default_transformer_kwargs = default_transformer_kwargs,
+                                         default_voter_class = default_voter_class,
+                                         default_voter_kwargs = default_voter_kwargs,
+                                         default_decider_class = default_decider_class,
+                                         default_decider_kwargs = {})
+
     for task_ii in range(10):
         print("Starting Task {} For Fold {}".format(task_ii, shift))
         if acorn is not None:
             np.random.seed(acorn)
 
-        lifelong_forest.new_forest(
-            train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:], 
-            train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
-            max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees
+        lifelong_forest.add_task(
+            X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:], 
+            y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
             )
         if model == "dnn":
             llf_task=lifelong_forest.predict(
-                test_x[task_ii*1000:(task_ii+1)*1000,:], representation=task_ii, decider=task_ii
+                X = test_x[task_ii*1000:(task_ii+1)*1000,:], transformer_ids=[task_ii], task_id=task_ii
                 )
             single_task_accuracies[task_ii] = np.mean(
                     llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
@@ -76,7 +117,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         
         for task_jj in range(task_ii+1):
             llf_task=lifelong_forest.predict(
-                test_x[task_jj*1000:(task_jj+1)*1000,:], representation='all', decider=task_jj
+                X = test_x[task_jj*1000:(task_jj+1)*1000,:], task_id=task_jj
                 )
             
             shifts.append(shift)
@@ -85,6 +126,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             accuracies_across_tasks.append(np.mean(
                 llf_task == test_y[task_jj*1000:(task_jj+1)*1000]
                 ))
+            print("Accuracies Across Tasks: {}".format(accuracies_across_tasks))
+            print("Single Task 
             
     df['data_fold'] = shifts
     df['task'] = tasks

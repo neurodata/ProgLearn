@@ -1,6 +1,5 @@
 import numpy as np
 
-from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 from sklearn.utils.validation import (
@@ -15,33 +14,31 @@ import keras as keras
 
 from base import BaseTransformer
 
-class NeuralTransformer(BaseTransformer):
+class NeuralClassificationTransformer(BaseTransformer):
     def __init__(self, 
                  network, 
                  euclidean_layer_idx, 
-                 pretrained = False,
-                 optimizer = keras.optimizers.Adam(3e-4),
+                 optimizer,
                  loss = "categorical_crossentropy",
-                 metrics = ['acc'],
-                 epochs = 100,
-                 callbacks = [keras.callbacks.EarlyStopping(patience = 5, monitor = "val_acc")],
-                 verbose = False,
-                 validation_split = .33,
-                 compile_kwargs = {},
-                 fit_kwargs = {}):
+                 pretrained = False,
+                 num_classes = None,
+                 compile_kwargs = {"metrics" : ['acc']},
+                 fit_kwargs = {"epochs" : 100, 
+                               "callbacks" : [keras.callbacks.EarlyStopping(patience = 5, monitor = "val_acc")],
+                               "verbose" : False,
+                               "validation_split" : .33
+                              }):
         """
         Doc strings here.
         """
         self.network = network
-        self.encoder = keras.models.Model(inputs = self.network.inputs, outputs = self.network.layers[euclidean_layer_idx].output)
-        self.transformer_fitted_ = pretrained
+        self.encoder = keras.models.Model(inputs = self.network.inputs, 
+                                          outputs = self.network.layers[euclidean_layer_idx].output
+                                         )
+        self._is_fitted = pretrained
         self.optimizer = optimizer
         self.loss = loss
-        self.metrics = metrics
-        self.epochs = epochs 
-        self.callbacks = callbacks
-        self.verbose = verbose 
-        self.validation_split = validation_split 
+        self.num_classes = num_classes
         self.compile_kwargs = compile_kwargs
         self.fit_kwargs = fit_kwargs
 
@@ -57,15 +54,10 @@ class NeuralTransformer(BaseTransformer):
         
         #more typechecking
         self.network.compile(loss = self.loss, 
-                             metrics = self.metrics, 
                              optimizer = self.optimizer, 
                              **self.compile_kwargs)
         self.network.fit(X, 
-                    keras.utils.to_categorical(y), 
-                    epochs = self.epochs, 
-                    callbacks = self.callbacks, 
-                    verbose = self.verbose,
-                    validation_split = self.validation_split,
+                    keras.utils.to_categorical(y, num_classes = self.num_classes), 
                     **self.fit_kwargs)
         self._is_fitted = True
         
@@ -95,17 +87,14 @@ class NeuralTransformer(BaseTransformer):
 
         return self._is_fitted
 
-class TreeTransformer(BaseTransformer):
-    def __init__(self,
-        learner=DecisionTreeClassifier,
-        learner_kwargs = {'max_depth':30, 'max_features': 'sqrt', 'min_samples_leaf': 1}
+class TreeClassificationTransformer(BaseTransformer):
+    def __init__(self, kwargs = {'max_depth':30, 'max_features': 'sqrt', 'min_samples_leaf': 1}
     ):
         """
         Doc strings here.
         """
 
-        self.learner = learner
-        self.learner_kwargs = learner_kwargs
+        self.kwargs = kwargs
 
         self._is_fitted = False
 
@@ -118,9 +107,8 @@ class TreeTransformer(BaseTransformer):
         X, y = check_X_y(X, y)
         
         #define the ensemble
-        self.transformer = self.learner(**self.learner_kwargs)
+        self.transformer = DecisionTreeClassifier(**self.kwargs).fit(X, y)
 
-        self.transformer.fit(X, y)
         self._is_fitted = True
 
         return self
@@ -139,7 +127,7 @@ class TreeTransformer(BaseTransformer):
             raise NotFittedError(msg % {"name": type(self).__name__})
         
         X = check_array(X)
-        return tree.apply(X)
+        return self.transformer.apply(X)
 
 
     def is_fitted(self):

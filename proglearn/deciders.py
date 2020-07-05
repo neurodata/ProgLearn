@@ -17,9 +17,9 @@ class SimpleAverage(BaseDecider):
         self.transformer_id_to_voters = transformer_id_to_voters
         return self
 
-    def predict(self, X):
+    def predict(self, X, transformer_ids = None):
         vote_per_transformer_id = []
-        for transformer_id in self.transformer_id_to_voters.keys():
+        for transformer_id in transformer_ids if transformer_ids else self.transformer_id_to_voters.keys():
             vote_per_bag_id = []
             for bag_id in range(len(self.transformer_id_to_transformers[transformer_id])):
                 transformer = self.transformer_id_to_transformers[transformer_id][bag_id]

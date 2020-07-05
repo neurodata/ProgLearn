@@ -14,7 +14,13 @@ from math import log2, ceil
 
 import sys
 sys.path.append("../../src/")
-from lifelong_dnn import LifeLongDNN
+sys.path.append("../../proglearn/")
+from progressive_learner import ProgressiveLearner
+from deciders import SimpleAverage
+from transformers import NeuralTransformer, TreeTransformer
+from voters import ForestVoterClassification, KNNVoterClassification
+import keras
+from keras import layers
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
@@ -35,26 +41,60 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     base_tasks = []
     accuracies_across_tasks = []
 
-    lifelong_forest = LifeLongDNN(model = model, parallel = True if model == "uf" else False)
+    if model == "dnn":
+        default_transformer_class = NeuralTransformer
+        network = keras.Sequential()
+        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x)[1:]))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+
+        network.add(layers.Flatten())
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(units=len(np.unique(train_y)), activation = 'softmax'))
+        
+        default_transformer_kwargs = {"network" : network, "euclidean_layer_idx" : -2, "fit_kwargs" : {"epochs" : 100, "verbose" : True}}
+        
+        default_voter_class = KNNVoterClassification
+        default_voter_kwargs = {"k" : int(np.log2(num_points_per_task))}
+        
+        default_decider_class = SimpleAverage
+    elif model == "uf":
+        pass
+    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                         default_transformer_kwargs = default_transformer_kwargs,
+                                         default_voter_class = default_voter_class,
+                                         default_voter_kwargs = default_voter_kwargs,
+                                         default_decider_class = default_decider_class,
+                                         default_decider_kwargs = {})
     for task_ii in range(10):
         print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))
         if acorn is not None:
             np.random.seed(acorn)
 
-        lifelong_forest.new_forest(
-            train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:], 
-            train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
-            max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees
+        progressive_learner.add_task(
+            X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:], 
+            y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
             )
         
-        llf_task=lifelong_forest.predict(
-            test_x[:1000], representation="all", decider=0
+        llf_task=progressive_learner.predict(
+            X = test_x[:1000], task_id=0
             )
         acc = np.mean(
                     llf_task == test_y[:1000]
                     )
         accuracies_across_tasks.append(acc)
         shifts.append(shift)
+        print(accuracies_across_tasks)
             
     df['data_fold'] = shifts
     df['task'] = range(1, 11)
