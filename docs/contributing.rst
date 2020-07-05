@@ -76,7 +76,7 @@ repository on GitHub, clone, and develop on a branch. Steps:
    .. code:: bash
 
       $ git clone git@github.com:YourLogin/hyppo.git
-      $ cd hyppo
+      $ cd progressive-learning
 
 3. Create a ``feature`` branch to hold your development changes:
 
