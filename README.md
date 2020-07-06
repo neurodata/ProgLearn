@@ -1,5 +1,6 @@
 # progressive-learning
 
+[![Build Status](https://travis-ci.org/neurodata/progressive-learning.svg?branch=master)](https://travis-ci.org/neurodata/progressive-learning)
 
 progressive-learning is a package for exploring and using progressive learning algorithms developed by the [neurodata group](https://neurodata.io).
 
