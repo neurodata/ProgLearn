@@ -26,3 +26,6 @@ install:
 
 script:
 - pytest src/
+
+after_success:
+- codecov
