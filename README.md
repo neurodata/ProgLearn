@@ -1,6 +1,7 @@
 # progressive-learning
 
 [![Build Status](https://travis-ci.org/neurodata/progressive-learning.svg?branch=master)](https://travis-ci.org/neurodata/progressive-learning)
+[![codecov](https://codecov.io/gh/neurodata/progressive-learning/branch/master/graph/badge.svg)](https://codecov.io/gh/neurodata/progressive-learning)
 [![arXiv shield](https://img.shields.io/badge/arXiv-2004.12908-red.svg?style=flat)](https://arxiv.org/abs/2004.12908)
 
 progressive-learning is a package for exploring and using progressive learning algorithms developed by the [neurodata group](https://neurodata.io).
@@ -47,7 +48,7 @@ joblib
 # Installation Guide
 ## Install from pip
 ```
-pip install progressive-learning
+
 ```
 
 ## Install from Github
