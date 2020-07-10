@@ -12,8 +12,11 @@ from sklearn.model_selection import StratifiedKFold
 from math import log2, ceil 
 
 import sys
-sys.path.append("../../src/")
-from lifelong_dnn import LifeLongDNN
+sys.path.append("../../proglearn/")
+from progressive_learner import ProgressiveLearner
+from deciders import SimpleAverage
+from transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
+from voters import TreeClassificationVoter, KNNClassificationVoter
 from joblib import Parallel, delayed
 
 #%%
@@ -92,8 +95,26 @@ def experiment(n_xor, n_rxor, n_test, reps, n_trees, max_depth, acorn=None):
     errors = np.zeros((reps,4),dtype=float)
     
     for i in range(reps):
-        l2f = LifeLongDNN()
-        uf = LifeLongDNN()
+        default_transformer_class = TreeClassificationTransformer
+        default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
+
+        default_voter_class = TreeClassificationVoter
+        default_voter_kwargs = {}
+
+        default_decider_class = SimpleAverage
+        default_decider_kwargs = {"classes" : np.arange(2)}
+        progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                             default_transformer_kwargs = default_transformer_kwargs,
+                                             default_voter_class = default_voter_class,
+                                             default_voter_kwargs = default_voter_kwargs,
+                                             default_decider_class = default_decider_class,
+                                             default_decider_kwargs = default_decider_kwargs)
+        uf = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                             default_transformer_kwargs = default_transformer_kwargs,
+                                             default_voter_class = default_voter_class,
+                                             default_voter_kwargs = default_voter_kwargs,
+                                             default_decider_class = default_decider_class,
+                                             default_decider_kwargs = default_decider_kwargs)
         #source data
         xor, label_xor = generate_gaussian_parity(n_xor,cov_scale=0.1,angle_params=0)
         test_xor, test_label_xor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=0)

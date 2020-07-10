@@ -87,6 +87,7 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
             X = train_x_task0, 
             y = train_y_task0,
             num_transformers = 1 if model == "dnn" else ntrees,
+            num_transformers = 1 if model == "dnn" else ntrees,
             transformer_voter_decider_split = [0.67, 0.33, 0],
             decider_kwargs = {"classes" : np.unique(train_y_task0)}
             )

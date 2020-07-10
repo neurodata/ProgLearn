@@ -12,8 +12,11 @@ from sklearn.model_selection import StratifiedKFold
 from math import log2, ceil 
 
 import sys
-sys.path.append("../../src/")
-from lifelong_dnn import LifeLongDNN
+sys.path.append("../../proglearn/")
+from progressive_learner import ProgressiveLearner
+from deciders import SimpleAverage
+from transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
+from voters import TreeClassificationVoter, KNNClassificationVoter
 from joblib import Parallel, delayed
 
 #%%
@@ -93,8 +96,26 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
     errors = np.zeros((reps,4),dtype=float)
     
     for i in range(reps):
-        l2f = LifeLongDNN()
-        uf = LifeLongDNN()
+        default_transformer_class = TreeClassificationTransformer
+        default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
+
+        default_voter_class = TreeClassificationVoter
+        default_voter_kwargs = {}
+
+        default_decider_class = SimpleAverage
+        default_decider_kwargs = {"classes" : np.arange(2)}
+        progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                             default_transformer_kwargs = default_transformer_kwargs,
+                                             default_voter_class = default_voter_class,
+                                             default_voter_kwargs = default_voter_kwargs,
+                                             default_decider_class = default_decider_class,
+                                             default_decider_kwargs = default_decider_kwargs)
+        uf = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                             default_transformer_kwargs = default_transformer_kwargs,
+                                             default_voter_class = default_voter_class,
+                                             default_voter_kwargs = default_voter_kwargs,
+                                             default_decider_class = default_decider_class,
+                                             default_decider_kwargs = default_decider_kwargs)
         #source data
         xor, label_xor = generate_gaussian_parity(n_xor,cov_scale=0.1,angle_params=0)
         test_xor, test_label_xor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=0)
@@ -104,37 +125,37 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
         test_nxor, test_label_nxor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=np.pi/2)
     
         if n_xor == 0:
-            l2f.new_forest(nxor, label_nxor, n_estimators=n_trees,max_depth=max_depth)
+            progressive_learner.add_task(nxor, label_nxor, num_transformers=n_trees)
             
             errors[i,0] = 0.5
             errors[i,1] = 0.5
             
-            uf_task2=l2f.predict(test_nxor, representation=0, decider=0)
-            l2f_task2=l2f.predict(test_nxor, representation='all', decider=0)
+            uf_task2=progressive_learner.predict(test_nxor, transformer_ids=[0], task_id=0)
+            l2f_task2=progressive_learner.predict(test_nxor, task_id=0)
             
             errors[i,2] = 1 - np.sum(uf_task2 == test_label_nxor)/n_test
             errors[i,3] = 1 - np.sum(l2f_task2 == test_label_nxor)/n_test
         elif n_nxor == 0:
-            l2f.new_forest(xor, label_xor, n_estimators=n_trees,max_depth=max_depth)
+            progressive_learner.add_task(xor, label_xor, num_transformers=n_trees)
             
-            uf_task1=l2f.predict(test_xor, representation=0, decider=0)
-            l2f_task1=l2f.predict(test_xor, representation='all', decider=0)
+            uf_task1=progressive_learner.predict(test_xor, transformer_ids=[0], task_id=0)
+            l2f_task1=progressive_learner.predict(test_xor, task_id=0)
             
             errors[i,0] = 1 - np.sum(uf_task1 == test_label_xor)/n_test
             errors[i,1] = 1 - np.sum(l2f_task1 == test_label_xor)/n_test
             errors[i,2] = 0.5
             errors[i,3] = 0.5
         else:
-            l2f.new_forest(xor, label_xor, n_estimators=n_trees,max_depth=max_depth)
-            l2f.new_forest(nxor, label_nxor, n_estimators=n_trees,max_depth=max_depth)
+            progressive_learner.add_task(xor, label_xor, num_transformers=n_trees)
+            progressive_learner.add_task(nxor, label_nxor, num_transformers=n_trees)
             
-            uf.new_forest(xor, label_xor, n_estimators=2*n_trees,max_depth=max_depth)
-            uf.new_forest(nxor, label_nxor, n_estimators=2*n_trees,max_depth=max_depth)
+            uf.add_task(xor, label_xor, num_transformers=2*n_trees)
+            uf.add_task(nxor, label_nxor, num_transformers=2*n_trees)
 
-            uf_task1=uf.predict(test_xor, representation=0, decider=0)
-            l2f_task1=l2f.predict(test_xor, representation='all', decider=0)
-            uf_task2=uf.predict(test_nxor, representation=1, decider=1)
-            l2f_task2=l2f.predict(test_nxor, representation='all', decider=1)
+            uf_task1=uf.predict(test_xor, transformer_ids=[0], task_id=0)
+            l2f_task1=progressive_learner.predict(test_xor, task_id=0)
+            uf_task2=uf.predict(test_nxor, transformer_ids=[1], task_id=1)
+            l2f_task2=progressive_learner.predict(test_nxor, task_id=1)
             
             errors[i,0] = 1 - np.sum(uf_task1 == test_label_xor)/n_test
             errors[i,1] = 1 - np.sum(l2f_task1 == test_label_xor)/n_test
@@ -159,7 +180,7 @@ std_te = np.zeros((2, len(n_xor)+len(n_nxor)))
 for i,n1 in enumerate(n_xor):
     print('starting to compute %s xor\n'%n1)
     error = np.array(
-        Parallel(n_jobs=40,verbose=1)(
+        Parallel(n_jobs=-1,verbose=1)(
         delayed(experiment)(n1,0,n_test,1,n_trees=n_trees,max_depth=ceil(log2(750))) for _ in range(mc_rep)
     )
     )
@@ -186,17 +207,17 @@ for i,n1 in enumerate(n_xor):
             std_te[0,i+j+1] = np.std(error[:,0]/error[:,1],ddof=1)
             std_te[1,i+j+1] = np.std(error[:,2]/error[:,3],ddof=1)
             
-# with open('./result/mean_xor_nxor.pickle','wb') as f:
-#     pickle.dump(mean_error,f)
+with open('./result/mean_xor_nxor.pickle','wb') as f:
+    pickle.dump(mean_error,f)
     
-# with open('./result/std_xor_nxor.pickle','wb') as f:
-#     pickle.dump(std_error,f)
+with open('./result/std_xor_nxor.pickle','wb') as f:
+     pickle.dump(std_error,f)
     
-# with open('./result/mean_te_xor_nxor.pickle','wb') as f:
-#     pickle.dump(mean_te,f)
+with open('./result/mean_te_xor_nxor.pickle','wb') as f:
+     pickle.dump(mean_te,f)
     
-# with open('./result/std_te_xor_nxor.pickle','wb') as f:
-#     pickle.dump(std_te,f)
+with open('./result/std_te_xor_nxor.pickle','wb') as f:
+     pickle.dump(std_te,f)
 
 #%% Plotting the result
 #mc_rep = 50

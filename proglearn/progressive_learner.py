@@ -248,7 +248,7 @@ class ProgressiveLearner:
         
     def add_task(self, 
                  X, y, 
-                 task_id = None, transformer_voter_decider_split = None, num_transformers = 1,
+                 task_id = None, transformer_voter_decider_split = [0.67, 0.33, 0], num_transformers = 1,
                  transformer_class = None, transformer_kwargs = None, 
                  voter_class = None, voter_kwargs = None,
                  decider_class = None, decider_kwargs = None,
@@ -267,7 +267,7 @@ class ProgressiveLearner:
         # add new transformer and train voters and decider from new transformer to previous tasks 
         if num_transformers > 0:
             self.add_transformer(X, y,
-                                 transformer_data_proportion = transformer_voter_decider_split[0],
+                                 transformer_data_proportion = transformer_voter_decider_split[0] if transformer_voter_decider_split else 1,
                                  transformer_voter_data_idx = transformer_voter_data_idx,
                                  transformer_id = task_id, num_transformers = num_transformers,
                                  transformer_class = transformer_class, transformer_kwargs = transformer_kwargs,
