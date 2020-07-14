@@ -136,3 +136,70 @@ class TreeClassificationTransformer(BaseTransformer):
         """
 
         return self._is_fitted
+
+class NeuralRegressionTransformer(BaseTransformer):
+    def __init__(self, 
+                 network, 
+                 euclidean_layer_idx, 
+                 optimizer,
+                 loss = "mean_absolute_error",
+                 pretrained = False,
+                 num_classes = None,
+                 compile_kwargs = {"metrics" : ['MAPE', 'MAE']},
+                 fit_kwargs = {"epochs" : 100, 
+                               "callbacks" : [keras.callbacks.EarlyStopping(patience = 5, monitor = "val_acc")],
+                               "verbose" : False,
+                               "validation_split" : .33
+                              }):
+        """
+        Doc strings here.
+        """
+        self.network = network
+        self.encoder = keras.models.Model(inputs = self.network.inputs, 
+                                          outputs = self.network.layers[euclidean_layer_idx].output
+                                         )
+        self._is_fitted = pretrained
+        self.optimizer = optimizer
+        self.loss = loss
+        self.num_classes = num_classes
+        self.compile_kwargs = compile_kwargs
+        self.fit_kwargs = fit_kwargs
+
+
+    def fit(self, X, y):
+        """
+        Doc strings here.
+        """
+        X, y = check_X_y(X, y)
+
+        self.network.compile(loss = self.loss, 
+                             optimizer = self.optimizer, 
+                             **self.compile_kwargs)
+        self.network.fit(X_trans, y_trans, **self.fit_kwargs)
+        self._is_fitted = True
+        
+        return self
+
+
+    def transform(self, X):
+        """
+        Doc strings here.
+        """
+
+        if not self.is_fitted():
+            msg = (
+                    "This %(name)s instance is not fitted yet. Call 'fit' with "
+                    "appropriate arguments before using this transformer."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+            
+        X = check_array(X)
+        return self.encoder.predict(X)
+
+
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted

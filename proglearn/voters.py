@@ -133,3 +133,64 @@ class KNNClassificationVoter(BaseVoter):
         """
 
         return self._is_fitted
+
+class NeuralRegressionVoter(BaseVoter):
+    def __init__(
+        self,
+        validation_split = 0.25,
+        input_dim = 4,
+        epochs = 100,
+        lr = 1e-4,
+        verbose = False,
+    ):
+        """
+        Doc strings here.
+        """
+        self.validation_split = validation_split
+        self.input_dim = input_dim
+        self.epochs = epochs
+        self.lr = lr
+        self.verbose = verbose
+        self._is_fitted = False
+        
+    def fit(self, X, y):
+        """
+        Doc strings here.
+        """
+        X, y = check_X_y(X, y)
+
+        self.voter = keras.Sequential()
+        self.voter.add(layers.Dropout(0.2, input_shape=(self.input_dim,)))
+        self.voter.add(layers.Dense(1, activation='linear', input_shape=(self.input_dim,) ))
+        self.voter.compile(loss = 'mse', metrics=['mae'], optimizer = keras.optimizers.Adam(self.lr))           
+        self.voter.fit(X, 
+                    y, 
+                    epochs = self.epochs, 
+                    callbacks = [EarlyStopping(patience = 20, monitor = "val_loss")], 
+                    verbose = self.verbose, 
+                    validation_split = self.validation_split,
+                    shuffle=True, )
+
+        self._is_fitted = True
+        return self
+        
+    def vote(self, X):
+        """
+        Doc strings here.
+        """
+        if not self.is_fitted():
+            msg = (
+                    "This %(name)s instance is not fitted yet. Call 'fit' with "
+                    "appropriate arguments before using this transformer."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+        
+        X = check_array(X)
+        return self.voter.predict(X)
+    
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted
