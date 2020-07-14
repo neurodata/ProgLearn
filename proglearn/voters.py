@@ -12,7 +12,10 @@ from sklearn.utils.validation import (
 
 from sklearn.utils.multiclass import check_classification_targets
 
-from base import BaseVoter
+from .base import BaseVoter
+
+from tensorflow import keras
+from keras import layers
 
 class TreeClassificationVoter(BaseVoter):
     def __init__(self, finite_sample_correction=False):
@@ -161,12 +164,12 @@ class NeuralRegressionVoter(BaseVoter):
 
         self.voter = keras.Sequential()
         self.voter.add(layers.Dropout(0.2, input_shape=(self.input_dim,)))
-        self.voter.add(layers.Dense(1, activation='linear', input_shape=(self.input_dim,) ))
+        self.voter.add(layers.Dense(1, activation='linear', input_shape=(self.input_dim,), name = 'transform_to_vote'))
         self.voter.compile(loss = 'mse', metrics=['mae'], optimizer = keras.optimizers.Adam(self.lr))           
         self.voter.fit(X, 
                     y, 
                     epochs = self.epochs, 
-                    callbacks = [EarlyStopping(patience = 20, monitor = "val_loss")], 
+                    callbacks = [keras.callbacks.EarlyStopping(patience = 20, monitor = "val_loss")], 
                     verbose = self.verbose, 
                     validation_split = self.validation_split,
                     shuffle=True, )
@@ -187,6 +190,46 @@ class NeuralRegressionVoter(BaseVoter):
         
         X = check_array(X)
         return self.voter.predict(X)
+    
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted
+
+class IndentityRegressionVoter(BaseVoter):
+    """
+    A dummy voter that passes the transformed data through,
+    in case the decider eats the concatenated list of represetations.
+    """
+    def __init__(self):
+        """
+        Doc strings here.
+        """
+        self._is_fitted = False
+        
+    def fit(self, X, y):
+        """
+        Doc strings here.
+        """
+        X, y = check_X_y(X, y)
+        self._is_fitted = True
+        return self
+        
+    def vote(self, X):
+        """
+        Doc strings here.
+        """
+        if not self.is_fitted():
+            msg = (
+                    "This %(name)s instance is not fitted yet. Call 'fit' with "
+                    "appropriate arguments before using this transformer."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+        
+        X = check_array(X)
+        return X
     
     def is_fitted(self):
         """

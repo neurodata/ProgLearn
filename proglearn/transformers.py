@@ -12,7 +12,7 @@ from sklearn.utils.multiclass import check_classification_targets
 
 import keras as keras
 
-from base import BaseTransformer
+from .base import BaseTransformer
 
 class NeuralClassificationTransformer(BaseTransformer):
     def __init__(self, 
@@ -142,12 +142,11 @@ class NeuralRegressionTransformer(BaseTransformer):
                  network, 
                  euclidean_layer_idx, 
                  optimizer,
-                 loss = "mean_absolute_error",
+                 loss = "mse",
                  pretrained = False,
-                 num_classes = None,
-                 compile_kwargs = {"metrics" : ['MAPE', 'MAE']},
+                 compile_kwargs = {"metrics" : ['MAPE', 'MAE', 'mse']},
                  fit_kwargs = {"epochs" : 100, 
-                               "callbacks" : [keras.callbacks.EarlyStopping(patience = 5, monitor = "val_acc")],
+                               "callbacks" : [keras.callbacks.EarlyStopping(patience = 5, monitor = "val_MAE")],
                                "verbose" : False,
                                "validation_split" : .33
                               }):
@@ -161,7 +160,6 @@ class NeuralRegressionTransformer(BaseTransformer):
         self._is_fitted = pretrained
         self.optimizer = optimizer
         self.loss = loss
-        self.num_classes = num_classes
         self.compile_kwargs = compile_kwargs
         self.fit_kwargs = fit_kwargs
 
@@ -175,7 +173,7 @@ class NeuralRegressionTransformer(BaseTransformer):
         self.network.compile(loss = self.loss, 
                              optimizer = self.optimizer, 
                              **self.compile_kwargs)
-        self.network.fit(X_trans, y_trans, **self.fit_kwargs)
+        self.network.fit(X, y, **self.fit_kwargs)
         self._is_fitted = True
         
         return self
