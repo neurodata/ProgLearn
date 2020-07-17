@@ -115,7 +115,8 @@ class NeuralRegressionDecider(BaseDecider):
     Doc string here.
     """
     def __init__(self,
-                 network, 
+                 build_network, 
+                 backbone_layer_size,
                  optimizer,
                  loss = "mae",
                  compile_kwargs = {"metrics" : ['MAPE', 'MAE']},
@@ -124,7 +125,8 @@ class NeuralRegressionDecider(BaseDecider):
                                "verbose" : False,
                                "validation_split" : .33
                               }):
-        self.network = network
+        self.build_network = build_network
+        self.backbone_layer_size = backbone_layer_size
         self.optimizer = optimizer
         self.loss = loss
         self.compile_kwargs = compile_kwargs
@@ -142,6 +144,8 @@ class NeuralRegressionDecider(BaseDecider):
         self.transformer_id_to_voters = transformer_id_to_voters
 
         X_concat = self.ensemble_represetations(X)
+
+        self.network = self.build_network(len(self.transformer_ids) * self.backbone_layer_size)
         
         # Build network that maps them to y.
         self.network.compile(loss = self.loss, 
@@ -184,6 +188,6 @@ class NeuralRegressionDecider(BaseDecider):
             transformer = self.transformer_id_to_transformers[transformer_id][0]
             X_transformed = transformer.transform(X)
             X_concat.append(X_transformed)
-
+    
         return np.concatenate(X_concat, axis = 1)
         
