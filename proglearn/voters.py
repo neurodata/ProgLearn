@@ -103,9 +103,7 @@ class KNNClassificationVoter(BaseVoter):
         self.k = k
         self.kwargs = kwargs
         
-    def fit(self, 
-            X, 
-            y):
+    def fit(self, X, y):
         """
         Doc strings here.
         """
@@ -141,7 +139,7 @@ class NeuralRegressionVoter(BaseVoter):
     def __init__(
         self,
         validation_split = 0.25,
-        input_dim = 4,
+        loss = 'mae',
         epochs = 100,
         lr = 1e-4,
         verbose = False,
@@ -150,7 +148,7 @@ class NeuralRegressionVoter(BaseVoter):
         Doc strings here.
         """
         self.validation_split = validation_split
-        self.input_dim = input_dim
+        self.loss = loss
         self.epochs = epochs
         self.lr = lr
         self.verbose = verbose
@@ -160,12 +158,13 @@ class NeuralRegressionVoter(BaseVoter):
         """
         Doc strings here.
         """
+
         X, y = check_X_y(X, y)
 
         self.voter = keras.Sequential()
-        self.voter.add(layers.Dropout(0.2, input_shape=(self.input_dim,)))
-        self.voter.add(layers.Dense(1, activation='linear', input_shape=(self.input_dim,), name = 'transform_to_vote'))
-        self.voter.compile(loss = 'mse', metrics=['mae'], optimizer = keras.optimizers.Adam(self.lr))           
+        # self.voter.add(layers.Dropout(0.2, input_shape=(self.input_dim,)))
+        self.voter.add(layers.Dense(1, activation='linear', input_shape=(X.shape[1],), name = 'transform_to_vote'))
+        self.voter.compile(loss = self.loss, metrics=['mae'], optimizer = keras.optimizers.Adam(self.lr))           
         self.voter.fit(X, 
                     y, 
                     epochs = self.epochs, 
@@ -190,46 +189,6 @@ class NeuralRegressionVoter(BaseVoter):
         
         X = check_array(X)
         return self.voter.predict(X)
-    
-    def is_fitted(self):
-        """
-        Doc strings here.
-        """
-
-        return self._is_fitted
-
-class IndentityRegressionVoter(BaseVoter):
-    """
-    A dummy voter that passes the transformed data through,
-    in case the decider eats the concatenated list of represetations.
-    """
-    def __init__(self):
-        """
-        Doc strings here.
-        """
-        self._is_fitted = False
-        
-    def fit(self, X, y):
-        """
-        Doc strings here.
-        """
-        X, y = check_X_y(X, y)
-        self._is_fitted = True
-        return self
-        
-    def vote(self, X):
-        """
-        Doc strings here.
-        """
-        if not self.is_fitted():
-            msg = (
-                    "This %(name)s instance is not fitted yet. Call 'fit' with "
-                    "appropriate arguments before using this transformer."
-            )
-            raise NotFittedError(msg % {"name": type(self).__name__})
-        
-        X = check_array(X)
-        return X
     
     def is_fitted(self):
         """

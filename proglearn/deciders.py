@@ -4,6 +4,14 @@ from .base import BaseDecider
 
 from sklearn.neighbors import KNeighborsRegressor
 
+from sklearn.utils.validation import (
+    check_X_y,
+    check_array,
+    NotFittedError,
+)
+
+import keras
+
 class SimpleAverage(BaseDecider):
     """
     Doc string here.
@@ -41,24 +49,18 @@ class KNNRegressionDecider(BaseDecider):
         self._is_fitted = False
         
     def fit(self, y, transformer_id_to_transformers, classes = None, transformer_id_to_voters = None, X=None):
-        n = len(X)
+        X, y = check_X_y(X, y)
+        n = len(y)
         if not self.k:
-            self.k = 16 * int(np.log2(n))
+            self.k = min(16 * int(np.log2(n)), int(0.33 * n))
 
-        # Form yhats, n-by-num_transformers matrix that act as the "new X".
-        # Here, n is the training set size of the particular task that this is deciding on.
-        num_transformers = len(transformer_id_to_transformers.keys())
-        yhats = np.zeros((n, num_transformers))
+        # Because this instantiation relies on using the same transformers at train and test time,
+        # we need to store them.
+        self.transformer_ids = list(transformer_id_to_transformers.keys())
+        self.transformer_id_to_transformers = transformer_id_to_transformers
+        self.transformer_id_to_voters = transformer_id_to_voters
 
-        for transformer_id in transformer_id_to_voters:
-           
-            # The zero index is for the 'bag_id' as in random forest,
-            # where multiple transformers are bagged together in each hypothesis.
-            transformer = transformer_id_to_transformers[transformer_id][0]
-            X_transformed = transformer.transform(X)
-            voter = transformer_id_to_voters[transformer_id][0]
-            
-            yhats[:, transformer_id] = voter.vote(X_transformed).reshape(n)
+        yhats = self.ensemble_represetations(X)
 
         self.knn = KNeighborsRegressor(self.k, weights = "distance", p = 1)
         self.knn.fit(yhats, y)
@@ -66,7 +68,7 @@ class KNNRegressionDecider(BaseDecider):
         self._is_fitted = True
         return self
 
-    def predict(self, X):
+    def predict(self, X, transformer_ids = None):
         if not self.is_fitted():
             msg = (
                     "This %(name)s instance is not fitted yet. Call 'fit' with "
@@ -75,34 +77,113 @@ class KNNRegressionDecider(BaseDecider):
             raise NotFittedError(msg % {"name": type(self).__name__})
         
         X = check_array(X)
-        
-        transformer_ids = self.transformer_id_to_transformers.keys()
-        yhats = np.zeros((n, len(transformer_ids)))
+
+        yhats = self.ensemble_represetations(X)
+
+        return self.knn.predict(yhats)
+
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted
+
+    def ensemble_represetations(self, X):
+        n = len(X)
+
+        # transformer_ids input is ignored - you can only use the transformers you are trained on.
+        yhats = np.zeros((n, len(self.transformer_ids)))
 
         # Transformer IDs may not necessarily be {0, ..., num_transformers - 1}.
-        for i in range(len(transformer_ids)):
+        for i in range(len(self.transformer_ids)):
            
-            transformer_id = transformer_ids[i]
+            transformer_id = self.transformer_ids[i]
 
             # The zero index is for the 'bag_id' as in random forest,
             # where multiple transformers are bagged together in each hypothesis.
             transformer = self.transformer_id_to_transformers[transformer_id][0]
             X_transformed = transformer.transform(X)
             voter = self.transformer_id_to_voters[transformer_id][0]
-            yhats[:, i] = voter.vote(X_transformed)
+            yhats[:, i] = voter.vote(X_transformed).reshape(n)
 
-        return self.knn.predict(yhats)
+        return yhats
+
 
 class NeuralRegressionDecider(BaseDecider):
     """
     Doc string here.
     """
-    def __init__(self):
-        pass
+    def __init__(self,
+                 network, 
+                 optimizer,
+                 loss = "mae",
+                 compile_kwargs = {"metrics" : ['MAPE', 'MAE']},
+                 fit_kwargs = {"epochs" : 100, 
+                               "callbacks" : [keras.callbacks.EarlyStopping(patience = 5, monitor = "val_MAE")],
+                               "verbose" : False,
+                               "validation_split" : .33
+                              }):
+        self.network = network
+        self.optimizer = optimizer
+        self.loss = loss
+        self.compile_kwargs = compile_kwargs
+        self.fit_kwargs = fit_kwargs
+        self._is_fitted = False
         
-    def fit(self, X, y):
-        pass
+    def fit(self, y, transformer_id_to_transformers, classes = None, transformer_id_to_voters = None, X=None):
+        
+        X, y = check_X_y(X, y)
 
-    def predict(self, X):
-        pass
+        # Because this instantiation relies on using the same transformers at train and test time,
+        # we need to store them.
+        self.transformer_ids = list(transformer_id_to_transformers.keys())
+        self.transformer_id_to_transformers = transformer_id_to_transformers
+        self.transformer_id_to_voters = transformer_id_to_voters
+
+        X_concat = self.ensemble_represetations(X)
+        
+        # Build network that maps them to y.
+        self.network.compile(loss = self.loss, 
+                             optimizer = self.optimizer, 
+                             **self.compile_kwargs)
+        self.network.fit(X_concat, y, **self.fit_kwargs)
+
+        self._is_fitted = True
+        return self
+
+    def predict(self, X, transformer_ids = None):
+        if not self.is_fitted():
+            msg = (
+                    "This %(name)s instance is not fitted yet. Call 'fit' with "
+                    "appropriate arguments before using this transformer."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+        
+        X = check_array(X)
+        X_concat = self.ensemble_represetations(X)
+
+        return self.network.predict(X_concat)
+
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted
+
+    def ensemble_represetations(self, X):
+        # Form X_concat, n-by-num_transformers*num_representation units matrix that act as the "new X".
+        # Here, n is the training set size of the particular task that this is deciding on.
+        num_transformers = len(self.transformer_ids)
+        X_concat = []
+
+        for transformer_id in self.transformer_id_to_voters:
+            # The zero index is for the 'bag_id' as in random forest,
+            # where multiple transformers are bagged together in each hypothesis.
+            transformer = self.transformer_id_to_transformers[transformer_id][0]
+            X_transformed = transformer.transform(X)
+            X_concat.append(X_transformed)
+
+        return np.concatenate(X_concat, axis = 1)
         
