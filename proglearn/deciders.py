@@ -116,8 +116,9 @@ class NeuralRegressionDecider(BaseDecider):
     """
     def __init__(self,
                  build_network, 
-                 backbone_layer_size,
+                 representation_size,
                  optimizer,
+                 max_tasks,
                  loss = "mae",
                  compile_kwargs = {"metrics" : ['MAPE', 'MAE']},
                  fit_kwargs = {"epochs" : 100, 
@@ -126,12 +127,14 @@ class NeuralRegressionDecider(BaseDecider):
                                "validation_split" : .33
                               }):
         self.build_network = build_network
-        self.backbone_layer_size = backbone_layer_size
+        self.representation_size = representation_size
         self.optimizer = optimizer
+        self.max_tasks = max_tasks
         self.loss = loss
         self.compile_kwargs = compile_kwargs
         self.fit_kwargs = fit_kwargs
         self._is_fitted = False
+        self.num_tasks = 0
         
     def fit(self, y, transformer_id_to_transformers, classes = None, transformer_id_to_voters = None, X=None):
         
@@ -143,9 +146,17 @@ class NeuralRegressionDecider(BaseDecider):
         self.transformer_id_to_transformers = transformer_id_to_transformers
         self.transformer_id_to_voters = transformer_id_to_voters
 
+        if self.num_tasks > self.max_tasks:
+            # Delete the key of the minimum value task. 
+            # TO DO: Make this work for any task indices.
+            print(self.transformer_ids)
+            oldest_task_id = self.transformer_ids.pop(0)
+            del self.transformer_id_to_transformers[oldest_task_id]
+            del self.transformer_id_to_voters[oldest_task_id]
+
         X_concat = self.ensemble_represetations(X)
 
-        self.network = self.build_network(len(self.transformer_ids) * self.backbone_layer_size)
+        self.network = self.build_network(len(self.transformer_ids) * self.representation_size)
         
         # Build network that maps them to y.
         self.network.compile(loss = self.loss, 
@@ -154,6 +165,7 @@ class NeuralRegressionDecider(BaseDecider):
         self.network.fit(X_concat, y, **self.fit_kwargs)
 
         self._is_fitted = True
+        self.num_tasks += 1
         return self
 
     def predict(self, X, transformer_ids = None):
