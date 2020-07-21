@@ -1,7 +1,7 @@
 import numpy as np
 
-from sklearn.ensemble import BaggingClassifier
-from sklearn.tree import DecisionTreeClassifier
+# from sklearn.ensemble import BaggingClassifier
+# from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.utils.validation import (
@@ -141,7 +141,7 @@ class KNNClassificationVoter(BaseVoter):
 
 class NeuralRegressionVoter(BaseVoter):
     def __init__(
-        self, validation_split=0.25, loss="mae", epochs=100, lr=1e-4, verbose=False,
+        self, validation_split=0.25, loss="mse", epochs=100, lr=1e-4, verbose=False,
     ):
         """
         Doc strings here.

@@ -141,11 +141,11 @@ class NeuralRegressionTransformer(BaseTransformer):
     def __init__(
         self,
         network,
-        euclidean_layer_idx,
-        optimizer,
-        loss="mae",
+        optimizer="adam",
+        euclidean_layer_idx=-2,
+        loss="mse",
         pretrained=False,
-        compile_kwargs={"metrics": ["MAPE", "MAE"]},
+        compile_kwargs={"metrics": ["MSE", "MAPE", "MAE"]},
         fit_kwargs={
             "epochs": 100,
             "callbacks": [keras.callbacks.EarlyStopping(patience=5, monitor="val_MAE")],
