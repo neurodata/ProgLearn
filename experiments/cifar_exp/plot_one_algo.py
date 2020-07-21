@@ -8,7 +8,7 @@ from itertools import product
 import seaborn as sns
 
 ### MAIN HYPERPARAMS ###
-ntrees = 50
+ntrees = 10
 slots = 10
 shifts = 6
 alg_num = 1

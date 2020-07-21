@@ -13,15 +13,14 @@ from sklearn.model_selection import StratifiedKFold
 from math import log2, ceil 
 
 import sys
-sys.path.append("../../src/")
-from lifelong_dnn import LifeLongDNN
+sys.path.append("../../proglearn/")
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
 from progressive_learner import ProgressiveLearner
 from deciders import SimpleAverage
-from transformers import NeuralTransformer, TreeTransformer
-from voters import ForestVoterClassification, KNNVoterClassification
+from transformers import NeuralClassificationTransformer, TreeClassificationTransformer
+from voters import TreeClassificationVoter, KNNClassificationVoter
 
 import tensorflow as tf
 
@@ -41,74 +40,90 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     base_tasks = []
     accuracies_across_tasks = []
     
-    '''
+    if model == "dnn":
+        default_transformer_class = NeuralClassificationTransformer
+        
+        network = keras.Sequential()
+        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x_task0)[1:]))
+        network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+
+        network.add(layers.Flatten())
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.Dense(units=10, activation = 'softmax'))
+        
+        default_transformer_kwargs = {"network" : network, 
+                                      "euclidean_layer_idx" : -2,
+                                      "num_classes" : 10,
+                                      "optimizer" : keras.optimizers.Adam(3e-4)
+                                     }
+        
+        default_voter_class = KNNClassificationVoter
+        default_voter_kwargs = {"k" : int(np.log2(num_points_per_task))}
+        
+        default_decider_class = SimpleAverage
+    elif model == "uf":
+        default_transformer_class = TreeClassificationTransformer
+        default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
+        
+        default_voter_class = TreeClassificationVoter
+        default_voter_kwargs = {}
+        
+        default_decider_class = SimpleAverage
+    
     for task_ii in range(10):
         if model == "uf":
-            single_task_learner = LifeLongDNN(model = "uf", parallel = True)
+            single_task_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                         default_transformer_kwargs = default_transformer_kwargs,
+                                         default_voter_class = default_voter_class,
+                                         default_voter_kwargs = default_voter_kwargs,
+                                         default_decider_class = default_decider_class)
 
             if acorn is not None:
                 np.random.seed(acorn)
 
-            single_task_learner.new_forest(
-                train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:],
-                 train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
-                max_depth=ceil(log2(num_points_per_task)), n_estimators=ntrees*(task_ii+1)
-                )
+            single_task_learner.add_task(
+                X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
+                y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
+                num_transformers = 1 if model == "dnn" else ntrees,
+                transformer_voter_decider_split = [0.67, 0.33, 0],
+                decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
+            )
+            
+                        
+            
             llf_task=single_task_learner.predict(
-                test_x[task_ii*1000:(task_ii+1)*1000,:], representation=0, decider=0
+                test_x[task_ii*1000:(task_ii+1)*1000], task_id = 0
                 )
             single_task_accuracies[task_ii] = np.mean(
                     llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
                     )
-    '''
     
-    if model == "dnn":
-        default_transformer_class = NeuralTransformer
-        network = keras.Sequential()
-        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x_task0)[1:]))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
 
-        network.add(layers.Flatten())
-        network.add(layers.BatchNormalization())
-        network.add(layers.Dense(2000, activation='relu'))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Dense(2000, activation='relu'))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Dense(units=len(np.unique(train_y_task0)), activation = 'softmax'))
-        
-        default_transformer_kwargs = {"network" : network, "euclidean_layer_idx" : -2, "epochs" : 100, "verbose" : False}
-        
-        default_voter_class = KNNVoterClassification
-        default_voter_kwargs = {"k" : int(np.log2(len(train_x_task0)))}#, "kwargs" : {"weights" : "distance", "p" : 1}}
-        
-        default_decider_class = SimpleAverage
-    elif model == "uf":
-        pass
     progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
                                          default_transformer_kwargs = default_transformer_kwargs,
                                          default_voter_class = default_voter_class,
                                          default_voter_kwargs = default_voter_kwargs,
-                                         default_decider_class = default_decider_class,
-                                         default_decider_kwargs = {})
+                                         default_decider_class = default_decider_class)
 
     for task_ii in range(10):
         print("Starting Task {} For Fold {}".format(task_ii, shift))
         if acorn is not None:
             np.random.seed(acorn)
-
-        lifelong_forest.add_task(
-            X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task,:], 
-            y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
+                    
+        progressive_learner.add_task(
+            X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
+            y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
+            num_transformers = 1 if model == "dnn" else ntrees,
+            transformer_voter_decider_split = [0.67, 0.33, 0],
+            decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
             )
+        
         if model == "dnn":
-            llf_task=lifelong_forest.predict(
+            llf_task=progressive_learner.predict(
                 X = test_x[task_ii*1000:(task_ii+1)*1000,:], transformer_ids=[task_ii], task_id=task_ii
                 )
             single_task_accuracies[task_ii] = np.mean(
@@ -116,7 +131,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
                     )
         
         for task_jj in range(task_ii+1):
-            llf_task=lifelong_forest.predict(
+            llf_task=progressive_learner.predict(
                 X = test_x[task_jj*1000:(task_jj+1)*1000,:], task_id=task_jj
                 )
             
@@ -126,8 +141,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             accuracies_across_tasks.append(np.mean(
                 llf_task == test_y[task_jj*1000:(task_jj+1)*1000]
                 ))
-            print("Accuracies Across Tasks: {}".format(accuracies_across_tasks))
-            print("Single Task 
+            #print("Accuracies Across Tasks: {}".format(accuracies_across_tasks))
+            #print("Single Task 
             
     df['data_fold'] = shifts
     df['task'] = tasks
@@ -152,6 +167,7 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
     
     batch_per_task=5000//num_points_per_task
     sample_per_class = num_points_per_task//total_task
+    test_data_slot=100//batch_per_task
 
     for task in range(total_task):
         for batch in range(batch_per_task):
@@ -161,16 +177,13 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
                 if batch==0 and class_no==0 and task==0:
                     train_x = x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]
                     train_y = y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]
+                    test_x = x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]
+                    test_y = y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]
                 else:
                     train_x = np.concatenate((train_x, x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]), axis=0)
                     train_y = np.concatenate((train_y, y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]), axis=0)
-
-        if task==0:
-            test_x = x[indx[500:600],:]
-            test_y = y[indx[500:600]]
-        else:
-            test_x = np.concatenate((test_x, x[indx[500:600],:]), axis=0)
-            test_y = np.concatenate((test_y, y[indx[500:600]]), axis=0)
+                    test_x = np.concatenate((test_x, x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]), axis=0)
+                    test_y = np.concatenate((test_y, y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]), axis=0)
             
     return train_x, train_y, test_x, test_y
 
@@ -202,7 +215,7 @@ data_y = data_y[:, 0]
 if model == "uf":
     slot_fold = range(10)
     shift_fold = range(1,7,1)
-    n_trees=[10,20,30,40,50]
+    n_trees=[10]
     iterable = product(n_trees,shift_fold,slot_fold)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(

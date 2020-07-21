@@ -84,9 +84,9 @@ def generate_gaussian_parity(n, mean=np.array([-1, -1]), cov_scale=1, angle_para
     return X, Y.astype(int)
 
 #%%
-def experiment(n_xor, n_rxor, n_test, reps, n_trees, max_depth, acorn=None):
+def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
     #print(1)
-    if n_xor==0 and n_rxor==0:
+    if n_xor==0 and n_nxor==0:
         raise ValueError('Wake up and provide samples to train!!!')
     
     if acorn != None:
@@ -120,41 +120,41 @@ def experiment(n_xor, n_rxor, n_test, reps, n_trees, max_depth, acorn=None):
         test_xor, test_label_xor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=0)
     
         #target data
-        nxor, label_nxor = generate_gaussian_parity(n_rxor,cov_scale=0.1,angle_params=np.pi/4)
-        test_nxor, test_label_nxor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=np.pi/4)
+        nxor, label_nxor = generate_gaussian_parity(n_nxor,cov_scale=0.1,angle_params=np.pi/2)
+        test_nxor, test_label_nxor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=np.pi/2)
     
         if n_xor == 0:
-            l2f.new_forest(nxor, label_nxor, n_estimators=n_trees,max_depth=max_depth)
+            progressive_learner.add_task(nxor, label_nxor, num_transformers=n_trees)
             
             errors[i,0] = 0.5
             errors[i,1] = 0.5
             
-            uf_task2=l2f.predict(test_nxor, representation=0, decider=0)
-            l2f_task2=l2f.predict(test_nxor, representation='all', decider=0)
+            uf_task2=progressive_learner.predict(test_nxor, transformer_ids=[0], task_id=0)
+            l2f_task2=progressive_learner.predict(test_nxor, task_id=0)
             
             errors[i,2] = 1 - np.sum(uf_task2 == test_label_nxor)/n_test
             errors[i,3] = 1 - np.sum(l2f_task2 == test_label_nxor)/n_test
-        elif n_rxor == 0:
-            l2f.new_forest(xor, label_xor, n_estimators=n_trees,max_depth=max_depth)
+        elif n_nxor == 0:
+            progressive_learner.add_task(xor, label_xor, num_transformers=n_trees)
             
-            uf_task1=l2f.predict(test_xor, representation=0, decider=0)
-            l2f_task1=l2f.predict(test_xor, representation='all', decider=0)
+            uf_task1=progressive_learner.predict(test_xor, transformer_ids=[0], task_id=0)
+            l2f_task1=progressive_learner.predict(test_xor, task_id=0)
             
             errors[i,0] = 1 - np.sum(uf_task1 == test_label_xor)/n_test
             errors[i,1] = 1 - np.sum(l2f_task1 == test_label_xor)/n_test
             errors[i,2] = 0.5
             errors[i,3] = 0.5
         else:
-            l2f.new_forest(xor, label_xor, n_estimators=n_trees,max_depth=max_depth)
-            l2f.new_forest(nxor, label_nxor, n_estimators=n_trees,max_depth=max_depth)
+            progressive_learner.add_task(xor, label_xor, num_transformers=n_trees)
+            progressive_learner.add_task(nxor, label_nxor, num_transformers=n_trees)
             
-            uf.new_forest(xor, label_xor, n_estimators=2*n_trees,max_depth=max_depth)
-            uf.new_forest(nxor, label_nxor, n_estimators=2*n_trees,max_depth=max_depth)
+            uf.add_task(xor, label_xor, num_transformers=2*n_trees)
+            uf.add_task(nxor, label_nxor, num_transformers=2*n_trees)
 
-            uf_task1=uf.predict(test_xor, representation=0, decider=0)
-            l2f_task1=l2f.predict(test_xor, representation='all', decider=0)
-            uf_task2=uf.predict(test_nxor, representation=1, decider=1)
-            l2f_task2=l2f.predict(test_nxor, representation='all', decider=1)
+            uf_task1=uf.predict(test_xor, transformer_ids=[0], task_id=0)
+            l2f_task1=progressive_learner.predict(test_xor, task_id=0)
+            uf_task2=uf.predict(test_nxor, transformer_ids=[1], task_id=1)
+            l2f_task2=progressive_learner.predict(test_nxor, task_id=1)
             
             errors[i,0] = 1 - np.sum(uf_task1 == test_label_xor)/n_test
             errors[i,1] = 1 - np.sum(l2f_task1 == test_label_xor)/n_test
@@ -164,7 +164,7 @@ def experiment(n_xor, n_rxor, n_test, reps, n_trees, max_depth, acorn=None):
     return np.mean(errors,axis=0)
 
 #%%
-mc_rep = 1000
+mc_rep = 500
 n_test = 1000
 n_trees = 10
 n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
