@@ -24,11 +24,11 @@ class SimpleAverage(BaseDecider):
 
     def fit(
         self,
+        X,
         y,
         transformer_id_to_transformers,
+        transformer_id_to_voters,
         classes=None,
-        transformer_id_to_voters=None,
-        X=None,
     ):
         self.classes = self.classes if len(self.classes) > 0 else np.unique(y)
         self.transformer_id_to_transformers = transformer_id_to_transformers
@@ -66,7 +66,7 @@ class KNNRegressionDecider(BaseDecider):
         self._is_fitted = False
 
     def fit(
-        self, y, transformer_id_to_transformers, transformer_id_to_voters=None, X=None,
+        self, X, y, transformer_id_to_transformers, transformer_id_to_voters=None
     ):
         X, y = check_X_y(X, y)
         n = len(y)
@@ -141,11 +141,11 @@ class LinearRegressionDecider(BaseDecider):
 
     def fit(
         self,
+        X,
         y,
         transformer_id_to_transformers,
         classes=None,
         transformer_id_to_voters=None,
-        X=None,
     ):
         X, y = check_X_y(X, y)
 

@@ -277,10 +277,10 @@ class ProgressiveLearner:
 
         self.task_id_to_decider[task_id] = decider_class(**decider_kwargs)
         self.task_id_to_decider[task_id].fit(
-            transformer_id_to_transformers=transformer_id_to_transformers,
-            transformer_id_to_voters=transformer_id_to_voters,
-            X=X[self.task_id_to_decider_idx[task_id]],
-            y=y[self.task_id_to_decider_idx[task_id]],
+            X,
+            y,
+            transformer_id_to_transformers,
+            transformer_id_to_voters
         )
 
         self.task_id_to_decider_class[task_id] = decider_class
