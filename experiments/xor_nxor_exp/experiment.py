@@ -90,11 +90,13 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
     if acorn != None:
         np.random.seed(acorn)
     
-    errors = np.zeros((reps,4),dtype=float)
+    errors = np.zeros((reps,5),dtype=float)
     
     for i in range(reps):
         l2f = LifeLongDNN()
-        uf = LifeLongDNN()
+        #uf = LifeLongDNN()
+        naive_uf = LifeLongDNN()
+
         #source data
         xor, label_xor = generate_gaussian_parity(n_xor,cov_scale=0.1,angle_params=0)
         test_xor, test_label_xor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=0)
@@ -112,34 +114,66 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
             uf_task2=l2f.predict(test_nxor, representation=0, decider=0)
             l2f_task2=l2f.predict(test_nxor, representation='all', decider=0)
             
-            errors[i,2] = 1 - np.sum(uf_task2 == test_label_nxor)/n_test
-            errors[i,3] = 1 - np.sum(l2f_task2 == test_label_nxor)/n_test
+            errors[i,2] = 1 - np.mean(
+                uf_task2 == test_label_nxor
+                )
+            errors[i,3] = 1 - np.mean(
+                l2f_task2 == test_label_nxor
+                )
+            errors[i,4] = 1 - np.mean(
+                l2f_task2 == test_label_nxor
+                )
         elif n_nxor == 0:
             l2f.new_forest(xor, label_xor, n_estimators=n_trees,max_depth=max_depth)
             
             uf_task1=l2f.predict(test_xor, representation=0, decider=0)
             l2f_task1=l2f.predict(test_xor, representation='all', decider=0)
             
-            errors[i,0] = 1 - np.sum(uf_task1 == test_label_xor)/n_test
-            errors[i,1] = 1 - np.sum(l2f_task1 == test_label_xor)/n_test
+            errors[i,0] = 1 - np.mean(
+                uf_task1 == test_label_xor
+                )
+            errors[i,1] = 1 - np.mean(
+                l2f_task1 == test_label_xor
+                )
             errors[i,2] = 0.5
             errors[i,3] = 0.5
+            errors[i,4] = 1 - np.mean(
+                uf_task1 == test_label_xor
+                )
         else:
             l2f.new_forest(xor, label_xor, n_estimators=n_trees,max_depth=max_depth)
             l2f.new_forest(nxor, label_nxor, n_estimators=n_trees,max_depth=max_depth)
             
-            uf.new_forest(xor, label_xor, n_estimators=2*n_trees,max_depth=max_depth)
-            uf.new_forest(nxor, label_nxor, n_estimators=2*n_trees,max_depth=max_depth)
+            #uf.new_forest(xor, label_xor, n_estimators=2*n_trees,max_depth=max_depth)
+            #uf.new_forest(nxor, label_nxor, n_estimators=2*n_trees,max_depth=max_depth)
 
-            uf_task1=uf.predict(test_xor, representation=0, decider=0)
+            naive_uf_train_x = np.concatenate((xor,nxor),axis=0)
+            naive_uf_train_y = np.concatenate((label_xor,label_nxor),axis=0)
+            naive_uf.new_forest(
+                naive_uf_train_x, naive_uf_train_y, n_estimators=n_trees,max_depth=max_depth
+                )
+
+            uf_task1=l2f.predict(test_xor, representation=0, decider=0)
             l2f_task1=l2f.predict(test_xor, representation='all', decider=0)
-            uf_task2=uf.predict(test_nxor, representation=1, decider=1)
+            uf_task2=l2f.predict(test_nxor, representation=1, decider=1)
             l2f_task2=l2f.predict(test_nxor, representation='all', decider=1)
+            naive_uf_task1 = naive_uf.predict(test_xor, representation=0, decider=0)
             
-            errors[i,0] = 1 - np.sum(uf_task1 == test_label_xor)/n_test
-            errors[i,1] = 1 - np.sum(l2f_task1 == test_label_xor)/n_test
-            errors[i,2] = 1 - np.sum(uf_task2 == test_label_nxor)/n_test
-            errors[i,3] = 1 - np.sum(l2f_task2 == test_label_nxor)/n_test
+            errors[i,0] = 1 - np.mean(
+                uf_task1 == test_label_xor
+                )
+            errors[i,1] = 1 - np.mean(
+                l2f_task1 == test_label_xor
+                )
+            errors[i,2] = 1 - np.mean(
+                uf_task2 == test_label_nxor
+                )
+            errors[i,3] = 1 - np.mean(
+                l2f_task2 == test_label_nxor
+                )
+            errors[i,4] = 1 - np.mean(
+                naive_uf_task1 == test_label_xor
+                )
 
     return np.mean(errors,axis=0)
 
