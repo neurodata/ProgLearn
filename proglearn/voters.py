@@ -206,3 +206,60 @@ class NeuralRegressionVoter(BaseVoter):
         """
 
         return self._is_fitted
+
+
+class TreeRegressionVoter(BaseVoter):
+    def __init__(self):
+        """
+        Doc strings here.
+        """
+
+        self._is_fitted = False
+
+
+    def fit(self, X, y):
+        """
+        Doc strings here.
+        """
+        
+        
+        self.leaf_to_yhat = {}
+        self.global_yhat = np.mean(y)
+
+        for leaf_id in np.unique(X):
+            idxs_in_leaf = np.where(X == leaf_id)[0]
+            # class_counts = [len(np.where(y[idxs_in_leaf] == y_val)[0]) for y_val in np.unique(y)]
+            self.leaf_to_yhat[leaf_id] = np.nan_to_num(np.mean(y[idxs_in_leaf]))
+
+        self._is_fitted = True
+
+        return self
+
+
+    def vote(self, X):
+        """
+        Doc strings here.
+        """
+
+        if not self.is_fitted():
+            msg = (
+                    "This %(name)s instance is not fitted yet. Call 'fit' with "
+                    "appropriate arguments before using this voter."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+        
+        votes_per_example = []
+        for x in X:
+            if x in list(self.leaf_to_yhat.keys()):
+                votes_per_example.append(self.leaf_to_yhat[x])
+            else:
+                votes_per_example.append(self.global_yhat)
+        return np.array(votes_per_example)
+
+
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted
