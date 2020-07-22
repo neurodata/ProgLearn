@@ -262,6 +262,7 @@ fig = plt.figure(constrained_layout=True,figsize=(21,14))
 gs = fig.add_gridspec(14, 21)
 ax1 = fig.add_subplot(gs[7:,:6])
 # for i, algo in enumerate(algorithms):
+ax1.plot(n1s, mean_error[0,:len(n1s)], label=algorithms[0], c=colors[1], ls=ls[np.sum(0 > 1).astype(int)], lw=3)
 ax1.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[1], c=colors[1], ls=ls[1], lw=3)
 #ax1.plot(ns, mean_error[0,:n1s], label=algorithms[0], c=colors[1], ls=ls[np.sum(0 > 1).astype(int)], lw=3)
 #ax1.fill_between(ns, 
@@ -281,7 +282,6 @@ ax1.plot(ns, mean_error[1], label=algorithms[2], c=colors[0], ls=ls[np.sum(1 > 1
 #        alpha=0.15,
 #        interpolate=True)
 ax1.plot(ns, mean_error[4], label=algorithms[3], c='g', ls=ls[np.sum(1 > 1).astype(int)], lw=3)
-ax1.plot(n1s, mean_error[0,:len(n1s)], label=algorithms[0], c=colors[1], ls=ls[np.sum(0 > 1).astype(int)], lw=3)
 
 ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontsize=fontsize)
 ax1.legend(loc='upper right', fontsize=20, frameon=False)
