@@ -317,7 +317,7 @@ TASK2='N-XOR'
 ax1 = fig.add_subplot(gs[7:,7:13])
 # for i, algo in enumerate(algorithms):
 ax1.plot(n1s, mean_error[0,:len(n1s)], label=algorithms[0], c=colors[1], ls=ls[np.sum(0 > 1).astype(int)], lw=3)
-ax1.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[0], c=colors[1], ls=ls[1], lw=3)
+ax1.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[1], c=colors[1], ls=ls[1], lw=3)
 #ax1.fill_between(ns[len(n1s):], 
 #        mean_error[2, len(n1s):] + 1.96*std_error[2, len(n1s):], 
 #        mean_error[2, len(n1s):] - 1.96*std_error[2, len(n1s):], 
