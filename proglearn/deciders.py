@@ -220,7 +220,8 @@ class LinearRegressionDecider(BaseDecider):
 #         compile_kwargs={"metrics": ["MAPE", "MAE"]},
 #         fit_kwargs={
 #             "epochs": 100,
-#             "callbacks": [keras.callbacks.EarlyStopping(patience=5, monitor="val_MAE")],
+#             "callbacks": [keras.callbacks.EarlyStopping(patience=5, 
+# monitor="val_MAE")],
 #             "verbose": False,
 #             "validation_split": 0.33,
 #         },

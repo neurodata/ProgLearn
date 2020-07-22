@@ -47,7 +47,7 @@ class TreeClassificationVoter(BaseVoter):
 
             if self.finite_sample_correction:
                 posteriors = self._finite_sample_correction(
-                    posteriors, len(X_in_leaf_id), len(np.unique(y))
+                    posteriors, len(idxs_in_leaf), len(np.unique(y))
                 )
 
             self.leaf_to_posterior[leaf_id] = posteriors
