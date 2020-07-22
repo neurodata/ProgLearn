@@ -184,11 +184,11 @@ n_trees = 10
 n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
 n_nxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 
-mean_error = np.zeros((4, len(n_xor)+len(n_nxor)))
-std_error = np.zeros((4, len(n_xor)+len(n_nxor)))
+mean_error = np.zeros((5, len(n_xor)+len(n_nxor)))
+std_error = np.zeros((5, len(n_xor)+len(n_nxor)))
 
-mean_te = np.zeros((2, len(n_xor)+len(n_nxor)))
-std_te = np.zeros((2, len(n_xor)+len(n_nxor)))
+mean_te = np.zeros((3, len(n_xor)+len(n_nxor)))
+std_te = np.zeros((3, len(n_xor)+len(n_nxor)))
 
 for i,n1 in enumerate(n_xor):
     print('starting to compute %s xor\n'%n1)
@@ -201,9 +201,11 @@ for i,n1 in enumerate(n_xor):
     std_error[:,i] = np.std(error,ddof=1,axis=0)
     mean_te[0,i] = np.mean(error[:,0]/error[:,1])
     mean_te[1,i] = np.mean(error[:,2]/error[:,3])
+    mean_te[2,i] = np.mean(error[:,0]/error[:,4])
     std_te[0,i] = np.std(error[:,0]/error[:,1],ddof=1)
     std_te[1,i] = np.std(error[:,2]/error[:,3],ddof=1)
-    
+    std_te[2,i] = np.std(error[:,0]/error[:,4],ddof=1)
+
     if n1==n_xor[-1]:
         for j,n2 in enumerate(n_nxor):
             print('starting to compute %s nxor\n'%n2)
