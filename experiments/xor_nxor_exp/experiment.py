@@ -90,7 +90,7 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
     if acorn != None:
         np.random.seed(acorn)
     
-    errors = np.zeros((reps,5),dtype=float)
+    errors = np.zeros((reps,6),dtype=float)
     
     for i in range(reps):
         l2f = LifeLongDNN()
@@ -105,25 +105,7 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
         nxor, label_nxor = generate_gaussian_parity(n_nxor,cov_scale=0.1,angle_params=np.pi/2)
         test_nxor, test_label_nxor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=np.pi/2)
     
-        if n_xor == 0:
-            l2f.new_forest(nxor, label_nxor, n_estimators=n_trees,max_depth=max_depth)
-            
-            errors[i,0] = 0.5
-            errors[i,1] = 0.5
-            
-            uf_task2=l2f.predict(test_nxor, representation=0, decider=0)
-            l2f_task2=l2f.predict(test_nxor, representation='all', decider=0)
-            
-            errors[i,2] = 1 - np.mean(
-                uf_task2 == test_label_nxor
-                )
-            errors[i,3] = 1 - np.mean(
-                l2f_task2 == test_label_nxor
-                )
-            errors[i,4] = 1 - np.mean(
-                l2f_task2 == test_label_nxor
-                )
-        elif n_nxor == 0:
+        if n_nxor == 0:
             l2f.new_forest(xor, label_xor, n_estimators=n_trees,max_depth=max_depth)
             
             uf_task1=l2f.predict(test_xor, representation=0, decider=0)
@@ -140,6 +122,7 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
             errors[i,4] = 1 - np.mean(
                 uf_task1 == test_label_xor
                 )
+            errors[i,5] = 0.5
         else:
             l2f.new_forest(xor, label_xor, n_estimators=n_trees,max_depth=max_depth)
             l2f.new_forest(nxor, label_nxor, n_estimators=n_trees,max_depth=max_depth)
@@ -158,7 +141,8 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
             uf_task2=l2f.predict(test_nxor, representation=1, decider=1)
             l2f_task2=l2f.predict(test_nxor, representation='all', decider=1)
             naive_uf_task1 = naive_uf.predict(test_xor, representation=0, decider=0)
-            
+            naive_uf_task2 = naive_uf.predict(test_nxor, representation=0, decider=0)
+
             errors[i,0] = 1 - np.mean(
                 uf_task1 == test_label_xor
                 )
@@ -174,6 +158,9 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
             errors[i,4] = 1 - np.mean(
                 naive_uf_task1 == test_label_xor
                 )
+            errors[i,5] = 1 - np.mean(
+                naive_uf_task2 == test_label_nxor
+                )
 
     return np.mean(errors,axis=0)
 
@@ -184,11 +171,11 @@ n_trees = 10
 n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
 n_nxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 
-mean_error = np.zeros((5, len(n_xor)+len(n_nxor)))
-std_error = np.zeros((5, len(n_xor)+len(n_nxor)))
+mean_error = np.zeros((6, len(n_xor)+len(n_nxor)))
+std_error = np.zeros((6, len(n_xor)+len(n_nxor)))
 
-mean_te = np.zeros((3, len(n_xor)+len(n_nxor)))
-std_te = np.zeros((3, len(n_xor)+len(n_nxor)))
+mean_te = np.zeros((4, len(n_xor)+len(n_nxor)))
+std_te = np.zeros((4, len(n_xor)+len(n_nxor)))
 
 for i,n1 in enumerate(n_xor):
     print('starting to compute %s xor\n'%n1)
@@ -202,9 +189,11 @@ for i,n1 in enumerate(n_xor):
     mean_te[0,i] = np.mean(error[:,0]/error[:,1])
     mean_te[1,i] = np.mean(error[:,2]/error[:,3])
     mean_te[2,i] = np.mean(error[:,0]/error[:,4])
+    mean_te[3,i] = np.mean(error[:,2]/error[:,5])
     std_te[0,i] = np.std(error[:,0]/error[:,1],ddof=1)
     std_te[1,i] = np.std(error[:,2]/error[:,3],ddof=1)
     std_te[2,i] = np.std(error[:,0]/error[:,4],ddof=1)
+    std_te[3,i] = np.std(error[:,0]/error[:,5],ddof=1)
 
     if n1==n_xor[-1]:
         for j,n2 in enumerate(n_nxor):
@@ -219,9 +208,13 @@ for i,n1 in enumerate(n_xor):
             std_error[:,i+j+1] = np.std(error,ddof=1,axis=0)
             mean_te[0,i+j+1] = np.mean(error[:,0]/error[:,1])
             mean_te[1,i+j+1] = np.mean(error[:,2]/error[:,3])
+            mean_te[2,i+j+1] = np.mean(error[:,0]/error[:,4])
+            mean_te[3,i+j+1] = np.mean(error[:,2]/error[:,5])
             std_te[0,i+j+1] = np.std(error[:,0]/error[:,1],ddof=1)
             std_te[1,i+j+1] = np.std(error[:,2]/error[:,3],ddof=1)
-            
+            std_te[2,i+j+1] = np.std(error[:,0]/error[:,4],ddof=1)
+            std_te[3,i+j+1] = np.std(error[:,0]/error[:,5],ddof=1)
+
 with open('./result/mean_xor_nxor.pickle','wb') as f:
     pickle.dump(mean_error,f)
     
