@@ -240,7 +240,7 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls=['-', '--']
-algorithms = ['single task UF (XOR)', 'single task UF (N-XOR)', 'Lifelong Forest', 'naive UF']
+algorithms = ['single task (XOR)', 'single task (N-XOR)', 'Lifelong Forest', 'naive']
 
 
 TASK1='XOR'
@@ -278,10 +278,10 @@ ax1.plot(ns, mean_error[4], label=algorithms[3], c='g', ls=ls[np.sum(1 > 1).asty
 
 ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontsize=fontsize)
 ax1.legend(loc='upper right', fontsize=20, frameon=False)
-ax1.set_ylim(0.1, 0.21)
+ax1.set_ylim(0.09, 0.21)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
-ax1.set_yticks([0.15, 0.2])
+ax1.set_yticks([0.1,0.15, 0.2])
 ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 ax1.set_title('XOR', fontsize=30)
@@ -302,7 +302,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 mean_error = unpickle('result/mean_xor_nxor.pickle')
 std_error = unpickle('result/std_xor_nxor.pickle')
 
-algorithms = ['single task UF (XOR)', 'single task UF (N-XOR)', 'Lifelong Forest']
+algorithms = ['single task (XOR)', 'single task (N-XOR)', 'Lifelong Forest', 'naive']
 
 TASK1='XOR'
 TASK2='N-XOR'
@@ -319,7 +319,8 @@ ax1.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[1], c=colors[
 #        alpha=0.15,
 #        interpolate=True)
 
-ax1.plot(ns[len(n1s):], mean_error[3, len(n1s):], label=algorithms[2], c=colors[0], lw=3)
+ax1.plot(ns[len(n1s):], mean_error[3, len(n1s):], label=algorithms[2], c=colors[0], ls=ls[1], lw=3)
+ax1.plot(ns[len(n1s):], mean_error[5, len(n1s):], label=algorithms[3], c='g', ls=ls[1], lw=3)
 #ax1.fill_between(ns[len(n1s):], 
 #        mean_error[3, len(n1s):] + 1.96*std_error[3, len(n1s):], 
 #        mean_error[3, len(n1s):] - 1.96*std_error[3, len(n1s):], 
@@ -334,13 +335,12 @@ ax1.legend(loc='upper right', fontsize=18, frameon=False)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 # ax1.set_yticks([0.15, 0.25, 0.35])
-ax1.set_yticks([0.15, 0.2])
+#ax1.set_yticks([0.15, 0.2])
 ax1.set_xticks([250,750,1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
-ax1.set_ylim(0.11, 0.21)
+#ax1.set_ylim(0.11, 0.21)
 
-ax1.set_xlim(-10)
 right_side = ax1.spines["right"]
 right_side.set_visible(False)
 top_side = ax1.spines["top"]
@@ -383,7 +383,8 @@ ax1.plot(ns[len(n1s):], mean_te[1, len(n1s):], label=algorithms[1], c=colors[0],
 #        facecolor=colors[0], 
 #        alpha=0.15,
 #        interpolate=True)
-ax1.plot(ns, mean_te[2], label='Forgetting', c='g', ls=ls[0], lw=3)
+ax1.plot(ns, mean_te[2], label=algorithms[0], c='g', ls=ls[0], lw=3)
+ax1.plot(ns[len(n1s):], mean_te[3, len(n1s):], label=algorithms[1], c='g', ls=ls[1], lw=3)
 
 ax1.set_ylabel('Transfer Efficiency', fontsize=fontsize)
 ax1.legend(loc='upper right', fontsize=20, frameon=False)
