@@ -326,7 +326,7 @@ ax1.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[1], c=colors[
 #        alpha=0.15,
 #        interpolate=True)
 
-ax1.plot(ns[len(n1s):], mean_error[3, len(n1s):], label=algorithms[1], c=colors[0], lw=3)
+ax1.plot(ns[len(n1s):], mean_error[3, len(n1s):], label=algorithms[2], c=colors[0], lw=3)
 #ax1.fill_between(ns[len(n1s):], 
 #        mean_error[3, len(n1s):] + 1.96*std_error[3, len(n1s):], 
 #        mean_error[3, len(n1s):] - 1.96*std_error[3, len(n1s):], 
@@ -390,7 +390,7 @@ ax1.plot(ns[len(n1s):], mean_te[1, len(n1s):], label=algorithms[1], c=colors[0],
 #        facecolor=colors[0], 
 #        alpha=0.15,
 #        interpolate=True)
-ax1.plot(ns, mean_te[2], label='Transfer', c='g', ls=ls[0], lw=3)
+ax1.plot(ns, mean_te[2], label='Forgetting', c='g', ls=ls[0], lw=3)
 
 ax1.set_ylabel('Transfer Efficiency', fontsize=fontsize)
 ax1.legend(loc='upper right', fontsize=20, frameon=False)
