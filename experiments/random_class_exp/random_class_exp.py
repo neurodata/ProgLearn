@@ -67,7 +67,7 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
                                      }
         
         default_voter_class = KNNClassificationVoter
-        default_voter_kwargs = {"k" : int(np.log2(num_points_per_task))}
+        default_voter_kwargs = {"k" : int(np.log2(num_points_per_task * .33))}
         
         default_decider_class = SimpleAverage
     elif model == "uf":
@@ -87,7 +87,6 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
             X = train_x_task0, 
             y = train_y_task0,
             num_transformers = 1 if model == "dnn" else ntrees,
-            num_transformers = 1 if model == "dnn" else ntrees,
             transformer_voter_decider_split = [0.67, 0.33, 0],
             decider_kwargs = {"classes" : np.unique(train_y_task0)}
             )
@@ -103,7 +102,7 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
         ))
     print(accuracies_across_tasks)
     
-    for task_ii in range(19):
+    for task_ii in range(1, 20):
         train_x, train_y, _, _ = cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=shift, slot=slot, task = task_ii)
         
         print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))
@@ -126,6 +125,7 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
             task_0_predictions == test_y_task0
             ))
         print(accuracies_across_tasks)
+        
             
     df['data_fold'] = shifts
     df['slot'] = slots
@@ -169,7 +169,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 500
 ########################
 

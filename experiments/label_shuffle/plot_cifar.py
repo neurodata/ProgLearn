@@ -10,7 +10,7 @@ import seaborn as sns
 ### MAIN HYPERPARAMS ###
 slots = 10
 shifts = 6
-alg_name = ['L2N','L2F','Prog_NN', 'DF_CNN','LwF','EWC','Online_EWC','SI']
+alg_name = ['L2N','L2F']
 ########################
 
 #%%

@@ -151,7 +151,7 @@ class ProgressiveLearner:
                 
         X = self.task_id_to_X[task_id]
         y = self.task_id_to_y[task_id]
-        
+                
         if bag_id == None:
             transformers = self.transformer_id_to_transformers[transformer_id]
         else:
@@ -162,6 +162,8 @@ class ProgressiveLearner:
             else:
                 voter_data_idx = np.delete(range(len(X)), self.task_id_to_decider_idx[task_id])
             self._append_voter(transformer_id, task_id, voter_class(**voter_kwargs).fit(transformer.transform(X[voter_data_idx]), y[voter_data_idx]))
+            
+            
 
     def set_decider(self, task_id, transformer_ids,
         decider_class=None, decider_kwargs=None):
@@ -240,7 +242,7 @@ class ProgressiveLearner:
             self._append_voter_data_idx(task_id = transformer_id, bag_id = transformer_num, voter_data_idx = voter_data_idx)
                         
         # train voters and deciders from new transformer to previous tasks
-        for existing_task_id in backward_task_ids:
+        for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
             self.set_voter(transformer_id = transformer_id, 
                            task_id = existing_task_id)
             self.set_decider(task_id = existing_task_id, 

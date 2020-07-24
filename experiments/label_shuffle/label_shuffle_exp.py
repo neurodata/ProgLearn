@@ -2,7 +2,8 @@
 import random
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import tensorflow.keras as keras
+import keras
+from keras import layers
 from itertools import product
 import pandas as pd
 
@@ -42,15 +43,22 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         default_transformer_class = NeuralClassificationTransformer
         
         network = keras.Sequential()
-        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x_task0)[1:]))
+        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x)[1:]))
+        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
 
         network.add(layers.Flatten())
+        network.add(layers.BatchNormalization())
         network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
         network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
         network.add(layers.Dense(units=10, activation = 'softmax'))
         
         default_transformer_kwargs = {"network" : network, 
@@ -60,7 +68,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
                                      }
         
         default_voter_class = KNNClassificationVoter
-        default_voter_kwargs = {"k" : int(np.log2(num_points_per_task))}
+        default_voter_kwargs = {"k" : 16 * int(np.log2(num_points_per_task))}
         
         default_decider_class = SimpleAverage
     elif model == "uf":
@@ -156,7 +164,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 500
 ########################
 

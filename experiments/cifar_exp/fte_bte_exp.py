@@ -2,7 +2,8 @@
 import random
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import tensorflow.keras as keras
+import keras
+from keras import layers
 from itertools import product
 import pandas as pd
 
@@ -44,15 +45,22 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         default_transformer_class = NeuralClassificationTransformer
         
         network = keras.Sequential()
-        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x_task0)[1:]))
+        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x)[1:]))
+        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
 
         network.add(layers.Flatten())
+        network.add(layers.BatchNormalization())
         network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
         network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
         network.add(layers.Dense(units=10, activation = 'softmax'))
         
         default_transformer_kwargs = {"network" : network, 
@@ -155,7 +163,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     df_single_task['accuracy'] = single_task_accuracies
 
     summary = (df,df_single_task)
-    file_to_save = 'result/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
+    file_to_save = 'result/result/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(summary, f)
 
@@ -192,14 +200,17 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
     train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, num_points_per_task, shift=shift)
     
     if model == "dnn":
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        sess = tf.Session(config=config)
         with tf.device('/gpu:'+str(shift % 4)):
-            LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, model, num_points_per_task, acorn=12345)
+            LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, model, num_points_per_task, acorn=12345)
     else:
         LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, model, num_points_per_task, acorn=12345)
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 500
 ########################
 
@@ -223,18 +234,22 @@ if model == "uf":
                 ) for ntree,shift,slot in iterable
                 )
 elif model == "dnn":
+    slot_fold = range(10)
     
-    def perform_shift(shift):
+    def perform_shift(shift_slot_tuple):
+        shift, slot = shift_slot_tuple
         return run_parallel_exp(data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift)
     
     print("Performing Stage 1 Shifts")
     stage_1_shifts = range(1, 5)
+    stage_1_iterable = product(stage_1_shifts,slot_fold)
     with Pool(4) as p:
-        p.map(perform_shift, stage_1_shifts) 
+        p.map(perform_shift, stage_1_iterable) 
     
     print("Performing Stage 2 Shifts")
     stage_2_shifts = range(5, 7)
+    stage_2_iterable = product(stage_2_shifts,slot_fold)
     with Pool(4) as p:
-        p.map(perform_shift, stage_2_shifts) 
+        p.map(perform_shift, stage_2_iterable) 
 
 # %%
