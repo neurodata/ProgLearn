@@ -5,7 +5,6 @@ from .deciders import SimpleAverage
 
 from sklearn.utils import check_X_y, check_array
 
-
 class LifelongForest():
     
     def __init__(self, n_estimators=100, finite_sample_correction=False):
@@ -21,15 +20,14 @@ class LifelongForest():
                                      default_decider_kwargs={})
         
     def add_task(self, X, y, task_id=None):
-        X, y = check_X_y(X, y)
         self.pl.add_task(X, 
                          y, 
                          task_id=task_id, 
                          transformer_voter_decider_split=[0.67, 0.33, 0], 
                          num_transformers=self.n_estimators)
+        return self
         
     def predict(self, X, task_id):
-        X = check_array(X)
         return self.pl.predict(X, task_id)
 
 
@@ -43,6 +41,7 @@ class UncertaintyForest():
         self.lf = LifelongForest(n_estimators=self.n_estimators,
                                  finite_sample_correction=self.finite_sample_correction)
         self.lf.add_task(X, y, task_id=0)
+        return self
         
     def predict(self, X):
         return self.lf.predict(X, 0)

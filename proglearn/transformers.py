@@ -8,7 +8,7 @@ from sklearn.utils.validation import (
     NotFittedError,
 )
 
-from sklearn.utils.multiclass import check_classification_targets
+from sklearn.utils.multiclass import check_classification_targets, type_of_target
 
 import keras as keras
 
@@ -105,7 +105,9 @@ class TreeClassificationTransformer(BaseTransformer):
         Doc strings here.
         """
 
-        X, y = check_X_y(X, y)
+        multi_output = True if type_of_target(y) == 'multilabel-indicator' else False
+        X, y = check_X_y(X, y, multi_output=multi_output)
+      
 
         # define the ensemble
         self.transformer = DecisionTreeClassifier(**self.kwargs).fit(X, y)
@@ -145,12 +147,12 @@ class NeuralRegressionTransformer(BaseTransformer):
         euclidean_layer_idx=-2,
         loss="mse",
         pretrained=False,
-        compile_kwargs={"metrics": ["MSE", "MAPE", "MAE"]},
+        compile_kwargs={"metrics": ["mae", "mape"]},
         fit_kwargs={
             "epochs": 100,
-            "callbacks": [keras.callbacks.EarlyStopping(patience=5, monitor="val_MAE")],
+            "callbacks": [keras.callbacks.EarlyStopping(patience=5, monitor="val_loss")],
             "verbose": False,
-            "validation_split": 0.33,
+            "validation_split": 0.25,
         },
     ):
         """
@@ -202,6 +204,7 @@ class NeuralRegressionTransformer(BaseTransformer):
         """
 
         return self._is_fitted
+
 
 class TreeRegressionTransformer(BaseTransformer):
     def __init__(self, kwargs = {}

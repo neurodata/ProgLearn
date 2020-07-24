@@ -11,7 +11,7 @@ from sklearn.utils.validation import (
     NotFittedError,
 )
 
-# import keras
+from sklearn.utils.multiclass import type_of_target
 
 
 class SimpleAverage(BaseDecider):
@@ -33,6 +33,10 @@ class SimpleAverage(BaseDecider):
         self.classes = self.classes if len(self.classes) > 0 else np.unique(y)
         self.transformer_id_to_transformers = transformer_id_to_transformers
         self.transformer_id_to_voters = transformer_id_to_voters
+
+        # Fit multilabel binary task.
+        self.multilabel = True if type_of_target(y) == "multilabel-indicator" else False
+
         return self
 
     def predict(self, X, transformer_ids=None):
@@ -53,7 +57,11 @@ class SimpleAverage(BaseDecider):
                 vote_per_bag_id.append(vote)
             vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0))
         vote_overall = np.mean(vote_per_transformer_id, axis=0)
-        return self.classes[np.argmax(vote_overall, axis=1)]
+
+        if self.multilabel:
+            return np.array(vote_overall > 0.5).astype(int)
+        else:
+            return self.classes[np.argmax(vote_overall, axis=1)]
 
 
 class KNNRegressionDecider(BaseDecider):
@@ -66,7 +74,7 @@ class KNNRegressionDecider(BaseDecider):
         self._is_fitted = False
 
     def fit(
-        self, X, y, transformer_id_to_transformers, transformer_id_to_voters=None
+        self, X, y, transformer_id_to_transformers, transformer_id_to_voters
     ):
         X, y = check_X_y(X, y)
         n = len(y)
@@ -144,8 +152,7 @@ class LinearRegressionDecider(BaseDecider):
         X,
         y,
         transformer_id_to_transformers,
-        classes=None,
-        transformer_id_to_voters=None,
+        transformer_id_to_voters,
     ):
         X, y = check_X_y(X, y)
 

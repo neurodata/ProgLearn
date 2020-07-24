@@ -10,7 +10,7 @@ from sklearn.utils.validation import (
     NotFittedError,
 )
 
-from sklearn.utils.multiclass import check_classification_targets
+from sklearn.utils.multiclass import check_classification_targets, type_of_target
 
 from .base import BaseVoter
 
@@ -26,12 +26,18 @@ class TreeClassificationVoter(BaseVoter):
 
         self.finite_sample_correction = finite_sample_correction
         self._is_fitted = False
+        self.multilabel = False
 
     def fit(self, X, y):
         """
         Doc strings here.
         """
         check_classification_targets(y)
+
+        if type_of_target(y) == 'multilabel-indicator':
+            # Fit multilabel binary task.
+            self.multilabel = True
+            return self.fit_multilabel(X, y)
 
         num_classes = len(np.unique(y))
         self.uniform_posterior = np.ones(num_classes) / num_classes
@@ -49,6 +55,29 @@ class TreeClassificationVoter(BaseVoter):
                 posteriors = self._finite_sample_correction(
                     posteriors, len(idxs_in_leaf), len(np.unique(y))
                 )
+
+            self.leaf_to_posterior[leaf_id] = posteriors
+
+        self._is_fitted = True
+
+        return self
+
+    def fit_multilabel(self, X, y):
+
+        num_labels = y.shape[1]
+        self.uniform_posterior = y.sum(axis=0) / len(y)
+        
+        # Each posterior is now a num_labels size vector or binary probabilities.
+        self.leaf_to_posterior = {}
+
+        for leaf_id in np.unique(X):
+            idxs_in_leaf = np.where(X == leaf_id)[0]
+            label_counts = [
+                len(np.where(y[idxs_in_leaf, j] == 1)[0]) for j in range(num_labels)
+            ]
+            posteriors = np.nan_to_num(np.array(label_counts) / np.sum(label_counts))
+
+            # TODO: multilabel finite sample correction.
 
             self.leaf_to_posterior[leaf_id] = posteriors
 
@@ -161,7 +190,6 @@ class NeuralRegressionVoter(BaseVoter):
         X, y = check_X_y(X, y)
 
         self.voter = keras.Sequential()
-        # self.voter.add(layers.Dropout(0.2, input_shape=(self.input_dim,)))
         self.voter.add(
             layers.Dense(
                 1,

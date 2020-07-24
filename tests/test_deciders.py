@@ -70,13 +70,8 @@ def test_correct_decision():
         "2": [IdentityVoter(2)],
     }
 
-    kwargs = {
-        "transformer_id_to_transformers": transformer_id_to_transformers,
-        "transformer_id_to_voters": transformer_id_to_voters,
-        "X": X,
-    }
-    lrd.fit(Y, **kwargs)
-    krd.fit(Y, **kwargs)
+    lrd.fit(X, Y, transformer_id_to_transformers, transformer_id_to_voters)
+    krd.fit(X, Y, transformer_id_to_transformers, transformer_id_to_voters)
 
     X_test = np.ones((5, 3))
     Y_test = 3 * np.ones(5)
