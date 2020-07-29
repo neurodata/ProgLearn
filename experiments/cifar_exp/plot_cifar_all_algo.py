@@ -83,7 +83,7 @@ def get_error_matrix(filename):
 ntrees = 10
 slots = 10
 task_num = 10
-shifts = 6
+shifts = 1
 total_alg = 9
 alg_name = ['L2N','L2F','L2F(minus)','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
 model_file = ['dnn0','fixed_uf10','uf10','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
