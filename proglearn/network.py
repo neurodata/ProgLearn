@@ -111,7 +111,7 @@ class LifelongClassificationNetwork:
             "compile_kwargs": {},
             "fit_kwargs": {
                 "epochs": self.epochs,
-                "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
+                # "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
                 "verbose": self.verbose,
                 "validation_split": 0.33,
                 "batch_size": self.batch_size
