@@ -87,13 +87,13 @@ class LifelongClassificationNetwork:
         network,
         loss="categorical_crossentropy",
         epochs=100,
-        lr=3e-4,
+        optimizer=Adam(3e-4),
         verbose=False,
     ):
         self.network = network
         self.loss = loss
         self.epochs = epochs
-        self.lr = lr
+        self.optimizer = optimizer
         self.verbose = verbose
         self.is_first_task = True
 
@@ -104,7 +104,7 @@ class LifelongClassificationNetwork:
             "network": self.network,
             "euclidean_layer_idx": -2,
             "loss": self.loss,
-            "optimizer": Adam(self.lr),
+            "optimizer": self.optimizer,
             "num_classes": 10,
             "compile_kwargs": {},
             "fit_kwargs": {
