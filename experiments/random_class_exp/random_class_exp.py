@@ -29,6 +29,8 @@ import tensorflow as tf
 
 from sklearn.model_selection import train_test_split
 
+import time
+
 #%%
 def unpickle(file):
     with open(file, 'rb') as fo:
@@ -43,6 +45,8 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
     shifts = []
     slots = []
     accuracies_across_tasks = []
+    train_times_across_tasks = []
+    inference_times_across_tasks = []
 
     train_x_task0, train_y_task0, test_x_task0, test_y_task0 = cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=shift, slot=slot)
     if model == "dnn":
@@ -83,6 +87,7 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
                                          default_voter_class = default_voter_class,
                                          default_voter_kwargs = default_voter_kwargs,
                                          default_decider_class = default_decider_class)
+    train_start_time = time.time()
     progressive_learner.add_task(
             X = train_x_task0, 
             y = train_y_task0,
@@ -90,23 +95,29 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
             transformer_voter_decider_split = [0.67, 0.33, 0],
             decider_kwargs = {"classes" : np.unique(train_y_task0)}
             )
+    train_end_time = time.time()
         
+    inference_start_time = time.time()      
     task_0_predictions=progressive_learner.predict(
         test_x_task0, task_id = 0
     )
+    inference_end_time = time.time()
 
     shifts.append(shift)
     slots.append(slot)
     accuracies_across_tasks.append(np.mean(
         task_0_predictions == test_y_task0
         ))
-    print(accuracies_across_tasks)
+    train_times_across_tasks.append(train_end_time - train_start_time)
+    inference_times_across_tasks.append(inference_end_time - inference_start_time)
+        
     
     for task_ii in range(1, 20):
         train_x, train_y, _, _ = cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=shift, slot=slot, task = task_ii)
         
         print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))
-            
+        
+        train_start_time = time.time()
         progressive_learner.add_transformer(
             X = train_x, 
             y = train_y,
@@ -114,22 +125,32 @@ def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_tas
             num_transformers = 1 if model == "dnn" else ntrees,
             backward_task_ids = [0]
         )
+        train_end_time = time.time()
         
+        inference_start_time = time.time()      
         task_0_predictions=progressive_learner.predict(
             test_x_task0, task_id = 0
         )
+        inference_end_time = time.time()
             
         shifts.append(shift)
         slots.append(slot)
         accuracies_across_tasks.append(np.mean(
             task_0_predictions == test_y_task0
             ))
-        print(accuracies_across_tasks)
+        train_times_across_tasks.append(train_end_time - train_start_time)
+        inference_times_across_tasks.append(inference_end_time - inference_start_time)
+        
+        print("Accuracy Across Tasks: {}".format(accuracies_across_tasks))
+        print("Train Times Across Tasks: {}".format(train_times_across_tasks))
+        print("Inference Times Across Tasks: {}".format(inference_times_across_tasks))
         
             
     df['data_fold'] = shifts
     df['slot'] = slots
     df['accuracy'] = accuracies_across_tasks
+    df['train_times'] = train_times_across_tasks
+    df['inference_times'] = inference_times_across_tasks
 
     file_to_save = 'result/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
@@ -169,7 +190,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 num_points_per_task = 500
 ########################
 

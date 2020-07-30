@@ -21,6 +21,7 @@ from transformers import TreeClassificationTransformer, NeuralClassificationTran
 from voters import TreeClassificationVoter, KNNClassificationVoter
 from joblib import Parallel, delayed
 from multiprocessing import Pool
+import time
 
 import tensorflow as tf
 
@@ -38,6 +39,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     tasks = []
     base_tasks = []
     accuracies_across_tasks = []
+    train_times_across_tasks = []
+    inference_times_across_tasks = []
     
     if model == "dnn":
         default_transformer_class = NeuralClassificationTransformer
@@ -90,7 +93,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         if acorn is not None:
             np.random.seed(acorn)
 
-        
+        train_start_time = time.time()
         progressive_learner.add_task(
             X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
             y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
@@ -99,20 +102,30 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])},
             backward_task_ids=[0]
             )
+        train_end_time = time.time()
         
+        inference_start_time = time.time()
         llf_task=progressive_learner.predict(
             test_x[:1000], task_id=0
             )
+        inference_end_time = time.time()
         acc = np.mean(
                     llf_task == test_y[:1000]
                     )
         accuracies_across_tasks.append(acc)
-        print(accuracies_across_tasks)
         shifts.append(shift)
+        train_times_across_tasks.append(train_end_time - train_start_time)
+        inference_times_across_tasks.append(inference_end_time - inference_start_time)
+        
+        print("Accuracy Across Tasks: {}".format(accuracies_across_tasks))
+        print("Train Times Across Tasks: {}".format(train_times_across_tasks))
+        print("Inference Times Across Tasks: {}".format(inference_times_across_tasks))
             
     df['data_fold'] = shifts
     df['task'] = range(1, 11)
     df['task_1_accuracy'] = accuracies_across_tasks
+    df['train_times'] = train_times_across_tasks
+    df['inference_times'] = inference_times_across_tasks
 
     file_to_save = 'result/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
@@ -164,7 +177,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 num_points_per_task = 500
 ########################
 
