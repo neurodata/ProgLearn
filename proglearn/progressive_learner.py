@@ -434,7 +434,7 @@ class ProgressiveLearner:
 
     def predict_proba(self, X, task_id, transformer_ids=None):
         decider = self.task_id_to_decider[task_id]
-        if issubclass(decider, ClassificationDecider):
+        if isinstance(decider, ClassificationDecider):
             return self.task_id_to_decider[task_id].predict_proba(
                 X, transformer_ids=transformer_ids
             )
