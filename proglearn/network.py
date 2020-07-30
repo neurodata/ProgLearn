@@ -136,7 +136,6 @@ class LifelongClassificationNetwork:
             self.setup(num_points_per_task)
             self.is_first_task = False
 
-        X, y = check_X_y(X, y)
         self.pl.add_task(
             X,
             y,
@@ -148,7 +147,6 @@ class LifelongClassificationNetwork:
         return self
 
     def predict(self, X, task_id):
-        X = check_array(X)
         return self.pl.predict(X, task_id)
 
     def predict_proba(self, X, task_id):

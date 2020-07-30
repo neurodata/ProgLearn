@@ -36,9 +36,10 @@ class NeuralClassificationTransformer(BaseTransformer):
         Doc strings here.
         """
         self.network = keras.models.clone_model(network)
-        self.encoder = keras.models.Model(inputs = self.network.inputs, 
-                                          outputs = self.network.layers[euclidean_layer_idx].output
-                                         )
+        self.encoder = keras.models.Model(
+            inputs=self.network.inputs,
+            outputs=self.network.layers[euclidean_layer_idx].output,
+        )
         self._is_fitted = pretrained
         self.optimizer = optimizer
         self.loss = loss
@@ -104,9 +105,8 @@ class TreeClassificationTransformer(BaseTransformer):
         Doc strings here.
         """
 
-        multi_output = True if type_of_target(y) == 'multilabel-indicator' else False
+        multi_output = True if type_of_target(y) == "multilabel-indicator" else False
         X, y = check_X_y(X, y, multi_output=multi_output)
-      
 
         # define the ensemble
         self.transformer = DecisionTreeClassifier(**self.kwargs).fit(X, y)
@@ -149,7 +149,9 @@ class NeuralRegressionTransformer(BaseTransformer):
         compile_kwargs={"metrics": ["mae", "mape"]},
         fit_kwargs={
             "epochs": 100,
-            "callbacks": [keras.callbacks.EarlyStopping(patience=5, monitor="val_loss")],
+            "callbacks": [
+                keras.callbacks.EarlyStopping(patience=5, monitor="val_loss")
+            ],
             "verbose": False,
             "validation_split": 0.25,
         },
@@ -157,7 +159,7 @@ class NeuralRegressionTransformer(BaseTransformer):
         """
         Doc strings here.
         """
-        self.network = network
+        self.network = keras.models.clone_model(network)
         self.encoder = keras.models.Model(
             inputs=self.network.inputs,
             outputs=self.network.layers[euclidean_layer_idx].output,
@@ -206,8 +208,7 @@ class NeuralRegressionTransformer(BaseTransformer):
 
 
 class TreeRegressionTransformer(BaseTransformer):
-    def __init__(self, kwargs = {}
-    ):
+    def __init__(self, kwargs={}):
         """
         Doc strings here.
         """
@@ -216,21 +217,19 @@ class TreeRegressionTransformer(BaseTransformer):
 
         self._is_fitted = False
 
-
     def fit(self, X, y):
         """
         Doc strings here.
         """
 
         X, y = check_X_y(X, y)
-        
-        #define the ensemble
+
+        # define the ensemble
         self.transformer = DecisionTreeRegressor(**self.kwargs).fit(X, y)
 
         self._is_fitted = True
 
         return self
-
 
     def transform(self, X):
         """
@@ -239,14 +238,13 @@ class TreeRegressionTransformer(BaseTransformer):
 
         if not self.is_fitted():
             msg = (
-                    "This %(name)s instance is not fitted yet. Call 'fit' with "
-                    "appropriate arguments before using this transformer."
+                "This %(name)s instance is not fitted yet. Call 'fit' with "
+                "appropriate arguments before using this transformer."
             )
             raise NotFittedError(msg % {"name": type(self).__name__})
-        
+
         X = check_array(X)
         return self.transformer.apply(X)
-
 
     def is_fitted(self):
         """
@@ -254,3 +252,4 @@ class TreeRegressionTransformer(BaseTransformer):
         """
 
         return self._is_fitted
+
