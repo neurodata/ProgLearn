@@ -130,6 +130,5 @@ dmypy.json
 
 # Data and IDE
 .vscode
-experiments/cifar_exp_task_obv/data/data.p
 
 experiments
