@@ -87,14 +87,16 @@ class LifelongClassificationNetwork:
         network,
         loss="categorical_crossentropy",
         epochs=100,
-        optimizer=Adam(3e-4),
+        lr=3e-4,
+        batch_size=32,
         verbose=False,
     ):
         self.network = network
         self.loss = loss
         self.epochs = epochs
-        self.optimizer = optimizer
+        self.optimizer = Adam(lr)
         self.verbose = verbose
+        self.batch_size = batch_size
         self.is_first_task = True
 
     def setup(self, num_points_per_task):
@@ -112,6 +114,7 @@ class LifelongClassificationNetwork:
                 "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
                 "verbose": self.verbose,
                 "validation_split": 0.33,
+                "batch_size": self.batch_size
             },
         }
 
