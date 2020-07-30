@@ -2,6 +2,8 @@ setup.py
 proglearn/__init__.py
 proglearn/base.py
 proglearn/deciders.py
+proglearn/forest.py
+proglearn/network.py
 proglearn/progressive_learner.py
 proglearn/transformers.py
 proglearn/voters.py

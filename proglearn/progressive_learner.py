@@ -1,4 +1,5 @@
 import numpy as np
+from .base import ClassificationDecider
 
 
 class ProgressiveLearner:
@@ -224,11 +225,16 @@ class ProgressiveLearner:
                     transformer_num
                 ]
             else:
-                voter_data_idx = np.delete(range(len(X)), self.task_id_to_decider_idx[task_id])
-            self._append_voter(transformer_id, task_id, voter_class(**voter_kwargs).fit(transformer.transform(X[voter_data_idx]), y[voter_data_idx]))
-            
-            
-
+                voter_data_idx = np.delete(
+                    range(len(X)), self.task_id_to_decider_idx[task_id]
+                )
+            self._append_voter(
+                transformer_id,
+                task_id,
+                voter_class(**voter_kwargs).fit(
+                    transformer.transform(X[voter_data_idx]), y[voter_data_idx]
+                ),
+            )
 
     def set_decider(
         self, task_id, transformer_ids, decider_class=None, decider_kwargs=None
@@ -271,10 +277,7 @@ class ProgressiveLearner:
 
         self.task_id_to_decider[task_id] = decider_class(**decider_kwargs)
         self.task_id_to_decider[task_id].fit(
-            X,
-            y,
-            transformer_id_to_transformers,
-            transformer_id_to_voters
+            X, y, transformer_id_to_transformers, transformer_id_to_voters
         )
 
         self.task_id_to_decider_class[task_id] = decider_class
@@ -343,19 +346,31 @@ class ProgressiveLearner:
 
         # train voters and deciders from new transformer to previous tasks
         for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
-            self.set_voter(transformer_id = transformer_id, 
-                           task_id = existing_task_id)
-            self.set_decider(task_id = existing_task_id, 
-                             transformer_ids = list(self.task_id_to_transformer_id_to_voters[existing_task_id].keys()))
-        
-    def add_task(self, 
-                 X, y, 
-                 task_id = None, transformer_voter_decider_split = [0.67, 0.33, 0], num_transformers = 1,
-                 transformer_class = None, transformer_kwargs = None, 
-                 voter_class = None, voter_kwargs = None,
-                 decider_class = None, decider_kwargs = None,
-                 backward_task_ids = None, forward_transformer_ids = None):
-       
+            self.set_voter(transformer_id=transformer_id, task_id=existing_task_id)
+            self.set_decider(
+                task_id=existing_task_id,
+                transformer_ids=list(
+                    self.task_id_to_transformer_id_to_voters[existing_task_id].keys()
+                ),
+            )
+
+    def add_task(
+        self,
+        X,
+        y,
+        task_id=None,
+        transformer_voter_decider_split=[0.67, 0.33, 0],
+        num_transformers=1,
+        transformer_class=None,
+        transformer_kwargs=None,
+        voter_class=None,
+        voter_kwargs=None,
+        decider_class=None,
+        decider_kwargs=None,
+        backward_task_ids=None,
+        forward_transformer_ids=None,
+    ):
+
         if task_id is None:
             task_id = max(
                 len(self.get_transformer_ids()), len(self.get_task_ids())
@@ -416,4 +431,15 @@ class ProgressiveLearner:
         return self.task_id_to_decider[task_id].predict(
             X, transformer_ids=transformer_ids
         )
+
+    def predict_proba(self, X, task_id, transformer_ids=None):
+        decider = self.task_id_to_decider[task_id]
+        if issubclass(decider, ClassificationDecider):
+            return self.task_id_to_decider[task_id].predict_proba(
+                X, transformer_ids=transformer_ids
+            )
+        else:
+            raise AttributeError(
+                "Cannot call `predict_proba` on non-classification decider."
+            )
 

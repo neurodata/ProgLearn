@@ -1,6 +1,6 @@
 import numpy as np
 
-from .base import BaseDecider
+from .base import BaseDecider, ClassificationDecider
 
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import Ridge
@@ -14,7 +14,7 @@ from sklearn.utils.validation import (
 from sklearn.utils.multiclass import type_of_target
 
 
-class SimpleAverage(BaseDecider):
+class SimpleAverage(ClassificationDecider):
     """
     Doc string here.
     """
@@ -39,7 +39,7 @@ class SimpleAverage(BaseDecider):
 
         return self
 
-    def predict(self, X, transformer_ids=None):
+    def predict_proba(self, X, transformer_ids=None):
         vote_per_transformer_id = []
         for transformer_id in (
             transformer_ids if transformer_ids else self.transformer_id_to_voters.keys()
@@ -56,7 +56,10 @@ class SimpleAverage(BaseDecider):
                 vote = voter.vote(X_transformed)
                 vote_per_bag_id.append(vote)
             vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0))
-        vote_overall = np.mean(vote_per_transformer_id, axis=0)
+        return np.mean(vote_per_transformer_id, axis=0)
+
+    def predict(self, X, transformer_ids=None):
+        vote_overall = self.predict_proba(X, transformer_ids=transformer_ids)
 
         if self.multilabel:
             return np.array(vote_overall > 0.5).astype(int)
@@ -73,9 +76,7 @@ class KNNRegressionDecider(BaseDecider):
         self.k = k
         self._is_fitted = False
 
-    def fit(
-        self, X, y, transformer_id_to_transformers, transformer_id_to_voters
-    ):
+    def fit(self, X, y, transformer_id_to_transformers, transformer_id_to_voters):
         X, y = check_X_y(X, y)
         n = len(y)
         if not self.k:
@@ -148,11 +149,7 @@ class LinearRegressionDecider(BaseDecider):
         self._is_fitted = False
 
     def fit(
-        self,
-        X,
-        y,
-        transformer_id_to_transformers,
-        transformer_id_to_voters,
+        self, X, y, transformer_id_to_transformers, transformer_id_to_voters,
     ):
         X, y = check_X_y(X, y)
 
@@ -227,7 +224,7 @@ class LinearRegressionDecider(BaseDecider):
 #         compile_kwargs={"metrics": ["MAPE", "MAE"]},
 #         fit_kwargs={
 #             "epochs": 100,
-#             "callbacks": [keras.callbacks.EarlyStopping(patience=5, 
+#             "callbacks": [keras.callbacks.EarlyStopping(patience=5,
 # monitor="val_MAE")],
 #             "verbose": False,
 #             "validation_split": 0.33,
