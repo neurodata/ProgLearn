@@ -71,7 +71,6 @@ class LifelongRegressionNetwork:
             self.setup()
             self.is_first_task = False
 
-        X, y = check_X_y(X, y)
         self.pl.add_task(
             X, y, task_id=task_id, transformer_voter_decider_split=[0.6, 0.3, 0.1]
         )
@@ -79,7 +78,6 @@ class LifelongRegressionNetwork:
         return self
 
     def predict(self, X, task_id):
-        X = check_array(X)
         return self.pl.predict(X, task_id)
 
 
@@ -111,7 +109,7 @@ class LifelongClassificationNetwork:
             "compile_kwargs": {},
             "fit_kwargs": {
                 "epochs": self.epochs,
-                "callbacks": [EarlyStopping(patience=5, monitor="val_acc")],
+                "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
                 "verbose": self.verbose,
                 "validation_split": 0.33,
             },
@@ -150,5 +148,4 @@ class LifelongClassificationNetwork:
         return self.pl.predict(X, task_id)
 
     def predict_proba(self, X, task_id):
-        X = check_array(X)
         return self.pl.predict_proba(X, task_id)
