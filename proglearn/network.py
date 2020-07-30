@@ -12,13 +12,13 @@ from keras.callbacks import EarlyStopping
 
 class LifelongRegressionNetwork:
     def __init__(
-        self, network, decider="linear", loss="mse", epochs=100, lr=1e-3, verbose=False
+        self, network, decider="linear", loss="mse", epochs=100, optimizer=Adam(1e-3), verbose=False
     ):
         self.network = network
         self.decider = decider
         self.loss = loss
         self.epochs = epochs
-        self.lr = lr
+        self.optimizer = optimizer
         self.verbose = verbose
         self.is_first_task = True
 
@@ -29,7 +29,7 @@ class LifelongRegressionNetwork:
             "network": self.network,
             "euclidean_layer_idx": -2,
             "loss": self.loss,
-            "optimizer": Adam(self.lr),
+            "optimizer": self.optimizer,
             "compile_kwargs": {},
             "fit_kwargs": {
                 "epochs": self.epochs,
