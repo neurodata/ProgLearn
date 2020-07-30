@@ -89,7 +89,7 @@ ax.plot(range(len(train_time_across_tasks)), train_time_across_tasks, linewidth=
 ax.plot(range(len(inference_time_across_tasks)), inference_time_across_tasks, linewidth=3, linestyle="solid", label = "Inference Time")
 
 ax.set_xlabel('Number of Tasks Seen', fontsize=fontsize)
-ax.set_ylabel('Time (ms)', fontsize=fontsize)
+ax.set_ylabel('Time (seconds)', fontsize=fontsize)
 ax.tick_params(labelsize=ticksize)
 ax.legend(fontsize=22)
 

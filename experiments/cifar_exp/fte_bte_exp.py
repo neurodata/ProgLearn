@@ -25,6 +25,8 @@ from voters import TreeClassificationVoter, KNNClassificationVoter
 
 import tensorflow as tf
 
+import time
+
 #%%
 def unpickle(file):
     with open(file, 'rb') as fo:
@@ -40,6 +42,9 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     tasks = []
     base_tasks = []
     accuracies_across_tasks = []
+    train_times_across_tasks = []
+    single_task_inference_times_across_tasks = []
+    multitask_inference_times_across_tasks = []
     
     if model == "dnn":
         default_transformer_class = NeuralClassificationTransformer
@@ -82,34 +87,6 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         
         default_decider_class = SimpleAverage
     
-    for task_ii in range(10):
-        if model == "uf":
-            single_task_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
-                                         default_transformer_kwargs = default_transformer_kwargs,
-                                         default_voter_class = default_voter_class,
-                                         default_voter_kwargs = default_voter_kwargs,
-                                         default_decider_class = default_decider_class)
-
-            if acorn is not None:
-                np.random.seed(acorn)
-
-            single_task_learner.add_task(
-                X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
-                y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
-                num_transformers = 1 if model == "dnn" else ntrees,
-                transformer_voter_decider_split = [0.67, 0.33, 0],
-                decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
-            )
-            
-                        
-            
-            llf_task=single_task_learner.predict(
-                test_x[task_ii*1000:(task_ii+1)*1000], task_id = 0
-                )
-            single_task_accuracies[task_ii] = np.mean(
-                    llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
-                    )
-    
 
     progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
                                          default_transformer_kwargs = default_transformer_kwargs,
@@ -121,7 +98,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         print("Starting Task {} For Fold {}".format(task_ii, shift))
         if acorn is not None:
             np.random.seed(acorn)
-                    
+        
+        train_start_time = time.time()
         progressive_learner.add_task(
             X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task], 
             y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
@@ -129,19 +107,28 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             transformer_voter_decider_split = [0.67, 0.33, 0],
             decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
             )
+        train_end_time = time.time()
         
-        if model == "dnn":
-            llf_task=progressive_learner.predict(
-                X = test_x[task_ii*1000:(task_ii+1)*1000,:], transformer_ids=[task_ii], task_id=task_ii
-                )
-            single_task_accuracies[task_ii] = np.mean(
-                    llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
+        train_times_across_tasks.append(train_end_time - train_start_time)
+        
+        single_task_inference_start_time = time.time()      
+        llf_task=progressive_learner.predict(
+            X = test_x[task_ii*1000:(task_ii+1)*1000,:], transformer_ids=[task_ii], task_id=task_ii
+            )
+        single_task_inference_end_time = time.time()
+        single_task_accuracies[task_ii] = np.mean(
+                llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
                     )
+        single_task_inference_times_across_tasks.append(single_task_inference_end_time - single_task_inference_start_time)
+
+
         
         for task_jj in range(task_ii+1):
+            multitask_inference_start_time = time.time()     
             llf_task=progressive_learner.predict(
                 X = test_x[task_jj*1000:(task_jj+1)*1000,:], task_id=task_jj
                 )
+            multitask_inference_end_time = time.time()
             
             shifts.append(shift)
             tasks.append(task_jj+1)
@@ -149,18 +136,20 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             accuracies_across_tasks.append(np.mean(
                 llf_task == test_y[task_jj*1000:(task_jj+1)*1000]
                 ))
-            #print("Accuracies Across Tasks: {}".format(accuracies_across_tasks))
-            #print("Single Task 
+            multitask_inference_times_across_tasks.append(multitask_inference_end_time - multitask_inference_start_time)
             
     df['data_fold'] = shifts
     df['task'] = tasks
     df['base_task'] = base_tasks
     df['accuracy'] = accuracies_across_tasks
+    df['multitask_inference_times'] = multitask_inference_times_across_tasks
 
     df_single_task = pd.DataFrame()
     df_single_task['task'] = range(1, 11)
     df_single_task['data_fold'] = shift
     df_single_task['accuracy'] = single_task_accuracies
+    df_single_task['single_task_inference_times'] = single_task_inference_times_across_tasks
+    df_single_task['train_times'] = train_times_across_tasks
 
     summary = (df,df_single_task)
     file_to_save = 'result/result/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
@@ -210,7 +199,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 num_points_per_task = 500
 ########################
 
