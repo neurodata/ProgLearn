@@ -240,7 +240,7 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls=['-', '--']
-algorithms = ['XOR forest', 'N-XOR forest', 'Lifelong Forest', 'naive forest']
+algorithms = ['XOR Forest', 'N-XOR Forest', 'Lifelong Forest', 'Naive Forest']
 
 
 TASK1='XOR'
@@ -302,7 +302,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 mean_error = unpickle('result/mean_xor_nxor.pickle')
 std_error = unpickle('result/std_xor_nxor.pickle')
 
-algorithms = ['XOR forest', 'N-XOR forest', 'Lifelong Forest', 'naive forest']
+algorithms = ['XOR Forest', 'N-XOR Forest', 'Lifelong Forest', 'Naive Forest']
 
 TASK1='XOR'
 TASK2='N-XOR'
