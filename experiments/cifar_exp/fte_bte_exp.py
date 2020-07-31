@@ -80,7 +80,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         default_decider_class = SimpleAverage
     elif model == "uf":
         default_transformer_class = TreeClassificationTransformer
-        default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
+        default_transformer_kwargs = {"kwargs" : {"max_depth" : 30, "max_features" : "auto"}}
         
         default_voter_class = TreeClassificationVoter
         default_voter_kwargs = {}
@@ -215,7 +215,7 @@ data_y = data_y[:, 0]
 if model == "uf":
     slot_fold = range(10)
     shift_fold = range(1,7,1)
-    n_trees=[10]
+    n_trees=[50]
     iterable = product(n_trees,shift_fold,slot_fold)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
