@@ -180,7 +180,7 @@ std_te = np.zeros((4, len(n_xor)+len(n_nxor)))
 for i,n1 in enumerate(n_xor):
     print('starting to compute %s xor\n'%n1)
     error = np.array(
-        Parallel(n_jobs=40,verbose=1)(
+        Parallel(n_jobs=-1,verbose=1)(
         delayed(experiment)(n1,0,n_test,1,n_trees=n_trees,max_depth=ceil(log2(750))) for _ in range(mc_rep)
     )
     )
@@ -200,7 +200,7 @@ for i,n1 in enumerate(n_xor):
             print('starting to compute %s nxor\n'%n2)
             
             error = np.array(
-                Parallel(n_jobs=40,verbose=1)(
+                Parallel(n_jobs=-1,verbose=1)(
                 delayed(experiment)(n1,n2,n_test,1,n_trees=n_trees,max_depth=ceil(log2(750))) for _ in range(mc_rep)
             )
             )
