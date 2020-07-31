@@ -3,19 +3,15 @@ from .transformers import TreeClassificationTransformer
 from .voters import TreeClassificationVoter
 from .deciders import SimpleAverage
 
-from sklearn.utils import check_X_y, check_array
 
-class LifelongForest():
+class LifelongClassificationForest():
     
     def __init__(self, n_estimators=100, finite_sample_correction=False):
         self.n_estimators = n_estimators
-        self.pl = ProgressiveLearner(default_transformer_class=
-                                     TreeClassificationTransformer, 
+        self.pl = ProgressiveLearner(default_transformer_class=TreeClassificationTransformer, 
                                      default_transformer_kwargs={},
                                      default_voter_class=TreeClassificationVoter,
-                                     default_voter_kwargs=
-                                     {'finite_sample_correction' : 
-                                      finite_sample_correction}, 
+                                     default_voter_kwargs={'finite_sample_correction' : finite_sample_correction}, 
                                      default_decider_class=SimpleAverage,
                                      default_decider_kwargs={})
         
@@ -29,6 +25,9 @@ class LifelongForest():
         
     def predict(self, X, task_id):
         return self.pl.predict(X, task_id)
+
+    def predict_proba(self, X, task_id):
+        return self.pl.predict_proba(X, task_id)
 
 
 class UncertaintyForest():
