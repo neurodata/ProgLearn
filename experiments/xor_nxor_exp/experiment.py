@@ -240,7 +240,7 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls=['-', '--']
-algorithms = ['single task (XOR)', 'single task (N-XOR)', 'Lifelong Forest', 'naive']
+algorithms = ['XOR forest', 'N-XOR forest', 'Lifelong Forest', 'naive forest']
 
 
 TASK1='XOR'
@@ -302,7 +302,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 mean_error = unpickle('result/mean_xor_nxor.pickle')
 std_error = unpickle('result/std_xor_nxor.pickle')
 
-algorithms = ['single task (XOR)', 'single task (N-XOR)', 'Lifelong Forest', 'naive']
+algorithms = ['XOR forest', 'N-XOR forest', 'Lifelong Forest', 'naive forest']
 
 TASK1='XOR'
 TASK2='N-XOR'
@@ -359,7 +359,7 @@ ax1.set_title('N-XOR', fontsize=30)
 mean_te = unpickle('result/mean_te_xor_nxor.pickle')
 std_te = unpickle('result/std_te_xor_nxor.pickle')
 
-algorithms = ['Backward Transfer', 'Forward Transfer']
+algorithms = ['Lifelong BTE', 'Lifelong FTE', 'Naive BTE', 'Naive FTE']
 
 TASK1='XOR'
 TASK2='N-XOR'
@@ -383,10 +383,10 @@ ax1.plot(ns[len(n1s):], mean_te[1, len(n1s):], label=algorithms[1], c=colors[0],
 #        facecolor=colors[0], 
 #        alpha=0.15,
 #        interpolate=True)
-ax1.plot(ns, mean_te[2], label=algorithms[0], c='g', ls=ls[0], lw=3)
-ax1.plot(ns[len(n1s):], mean_te[3, len(n1s):], label=algorithms[1], c='g', ls=ls[1], lw=3)
+ax1.plot(ns, mean_te[2], label=algorithms[2], c='g', ls=ls[0], lw=3)
+ax1.plot(ns[len(n1s):], mean_te[3, len(n1s):], label=algorithms[3], c='g', ls=ls[1], lw=3)
 
-ax1.set_ylabel('Transfer Efficiency', fontsize=fontsize)
+ax1.set_ylabel('Forward/Backward \n Transfer Efficiency (FTE/BTE)', fontsize=fontsize)
 ax1.legend(loc='upper right', fontsize=20, frameon=False)
 #ax1.set_ylim(.99, 1.4)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
