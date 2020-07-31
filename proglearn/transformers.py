@@ -53,6 +53,7 @@ class NeuralClassificationTransformer(BaseTransformer):
         """
         check_classification_targets(y)
         _, y = np.unique(y, return_inverse=True)
+        self.num_classes = len(np.unique(y))
 
         # more typechecking
         self.network.compile(
