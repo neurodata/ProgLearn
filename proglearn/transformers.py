@@ -155,7 +155,7 @@ class NeuralRegressionTransformer(BaseTransformer):
         """
         Doc strings here.
         """
-        self.network = network
+        self.network = keras.models.clone_model(network)
         self.encoder = keras.models.Model(
             inputs=self.network.inputs,
             outputs=self.network.layers[euclidean_layer_idx].output,
