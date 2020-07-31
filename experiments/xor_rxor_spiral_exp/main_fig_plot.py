@@ -133,135 +133,147 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls=['-', '--']
-algorithms = ['Uncertainty Forest', 'Lifelong Forest']
+algorithms = ['XOR Forest', 'N-XOR Forest', 'Lifelong Forest', 'Naive Forest']
 
 
 TASK1='XOR'
 TASK2='N-XOR'
 
+fontsize=30
+labelsize=28
+
 colors = sns.color_palette("Set1", n_colors = 2)
 
-ax = fig.add_subplot(gs[7:13,2:9])
+ax1 = fig.add_subplot(gs[7:13,2:9])
+# for i, algo in enumerate(algorithms):
+ax1.plot(n1s, mean_error[0,:len(n1s)], label=algorithms[0], c=colors[1], ls=ls[np.sum(0 > 1).astype(int)], lw=3)
+ax1.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[1], c=colors[1], ls=ls[1], lw=3)
 
-ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[1], ls=ls[np.sum(0 > 1).astype(int)], lw=3)
-ax.plot(ns, mean_error[1], label=algorithms[1], c=colors[0], ls=ls[np.sum(1 > 1).astype(int)], lw=3)
+ax1.plot(ns, mean_error[1], label=algorithms[2], c=colors[0], ls=ls[np.sum(1 > 1).astype(int)], lw=3)
 
-ax.set_ylabel('Generalization Error (%s)'%(TASK1), fontsize=fontsize)
-ax.legend(loc='upper right', fontsize=20, frameon=False)
-ax.set_ylim(0.1, 0.2)
-ax.set_xlabel('Total Sample Size', fontsize=fontsize)
-ax.tick_params(labelsize=labelsize)
-ax.set_yticks([.1,0.15, 0.2])
-ax.set_xticks([250,750,1500])
-ax.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
-ax.set_title('XOR', fontsize=30)
+ax1.plot(ns, mean_error[4], label=algorithms[3], c='g', ls=ls[np.sum(1 > 1).astype(int)], lw=3)
 
-right_side = ax.spines["right"]
+ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontsize=fontsize)
+ax1.legend(loc='upper left', fontsize=20, frameon=False)
+ax1.set_ylim(0.09, 0.21)
+ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
+ax1.tick_params(labelsize=labelsize)
+ax1.set_yticks([0.1,0.15, 0.2])
+ax1.set_xticks([250,750,1500])
+#ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+ax1.set_title('XOR', fontsize=30)
+
+right_side = ax1.spines["right"]
 right_side.set_visible(False)
-top_side = ax.spines["top"]
+top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
-ax.text(400, np.mean(ax.get_ylim()), "%s"%(TASK1), fontsize=26)
-ax.text(900, np.mean(ax.get_ylim()), "%s"%(TASK2), fontsize=26)
-
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
 #######################
 mean_error = unpickle('../xor_nxor_exp/result/mean_xor_nxor.pickle')
 
-algorithms = ['Uncertainty Forest', 'Lifelong Forest']
+algorithms = ['XOR Forest', 'N-XOR Forest', 'Lifelong Forest', 'Naive Forest']
 
 TASK1='XOR'
 TASK2='N-XOR'
-ax = fig.add_subplot(gs[7:13,12:19])
 
-ax.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[0], c=colors[1], ls=ls[1], lw=3)
-ax.plot(ns[len(n1s):], mean_error[3, len(n1s):], label=algorithms[1], c=colors[0], ls=ls[1], lw=3)
+ax1 = fig.add_subplot(gs[7:13,12:19])
+ax1.plot(n1s, mean_error[0,:len(n1s)], label=algorithms[0], c=colors[1], ls=ls[np.sum(0 > 1).astype(int)], lw=3)
+ax1.plot(ns[len(n1s):], mean_error[2, len(n1s):], label=algorithms[1], c=colors[1], ls=ls[1], lw=3)
 
-ax.set_ylabel('Generalization Error (%s)'%(TASK2), fontsize=fontsize)
-ax.legend(loc='upper right', fontsize=20, frameon=False)
-ax.set_xlabel('Total Sample Size', fontsize=fontsize)
-ax.tick_params(labelsize=labelsize)
-ax.set_yticks([.1,0.15, 0.2])
-ax.set_xticks([250,750,1500])
-ax.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+ax1.plot(ns[len(n1s):], mean_error[3, len(n1s):], label=algorithms[2], c=colors[0], ls=ls[1], lw=3)
+ax1.plot(ns[len(n1s):], mean_error[5, len(n1s):], label=algorithms[3], c='g', ls=ls[1], lw=3)
 
-ax.set_ylim(0.1, 0.2)
+ax1.set_ylabel('Generalization Error (%s)'%(TASK2), fontsize=fontsize)
+ax1.legend(loc='upper left', fontsize=18, frameon=False)
+#         ax1.set_ylim(-0.01, 0.22)
+ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
+ax1.tick_params(labelsize=labelsize)
+# ax1.set_yticks([0.15, 0.25, 0.35])
+#ax1.set_yticks([0.15, 0.2])
+ax1.set_xticks([250,750,1500])
+#ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
-ax.set_xlim(-10)
-right_side = ax.spines["right"]
+#ax1.set_ylim(0.11, 0.21)
+
+right_side = ax1.spines["right"]
 right_side.set_visible(False)
-top_side = ax.spines["top"]
+top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
-ax.text(400, np.mean(ax.get_ylim()), "%s"%(TASK1), fontsize=26)
-ax.text(900, np.mean(ax.get_ylim()), "%s"%(TASK2), fontsize=26)
+# ax1.set_ylim(0.14, 0.36)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
-ax.set_title('N-XOR', fontsize=30)
+ax1.set_title('N-XOR', fontsize=30)
 
 ##################
-mean_error = unpickle('../xor_nxor_exp/result/mean_te_xor_nxor.pickle')
-std_error = unpickle('../xor_nxor_exp/result/std_te_xor_nxor.pickle')
-
-algorithms = ['Backward Transfer', 'Forward Transfer']
+mean_te = unpickle('../xor_nxor_exp/result/mean_te_xor_nxor.pickle')
+algorithms = ['Lifelong BTE', 'Lifelong FTE', 'Naive BTE', 'Naive FTE']
 
 TASK1='XOR'
 TASK2='N-XOR'
 
-ax = fig.add_subplot(gs[15:21,2:9])
+ax1 = fig.add_subplot(gs[15:21,2:9])
 
-ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
+ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
-ax.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[0], ls=ls[1], lw=3)
+ax1.plot(ns[len(n1s):], mean_te[1, len(n1s):], label=algorithms[1], c=colors[0], ls=ls[1], lw=3)
 
-ax.set_title('Transfer Efficiency for XOR and N-XOR',fontsize=fontsize)
-ax.set_ylabel('Transfer Efficiency', fontsize=fontsize)
-ax.legend(loc='upper right', fontsize=20, frameon=False)
-ax.set_ylim(.99, 1.42)
-ax.set_xlabel('Total Sample Size', fontsize=fontsize)
-ax.tick_params(labelsize=labelsize)
-ax.set_yticks([1,1.2,1.4])
-ax.set_xticks([250,750,1500])
-ax.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
-right_side = ax.spines["right"]
+ax1.plot(ns, mean_te[2], label=algorithms[2], c='g', ls=ls[0], lw=3)
+ax1.plot(ns[len(n1s):], mean_te[3, len(n1s):], label=algorithms[3], c='g', ls=ls[1], lw=3)
+
+ax1.set_ylabel('Forward/Backward \n Transfer Efficiency (FTE/BTE)', fontsize=fontsize)
+ax1.legend(loc='upper left', fontsize=20, frameon=False)
+#ax1.set_ylim(.99, 1.4)
+ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
+ax1.tick_params(labelsize=labelsize)
+ax1.set_yticks([0,.5,1,1.5])
+ax1.set_xticks([250,750,1500])
+#ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+right_side = ax1.spines["right"]
 right_side.set_visible(False)
-top_side = ax.spines["top"]
+top_side = ax1.spines["top"]
 top_side.set_visible(False)
-ax.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
+#ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
 
-ax.text(400, np.mean(ax.get_ylim()), "%s"%(TASK1), fontsize=26)
-ax.text(900, np.mean(ax.get_ylim()), "%s"%(TASK2), fontsize=26)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
 ######################
-mean_error = unpickle('./result/mean_te_xor_rxor.pickle')
-
-algorithms = ['Backward Transfer', 'Forward Transfer']
+mean_te = unpickle('./result/mean_te_xor_rxor.pickle')
+algorithms = ['Lifelong BTE', 'Lifelong FTE', 'Naive BTE', 'Naive FTE']
 
 TASK1='XOR'
 TASK2='R-XOR'
 
-ax = fig.add_subplot(gs[15:21,12:19])
+ax1 = fig.add_subplot(gs[15:21,12:19])
 
-ax.plot(ns, mean_error[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
+ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
-ax.plot(ns[len(n1s):], mean_error[1, len(n1s):], label=algorithms[1], c=colors[0], ls=ls[1], lw=3)
+ax1.plot(ns[len(n1s):], mean_te[1, len(n1s):], label=algorithms[1], c=colors[0], ls=ls[1], lw=3)
 
-ax.set_title('Transfer Efficiency for XOR and R-XOR',fontsize=fontsize)
-ax.set_ylabel('Transfer Efficiency', fontsize=fontsize)
-ax.legend(loc='upper right', fontsize=20, frameon=False)
-ax.set_ylim(0.96, 1.045)
-ax.set_xlabel('Total Sample Size', fontsize=fontsize)
-ax.tick_params(labelsize=labelsize)
-ax.set_yticks([0.96,1, 1.04])
-ax.set_xticks([250,750,1500])
-ax.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
-right_side = ax.spines["right"]
+ax1.plot(ns, mean_te[2], label=algorithms[2], c='g', ls=ls[0], lw=3)
+ax1.plot(ns[len(n1s):], mean_te[3, len(n1s):], label=algorithms[3], c='g', ls=ls[1], lw=3)
+
+ax1.set_ylabel('Forward/Backward \n Transfer Efficiency (FTE/BTE)', fontsize=fontsize)
+ax1.legend(loc='upper left', fontsize=20, frameon=False)
+#ax1.set_ylim(.99, 1.4)
+ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
+ax1.tick_params(labelsize=labelsize)
+ax1.set_yticks([0,.5,1])
+ax1.set_xticks([250,750,1500])
+#ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+right_side = ax1.spines["right"]
 right_side.set_visible(False)
-top_side = ax.spines["top"]
+top_side = ax1.spines["top"]
 top_side.set_visible(False)
-ax.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
+#ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
 
-ax.text(400, np.mean(ax.get_ylim())+.005, "%s"%(TASK1), fontsize=26)
-ax.text(900, np.mean(ax.get_ylim())+.005, "%s"%(TASK2), fontsize=26)
+ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
 ########################################################
 ax = fig.add_subplot(gs[23:29,2:9])
@@ -299,7 +311,7 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-
+#####################################
 ax = fig.add_subplot(gs[23:29,12:19])
 te_ra = []
 n1_ra = (2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
