@@ -237,7 +237,7 @@ right_side = ax1.spines["right"]
 right_side.set_visible(False)
 top_side = ax1.spines["top"]
 top_side.set_visible(False)
-#ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
+ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
 
 ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
@@ -270,7 +270,7 @@ right_side = ax1.spines["right"]
 right_side.set_visible(False)
 top_side = ax1.spines["top"]
 top_side.set_visible(False)
-#ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
+ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
 
 ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
