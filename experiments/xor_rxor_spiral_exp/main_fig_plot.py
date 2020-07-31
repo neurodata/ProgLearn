@@ -187,7 +187,7 @@ ax1.plot(ns[len(n1s):], mean_error[3, len(n1s):], label=algorithms[2], c=colors[
 ax1.plot(ns[len(n1s):], mean_error[5, len(n1s):], label=algorithms[3], c='g', ls=ls[1], lw=3)
 
 ax1.set_ylabel('Generalization Error (%s)'%(TASK2), fontsize=fontsize)
-ax1.legend(loc='upper left', fontsize=18, frameon=False)
+#ax1.legend(loc='upper left', fontsize=18, frameon=False)
 #         ax1.set_ylim(-0.01, 0.22)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
@@ -259,7 +259,7 @@ ax1.plot(ns, mean_te[2], label=algorithms[2], c='g', ls=ls[0], lw=3)
 ax1.plot(ns[len(n1s):], mean_te[3, len(n1s):], label=algorithms[3], c='g', ls=ls[1], lw=3)
 
 ax1.set_ylabel('Forward/Backward \n Transfer Efficiency (FTE/BTE)', fontsize=fontsize)
-ax1.legend(loc='upper left', fontsize=20, frameon=False)
+#ax1.legend(loc='upper left', fontsize=20, frameon=False)
 #ax1.set_ylim(.99, 1.4)
 ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
