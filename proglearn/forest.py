@@ -8,12 +8,14 @@ class LifelongClassificationForest():
     
     def __init__(self, n_estimators=100, finite_sample_correction=False):
         self.n_estimators = n_estimators
-        self.pl = ProgressiveLearner(default_transformer_class=TreeClassificationTransformer, 
-                                     default_transformer_kwargs={},
-                                     default_voter_class=TreeClassificationVoter,
-                                     default_voter_kwargs={'finite_sample_correction' : finite_sample_correction}, 
-                                     default_decider_class=SimpleAverage,
-                                     default_decider_kwargs={})
+        self.pl = ProgressiveLearner(
+            default_transformer_class=TreeClassificationTransformer, 
+            default_transformer_kwargs={},
+            default_voter_class=TreeClassificationVoter,
+            default_voter_kwargs={'finite_sample_correction' : finite_sample_correction}, 
+            default_decider_class=SimpleAverage,
+            default_decider_kwargs={}
+        )
         
     def add_task(self, X, y, task_id=None):
         self.pl.add_task(X, 
@@ -23,11 +25,11 @@ class LifelongClassificationForest():
                          num_transformers=self.n_estimators)
         return self
         
-    def predict(self, X, task_id):
-        return self.pl.predict(X, task_id)
+    def predict(self, X, task_id, transformer_ids=None):
+        return self.pl.predict(X, task_id, transformer_ids=transformer_ids)
 
-    def predict_proba(self, X, task_id):
-        return self.pl.predict_proba(X, task_id)
+    def predict_proba(self, X, task_id, transformer_ids=None):
+        return self.pl.predict_proba(X, task_id, transformer_ids=transformer_ids)
 
 
 class UncertaintyForest():
@@ -37,10 +39,42 @@ class UncertaintyForest():
         self.finite_sample_correction = finite_sample_correction
     
     def fit(self, X, y):
-        self.lf = LifelongForest(n_estimators=self.n_estimators,
-                                 finite_sample_correction=self.finite_sample_correction)
+        self.lf = LifelongClassificationForest(
+            n_estimators=self.n_estimators,
+            finite_sample_correction=self.finite_sample_correction)
         self.lf.add_task(X, y, task_id=0)
         return self
         
     def predict(self, X):
         return self.lf.predict(X, 0)
+
+
+class TransferForest():
+
+    def __init__(self, n_estimators=100):
+        self.lf = LifelongClassificationForest(n_estimators=n_estimators)
+        self.source_ids = []
+        
+    def add_source_task(self, X, y, task_id=None):
+        self.lf.add_task(X, 
+                         y, 
+                         task_id=task_id, 
+                         transformer_voter_decider_split=[0.9, 0.1, 0], 
+                         num_transformers=self.n_estimators)
+        self.source_ids.append(task_id)
+        return self
+
+    def add_target_task(self, X, y, task_id=None):
+        self.lf.add_task(X, 
+                         y, 
+                         task_id=task_id, 
+                         transformer_voter_decider_split=[0.1, 0.9, 0], 
+                         num_transformers=self.n_estimators)
+        self.target_id = task_id
+        return self
+        
+    def predict(self, X):
+        return self.lf.predict(X, self.target_id, transformer_ids=self.source_ids)
+
+    def predict_proba(self, X):
+        return self.lf.predict_proba(X, self.target_id, transformer_ids=self.source_ids)
