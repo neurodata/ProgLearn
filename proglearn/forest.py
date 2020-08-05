@@ -59,8 +59,7 @@ class TransferForest():
         self.lf.add_task(X, 
                          y, 
                          task_id=task_id, 
-                         transformer_voter_decider_split=[0.9, 0.1, 0], 
-                         num_transformers=self.n_estimators)
+                         transformer_voter_decider_split=[0.9, 0.1, 0])
         self.source_ids.append(task_id)
         return self
 
@@ -68,8 +67,7 @@ class TransferForest():
         self.lf.add_task(X, 
                          y, 
                          task_id=task_id, 
-                         transformer_voter_decider_split=[0.1, 0.9, 0], 
-                         num_transformers=self.n_estimators)
+                         transformer_voter_decider_split=[0.1, 0.9, 0])
         self.target_id = task_id
         return self
         
