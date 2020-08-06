@@ -51,6 +51,9 @@ class UncertaintyForest:
     def predict(self, X):
         return self.lf.predict(X, 0)
 
+    def predict_proba(self, X):
+        return self.lf.predict_proba(X, 0)
+
 
 class TransferForest:
     def __init__(self, n_estimators=100):
