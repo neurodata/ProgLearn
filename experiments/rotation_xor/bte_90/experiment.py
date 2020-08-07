@@ -20,12 +20,10 @@ sys.path.append("../../../src")
 
 from lifelong_dnn import LifeLongDNN
 
-<<<<<<< HEAD
-def generate_gaussian_parity(n, cov_scale=1, angle_params=None, k=1, acorn=None):
+'''def generate_gaussian_parity(n, cov_scale=1, angle_params=None, k=1, acorn=None):
     means = [[-1, -1], [-1, 1], [1, -1], [1, 1]]    
     blob = np.concatenate([np.random.multivariate_normal(mean, cov_scale * np.eye(len(mean)), 
-                                                 size=int(n / 4)) for mean in means])
-=======
+                                                 size=int(n / 4)) for mean in means])'''
 def generate_2d_rotation(theta=0, acorn=None):
     if acorn is not None:
         np.random.seed(acorn)
@@ -45,7 +43,6 @@ def generate_gaussian_parity(n, mean=np.array([-1, -1]), cov_scale=1, angle_para
     
     if mean[0] == -1 and mean[1] == -1:
         mean = mean + 1 / 2**k
->>>>>>> 3c08947b22ef40cd61750179d8763a5712464dba
     
     mnt = np.random.multinomial(n, 1/(4**k) * np.ones(4**k))
     cumsum = np.cumsum(mnt)
@@ -68,12 +65,10 @@ def generate_gaussian_parity(n, mean=np.array([-1, -1]), cov_scale=1, angle_para
             else:
                 Y[cumsum[i*(2**k) + j]:cumsum[i*(2**k) + j + 1]] = 1
                 
-<<<<<<< HEAD
     X = np.zeros_like(blob)
     X[:, 0] = blob[:, 0] * np.cos(angle_params * np.pi / 180) + blob[:, 1] * np.sin(angle_params * np.pi / 180)
     X[:, 1] = -blob[:, 0] * np.sin(angle_params * np.pi / 180) + blob[:, 1] * np.cos(angle_params * np.pi / 180)
 
-=======
     if d == 2:
         if angle_params is None:
             angle_params = np.random.uniform(0, 2*np.pi)
@@ -83,7 +78,6 @@ def generate_gaussian_parity(n, mean=np.array([-1, -1]), cov_scale=1, angle_para
         
     else:
         raise ValueError('d=%i not implemented!'%(d))
->>>>>>> 3c08947b22ef40cd61750179d8763a5712464dba
        
     return X, Y.astype(int)
 
