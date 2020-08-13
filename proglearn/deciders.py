@@ -42,7 +42,9 @@ class SimpleAverage(ClassificationDecider):
     def predict_proba(self, X, transformer_ids=None):
         vote_per_transformer_id = []
         for transformer_id in (
-            transformer_ids if transformer_ids else self.transformer_id_to_voters.keys()
+            transformer_ids
+            if transformer_ids is not None
+            else self.transformer_id_to_voters.keys()
         ):
             vote_per_bag_id = []
             for bag_id in range(
