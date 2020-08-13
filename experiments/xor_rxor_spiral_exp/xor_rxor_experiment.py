@@ -120,8 +120,8 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
         test_xor, test_label_xor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=0)
     
         #target data
-        nxor, label_nxor = generate_gaussian_parity(n_nxor,cov_scale=0.1,angle_params=np.pi/2)
-        test_nxor, test_label_nxor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=np.pi/2)
+        nxor, label_nxor = generate_gaussian_parity(n_nxor,cov_scale=0.1,angle_params=np.pi/4)
+        test_nxor, test_label_nxor = generate_gaussian_parity(n_test,cov_scale=0.1,angle_params=np.pi/4)
     
         if n_xor == 0:
             progressive_learner.add_task(nxor, label_nxor, num_transformers=n_trees)
@@ -179,7 +179,7 @@ std_te = np.zeros((2, len(n_xor)+len(n_rxor)))
 for i,n1 in enumerate(n_xor):
     print('starting to compute %s xor\n'%n1)
     error = np.array(
-        Parallel(n_jobs=40,verbose=1)(
+        Parallel(n_jobs=-1,verbose=1)(
         delayed(experiment)(n1,0,n_test,1,n_trees=n_trees,max_depth=ceil(log2(750))) for _ in range(mc_rep)
     )
     )
@@ -195,7 +195,7 @@ for i,n1 in enumerate(n_xor):
             print('starting to compute %s rxor\n'%n2)
             
             error = np.array(
-                Parallel(n_jobs=40,verbose=1)(
+                Parallel(n_jobs=-1,verbose=1)(
                 delayed(experiment)(n1,n2,n_test,1,n_trees=n_trees,max_depth=ceil(log2(750))) for _ in range(mc_rep)
             )
             )

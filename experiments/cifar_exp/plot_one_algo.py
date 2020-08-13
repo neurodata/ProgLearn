@@ -11,7 +11,6 @@ import seaborn as sns
 ntrees = 10
 slots = 10
 shifts = 6
-alg_num = 1
 task_num = 10
 model = "uf"
 ########################
@@ -85,7 +84,22 @@ def calc_mean_err(err,task_num=10,reps=6):
         #print(tmp)
         mean_err[j].extend([tmp])
             
-    return mean_err     
+    return mean_err 
+
+def calc_mean_multitask_time(multitask_time,task_num=10,reps=6):
+    mean_multitask_time = [[] for i in range(task_num)]
+
+
+    for j in range(task_num):
+        tmp = 0
+        for i in range(reps):
+            tmp += np.array(multitask_time[i][j])
+        
+        tmp=tmp/reps
+        #print(tmp)
+        mean_multitask_time[j].extend([tmp])
+            
+    return mean_multitask_time
 
 #%%
 reps = slots*shifts
@@ -99,14 +113,18 @@ te_tmp = [[] for _ in range(reps)]
 bte_tmp = [[] for _ in range(reps)]
 fte_tmp = [[] for _ in range(reps)]
 err_tmp = [[] for _ in range(reps)]
+train_time_tmp = [[] for _ in range(reps)]
+single_task_inference_time_tmp = [[] for _ in range(reps)]
+multitask_inference_time_tmp = [[] for _ in range(reps)]
 
 count = 0   
 for slot in range(slots):
     for shift in range(shifts):
-        filename = 'result/'+model+str(ntrees)+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+        filename = 'result/result/'+model+str(ntrees)+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
         multitask_df, single_task_df = unpickle(filename)
 
         err = [[] for _ in range(10)]
+        multitask_inference_times = [[] for _ in range(10)]
 
         for ii in range(10):
             err[ii].extend(
@@ -114,6 +132,7 @@ for slot in range(slots):
                  multitask_df[multitask_df['base_task']==ii+1]['accuracy']
              )
             )
+            multitask_inference_times[ii].extend(np.array(multitask_df[multitask_df['base_task']==ii+1]['multitask_inference_times']))
         single_err = 1 - np.array(single_task_df['accuracy'])
         fte, bte, te = get_fte_bte(err,single_err,ntrees)
     
@@ -122,7 +141,10 @@ for slot in range(slots):
             for j in range(task_num-i):
                 #print(err[i+j][i])
                 err_[i].append(err[i+j][i])
-            
+           
+        train_time_tmp[count].extend(np.array(single_task_df['train_times']))
+        single_task_inference_time_tmp[count].extend(np.array(single_task_df['single_task_inference_times']))
+        multitask_inference_time_tmp[count].extend(multitask_inference_times)
         te_tmp[count].extend(te)
         bte_tmp[count].extend(bte)
         fte_tmp[count].extend(fte)
@@ -133,6 +155,11 @@ te = calc_mean_te(te_tmp,reps=reps)
 bte = calc_mean_bte(bte_tmp,reps=reps)
 fte = calc_mean_fte(fte_tmp,reps=reps)
 error = calc_mean_err(err_tmp,reps=reps)
+
+train_time = np.mean(train_time_tmp, axis = 0)
+single_task_inference_time = np.mean(single_task_inference_time_tmp, axis = 0)
+multitask_inference_time = calc_mean_multitask_time(multitask_inference_time_tmp)
+multitask_inference_time = [np.mean(multitask_inference_time[i]) for i in range(len(multitask_inference_time))]
 
 #%%
 sns.set()
@@ -211,5 +238,30 @@ ax[1][1].set_ylabel('Accuracy', fontsize=fontsize)
 ax[1][1].tick_params(labelsize=ticksize)
 
 plt.savefig('./result/figs/fig_trees'+str(ntrees)+"__"+model+'.pdf',dpi=300)
+plt.close()
+
+ax = plt.subplot(111)
+
+# Hide the right and top spines
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+
+# Only show ticks on the left and bottom spines
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+
+#fig.suptitle('ntrees = '+str(ntrees),fontsize=25)
+ax.plot(range(len(train_time)), train_time, linewidth=3, linestyle="solid", label = "Train Time")
+ax.plot(range(len(single_task_inference_time)), single_task_inference_time, linewidth=3, linestyle="solid", label = "Single Task Inference Time")
+ax.plot(range(len(multitask_inference_time)), multitask_inference_time, linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
+    
+
+ax.set_xlabel('Number of Tasks Seen', fontsize=fontsize)
+ax.set_ylabel('Time (seconds)', fontsize=fontsize)
+ax.tick_params(labelsize=ticksize)
+ax.legend(fontsize=22)
+
+plt.tight_layout()
+plt.savefig('./result/figs/cifar_timing_results.pdf',dpi=300)
 
 # %%
