@@ -5,14 +5,19 @@ from .transformers import NeuralClassificationTransformer, NeuralRegressionTrans
 from .voters import KNNClassificationVoter, NeuralRegressionVoter
 from .deciders import SimpleAverage, LinearRegressionDecider, KNNRegressionDecider
 
-from sklearn.utils import check_X_y, check_array
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
 
 
 class LifelongRegressionNetwork:
     def __init__(
-        self, network, decider="linear", loss="mse", epochs=100, optimizer=Adam(1e-3), verbose=False
+        self,
+        network,
+        decider="linear",
+        loss="mse",
+        epochs=100,
+        optimizer=Adam(1e-3),
+        verbose=False,
     ):
         self.network = network
         self.decider = decider
@@ -114,7 +119,7 @@ class LifelongClassificationNetwork:
                 # "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
                 "verbose": self.verbose,
                 "validation_split": 0.33,
-                "batch_size": self.batch_size
+                "batch_size": self.batch_size,
             },
         }
 

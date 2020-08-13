@@ -12,7 +12,7 @@ from sklearn.utils.validation import (
 
 from sklearn.utils.multiclass import check_classification_targets, type_of_target
 
-from base import BaseVoter
+from .base import BaseVoter
 
 from tensorflow import keras
 from keras import layers
@@ -34,7 +34,7 @@ class TreeClassificationVoter(BaseVoter):
         """
         check_classification_targets(y)
 
-        if type_of_target(y) == 'multilabel-indicator':
+        if type_of_target(y) == "multilabel-indicator":
             # Fit multilabel binary task.
             self.multilabel = True
             return self.fit_multilabel(X, y)
@@ -66,7 +66,7 @@ class TreeClassificationVoter(BaseVoter):
 
         num_labels = y.shape[1]
         self.uniform_posterior = y.sum(axis=0) / len(y)
-        
+
         # Each posterior is now a num_labels size vector or binary probabilities.
         self.leaf_to_posterior = {}
 
@@ -244,25 +244,24 @@ class TreeRegressionVoter(BaseVoter):
 
         self._is_fitted = False
 
-
     def fit(self, X, y):
         """
         Doc strings here.
         """
-        
-        
+
         self.leaf_to_yhat = {}
         self.global_yhat = np.mean(y)
 
         for leaf_id in np.unique(X):
             idxs_in_leaf = np.where(X == leaf_id)[0]
-            # class_counts = [len(np.where(y[idxs_in_leaf] == y_val)[0]) for y_val in np.unique(y)]
+            # class_counts = [
+            #     len(np.where(y[idxs_in_leaf] == y_val)[0]) for y_val in np.unique(y)
+            # ]
             self.leaf_to_yhat[leaf_id] = np.nan_to_num(np.mean(y[idxs_in_leaf]))
 
         self._is_fitted = True
 
         return self
-
 
     def vote(self, X):
         """
@@ -271,11 +270,11 @@ class TreeRegressionVoter(BaseVoter):
 
         if not self.is_fitted():
             msg = (
-                    "This %(name)s instance is not fitted yet. Call 'fit' with "
-                    "appropriate arguments before using this voter."
+                "This %(name)s instance is not fitted yet. Call 'fit' with "
+                "appropriate arguments before using this voter."
             )
             raise NotFittedError(msg % {"name": type(self).__name__})
-        
+
         votes_per_example = []
         for x in X:
             if x in list(self.leaf_to_yhat.keys()):
@@ -284,10 +283,10 @@ class TreeRegressionVoter(BaseVoter):
                 votes_per_example.append(self.global_yhat)
         return np.array(votes_per_example)
 
-
     def is_fitted(self):
         """
         Doc strings here.
         """
 
         return self._is_fitted
+
