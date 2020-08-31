@@ -1,7 +1,7 @@
-from .progressive_learner import ProgressiveLearner
-from .transformers import TreeClassificationTransformer
-from .voters import TreeClassificationVoter
-from .deciders import SimpleAverage
+from progressive_learner import ProgressiveLearner
+from transformers import TreeClassificationTransformer
+from voters import TreeClassificationVoter
+from deciders import SimpleAverage
 
 
 class LifelongClassificationForest:

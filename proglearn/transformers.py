@@ -106,8 +106,7 @@ class TreeClassificationTransformer(BaseTransformer):
         Doc strings here.
         """
 
-        multi_output = True if type_of_target(y) == "multilabel-indicator" else False
-        X, y = check_X_y(X, y, multi_output=multi_output)
+        X, y = check_X_y(X, y)
 
         # define the ensemble
         self.transformer = DecisionTreeClassifier(**self.kwargs).fit(X, y)

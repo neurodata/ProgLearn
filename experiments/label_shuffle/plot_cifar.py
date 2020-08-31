@@ -8,7 +8,7 @@ from itertools import product
 import seaborn as sns
 
 ### MAIN HYPERPARAMS ###
-slots = 10
+slots = 1
 shifts = 6
 alg_name = ['L2N','L2F']
 ########################
@@ -106,34 +106,6 @@ def calc_mean_bte(btes,task_num=10,reps=6):
         mean_bte.extend(tmp)
             
     return mean_bte       
-
-#%% without shuffling result
-reps = slots*shifts
-btes_org = np.zeros((len(alg_name),10),dtype=float)
-total_alg = 8
-
-for alg_no,alg in enumerate(alg_name):
-    count = 0 
-    bte_tmp = [[] for _ in range(reps)]
-
-    for slot in range(slots):
-        for shift in range(shifts):
-            if alg_no==0:
-                filename = '../cifar_exp/result/result/dnn0_'+str(shift+1)+'_'+str(slot)+'.pickle'
-            elif alg_no==1:
-                filename = '../cifar_exp/result/result/uf10_'+str(shift+1)+'_'+str(slot)+'.pickle'
-            else:
-                filename = '../cifar_exp/benchmarking_algorthms_result/'+alg+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
-
-            multitask_df, single_task_df = unpickle(filename)
-
-            single_err, err = get_error_matrix(filename)
-            _, bte, _ = get_fte_bte(err,single_err)
-            
-            bte_tmp[count].extend(bte)
-            count+=1
-    
-    btes_org[alg_no][:] = np.array(calc_mean_bte_(bte_tmp,reps=reps)[0])
 
 #%% shuffling result
 reps = slots*shifts

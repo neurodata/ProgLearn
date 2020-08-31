@@ -1,8 +1,8 @@
 import numpy as np
-from .base import ClassificationDecider
+from base import ClassificationDecider, ClassificationProgressiveLearner
 
 
-class ProgressiveLearner:
+class ProgressiveLearner(ClassificationProgressiveLearner):
     def __init__(
         self,
         default_transformer_class=None,
@@ -442,4 +442,3 @@ class ProgressiveLearner:
             raise AttributeError(
                 "Cannot call `predict_proba` on non-classification decider."
             )
-

@@ -75,3 +75,22 @@ class ClassificationDecider(BaseDecider):
     @abc.abstractmethod
     def predict_proba(self, X):
         pass
+    
+class BaseProgressiveLearner(abc.ABC):
+    @abc.abstractmethod
+    def add_task(self, X, y):
+        pass
+
+    @abc.abstractmethod
+    def add_transformer(self, X, y):
+        pass
+    
+    @abc.abstractmethod
+    def predict(self, X, task_id):
+        pass
+
+
+class ClassificationProgressiveLearner(BaseProgressiveLearner):
+    @abc.abstractmethod
+    def predict_proba(self, X, task_id):
+        pass
