@@ -81,7 +81,7 @@ def get_error_matrix(filename):
 #%%
 ### MAIN HYPERPARAMS ###
 ntrees = 10
-slots = 10
+slots = 4
 task_num = 10
 shifts = 1
 total_alg = 9

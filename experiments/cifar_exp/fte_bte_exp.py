@@ -199,7 +199,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 500
 ########################
 
@@ -215,7 +215,7 @@ data_y = data_y[:, 0]
 if model == "uf":
     slot_fold = range(10)
     shift_fold = range(1,7,1)
-    n_trees=[50]
+    n_trees=[10]
     iterable = product(n_trees,shift_fold,slot_fold)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
