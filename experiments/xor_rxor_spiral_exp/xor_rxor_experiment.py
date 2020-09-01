@@ -96,7 +96,7 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
     
     for i in range(reps):
         default_transformer_class = TreeClassificationTransformer
-        default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
+        default_transformer_kwargs = {"kwargs" : {"max_depth" : max_depth}}
 
         default_voter_class = TreeClassificationVoter
         default_voter_kwargs = {}
@@ -164,7 +164,7 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
     return np.mean(errors,axis=0)
 
 #%%
-mc_rep = 500
+mc_rep = 1000
 n_test = 1000
 n_trees = 10
 n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)

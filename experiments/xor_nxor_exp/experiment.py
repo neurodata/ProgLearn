@@ -97,7 +97,7 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
     
     for i in range(reps):
         default_transformer_class = TreeClassificationTransformer
-        default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
+        default_transformer_kwargs = {"kwargs" : {"max_depth" : max_depth}}
 
         default_voter_class = TreeClassificationVoter
         default_voter_kwargs = {}
