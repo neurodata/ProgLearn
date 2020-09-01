@@ -84,9 +84,9 @@ ntrees = 10
 slots = 4
 task_num = 10
 shifts = 1
-total_alg = 9
-alg_name = ['L2N','L2F','L2F(minus)','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
-model_file = ['dnn0','fixed_uf10','uf10','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
+total_alg = 8
+alg_name = ['L2N','L2F','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI']
+model_file = ['dnn0','fixed_uf10','Prog_NN','DF_CNN', 'LwF','EWC', 'Online_EWC', 'SI']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
@@ -103,7 +103,7 @@ for alg in range(total_alg):
 
     for slot in range(slots):
         for shift in range(shifts):
-            if alg < 3:
+            if alg < 2:
                 filename = 'result/result/'+model_file[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             else:
                 filename = 'benchmarking_algorthms_result/'+model_file[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
@@ -123,7 +123,7 @@ for alg in range(total_alg):
     ftes[alg].extend(calc_mean_fte(fte_tmp,reps=reps))
 
 #%%
-te = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float),'L2Fc':np.zeros(10,dtype=float), 'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
+te = {'L2N':np.zeros(10,dtype=float), 'L2F':np.zeros(10,dtype=float),'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),'EWC':np.zeros(10,dtype=float), 'Online EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float)}
 
 for count,name in enumerate(te.keys()):
     for i in range(10):
@@ -132,7 +132,7 @@ for count,name in enumerate(te.keys()):
 df = pd.DataFrame.from_dict(te)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 
-mean_te = {'L2N':[np.mean(te['L2N'])],'L2F':[np.mean(te['L2F'])], 'L2Fc':[np.mean(te['L2Fc'])],
+mean_te = {'L2N':[np.mean(te['L2N'])],'L2F':[np.mean(te['L2F'])],
             'Prog-NN':[np.mean(te['Prog-NN'])],'DF-CNN':[np.mean(te['DF-CNN'])], 
            'LwF':[np.mean(te['LwF'])],'EWC':[np.mean(te['EWC'])], 
            'Online EWC':[np.mean(te['Online EWC'])], 'SI':[np.mean(te['SI'])]
@@ -141,7 +141,7 @@ mean_df = pd.DataFrame.from_dict(mean_te)
 mean_df = pd.melt(mean_df,var_name='Algorithms', value_name='Transfer Efficieny')
 
 #%%
-clr = ["#00008B", "#e41a1c", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
+clr = ["#00008B", "#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
 c = sns.color_palette(clr, n_colors=len(clr))
 
 fontsize=24
@@ -156,10 +156,6 @@ for i, fte in enumerate(ftes):
 
     if i == 1:
         ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', markersize=12, label=alg_name[i], linewidth=3)
-        continue
-
-    if i == 2:
-        ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', linestyle='dashed', markersize=12, label=alg_name[i], linewidth=3)
         continue
     
     ax[0][0].plot(np.arange(1,11), fte, c=clr[i], marker='.', markersize=12, label=alg_name[i])
@@ -195,11 +191,6 @@ for i in range(task_num - 1):
                 ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linewidth = 3)
             else:
                 ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linewidth = 3)
-        elif j==2:
-            if i == 0:
-                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linestyle='dashed', linewidth = 3)
-            else:
-                ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linestyle='dashed', linewidth = 3)
         else:
             if i == 0:
                 ax[0][1].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j])
@@ -242,11 +233,6 @@ for i in range(task_num- 1):
                 ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linewidth = 3)
             else:
                 ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linewidth = 3)        
-        elif j == 2:
-            if i == 0 or i==1:
-                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j], linestyle='dashed', linewidth = 3)
-            else:
-                ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, c=c[j], linestyle='dashed', linewidth = 3)
         else:
             if i == 0 or i==1:
                 ax[1][0].plot(ns, et[j,:], marker='.', markersize=8, label = alg_name[j], c=c[j])
@@ -283,7 +269,7 @@ ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_.set_xlabel('Algorithms', fontsize=fontsize)
 ax_.set_ylabel('Final Transfer Efficiency', fontsize=fontsize)
 ax_.set_xticklabels(
-    ['L2N','L2F','L2F(minus)','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
+    ['L2N','L2F','Prog-NN','DF-CNN','LwF','EWC','O-EWC','SI'],
     fontsize=12,rotation=45,ha="right",rotation_mode='anchor'
     )
 
