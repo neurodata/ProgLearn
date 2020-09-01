@@ -79,3 +79,4 @@ for a in ax:
 plt.tight_layout()
 
 plt.savefig('figs/RXOR_suite.pdf')
+# %%
