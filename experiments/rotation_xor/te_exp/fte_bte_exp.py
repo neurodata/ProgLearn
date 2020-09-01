@@ -91,7 +91,7 @@ def generate_gaussian_parity(n, cov_scale=1, angle_params=None, k=1, acorn=None)
 
 #%%
 num_task_1_data_ra=(2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
-reps = range(10)
+reps = range(1000)
 iterable = product(num_task_1_data_ra, reps)
 Parallel(n_jobs=-1,verbose=1)(delayed(LF_experiment)(num_task_1_data, rep) for num_task_1_data, rep in iterable)
 
