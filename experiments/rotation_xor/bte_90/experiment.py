@@ -88,7 +88,7 @@ def LF_experiment(angle, reps=1, ntrees=10, acorn=None):
 
 ### MAIN HYPERPARAMS ###
 granularity = 1
-reps = 10
+reps = 1000
 ########################
 
 
