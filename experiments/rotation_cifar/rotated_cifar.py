@@ -65,27 +65,27 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, 
     
     errors = np.zeros(2)
     
-    for rep in range(reps):
-        print("Starting Rep {} of Angle {}".format(rep, angle))
-        train_x1, train_y1, train_x2, train_y2, test_x, test_y = cross_val_data(data_x, data_y, total_cls=10)
-    
-    
-        #change data angle for second task
-        tmp_data = train_x2.copy()
-        _tmp_ = np.zeros((32,32,3), dtype=int)
-        total_data = tmp_data.shape[0]
-        
-        for i in range(total_data):
-            tmp_ = image_aug(tmp_data[i],angle)
-            tmp_data[i] = tmp_
-        
-        if model == "uf":
-            train_x1 = train_x1.reshape((train_x1.shape[0], train_x1.shape[1] * train_x1.shape[2] * train_x1.shape[3]))
-            tmp_data = tmp_data.reshape((tmp_data.shape[0], tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3]))
-            test_x = test_x.reshape((test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3]))
-            
-        if model == "dnn":
-            with tf.device('/gpu:'+str(int(angle //  granularity) % 4)):
+    with tf.device('/gpu:'+str(int(angle //  granularity) % 4)):
+        for rep in range(reps):
+            train_x1, train_y1, train_x2, train_y2, test_x, test_y = cross_val_data(data_x, data_y, total_cls=10)
+
+
+            #change data angle for second task
+            tmp_data = train_x2.copy()
+            _tmp_ = np.zeros((32,32,3), dtype=int)
+            total_data = tmp_data.shape[0]
+
+            for i in range(total_data):
+                tmp_ = image_aug(tmp_data[i],angle)
+                tmp_data[i] = tmp_
+
+            if model == "uf":
+                train_x1 = train_x1.reshape((train_x1.shape[0], train_x1.shape[1] * train_x1.shape[2] * train_x1.shape[3]))
+                tmp_data = tmp_data.reshape((tmp_data.shape[0], tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3]))
+                test_x = test_x.reshape((test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3]))
+
+            if model == "dnn":
+
                 default_transformer_class = NeuralClassificationTransformer
 
                 network = keras.Sequential()
@@ -117,42 +117,42 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, 
                 default_voter_kwargs = {"k" : int(np.log2(len(train_x1)))}
 
                 default_decider_class = SimpleAverage
-        elif model == "uf":
-            default_transformer_class = TreeClassificationTransformer
-            default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
+            elif model == "uf":
+                default_transformer_class = TreeClassificationTransformer
+                default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
 
-            default_voter_class = TreeClassificationVoter
-            default_voter_kwargs = {}
+                default_voter_class = TreeClassificationVoter
+                default_voter_kwargs = {}
 
-            default_decider_class = SimpleAverage
-        
-            
-        progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
-                                     default_transformer_kwargs = default_transformer_kwargs,
-                                     default_voter_class = default_voter_class,
-                                     default_voter_kwargs = default_voter_kwargs,
-                                     default_decider_class = default_decider_class)
-
-        progressive_learner.add_task(
-            X = train_x1, 
-            y = train_y1,
-            transformer_voter_decider_split = [0.67, 0.33, 0],
-            decider_kwargs = {"classes" : np.unique(train_y1)}
-        )
-
-        progressive_learner.add_transformer(
-            X = tmp_data, 
-            y = train_y2,
-            transformer_data_proportion = 1,
-            backward_task_ids = [0]
-        )
+                default_decider_class = SimpleAverage
 
 
-        llf_task1=progressive_learner.predict(test_x, task_id=0)
-        llf_single_task=progressive_learner.predict(test_x, task_id=0, transformer_ids=[0])
+            progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                         default_transformer_kwargs = default_transformer_kwargs,
+                                         default_voter_class = default_voter_class,
+                                         default_voter_kwargs = default_voter_kwargs,
+                                         default_decider_class = default_decider_class)
 
-        errors[1] = errors[1]+(1 - np.mean(llf_task1 == test_y))
-        errors[0] = errors[0]+(1 - np.mean(llf_single_task == test_y))
+            progressive_learner.add_task(
+                X = train_x1, 
+                y = train_y1,
+                transformer_voter_decider_split = [0.67, 0.33, 0],
+                decider_kwargs = {"classes" : np.unique(train_y1)}
+            )
+
+            progressive_learner.add_transformer(
+                X = tmp_data, 
+                y = train_y2,
+                transformer_data_proportion = 1,
+                backward_task_ids = [0]
+            )
+
+
+            llf_task1=progressive_learner.predict(test_x, task_id=0)
+            llf_single_task=progressive_learner.predict(test_x, task_id=0, transformer_ids=[0])
+
+            errors[1] = errors[1]+(1 - np.mean(llf_task1 == test_y))
+            errors[0] = errors[0]+(1 - np.mean(llf_single_task == test_y))
     
     errors = errors/reps
     print("Errors For Angle {}: {}".format(angle, errors))
@@ -175,7 +175,7 @@ def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
     return img_as_ubyte(image_aug_)
 
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 granularity = 2
 reps = 4
 ########################
