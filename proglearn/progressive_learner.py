@@ -6,6 +6,39 @@ import numpy as np
 from base import ClassificationDecider, ClassificationProgressiveLearner
 
 class ProgressiveLearner(ClassificationProgressiveLearner):
+    """
+    A class for progressive learning in the classification setting. 
+    
+    Parameters
+    ----------
+    default_transformer_class : BaseTransformer, default=None
+        The class of transformer to which the progressive learner defaults 
+        if None is provided in any of the functions which add or set 
+        transformers.
+    default_transformer_kwargs : dict, default=None
+        A dictionary with keys of type string and values of type obj corresponding 
+        to the given string kwarg. This determines to which type of transformer the 
+        progressive learner defaults if None is provided in any of the functions 
+        which add or set transformers.
+    default_voter_class : BaseVoter, default=None
+        The class of voter to which the progressive learner defaults 
+        if None is provided in any of the functions which add or set 
+        voters.
+    default_voter_kwargs : dict, default=None
+        A dictionary with keys of type string and values of type obj corresponding 
+        to the given string kwarg. This determines to which type of voter the 
+        progressive learner defaults if None is provided in any of the functions 
+        which add or set voters.
+    default_decider_class : BaseDecider, default=None
+        The class of decider to which the progressive learner defaults 
+        if None is provided in any of the functions which add or set 
+        deciders.
+    default_decider_kwargs : dict, default=None
+        A dictionary with keys of type string and values of type obj corresponding 
+        to the given string kwarg. This determines to which type of decider the 
+        progressive learner defaults if None is provided in any of the functions 
+        which add or set deciders.
+    """
     def __init__(
         self,
         default_transformer_class=None,
