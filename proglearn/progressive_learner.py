@@ -287,7 +287,7 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
         self,
         X,
         y,
-        transformer_voter_split=[0.67, 0.33],
+        transformer_data_proportion=1,
         transformer_voter_data_idx=None,
         transformer_id=None,
         num_transformers=1,
@@ -297,10 +297,6 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
         voter_kwargs=None,
         backward_task_ids=None,
     ):
-        if np.sum(transformer_voter_split) != 1:
-            raise ValueError(
-                "transformer_voter_split must add up to 1."
-            )
 
         if transformer_id is None:
             transformer_id = len(self.get_transformer_ids())
@@ -308,7 +304,6 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
         backward_task_ids = (
             backward_task_ids if backward_task_ids is not None else self.get_task_ids()
         )
-        
         transformer_voter_data_idx = (
             range(len(X))
             if transformer_voter_data_idx is None
@@ -330,7 +325,7 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
                 n = None
             if n is not None:
                 transformer_data_idx = np.random.choice(
-                    transformer_voter_data_idx, int(transformer_voter_split[0] * n)
+                    transformer_voter_data_idx, int(transformer_data_proportion * n)
                 )
             else:
                 transformer_data_idx = None
@@ -342,7 +337,7 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
                 default_voter_class=voter_class,
                 default_voter_kwargs=voter_kwargs,
             )
-            voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
+            voter_data_idx = np.delete(range(len(X)), transformer_data_idx)
             self._append_voter_data_idx(
                 task_id=transformer_id,
                 bag_id=transformer_num,
