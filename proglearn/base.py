@@ -2,7 +2,6 @@
 Main Author: Will LeVine 
 Corresponding Email: levinewill@icloud.com
 '''
-
 import abc
 
 class BaseTransformer(abc.ABC):
