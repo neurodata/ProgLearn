@@ -1,6 +1,9 @@
+'''
+Main Author: Will LeVine 
+Corresponding Email: levinewill@icloud.com
+'''
 import numpy as np
 from base import ClassificationDecider, ClassificationProgressiveLearner
-
 
 class ProgressiveLearner(ClassificationProgressiveLearner):
     def __init__(
