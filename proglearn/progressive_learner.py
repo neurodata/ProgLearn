@@ -337,7 +337,7 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
                 default_voter_class=voter_class,
                 default_voter_kwargs=voter_kwargs,
             )
-            voter_data_idx = np.delete(range(len(X)), transformer_data_idx)
+            voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
             self._append_voter_data_idx(
                 task_id=transformer_id,
                 bag_id=transformer_num,
