@@ -323,7 +323,7 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
         self,
         X,
         y,
-        transformer_data_proportion=1,
+        transformer_data_proportion=1.0,
         transformer_voter_data_idx=None,
         transformer_id=None,
         num_transformers=1,
@@ -333,6 +333,49 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
         voter_kwargs=None,
         backward_task_ids=None,
     ):
+        """
+        Adds a transformer to the progressive learner and trains the voters and 
+        deciders from this new transformer to the specified backward_task_ids.
+        
+        Parameters
+        ----------
+        X : ndarray
+            Input data matrix.
+        y : ndarray
+            Output (response) data matrix.
+        transformer_data_proportion : float, default=1.0
+            The proportion of the data set aside to train the transformer. The 
+            remainder of the data is used to train voters. This is used in the 
+            case that you are using a bagging algorithm and want the various 
+            components in that bagging ensemble to train on disjoint subsets of 
+            the data. This parameter is mostly for internal use.
+        transformer_voter_data_idx : ndarray, default=None
+            A 1d array of type int used to specify the aggregate indices of the input 
+            data used to train the transformers and voters. This is used in the 
+            case that X and/or y contain data that you do not want to use to train 
+            transformers or voters (e.g. X and/or y contains decider training data 
+            disjoint from the transformer/voter data). This parameter is mostly 
+            for internal use. 
+        transformer_id : obj
+            The id corresponding to the transformer being added.
+        num_transformers : int 
+            The number of transformers to add corresponding to the given inputs.
+        transformer_class : BaseTransformer, default=None
+            The class of the transformer(s) being added.
+        transformer_kwargs : dict, default=None
+            A dictionary with keys of type string and values of type obj corresponding 
+            to the given string kwarg. This determines the kwargs of the transformer(s) 
+            being added.
+        voter_class : BaseVoter, default=None
+            The class of the voter(s) being added.
+        voter_kwargs : dict, default=None
+            A dictionary with keys of type string and values of type obj corresponding 
+            to the given string kwarg. This determines the kwargs of the voter(s) 
+            being added.
+        backward_task_ids : ndarray, default=None
+            A 1d array of type obj used to specify to which existing task voters and deciders
+            will be trained from the transformer(s) being added.
+        """
 
         if transformer_id is None:
             transformer_id = len(self.get_transformer_ids())
