@@ -1,0 +1,31 @@
+language: python
+
+python:
+- '3.6'
+- '3.7'
+- '3.8'
+
+jobs:
+  include:
+  - os: windows
+    language: sh
+    python: '3.7'
+    before_install:
+    - choco install python3 --params "/InstallDir:C:\\Python" --version 3.7.4
+    - export PATH="/c/Python:/c/Python/Scripts:$PATH"
+    - python -m pip install --upgrade pip wheel
+
+branches:
+  only:
+  - master
+
+cache: pip
+
+install:
+- pip install -r requirements.txt
+
+script:
+- pytest src/
+
+after_success:
+- codecov
