@@ -1,5 +1,5 @@
 import numpy as np
-from base import ClassificationDecider, ClassificationProgressiveLearner
+from .base import ClassificationDecider, ClassificationProgressiveLearner
 
 
 class ProgressiveLearner(ClassificationProgressiveLearner):
