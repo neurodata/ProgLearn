@@ -70,45 +70,45 @@ class TestSystem:
         #tests proglearn on xor nxor simulation data
         np.random.seed(12345)
 
-    reps = 10
-    errors = np.zeros((4,reps),dtype=float)
+        reps = 10
+        errors = np.zeros((4,reps),dtype=float)
 
-    for ii in range(reps):
-        default_transformer_class = TreeClassificationTransformer
-        default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
+        for ii in range(reps):
+            default_transformer_class = TreeClassificationTransformer
+            default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
 
-        default_voter_class = TreeClassificationVoter
-        default_voter_kwargs = {}
+            default_voter_class = TreeClassificationVoter
+            default_voter_kwargs = {}
 
-        default_decider_class = SimpleAverage
-        default_decider_kwargs = {"classes" : np.arange(2)}
-        progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
-                                            default_transformer_kwargs = default_transformer_kwargs,
-                                            default_voter_class = default_voter_class,
-                                            default_voter_kwargs = default_voter_kwargs,
-                                            default_decider_class = default_decider_class,
-                                            default_decider_kwargs = default_decider_kwargs)
+            default_decider_class = SimpleAverage
+            default_decider_kwargs = {"classes" : np.arange(2)}
+            progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                                default_transformer_kwargs = default_transformer_kwargs,
+                                                default_voter_class = default_voter_class,
+                                                default_voter_kwargs = default_voter_kwargs,
+                                                default_decider_class = default_decider_class,
+                                                default_decider_kwargs = default_decider_kwargs)
 
-        xor, label_xor = generate_gaussian_parity(750,cov_scale=0.1,angle_params=0)
-        test_xor, test_label_xor = generate_gaussian_parity(1000,cov_scale=0.1,angle_params=0)
-            
-        nxor, label_nxor = generate_gaussian_parity(750,cov_scale=0.1,angle_params=np.pi/2)
-        test_nxor, test_label_nxor = generate_gaussian_parity(1000,cov_scale=0.1,angle_params=np.pi/2)
+            xor, label_xor = generate_gaussian_parity(750,cov_scale=0.1,angle_params=0)
+            test_xor, test_label_xor = generate_gaussian_parity(1000,cov_scale=0.1,angle_params=0)
+                
+            nxor, label_nxor = generate_gaussian_parity(750,cov_scale=0.1,angle_params=np.pi/2)
+            test_nxor, test_label_nxor = generate_gaussian_parity(1000,cov_scale=0.1,angle_params=np.pi/2)
 
-        progressive_learner.add_task(xor, label_xor, num_transformers=10)
-        progressive_learner.add_task(nxor, label_nxor, num_transformers=10)
+            progressive_learner.add_task(xor, label_xor, num_transformers=10)
+            progressive_learner.add_task(nxor, label_nxor, num_transformers=10)
 
-        uf_task1 = progressive_learner.predict(test_xor, transformer_ids=[0], task_id=0)
-        l2f_task1 = progressive_learner.predict(test_xor, task_id=0)
-        uf_task2 = progressive_learner.predict(test_nxor, transformer_ids=[1], task_id=1)
-        l2f_task2 = progressive_learner.predict(test_nxor, task_id=1)
+            uf_task1 = progressive_learner.predict(test_xor, transformer_ids=[0], task_id=0)
+            l2f_task1 = progressive_learner.predict(test_xor, task_id=0)
+            uf_task2 = progressive_learner.predict(test_nxor, transformer_ids=[1], task_id=1)
+            l2f_task2 = progressive_learner.predict(test_nxor, task_id=1)
 
-        errors[0,ii] = 1 - np.mean(uf_task1 == test_label_xor)
-        errors[1,ii] = 1 - np.mean(l2f_task1 == test_label_xor)
-        errors[2,ii] = 1 - np.mean(uf_task2 == test_label_nxor)
-        errors[3,ii] = 1 - np.mean(l2f_task2 == test_label_nxor)
+            errors[0,ii] = 1 - np.mean(uf_task1 == test_label_xor)
+            errors[1,ii] = 1 - np.mean(l2f_task1 == test_label_xor)
+            errors[2,ii] = 1 - np.mean(uf_task2 == test_label_nxor)
+            errors[3,ii] = 1 - np.mean(l2f_task2 == test_label_nxor)
 
-    bte = np.mean(errors[0,])/np.mean(errors[1,])
-    fte = np.mean(errors[2,])/np.mean(errors[3,])
+        bte = np.mean(errors[0,])/np.mean(errors[1,])
+        fte = np.mean(errors[2,])/np.mean(errors[3,])
 
-    assert bte>1 and fte>1
+        assert bte>1 and fte>1
