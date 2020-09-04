@@ -10,7 +10,7 @@ from sklearn.utils.validation import (
 
 from sklearn.utils.multiclass import check_classification_targets
 
-import tensorflow.keras as keras
+import keras as keras
 
 from .base import BaseTransformer
 

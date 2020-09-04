@@ -14,8 +14,8 @@ from sklearn.utils.multiclass import check_classification_targets, type_of_targe
 
 from .base import BaseVoter
 
-from tensorflow.keras import keras
-from tensorflow.keras import layers
+from tensorflow import keras
+from keras import layers
 
 
 class TreeClassificationVoter(BaseVoter):
