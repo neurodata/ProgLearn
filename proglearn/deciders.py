@@ -1,6 +1,6 @@
 import numpy as np
 
-from .base import BaseDecider, ClassificationDecider
+from base import BaseDecider, ClassificationDecider
 
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import Ridge
