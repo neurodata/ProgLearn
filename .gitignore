@@ -132,3 +132,4 @@ dmypy.json
 .vscode
 
 experiments
+.DS_Store
