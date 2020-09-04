@@ -12,7 +12,7 @@ from sklearn.utils.validation import (
 
 from sklearn.utils.multiclass import check_classification_targets, type_of_target
 
-from base import BaseVoter
+from .base import BaseVoter
 
 from tensorflow.keras import keras
 from tensorflow.keras import layers

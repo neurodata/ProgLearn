@@ -12,7 +12,7 @@ from sklearn.utils.multiclass import check_classification_targets
 
 import tensorflow.keras as keras
 
-from base import BaseTransformer
+from .base import BaseTransformer
 
 
 class NeuralClassificationTransformer(BaseTransformer):
