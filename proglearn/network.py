@@ -1,9 +1,9 @@
 import numpy as np
 
-from progressive_learner import ProgressiveLearner
-from transformers import NeuralClassificationTransformer, NeuralRegressionTransformer
-from voters import KNNClassificationVoter, NeuralRegressionVoter
-from deciders import SimpleAverage, LinearRegressionDecider, KNNRegressionDecider
+from .progressive_learner import ProgressiveLearner
+from .transformers import NeuralClassificationTransformer, NeuralRegressionTransformer
+from .voters import KNNClassificationVoter, NeuralRegressionVoter
+from .deciders import SimpleAverage, LinearRegressionDecider, KNNRegressionDecider
 
 from sklearn.utils import check_X_y, check_array
 from keras.optimizers import Adam
