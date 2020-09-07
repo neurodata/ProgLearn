@@ -12,7 +12,7 @@ from sklearn.utils.multiclass import check_classification_targets
 
 import keras as keras
 
-from .base import BaseTransformer
+from base import BaseTransformer
 
 
 class NeuralClassificationTransformer(BaseTransformer):
@@ -252,4 +252,3 @@ class TreeRegressionTransformer(BaseTransformer):
         """
 
         return self._is_fitted
-
