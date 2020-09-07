@@ -5,6 +5,17 @@ from .deciders import SimpleAverage
 
 
 class LifelongClassificationForest:
+	"""
+	A class used to represent a lifelong classification forest
+
+	Methods
+	---
+	add_task(X, y, task_id, transformer_voter_decider)
+		Adds a task that the forest will learn
+	predict(X, task_id, transformer_ids=None)
+		Predicts y given X with the classifier
+	predict_proba(X, task_id, transformer_ids=transformer_ids)
+	"""
     def __init__(self, n_estimators=100, finite_sample_correction=False):
         self.n_estimators = n_estimators
         self.pl = ProgressiveLearner(
@@ -19,6 +30,14 @@ class LifelongClassificationForest:
     def add_task(
         self, X, y, task_id=None, transformer_voter_decider_split=[0.67, 0.33, 0]
     ):
+    	"""
+    	Attributes
+    	---
+    	X : type
+    		The data that will be trained on
+    	y : type
+    		The labels of the given data
+    	"""
         self.pl.add_task(
             X,
             y,
