@@ -241,7 +241,7 @@ error_ = calc_mean_err(err_tmp,reps=reps)
 train_time_= np.mean(train_time_tmp, axis = 0)
 single_task_inference_time_ = np.mean(single_task_inference_time_tmp, axis = 0)
 multitask_inference_time_ = calc_mean_multitask_time(multitask_inference_time_tmp)
-multitask_inference_time_ = [np.mean(multitask_inference_time[i]) for i in range(len(multitask_inference_time))]
+multitask_inference_time_ = [np.mean(multitask_inference_time_[i]) for i in range(len(multitask_inference_time_))]
 multitask_inference_space_ = calc_mean_multitask_space(multitask_inference_space_tmp)
 
 #%%
@@ -326,20 +326,22 @@ ax[1][1].set_ylabel('Accuracy', fontsize=fontsize)
 #ax[1][1].set_ylim(0.89, 1.15)
 ax[1][1].tick_params(labelsize=ticksize)
 
-ax[2][0].plot(range(len(multitask_inference_time)), multitask_inference_time, c='red', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
-ax[2][0].plot(range(len(multitask_inference_time_)), multitask_inference_time_, c='blue', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
+ax[2][0].plot(range(1,len(multitask_inference_time)+1), multitask_inference_time, c='red', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
+ax[2][0].plot(range(1,len(multitask_inference_time_)+1), multitask_inference_time_, c='blue', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
 
+ax[2][0].set_xscale('log')
 ax[2][0].set_xlabel('Number of Tasks Seen', fontsize=fontsize)
 ax[2][0].set_ylabel('Time (seconds)', fontsize=fontsize)
 ax[2][0].tick_params(labelsize=ticksize)
 #plt.savefig('./result/figs/fig_trees'+str(ntrees)+"__"+model+'.pdf',dpi=300)
 #plt.close()
 
-ax[2][1].plot(range(len(multitask_inference_space)), multitask_inference_space, c= 'red', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
-ax[2][1].plot(range(len(multitask_inference_space_)), multitask_inference_space_, c= 'blue', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
+ax[2][1].plot(range(1,len(multitask_inference_space)+1), multitask_inference_space, c= 'red', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
+ax[2][1].plot(range(1,len(multitask_inference_space_)+1), multitask_inference_space_, c= 'blue', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
 
+ax[2][1].set_xscale('log')
 ax[2][1].set_xlabel('Number of Tasks Seen', fontsize=fontsize)
-ax[2][1].set_ylabel('KB', fontsize=fontsize)
+ax[2][1].set_ylabel('Size of the model (kB)', fontsize=fontsize)
 ax[2][1].tick_params(labelsize=ticksize)
 
 plt.savefig('./result/figs/space_time_efficiency.pdf')
