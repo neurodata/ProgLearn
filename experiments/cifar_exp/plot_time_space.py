@@ -326,8 +326,8 @@ ax[1][1].set_ylabel('Accuracy', fontsize=fontsize)
 #ax[1][1].set_ylim(0.89, 1.15)
 ax[1][1].tick_params(labelsize=ticksize)
 
-ax[2][0].plot(range(1,len(multitask_inference_time)+1), multitask_inference_time, c='red', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
-ax[2][0].plot(range(1,len(multitask_inference_time_)+1), multitask_inference_time_, c='blue', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
+ax[2][0].plot(range(1,len(multitask_inference_time)+1), multitask_inference_time/multitask_inference_time[0], c='red', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
+ax[2][0].plot(range(1,len(multitask_inference_time_)+1), multitask_inference_time_/multitask_inference_time_[0], c='blue', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
 
 ax[2][0].set_yscale('log')
 ax[2][0].set_xlabel('Number of Tasks Seen', fontsize=fontsize)
@@ -336,8 +336,8 @@ ax[2][0].tick_params(labelsize=ticksize)
 #plt.savefig('./result/figs/fig_trees'+str(ntrees)+"__"+model+'.pdf',dpi=300)
 #plt.close()
 
-ax[2][1].plot(range(1,len(multitask_inference_space)+1), multitask_inference_space, c= 'red', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
-ax[2][1].plot(range(1,len(multitask_inference_space_)+1), multitask_inference_space_, c= 'blue', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
+ax[2][1].plot(range(1,len(multitask_inference_space)+1), np.array(multitask_inference_space)/multitask_inference_space[0], c= 'red', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
+ax[2][1].plot(range(1,len(multitask_inference_space_)+1), np.array(multitask_inference_space_)/multitask_inference_space_[0], c= 'blue', linewidth=3, linestyle="solid", label = "Multi-Task Inference Time")
 
 ax[2][1].set_yscale('log')
 ax[2][1].set_xlabel('Number of Tasks Seen', fontsize=fontsize)
