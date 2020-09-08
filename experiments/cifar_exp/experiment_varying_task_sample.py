@@ -131,7 +131,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         if acorn is not None:
             np.random.seed(acorn)
 
-            reduced_sample_no = int(num_points_per_task*(0.8**task_ii))
+            reduced_sample_no = int(num_points_per_task*(1.2**task_ii))
         
         train_start_time = time.time()
         progressive_learner.add_task(
@@ -190,7 +190,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     df_single_task['model_size'] = model_size
 
     summary = (df,df_single_task)
-    file_to_save = 'result/result/reduced_sample_'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
+    file_to_save = 'result/result/increased_sample_'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(summary, f)
 
@@ -238,7 +238,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 #%%
 ### MAIN HYPERPARAMS ###
 model = "uf"
-num_points_per_task = 5000
+num_points_per_task = 500
 total_slots = 5000//num_points_per_task
 ###########################
 
