@@ -131,7 +131,9 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         if acorn is not None:
             np.random.seed(acorn)
 
-            reduced_sample_no = int(num_points_per_task*(1.2**task_ii))
+            reduced_sample_no = int(num_points_per_task*(1.29**task_ii))
+
+            print(reduced_sample_no)
         
         train_start_time = time.time()
         progressive_learner.add_task(
@@ -237,9 +239,9 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 500
-total_slots = 5000//num_points_per_task
+total_slots = 1 #5000//num_points_per_task
 ###########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
