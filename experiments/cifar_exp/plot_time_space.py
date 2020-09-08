@@ -254,7 +254,7 @@ clr = ["#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC0
 fontsize=22
 ticksize=20
 
-fig, ax = plt.subplots(3,2, figsize=(24,11.5))
+fig, ax = plt.subplots(3,2, figsize=(24,15))
 #fig.suptitle('ntrees = '+str(ntrees),fontsize=25)
 ax[0][0].plot(np.arange(1,n_tasks+1), fte, label='L2F', c='red', marker='.', markersize=14, linewidth=3)
 ax[0][0].plot(np.arange(1,n_tasks+1), fte_, label='L2N', c='blue', marker='.', markersize=14, linewidth=3)
