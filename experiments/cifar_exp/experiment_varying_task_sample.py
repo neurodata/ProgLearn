@@ -23,6 +23,8 @@ from proglearn import NeuralClassificationTransformer, TreeClassificationTransfo
 from proglearn import TreeClassificationVoter, KNNClassificationVoter
 
 import tensorflow as tf
+from numbers import Number
+from collections import Set, Mapping, deque
 
 import time
 
@@ -32,6 +34,36 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
     
+
+try: # Python 2
+    zero_depth_bases = (basestring, Number, xrange, bytearray)
+    iteritems = 'iteritems'
+except NameError: # Python 3
+    zero_depth_bases = (str, bytes, Number, range, bytearray)
+    iteritems = 'items'
+
+def getsize(obj_0):
+    """Recursively iterate to sum size of object & members."""
+    _seen_ids = set()
+    def inner(obj):
+        obj_id = id(obj)
+        if obj_id in _seen_ids:
+            return 0
+        _seen_ids.add(obj_id)
+        size = sys.getsizeof(obj)
+        if isinstance(obj, zero_depth_bases):
+            pass # bypass remaining control flow and return
+        elif isinstance(obj, (tuple, list, Set, deque)):
+            size += sum(inner(i) for i in obj)
+        elif isinstance(obj, Mapping) or hasattr(obj, iteritems):
+            size += sum(inner(k) + inner(v) for k, v in getattr(obj, iteritems)())
+        # Check for custom object instances - may subclass above too
+        if hasattr(obj, '__dict__'):
+            size += inner(vars(obj))
+        if hasattr(obj, '__slots__'): # can have __slots__ with __dict__
+            size += sum(inner(getattr(obj, s)) for s in obj.__slots__ if hasattr(obj, s))
+        return size
+    return inner(obj_0)
 #%%
 def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, num_points_per_task, acorn=None):
        
@@ -112,7 +144,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         train_end_time = time.time()
         
         train_times_across_tasks.append(train_end_time - train_start_time)
-        model_size.append(sys.getsizeof(progressive_learner))
+        model_size.append(getsize(progressive_learner))
+        print(model_size)
 
         single_task_inference_start_time = time.time()      
         llf_task=progressive_learner.predict(
@@ -146,7 +179,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     df['base_task'] = base_tasks
     df['accuracy'] = accuracies_across_tasks
     df['multitask_inference_times'] = multitask_inference_times_across_tasks
-    df['model_size'] = model_size
+    
     
     df_single_task = pd.DataFrame()
     df_single_task['task'] = range(1, 11)
@@ -154,6 +187,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     df_single_task['accuracy'] = single_task_accuracies
     df_single_task['single_task_inference_times'] = single_task_inference_times_across_tasks
     df_single_task['train_times'] = train_times_across_tasks
+    df_single_task['model_size'] = model_size
 
     summary = (df,df_single_task)
     file_to_save = 'result/result/reduced_sample_'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
@@ -190,12 +224,12 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
 
 #%%
 def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0, shift=1):
-    train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, num_points_per_task, shift=shift)
+    train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, 500, shift=shift)
     
     if model == "dnn":
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
-        sess = tf.Session(config=config)
+        sess = tf.compat.v1.Session(config=config)
         with tf.device('/gpu:'+str(shift % 4)):
             LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, model, num_points_per_task, acorn=12345)
     else:
