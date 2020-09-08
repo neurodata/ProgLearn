@@ -136,7 +136,7 @@ multitask_inference_space_tmp = [[] for _ in range(reps)]
 count = 0   
 for slot in range(slots):
     for shift in range(shifts):
-        filename = 'result/result/reduced_sample_'+model+str(ntrees)+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+        filename = 'result/result/increased_sample_'+model+str(ntrees)+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
         multitask_df, single_task_df = unpickle(filename)
 
         err = [[] for _ in range(10)]
@@ -199,7 +199,7 @@ multitask_inference_space_tmp = [[] for _ in range(reps)]
 count = 0   
 for slot in range(slots):
     for shift in range(shifts):
-        filename = 'result/result/reduced_sample_dnn0'+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+        filename = 'result/result/increased_sample_dnn0'+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
         multitask_df, single_task_df = unpickle(filename)
 
         err = [[] for _ in range(10)]
@@ -344,5 +344,5 @@ ax[2][1].set_xlabel('Number of Tasks Seen', fontsize=fontsize)
 ax[2][1].set_ylabel('Size of the model (kB)', fontsize=fontsize)
 ax[2][1].tick_params(labelsize=ticksize)
 
-plt.savefig('./result/figs/space_time_efficiency.pdf')
+plt.savefig('./result/figs/space_time_efficiency2.pdf')
 # %%
