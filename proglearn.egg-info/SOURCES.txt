@@ -1,3 +1,4 @@
+README.md
 setup.py
 proglearn/__init__.py
 proglearn/base.py
@@ -12,3 +13,5 @@ proglearn.egg-info/SOURCES.txt
 proglearn.egg-info/dependency_links.txt
 proglearn.egg-info/requires.txt
 proglearn.egg-info/top_level.txt
+proglearn/tests/__init__.py
+proglearn/tests/test_system.py
