@@ -23,7 +23,6 @@ class NeuralClassificationTransformer(BaseTransformer):
         optimizer,
         loss="categorical_crossentropy",
         pretrained=False,
-        num_classes=None,
         compile_kwargs={"metrics": ["acc"]},
         fit_kwargs={
             "epochs": 100,
@@ -43,7 +42,6 @@ class NeuralClassificationTransformer(BaseTransformer):
         self._is_fitted = pretrained
         self.optimizer = optimizer
         self.loss = loss
-        self.num_classes = num_classes
         self.compile_kwargs = compile_kwargs
         self.fit_kwargs = fit_kwargs
 
