@@ -5,17 +5,6 @@ from .deciders import SimpleAverage
 
 
 class LifelongClassificationForest:
-	"""
-	A class used to represent a lifelong classification forest
-
-	Methods
-	---
-	add_task(X, y, task_id, transformer_voter_decider)
-		Adds a task that the forest will learn
-	predict(X, task_id, transformer_ids=None)
-		Predicts y given X with the classifier
-	predict_proba(X, task_id, transformer_ids=transformer_ids)
-	"""
     def __init__(self, n_estimators=100, finite_sample_correction=False):
         self.n_estimators = n_estimators
         self.pl = ProgressiveLearner(
@@ -30,14 +19,6 @@ class LifelongClassificationForest:
     def add_task(
         self, X, y, task_id=None, transformer_voter_decider_split=[0.67, 0.33, 0]
     ):
-    	"""
-    	Attributes
-    	---
-    	X : type
-    		The data that will be trained on
-    	y : type
-    		The labels of the given data
-    	"""
         self.pl.add_task(
             X,
             y,
@@ -55,11 +36,33 @@ class LifelongClassificationForest:
 
 
 class UncertaintyForest:
+	"""
+	A class used to represent an uncertainty forest.
+
+	Methods
+	---
+	fit(X, y)
+		fits forest to data X with labels y
+	predict(X)
+		predicts class labels given data, X
+	predict_proba(X)
+		predicts posterior probabilities given data, X, of each class label
+	"""
     def __init__(self, n_estimators=100, finite_sample_correction=False):
         self.n_estimators = n_estimators
         self.finite_sample_correction = finite_sample_correction
 
     def fit(self, X, y):
+    	"""
+    	fits data X given class labels y
+
+    	Attributes
+    	---
+    	X : type
+    		The data that will be trained on
+    	y : type
+    		The labels of the given data
+    	"""
         self.lf = LifelongClassificationForest(
             n_estimators=self.n_estimators,
             finite_sample_correction=self.finite_sample_correction,
@@ -68,9 +71,25 @@ class UncertaintyForest:
         return self
 
     def predict(self, X):
+    	"""
+    	predicts the class labels given data X
+
+    	Attributes
+    	---
+    	X : type
+    		The data that will have its class predicted
+    	"""
         return self.lf.predict(X, 0)
 
     def predict_proba(self, X):
+    	"""
+    	returns the posterior probabilities of each class for data X
+
+    	Attributes
+    	---
+    	X : type
+    		The data that will have its posterior probabilities returned
+    	"""
         return self.lf.predict_proba(X, 0)
 
 
