@@ -1,7 +1,5 @@
 import numpy as np
 
-# from sklearn.ensemble import BaggingClassifier
-# from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.utils.validation import (
@@ -10,12 +8,9 @@ from sklearn.utils.validation import (
     NotFittedError,
 )
 
-from sklearn.utils.multiclass import check_classification_targets, type_of_target
+from sklearn.utils.multiclass import check_classification_targets
 
 from .base import BaseVoter
-
-from tensorflow import keras
-from keras import layers
 
 
 class TreeClassificationVoter(BaseVoter):
@@ -26,18 +21,12 @@ class TreeClassificationVoter(BaseVoter):
 
         self.finite_sample_correction = finite_sample_correction
         self._is_fitted = False
-        self.multilabel = False
 
     def fit(self, X, y):
         """
         Doc strings here.
         """
         check_classification_targets(y)
-
-        if type_of_target(y) == 'multilabel-indicator':
-            # Fit multilabel binary task.
-            self.multilabel = True
-            return self.fit_multilabel(X, y)
 
         num_classes = len(np.unique(y))
         self.uniform_posterior = np.ones(num_classes) / num_classes
@@ -55,29 +44,6 @@ class TreeClassificationVoter(BaseVoter):
                 posteriors = self._finite_sample_correction(
                     posteriors, len(idxs_in_leaf), len(np.unique(y))
                 )
-
-            self.leaf_to_posterior[leaf_id] = posteriors
-
-        self._is_fitted = True
-
-        return self
-
-    def fit_multilabel(self, X, y):
-
-        num_labels = y.shape[1]
-        self.uniform_posterior = y.sum(axis=0) / len(y)
-        
-        # Each posterior is now a num_labels size vector or binary probabilities.
-        self.leaf_to_posterior = {}
-
-        for leaf_id in np.unique(X):
-            idxs_in_leaf = np.where(X == leaf_id)[0]
-            label_counts = [
-                len(np.where(y[idxs_in_leaf, j] == 1)[0]) for j in range(num_labels)
-            ]
-            posteriors = np.nan_to_num(np.array(label_counts) / np.sum(label_counts))
-
-            # TODO: multilabel finite sample correction.
 
             self.leaf_to_posterior[leaf_id] = posteriors
 
@@ -159,131 +125,6 @@ class KNNClassificationVoter(BaseVoter):
 
         X = check_array(X)
         return self.knn.predict_proba(X)
-
-    def is_fitted(self):
-        """
-        Doc strings here.
-        """
-
-        return self._is_fitted
-
-
-class NeuralRegressionVoter(BaseVoter):
-    def __init__(
-        self, validation_split=0.25, loss="mse", epochs=100, lr=1e-4, verbose=False,
-    ):
-        """
-        Doc strings here.
-        """
-        self.validation_split = validation_split
-        self.loss = loss
-        self.epochs = epochs
-        self.lr = lr
-        self.verbose = verbose
-        self._is_fitted = False
-
-    def fit(self, X, y):
-        """
-        Doc strings here.
-        """
-
-        X, y = check_X_y(X, y)
-
-        self.voter = keras.Sequential()
-        self.voter.add(
-            layers.Dense(
-                1,
-                activation="linear",
-                input_shape=(X.shape[1],),
-                name="transform_to_vote",
-            )
-        )
-        self.voter.compile(
-            loss=self.loss, metrics=["mae"], optimizer=keras.optimizers.Adam(self.lr)
-        )
-        self.voter.fit(
-            X,
-            y,
-            epochs=self.epochs,
-            callbacks=[keras.callbacks.EarlyStopping(patience=20, monitor="val_loss")],
-            verbose=self.verbose,
-            validation_split=self.validation_split,
-            shuffle=True,
-        )
-
-        self._is_fitted = True
-        return self
-
-    def vote(self, X):
-        """
-        Doc strings here.
-        """
-        if not self.is_fitted():
-            msg = (
-                "This %(name)s instance is not fitted yet. Call 'fit' with "
-                "appropriate arguments before using this transformer."
-            )
-            raise NotFittedError(msg % {"name": type(self).__name__})
-
-        X = check_array(X)
-        return self.voter.predict(X)
-
-    def is_fitted(self):
-        """
-        Doc strings here.
-        """
-
-        return self._is_fitted
-
-
-class TreeRegressionVoter(BaseVoter):
-    def __init__(self):
-        """
-        Doc strings here.
-        """
-
-        self._is_fitted = False
-
-
-    def fit(self, X, y):
-        """
-        Doc strings here.
-        """
-        
-        
-        self.leaf_to_yhat = {}
-        self.global_yhat = np.mean(y)
-
-        for leaf_id in np.unique(X):
-            idxs_in_leaf = np.where(X == leaf_id)[0]
-            # class_counts = [len(np.where(y[idxs_in_leaf] == y_val)[0]) for y_val in np.unique(y)]
-            self.leaf_to_yhat[leaf_id] = np.nan_to_num(np.mean(y[idxs_in_leaf]))
-
-        self._is_fitted = True
-
-        return self
-
-
-    def vote(self, X):
-        """
-        Doc strings here.
-        """
-
-        if not self.is_fitted():
-            msg = (
-                    "This %(name)s instance is not fitted yet. Call 'fit' with "
-                    "appropriate arguments before using this voter."
-            )
-            raise NotFittedError(msg % {"name": type(self).__name__})
-        
-        votes_per_example = []
-        for x in X:
-            if x in list(self.leaf_to_yhat.keys()):
-                votes_per_example.append(self.leaf_to_yhat[x])
-            else:
-                votes_per_example.append(self.global_yhat)
-        return np.array(votes_per_example)
-
 
     def is_fitted(self):
         """
