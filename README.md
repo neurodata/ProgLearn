@@ -15,14 +15,15 @@ progressive-learning is a package for exploring and using progressive learning a
 - [Issues](#issues)
 
 # Overview
-
+The natural process of biological learning involves progressive acquisition of new information developing on past knowledge and experiences, which often leads to a performance improvement on a given task. Learning a second language, for instance, is associated with higher performance in an individual’s native language compared to that of monolinguals. In classical machine learning, the process usually begins from the state of <i>tabula rasa</i>, zero knowledge, and is optimized for a single task. The issues arise when the system is sequentially optimized for multiple tasks exhibiting “catastrophic forgetting,” diminishing performance of previously learned tasks. One of the current limitations of artificial intelligence revolves around this inability to transfer knowledge. <br><br>
+The progressive learning package utilizes representation ensembling algorithms to sequentially learn a representation for each task and ensemble both old and new representations for all future decisions. Here, two complementary representation ensembling algorithms based on decision forests (Lifelong Forest) and deep networks (Lifelong Network) demonstrate forward and backward knowledge transfer of tasks on multiple real datasets, including both vision and language applications.
 
 # Documentation
 
 
 # System Requirements
 ## Hardware requirements
-
+`progressive-learning` package requires only a standard computer with enough RAM to support the in-memory operations. 
 
 ## Software requirements
 ### OS Requirements
@@ -42,7 +43,6 @@ tensorflow
 numpy
 scikit-learn
 joblib
-
 ``` 
 
 # Installation Guide
