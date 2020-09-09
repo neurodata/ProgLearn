@@ -23,7 +23,7 @@ The progressive learning package utilizes representation ensembling algorithms t
 
 # System Requirements
 ## Hardware requirements
-
+`progressive-learning` package requires only a standard computer with enough RAM to support the in-memory operations. 
 
 ## Software requirements
 ### OS Requirements
@@ -43,7 +43,6 @@ tensorflow
 numpy
 scikit-learn
 joblib
-
 ``` 
 
 # Installation Guide
