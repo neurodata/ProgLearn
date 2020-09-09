@@ -58,9 +58,9 @@ class UncertaintyForest:
 
     	Attributes
     	---
-    	X : type
+    	X : numpy array (number of examples by number of classes)
     		The data that will be trained on
-    	y : type
+    	y : numpy array (number of classes by 1)
     		The labels of the given data
     	"""
         self.lf = LifelongClassificationForest(
@@ -76,8 +76,8 @@ class UncertaintyForest:
 
     	Attributes
     	---
-    	X : type
-    		The data that will have its class predicted
+    	X : numpy array (number of examples by number of classes)
+    		The data that will have its class predicted. 
     	"""
         return self.lf.predict(X, 0)
 
@@ -87,7 +87,7 @@ class UncertaintyForest:
 
     	Attributes
     	---
-    	X : type
+    	X : numpy array (number of examples by number of classes)
     		The data that will have its posterior probabilities returned
     	"""
         return self.lf.predict_proba(X, 0)
