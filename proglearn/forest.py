@@ -58,10 +58,10 @@ class UncertaintyForest:
 
     	Attributes
     	---
-    	X : numpy array (number of examples by number of classes)
+    	X : array of shape [n_samples, n_features]
     		The data that will be trained on
-    	y : numpy array (number of classes by 1)
-    		The labels of the given data
+    	y : array of shape [n_samples]
+    		The label for cluster membership of the given data
     	"""
         self.lf = LifelongClassificationForest(
             n_estimators=self.n_estimators,
