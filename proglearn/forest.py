@@ -7,7 +7,7 @@ from .transformers import TreeClassificationTransformer
 from .voters import TreeClassificationVoter
 from .deciders import SimpleAverage
 
-class L2F:
+class LifelongClassificationForest:
     def __init__(self, n_estimators=100, tree_construction_proportion=0.67, finite_sample_correction=False):
         self.n_estimators = n_estimators
         self.tree_construction_proportion=tree_construction_proportion
