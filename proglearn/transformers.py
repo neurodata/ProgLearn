@@ -1,3 +1,7 @@
+'''
+Main Author: Will LeVine 
+Corresponding Email: levinewill@icloud.com
+'''
 import numpy as np
 
 from sklearn.tree import DecisionTreeClassifier
