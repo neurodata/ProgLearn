@@ -1,8 +1,11 @@
+'''
+Main Author: Will LeVine 
+Corresponding Email: levinewill@icloud.com
+'''
 from .progressive_learner import ProgressiveLearner
 from .transformers import TreeClassificationTransformer
 from .voters import TreeClassificationVoter
 from .deciders import SimpleAverage
-
 
 class LifelongClassificationForest:
     def __init__(self, n_estimators=100, finite_sample_correction=False):
