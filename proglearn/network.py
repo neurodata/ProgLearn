@@ -13,7 +13,7 @@ from sklearn.utils import check_X_y, check_array
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
 
-class LifelongClassificationNetwork:
+class L2N:
     def __init__(
         self,
         network,
