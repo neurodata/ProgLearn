@@ -18,15 +18,15 @@ class LifelongClassificationNetwork:
         self,
         network,
         loss="categorical_crossentropy",
+        optimizer=Adam(3e-4),
         epochs=100,
-        lr=3e-4,
         batch_size=32,
         verbose=False,
     ):
         self.network = network
         self.loss = loss
         self.epochs = epochs
-        self.optimizer = Adam(lr)
+        self.optimizer = optimizer
         self.verbose = verbose
         self.batch_size = batch_size
         self.is_first_task = True
