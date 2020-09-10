@@ -6,6 +6,7 @@ from .progressive_learner import ProgressiveLearner
 from .transformers import TreeClassificationTransformer
 from .voters import TreeClassificationVoter
 from .deciders import SimpleAverage
+import numpy as np
 
 class LifelongClassificationForest:
     def __init__(self, n_estimators=100, tree_construction_proportion=0.67, finite_sample_correction=False):
@@ -26,7 +27,7 @@ class LifelongClassificationForest:
             X,
             y,
             task_id=task_id,
-            transformer_voter_decider_split=[self.tree_construction_proportion, 1-tree_construction_proportion, 0],
+            transformer_voter_decider_split=[self.tree_construction_proportion, 1-self.tree_construction_proportion, 0],
             num_transformers=self.n_estimators,
             decider_kwargs = {"classes" : np.unique(y)}
         )
@@ -60,7 +61,7 @@ class UncertaintyForest:
             n_estimators=self.n_estimators,
             finite_sample_correction=self.finite_sample_correction,
         )
-        self.lf.add_task(X, y, task_id=0, decider_kwargs = {"classes" : np.unique(y)})
+        self.lf.add_task(X, y, task_id=0)
         return self
 
     def predict(self, X):
