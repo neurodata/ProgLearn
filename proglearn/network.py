@@ -74,8 +74,8 @@ class LifelongClassificationNetwork:
 
         return self
 
-    def predict(self, X, task_id, transformer_ids=None):
-        return self.pl.predict(X, task_id, transformer_ids=transformer_ids)
+    def predict(self, X, task_id):
+        return self.pl.predict(X, task_id)
 
-    def predict_proba(self, X, task_id, transformer_ids=None):
-        return self.pl.predict_proba(X, task_id, transformer_ids=transformer_ids)
+    def predict_proba(self, X, task_id):
+        return self.pl.predict_proba(X, task_id)
