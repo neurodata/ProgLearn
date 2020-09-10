@@ -466,15 +466,19 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
         task_id : obj, default=None
             The id corresponding to the task being added.
         transformer_voter_decider_split : ndarray, default=[0.67, 0.33, 0]
-            A 1d array of length 3. The 2nd index indicates the proportion of the data 
-            set aside to train the decider - these indices are saved internally and
-            will be used to train all further deciders corresponding to this task for 
-            all function calls. The 1st index indicates the proportion of the data 
-            set aside to train the voter from the (optional) newly added transformer(s) 
-            to the new task. For all other tasks, the aggregate transformer and voter 
-            data is used to train the voters corresponding to those tasks. The 0th index
-            indicates the proportions of the input data used to train the (optional) newly 
-            added transformer(s).
+            A 1d array of length 3. The 0th index indicates the proportions of the input 
+            data used to train the (optional) newly added transformer(s) corresponding to 
+            the task_id provided in this function call. The 1st index indicates the proportion of 
+            the data set aside to train the voter(s) from these (optional) newly added 
+            transformer(s) to the task_id provided in this function call. For all other tasks, 
+            the aggregate transformer and voter data pairs from those tasks are used to train 
+            the voter(s) from these (optional) newly added transformer(s) to those tasks; 
+            for all other transformers, the aggregate transformer and voter data provided in 
+            this function call is used to train the voter(s) from those transformers to 
+            the task_id provided in this function call. The 2nd index indicates the 
+            proportion of the data set aside to train the decider - these indices are saved 
+            internally and will be used to train all further deciders corresponding to this 
+            task for all function calls. 
         num_transformers : int, default=1
             The number of transformers to add corresponding to the given inputs.
         transformer_class : BaseTransformer, default=None
