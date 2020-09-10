@@ -28,6 +28,7 @@ class LifelongClassificationForest:
             task_id=task_id,
             transformer_voter_decider_split=transformer_voter_decider_split,
             num_transformers=self.n_estimators,
+            decider_kwargs = {"classes" : np.unique(y)}
         )
         return self
 
@@ -48,7 +49,7 @@ class UncertaintyForest:
             n_estimators=self.n_estimators,
             finite_sample_correction=self.finite_sample_correction,
         )
-        self.lf.add_task(X, y, task_id=0)
+        self.lf.add_task(X, y, task_id=0, decider_kwargs = {"classes" : np.unique(y)})
         return self
 
     def predict(self, X):
