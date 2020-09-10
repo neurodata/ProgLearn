@@ -97,7 +97,7 @@ class TreeClassificationVoter(BaseVoter):
 
 
 class KNNClassificationVoter(BaseVoter):
-    def __init__(self, k, kwargs={}):
+    def __init__(self, k=None, kwargs={}):
         """
         Doc strings here.
         """
@@ -110,7 +110,8 @@ class KNNClassificationVoter(BaseVoter):
         Doc strings here.
         """
         X, y = check_X_y(X, y)
-        self.knn = KNeighborsClassifier(self.k, **self.kwargs)
+        k = int(np.log2(len(X))) if self.k == None else self.k
+        self.knn = KNeighborsClassifier(k, **self.kwargs)
         self.knn.fit(X, y)
         self._is_fitted = True
 
