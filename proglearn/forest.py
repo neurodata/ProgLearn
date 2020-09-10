@@ -8,8 +8,9 @@ from .voters import TreeClassificationVoter
 from .deciders import SimpleAverage
 
 class LifelongClassificationForest:
-    def __init__(self, n_estimators=100, finite_sample_correction=False):
+    def __init__(self, n_estimators=100, tree_construction_proportion=0.67, finite_sample_correction=False):
         self.n_estimators = n_estimators
+        self.tree_construction_proportion=tree_construction_proportion
         self.pl = ProgressiveLearner(
             default_transformer_class=TreeClassificationTransformer,
             default_transformer_kwargs={},
@@ -20,13 +21,12 @@ class LifelongClassificationForest:
         )
 
     def add_task(
-        self, X, y, task_id=None, transformer_voter_decider_split=[0.67, 0.33, 0]
-    ):
+        self, X, y, task_id=None):
         self.pl.add_task(
             X,
             y,
             task_id=task_id,
-            transformer_voter_decider_split=transformer_voter_decider_split,
+            transformer_voter_decider_split=[self.tree_construction_proportion, 1-tree_construction_proportion, 0],
             num_transformers=self.n_estimators,
             decider_kwargs = {"classes" : np.unique(y)}
         )
@@ -36,7 +36,9 @@ class LifelongClassificationForest:
         self.pl.add_transformer(
             X,
             y,
-            transformer_id=transformer_id
+            transformer_id=transformer_id,
+            num_transformers=self.n_estimators,
+            transformer_data_proportion=self.tree_construction_proportion
         )
 
         return self
