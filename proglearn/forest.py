@@ -53,29 +53,3 @@ class UncertaintyForest:
 
     def predict_proba(self, X):
         return self.lf.predict_proba(X, 0)
-
-
-class TransferForest:
-    def __init__(self, n_estimators=100):
-        self.lf = LifelongClassificationForest(n_estimators=n_estimators)
-        self.source_ids = []
-
-    def add_source_task(self, X, y, task_id=None):
-        self.lf.add_task(
-            X, y, task_id=task_id, transformer_voter_decider_split=[0.9, 0.1, 0]
-        )
-        self.source_ids.append(task_id)
-        return self
-
-    def add_target_task(self, X, y, task_id=None):
-        self.lf.add_task(
-            X, y, task_id=task_id, transformer_voter_decider_split=[0.1, 0.9, 0]
-        )
-        self.target_id = task_id
-        return self
-
-    def predict(self, X):
-        return self.lf.predict(X, self.target_id, transformer_ids=self.source_ids)
-
-    def predict_proba(self, X):
-        return self.lf.predict_proba(X, self.target_id, transformer_ids=self.source_ids)
