@@ -31,6 +31,15 @@ class LifelongClassificationForest:
             decider_kwargs = {"classes" : np.unique(y)}
         )
         return self
+    
+    def add_transformer(self, X, y, transformer_id=None):
+        self.pl.add_transformer(
+            X,
+            y,
+            transformer_id=transformer_id
+        )
+
+        return self
 
     def predict(self, X, task_id, transformer_ids=None):
         return self.pl.predict(X, task_id, transformer_ids=transformer_ids)
