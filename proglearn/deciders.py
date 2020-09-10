@@ -34,7 +34,9 @@ class SimpleAverage(ClassificationDecider):
         transformer_id_to_voters,
         classes=None,
     ):
-        self.classes = self.classes if len(self.classes) > 0 else np.unique(y)
+        if self.classes == None and len(y) == 0:
+            raise ValueError("Classification Decider classes undefined with no class labels fed to 'fit')
+        self.classes = self.classes if self.classes != None else np.unique(y)
         self.transformer_id_to_transformers = transformer_id_to_transformers
         self.transformer_id_to_voters = transformer_id_to_voters
 
