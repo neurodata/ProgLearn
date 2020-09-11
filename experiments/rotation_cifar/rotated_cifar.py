@@ -22,12 +22,10 @@ import tensorflow as tf
 
 from numba import cuda
 
-import sys
-sys.path.append("../../proglearn/")
-from progressive_learner import ProgressiveLearner
-from deciders import SimpleAverage
-from transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
-from voters import TreeClassificationVoter, KNNClassificationVoter
+from proglearn.progressive_learner import ProgressiveLearner
+from proglearn.deciders import SimpleAverage
+from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
+from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
 def cross_val_data(data_x, data_y, total_cls=10):
     x = data_x.copy()
@@ -175,7 +173,7 @@ def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
     return img_as_ubyte(image_aug_)
 
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 granularity = 2
 reps = 4
 ########################

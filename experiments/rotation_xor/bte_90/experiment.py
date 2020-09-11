@@ -15,12 +15,10 @@ from itertools import product
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
-import sys
-sys.path.append("../../../proglearn/")
-from progressive_learner import ProgressiveLearner
-from deciders import SimpleAverage
-from transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
-from voters import TreeClassificationVoter, KNNClassificationVoter
+from proglearn.progressive_learner import ProgressiveLearner
+from proglearn.deciders import SimpleAverage
+from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
+from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
 def generate_gaussian_parity(n, cov_scale=1, angle_params=None, k=1, acorn=None):
     means = [[-1, -1], [-1, 1], [1, -1], [1, 1]]    
@@ -88,7 +86,7 @@ def LF_experiment(angle, reps=1, ntrees=10, acorn=None):
 
 ### MAIN HYPERPARAMS ###
 granularity = 1
-reps = 1000
+reps = 10
 ########################
 
 
