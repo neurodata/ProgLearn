@@ -52,11 +52,33 @@ class LifelongClassificationForest:
 
 
 class UncertaintyForest:
+	"""
+	A class used to represent an uncertainty forest.
+
+	Methods
+	---
+	fit(X, y)
+		fits forest to data X with labels y
+	predict(X)
+		predicts class labels given data, X
+	predict_proba(X)
+		predicts posterior probabilities given data, X, of each class label
+	"""
     def __init__(self, n_estimators=100, finite_sample_correction=False):
         self.n_estimators = n_estimators
         self.finite_sample_correction = finite_sample_correction
 
     def fit(self, X, y):
+    	"""
+    	fits data X given class labels y
+
+    	Attributes
+    	---
+    	X : array of shape [n_samples, n_features]
+    		The data that will be trained on
+    	y : array of shape [n_samples]
+    		The label for cluster membership of the given data
+    	"""
         self.lf = LifelongClassificationForest(
             n_estimators=self.n_estimators,
             finite_sample_correction=self.finite_sample_correction,
@@ -65,7 +87,23 @@ class UncertaintyForest:
         return self
 
     def predict(self, X):
+    	"""
+    	predicts the class labels given data X
+
+    	Attributes
+    	---
+    	X : numpy array (number of examples by number of classes)
+    		The data that will have its class predicted. 
+    	"""
         return self.lf.predict(X, 0)
 
     def predict_proba(self, X):
+    	"""
+    	returns the posterior probabilities of each class for data X
+
+    	Attributes
+    	---
+    	X : numpy array (number of examples by number of classes)
+    		The data that will have its posterior probabilities returned
+    	"""
         return self.lf.predict_proba(X, 0)
