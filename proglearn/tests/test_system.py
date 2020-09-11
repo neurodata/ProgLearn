@@ -3,12 +3,10 @@ import pytest
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_warns, assert_raises
 
-import sys
-sys.path.append("../../")
-from proglearn import ProgressiveLearner
-from proglearn import SimpleAverage
-from proglearn import TreeClassificationTransformer, NeuralClassificationTransformer 
-from proglearn import TreeClassificationVoter, KNNClassificationVoter
+from proglearn.progressive_learner import ProgressiveLearner
+from proglearn.deciders import SimpleAverage
+from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
+from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
 def generate_2d_rotation(theta=0, acorn=None):
     if acorn is not None:
