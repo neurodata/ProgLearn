@@ -13,12 +13,11 @@ import pickle
 from sklearn.model_selection import StratifiedKFold
 from math import log2, ceil 
 
-import sys
-sys.path.append("../../proglearn/")
-from progressive_learner import ProgressiveLearner
-from deciders import SimpleAverage
-from transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
-from voters import TreeClassificationVoter, KNNClassificationVoter
+from proglearn.progressive_learner import ProgressiveLearner
+from proglearn.deciders import SimpleAverage
+from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
+from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
+
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 import time
@@ -177,7 +176,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 num_points_per_task = 500
 ########################
 

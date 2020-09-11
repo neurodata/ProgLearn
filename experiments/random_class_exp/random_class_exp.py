@@ -16,12 +16,11 @@ from keras import layers
 from sklearn.model_selection import StratifiedKFold
 from math import log2, ceil 
 
-import sys
-sys.path.append("../../proglearn/")
-from progressive_learner import ProgressiveLearner
-from deciders import SimpleAverage
-from transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
-from voters import TreeClassificationVoter, KNNClassificationVoter
+from proglearn.progressive_learner import ProgressiveLearner
+from proglearn.deciders import SimpleAverage
+from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
+from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
+
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
@@ -200,7 +199,6 @@ if model == "uf":
     data_x = data_x.reshape((data_x.shape[0], data_x.shape[1] * data_x.shape[2] * data_x.shape[3]))
 data_y = np.concatenate([y_train, y_test])
 data_y = data_y[:, 0]
-
 
 #%%
 slot_fold = range(10)
