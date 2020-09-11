@@ -1,11 +1,11 @@
 '''
-Main Author: Will LeVine 
+Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 '''
 from .progressive_learner import ProgressiveLearner
 from .transformers import TreeClassificationTransformer
 from .voters import TreeClassificationVoter
-from .deciders import SimpleAverage
+from .deciders import SimpleArgmaxAverage
 import numpy as np
 
 class LifelongClassificationForest:
@@ -17,7 +17,7 @@ class LifelongClassificationForest:
             default_transformer_kwargs={},
             default_voter_class=TreeClassificationVoter,
             default_voter_kwargs={"finite_sample_correction": finite_sample_correction},
-            default_decider_class=SimpleAverage,
+            default_decider_class=SimpleArgmaxAverage,
             default_decider_kwargs={},
         )
 
@@ -32,7 +32,7 @@ class LifelongClassificationForest:
             decider_kwargs = {"classes" : np.unique(y)}
         )
         return self
-    
+
     def add_transformer(self, X, y, transformer_id=None):
         self.pl.add_transformer(
             X,

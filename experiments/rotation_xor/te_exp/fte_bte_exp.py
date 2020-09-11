@@ -8,11 +8,11 @@ import numpy as np
 import pickle
 
 from sklearn.model_selection import StratifiedKFold
-from math import log2, ceil 
+from math import log2, ceil
 
 from proglearn.progressive_learner import ProgressiveLearner
-from proglearn.deciders import SimpleAverage
-from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
+from proglearn.deciders import SimpleArgmaxAverage
+from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
 from joblib import Parallel, delayed
@@ -20,28 +20,28 @@ from multiprocessing import Pool
 
 #%%
 def LF_experiment(num_task_1_data, rep):
-    
+
     default_transformer_class = TreeClassificationTransformer
     default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
 
     default_voter_class = TreeClassificationVoter
     default_voter_kwargs = {}
 
-    default_decider_class = SimpleAverage
+    default_decider_class = SimpleArgmaxAverage
     default_decider_kwargs = {}
-    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
                                          default_transformer_kwargs = default_transformer_kwargs,
                                          default_voter_class = default_voter_class,
                                          default_voter_kwargs = default_voter_kwargs,
                                          default_decider_class = default_decider_class)
-    
+
     X_train_task0, y_train_task0 = generate_gaussian_parity(n = num_task_1_data, angle_params = 0, acorn=1)
     X_train_task1, y_train_task1 = generate_gaussian_parity(n = 100, angle_params = 10, acorn=1)
     X_test_task0, y_test_task0 = generate_gaussian_parity(n = 10000, angle_params = 0, acorn=2)
-    
+
 
     progressive_learner.add_task(
-        X_train_task0, 
+        X_train_task0,
         y_train_task0,
         num_transformers = 10,
         transformer_voter_decider_split = [0.67, 0.33, 0],
@@ -52,17 +52,17 @@ def LF_experiment(num_task_1_data, rep):
     single_task_error = 1 - single_task_accuracy
 
     progressive_learner.add_transformer(
-            X = X_train_task1, 
+            X = X_train_task1,
             y = y_train_task1,
             transformer_data_proportion = 1,
             num_transformers = 10,
             backward_task_ids = [0]
         )
-    
+
     llf_task=progressive_learner.predict(X_test_task0, task_id=0)
     double_task_accuracy = np.nanmean(llf_task == y_test_task0)
     double_task_error = 1 - double_task_accuracy
-    
+
     if double_task_error == 0 or single_task_error == 0:
         te = 1
     else:
@@ -78,8 +78,8 @@ def LF_experiment(num_task_1_data, rep):
 
 #%%
 def generate_gaussian_parity(n, cov_scale=1, angle_params=None, k=1, acorn=None):
-    means = [[-1, -1], [-1, 1], [1, -1], [1, 1]]    
-    blob = np.concatenate([np.random.multivariate_normal(mean, cov_scale * np.eye(len(mean)), 
+    means = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+    blob = np.concatenate([np.random.multivariate_normal(mean, cov_scale * np.eye(len(mean)),
                                                  size=int(n / 4)) for mean in means])
 
     X = np.zeros_like(blob)
@@ -94,7 +94,7 @@ reps = range(1000)
 iterable = product(num_task_1_data_ra, reps)
 Parallel(n_jobs=-1,verbose=1)(delayed(LF_experiment)(num_task_1_data, rep) for num_task_1_data, rep in iterable)
 
-    
-        
+
+
 
 # %%
