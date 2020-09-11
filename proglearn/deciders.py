@@ -1,5 +1,5 @@
 '''
-Main Author: Will LeVine 
+Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 '''
 import numpy as np
@@ -18,7 +18,7 @@ from sklearn.utils.validation import (
 from sklearn.utils.multiclass import type_of_target
 
 
-class SimpleAverage(ClassificationDecider):
+class SimpleArgmaxAverage(ClassificationDecider):
     """
     Doc string here.
     """

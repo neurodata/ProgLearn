@@ -16,13 +16,13 @@ from joblib import Parallel, delayed
 from multiprocessing import Pool
 
 from proglearn.progressive_learner import ProgressiveLearner
-from proglearn.deciders import SimpleAverage
-from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
+from proglearn.deciders import SimpleArgmaxAverage
+from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
 def generate_gaussian_parity(n, cov_scale=1, angle_params=None, k=1, acorn=None):
-    means = [[-1, -1], [-1, 1], [1, -1], [1, 1]]    
-    blob = np.concatenate([np.random.multivariate_normal(mean, cov_scale * np.eye(len(mean)), 
+    means = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+    blob = np.concatenate([np.random.multivariate_normal(mean, cov_scale * np.eye(len(mean)),
                                                  size=int(n / 4)) for mean in means])
 
     X = np.zeros_like(blob)
@@ -33,31 +33,31 @@ def generate_gaussian_parity(n, cov_scale=1, angle_params=None, k=1, acorn=None)
 
 
 def LF_experiment(angle, reps=1, ntrees=10, acorn=None):
-    
+
     errors = np.zeros(2)
-    
+
     for rep in range(reps):
         print("Starting Rep {} of Angle {}".format(rep, angle))
         X_base_train, y_base_train = generate_gaussian_parity(n = 100, angle_params = 0, acorn=rep)
         X_base_test, y_base_test = generate_gaussian_parity(n = 10000, angle_params = 0, acorn=rep)
         X_rotated_train, y_rotated_train = generate_gaussian_parity(n = 100, angle_params = angle, acorn=rep)
-        
-    
+
+
         default_transformer_class = TreeClassificationTransformer
         default_transformer_kwargs = {"kwargs" : {"max_depth" : 10}}
 
         default_voter_class = TreeClassificationVoter
         default_voter_kwargs = {}
 
-        default_decider_class = SimpleAverage
+        default_decider_class = SimpleArgmaxAverage
         default_decider_kwargs = {}
-        progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+        progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
                                              default_transformer_kwargs = default_transformer_kwargs,
                                              default_voter_class = default_voter_class,
                                              default_voter_kwargs = default_voter_kwargs,
                                              default_decider_class = default_decider_class)
         progressive_learner.add_task(
-            X_base_train, 
+            X_base_train,
             y_base_train,
             num_transformers = ntrees,
             transformer_voter_decider_split = [0.67, 0.33, 0],
@@ -65,7 +65,7 @@ def LF_experiment(angle, reps=1, ntrees=10, acorn=None):
         )
         base_predictions_test = progressive_learner.predict(X_base_test, task_id=0)
         progressive_learner.add_transformer(
-            X = X_rotated_train, 
+            X = X_rotated_train,
             y = y_rotated_train,
             transformer_data_proportion = 1,
             num_transformers = 10,
@@ -77,12 +77,12 @@ def LF_experiment(angle, reps=1, ntrees=10, acorn=None):
         errors[1] = errors[1]+(1 - np.mean(all_predictions_test == y_base_test))
         errors[0] = errors[0]+(1 - np.mean(base_predictions_test == y_base_test))
 
-    
+
     errors = errors/reps
     print("Errors For Angle {}: {}".format(angle, errors))
     with open('results/angle_'+str(angle)+'.pickle', 'wb') as f:
         pickle.dump(errors, f, protocol = 2)
-        
+
 
 ### MAIN HYPERPARAMS ###
 granularity = 1
