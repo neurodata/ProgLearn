@@ -133,6 +133,17 @@ class BaseDecider(abc.ABC):
             Input data matrix. 
         """
         pass
+    
+    @abc.abstractmethod
+    def is_fitted(self):
+        """
+        Indicates whether the decider is fitted.
+        
+        Parameters
+        ----------
+        None
+        """
+        pass
 
 
 class ClassificationDecider(BaseDecider):
