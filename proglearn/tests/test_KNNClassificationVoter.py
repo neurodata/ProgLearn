@@ -9,7 +9,10 @@ from proglearn.base import BaseVoter
     
 class TestKNNClassificationVoter(unittest.TestCase):
 
-    
+    def test_initialize(self):
+        KNNClassificationVoter(3)
+        self.assertTrue(True)
+
     def test_vote_without_fit(self):
         #generate random data
         X = np.random.randn(100,3)
@@ -41,3 +44,5 @@ class TestKNNClassificationVoter(unittest.TestCase):
         assert_allclose(Y_test, kcv.vote(X_test), atol=1e-4)
         
 
+if __name__ == '__main__':
+    unittest.main()
