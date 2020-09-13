@@ -22,15 +22,15 @@ class TestKNNClassificationVoter(unittest.TestCase):
         np.random.seed(0)
         #set_seed(4)  # tensorflow
 
-        X = np.random.randn(1000, 3)
-        Y = np.sum(X, axis=1).reshape((1000, 1))
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1,1)
+        Y = np.concatenate((np.zeros(100), np.ones(100)))
 
         kcv = KNNClassificationVoter(3)
         kcv.fit(X, Y)
 
-        X_test = np.ones((5, 3))
-        Y_test = 3 * np.ones((5, 1))
+        X_test = np.ones(6).reshape(-1,1)
+        Y_test = np.concatenate((np.zeros((6,1)), np.ones((6,1))), axis = 1)
 
-        self.assert_allclose(Y_test, kcv.vote(X_test), atol=1e-4)
+        assert_allclose(Y_test, kcv.vote(X_test), atol=1e-4)
         
 
