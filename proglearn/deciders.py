@@ -25,6 +25,7 @@ class SimpleAverage(ClassificationDecider):
 
     def __init__(self, classes=[]):
         self.classes = classes
+        self._is_fitted = False
 
     def fit(
         self,
@@ -43,6 +44,8 @@ class SimpleAverage(ClassificationDecider):
             self.classes = np.array(self.classes)
         self.transformer_id_to_transformers = transformer_id_to_transformers
         self.transformer_id_to_voters = transformer_id_to_voters
+        
+        self._is_fitted = True
         return self
 
     def predict_proba(self, X, transformer_ids=None):
@@ -69,3 +72,10 @@ class SimpleAverage(ClassificationDecider):
     def predict(self, X, transformer_ids=None):
         vote_overall = self.predict_proba(X, transformer_ids=transformer_ids)
         return self.classes[np.argmax(vote_overall, axis=1)]
+    
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted
