@@ -9,9 +9,6 @@ from proglearn.base import BaseVoter
     
 class TestKNNClassificationVoter(unittest.TestCase):
 
-    def test_initialize(self):
-        KNNClassificationVoter(3)
-        self.assertTrue(True)
 
     def test_vote_without_fit(self):
         #generate random data
