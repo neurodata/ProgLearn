@@ -52,6 +52,7 @@ class LifelongClassificationNetwork:
             default_voter_kwargs={},
             default_decider_class=SimpleArgmaxAverage,
             default_decider_kwargs={},
+
         )
 
     def add_task(self, X, y, task_id=None, transformer_voter_decider_split=[0.67, 0.33, 0]):

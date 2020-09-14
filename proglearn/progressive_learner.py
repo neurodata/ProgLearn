@@ -275,28 +275,24 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
     def set_decider(
         self, task_id, transformer_ids, decider_class=None, decider_kwargs=None
     ):
-
         if decider_class is None:
-            if self.default_decider_class is None:
-                if task_id not in list(self.task_id_to_decider_class.keys()):
-                    raise ValueError(
-                        "decider_class is None and 'default_decider_class' is None."
-                    )
-                else:
-                    decider_class = self.task_id_to_decider_class[task_id]
-            else:
+            if task_id in list(self.task_id_to_decider_class.keys()):
+                decider_class = self.task_id_to_decider_class[task_id]
+            elif self.default_decider_class is not None:
                 decider_class = self.default_decider_class
-
-        if decider_kwargs is None:
-            if self.default_decider_kwargs is None:
-                if task_id not in list(self.task_id_to_decider_kwargs.keys()):
-                    raise ValueError(
-                        "decider_kwargs is None and 'default_decider_kwargs' is None."
-                    )
-                else:
-                    decider_kwargs = self.task_id_to_decider_kwargs[task_id]
             else:
+                raise ValueError(
+                        "decider_class is None and 'default_decider_class' is None."
+                      )
+        if decider_kwargs is None:
+            if task_id in list(self.task_id_to_decider_kwargs.keys()):
+                decider_kwargs = self.task_id_to_decider_kwargs[task_id]
+            elif self.default_decider_kwargs is not None:
                 decider_kwargs = self.default_decider_kwargs
+            else:
+                raise ValueError(
+                        "decider_kwargs is None and 'default_decider_kwargs' is None."
+                      )
 
         transformer_id_to_transformers = {
             transformer_id: self.transformer_id_to_transformers[transformer_id]
