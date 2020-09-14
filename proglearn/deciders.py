@@ -34,10 +34,15 @@ class SimpleAverage(ClassificationDecider):
         transformer_id_to_voters,
         classes=None,
     ):
-        self.classes = self.classes if len(self.classes) > 0 else np.unique(y)
+        if not isinstance(self.classes, (list, np.ndarray)):
+            if len(y) == 0:
+                raise ValueError("Classification Decider classes undefined with no class labels fed to fit")
+            else:
+                self.classes = np.unique(y)
+        else:
+            self.classes = np.array(self.classes)
         self.transformer_id_to_transformers = transformer_id_to_transformers
         self.transformer_id_to_voters = transformer_id_to_voters
-
         return self
 
     def predict_proba(self, X, transformer_ids=None):

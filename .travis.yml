@@ -23,7 +23,10 @@ cache: pip
 
 install:
 - pip install -r requirements.txt
-- pip install -U pytest
+- pip install -U pytest pytest-cov codecov
 
 script:
 - pytest proglearn/
+
+after_success:
+- codecov
