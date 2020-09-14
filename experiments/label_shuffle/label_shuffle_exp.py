@@ -14,7 +14,6 @@ import pickle
 from sklearn.model_selection import StratifiedKFold
 from math import log2, ceil 
 
-sys.path.append("/Users/yutakobayashi/progressive_learning/")
 from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleAverage
 from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
@@ -178,7 +177,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 num_points_per_task = 500
 ########################
 
