@@ -46,72 +46,72 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
     Attributes (object)
     ----------
     task_id_to_X : dict
-        A dictionary with keys of type int corresponding to task ids
+        A dictionary with keys of type obj corresponding to task ids
         and values of type ndarray corresponding to the input data matrix X.
         This dictionary thus maps input data matrix to the task where posteriors 
         are to be estimated.
 
     task_id_to_y : dict
-        A dictionary with keys of type int corresponding to task ids
+        A dictionary with keys of type obj corresponding to task ids
         and values of type ndarray corresponding to output data matrix y.
         This dictionary thus maps output data matrix to the task where posteriors 
         are to be estimated.
 
     transformer_id_to_X : dict
-        A dictionary with keys of type int corresponding to transformer ids
+        A dictionary with keys of type obj corresponding to transformer ids
         and values of type ndarray corresponding to the output data matrix X.
         This dictionary thus maps input data matrix to a particular transformer.
 
     transformer_id_to_y : dict
-        A dictionary with keys of type int corresponding to transformer ids
+        A dictionary with keys of type obj corresponding to transformer ids
         and values of type ndarray corresponding to the output data matrix y.
         This dictionary thus maps output data matrix to a particular transformer. 
 
     transformer_id_to_transformers : dict
-        A dictionary with keys of type int corresponding to transformer ids
+        A dictionary with keys of type obj corresponding to transformer ids
         and values of type obj corresponding to a transformer. This dictionary thus
         maps transformer ids to the corresponding transformers.
 
     task_id_to_trasnformer_id_to_voters : dict
-        A nested dictionary with outer key of type int, corresponding to task ids
-        inner key of type int, corresponding to transformer ids, 
+        A nested dictionary with outer key of type obj, corresponding to task ids
+        inner key of type obj, corresponding to transformer ids, 
         and values of type obj, corresponding to a voter. This dictionary thus maps
         voters to a corresponding transformer assigned to a particular task.
 
     task_id_to_decider : dict
-        A dictionary with keys of type int, corresponding to task ids,
+        A dictionary with keys of type obj, corresponding to task ids,
         and values of type obj corresponding to a decider. This dictionary thus
         maps deciders to a particular task.
 
     transformer_id_to_voter_class : dict
-        A dictionary with keys of type int corresponding to transformer ids
+        A dictionary with keys of type obj corresponding to transformer ids
         and values of type obj corresponding to a voter class. This dictionary thus
         maps voter classes to a particular transformer id.
 
     transformer_id_to_voter_kwargs : dict
-        A dictionary with keys of type int corresponding to transformer ids
+        A dictionary with keys of type obj corresponding to transformer ids
         and values of type obj corresponding to a voter kwargs. This dictionary thus
         maps voter kwargs to a particular transformer id.
 
     task_id_to_decider_class : dict
-        A dictionary with keys of type int corresponding to transformer ids
+        A dictionary with keys of type obj corresponding to transformer ids
         and values of type obj corresponding to a decider class. This dictionary
         thus maps decider classes to a particular transformer id.
 
     task_id_to_decider_kwargs : dict
-        A dictionary with keys of type int corresponding to transformer ids
+        A dictionary with keys of type obj corresponding to transformer ids
         and values of type obj corresponding to a decider kwargs. This dictionary 
         thus maps decider kwargs to a particular transformer id.
 
     task_id_to_bag_id_to_voter_data_idx : dict
-        A nested dictionary with outer keys of type int corresponding to task ids
-        inner keys of type int corresponding to bag ids
+        A nested dictionary with outer keys of type obj corresponding to task ids
+        inner keys of type obj corresponding to bag ids
         and values of type obj corresponding to voter data indices.
         This dictionary thus maps voter data indices to particular bags 
         for particular tasks.
 
     task_id_to_decider_idx : dict
-        A dictionary with keys of type int corresponding to task ids
+        A dictionary with keys of type obj corresponding to task ids
         and values of type obj corresponding to decider indices. This dictionary
         thus maps decider indices to particular tasks.
 
