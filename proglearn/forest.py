@@ -18,7 +18,7 @@ class LifelongClassificationForest:
             default_voter_class=TreeClassificationVoter,
             default_voter_kwargs={"finite_sample_correction": finite_sample_correction},
             default_decider_class=SimpleArgmaxAverage,
-            default_decider_kwargs={}，
+            default_decider_kwargs={},
         )
 
         
