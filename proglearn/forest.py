@@ -18,7 +18,6 @@ class LifelongClassificationForest:
             default_voter_class=TreeClassificationVoter,
             default_voter_kwargs={"finite_sample_correction": finite_sample_correction},
             default_decider_class=SimpleAverage,
-            default_decider_kwargs={},
         )
 
     def add_task(
