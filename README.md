@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/neurodata/progressive-learning.svg?branch=master)](https://travis-ci.org/neurodata/progressive-learning)
 [![codecov](https://codecov.io/gh/neurodata/progressive-learning/branch/master/graph/badge.svg)](https://codecov.io/gh/neurodata/progressive-learning)
 [![arXiv shield](https://img.shields.io/badge/arXiv-2004.12908-red.svg?style=flat)](https://arxiv.org/abs/2004.12908)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/licenses/MIT)
 
 progressive-learning is a package for exploring and using progressive learning algorithms developed by the [neurodata group](https://neurodata.io).
 
@@ -67,7 +67,7 @@ If you have an idea for an improvement not listed there, please
 developers. 
 
 # License
-This project is covered under the [Apache 2.0 License](hhttps://github.com/neurodata/progressive-learning/blob/master/LICENSE).
+This project is covered under the [MIT License](hhttps://github.com/neurodata/progressive-learning/blob/master/LICENSE).
 
 # Issues
 We appreciate detailed bug reports and feature requests (though we appreciate pull requests even more!). Please visit our [issues](https://github.com/neurodata/progressive-learning/issues) page if you have questions or ideas.
