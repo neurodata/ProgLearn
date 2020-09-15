@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.datasets import make_blobs
 
 
-def generate_2d_rotation(theta=0, acorn=None):
+def _generate_2d_rotation(theta=0, acorn=None):
     if acorn is not None:
         np.random.seed(acorn)
     
@@ -89,7 +89,7 @@ def generate_gaussian_parity(n_samples, centers=None, class_label = None,
                 )
 
     if angle_params != None:
-        R = generate_2d_rotation(angle_params)
+        R = _generate_2d_rotation(angle_params)
         X = X @ R
 
     return X, y
