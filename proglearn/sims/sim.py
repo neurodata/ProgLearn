@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.datasets import make_blobs
 
 
 def generate_2d_rotation(theta=0, acorn=None):
@@ -12,44 +13,83 @@ def generate_2d_rotation(theta=0, acorn=None):
     
     return R
 
-def generate_gaussian_parity(n, mean=np.array([-1, -1]), cov_scale=1, angle_params=None, k=1, acorn=None):
-    if acorn is not None:
-        np.random.seed(acorn)
+def generate_gaussian_parity(n_samples, centers=None, class_label = None,
+                             cluster_std=1.0, angle_params=None, random_state=None):
+    """
+    Generate 2-dimensional Gaussian XOR distribution.
+    (Classic XOR problem but each point is the 
+    center of a Gaussian blob distribution)
+    
+    Parameters
+    ----------
+    n_samples : int
+        Total number of points divided among the four
+        clusters with equal probability.
+            
+    centers : array of shape [n_centers,2], optional (default=None)
+        The coordinates of the ceneter of total n_centers blobs.
         
-    d = len(mean)
-    
-    if mean[0] == -1 and mean[1] == -1:
-        mean = mean + 1 / 2**k
-    
-    mnt = np.random.multinomial(n, 1/(4**k) * np.ones(4**k))
-    cumsum = np.cumsum(mnt)
-    cumsum = np.concatenate(([0], cumsum))
-    
-    Y = np.zeros(n)
-    X = np.zeros((n, d))
-    
-    for i in range(2**k):
-        for j in range(2**k):
-            temp = np.random.multivariate_normal(mean, cov_scale * np.eye(d), 
-                                                 size=mnt[i*(2**k) + j])
-            temp[:, 0] += i*(1/2**(k-1))
-            temp[:, 1] += j*(1/2**(k-1))
+    class_label : array of shape [n_centers], optional (default=None)
+        class label for each blob.
             
-            X[cumsum[i*(2**k) + j]:cumsum[i*(2**k) + j + 1]] = temp
+    cluster_std : float, optional (default=1)
+        The standard deviation of the blobs.
             
-            if i % 2 == j % 2:
-                Y[cumsum[i*(2**k) + j]:cumsum[i*(2**k) + j + 1]] = 0
-            else:
-                Y[cumsum[i*(2**k) + j]:cumsum[i*(2**k) + j + 1]] = 1
-                
-    if d == 2:
-        if angle_params is None:
-            angle_params = np.random.uniform(0, 2*np.pi)
-            
+    angle_params: float, optional (default=None)
+        Number of radians to rotate the distribution by. 
+        
+    random_state : int, RandomState instance, default=None
+        Determines random number generation for dataset creation. Pass an int
+        for reproducible output across multiple function calls.
+        
+    
+    Returns
+    -------
+    X : array of shape [n_samples, 2]
+        The generated samples.
+    y : array of shape [n_samples]
+        The integer labels for cluster membership of each sample.
+    """
+
+    if random_state != None:
+        np.random.seed(random_state)
+
+    if centers == None:
+        centers = np.array(
+            [(-.5,.5,), (.5,.5),
+            (-.5,-.5), (.5,-.5)]
+        )
+
+    if class_label == None:
+        class_label = [0,1,1,0]
+
+    blob_num = len(class_label)
+
+    #get the number of samples in each blob with equal probability
+    samples_per_blob = np.random.multinomial(
+        n_samples, 
+        1/blob_num * np.ones(blob_num)
+        )
+
+    for blob in range(blob_num):
+        x_, y_ = make_blobs(
+            samples_per_blob[blob],
+            n_features=2,
+            centers=centers[blob].reshape(1,-1)
+            )
+        print(centers[blob].reshape(1,-1))
+        if blob == 0:
+            X = x_
+            y = y_ + class_label[blob]
+        else:
+            X = np.concatenate((X,x_))
+            y = np.concatenate(
+                (y,
+                y_+class_label[blob])
+                )
+
+    if angle_params != None:
         R = generate_2d_rotation(angle_params)
         X = X @ R
-        
-    else:
-        raise ValueError('d=%i not implemented!'%(d))
-       
-    return X, Y.astype(int)
+
+    return X, y
