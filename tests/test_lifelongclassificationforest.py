@@ -38,13 +38,13 @@ class test_LifelongClassificationForest(unittest.TestCase):
         self.assertIs(l2f.n_estimators, rand)
         
     def test_correct_default_finite_sample_correction(self):
-        tmpDict = {"finite_sample_correction": False}
-        self.assertEqual(self.l2f.pl.default_voter_kwargs, tmpDict)
+        tmp_dict = {"finite_sample_correction": False}
+        self.assertEqual(self.l2f.pl.default_voter_kwargs, tmp_dict)
     
     def test_correct_finite_sample_correction(self):
         rand = random.randint(0, 1)
-        tmpDict = {"finite_sample_correction": bool(rand)}
-        l2f = LifelongClassificationForest(finite_sample_correction=tmpDict)
+        tmp_dict = {"finite_sample_correction": bool(rand)}
+        l2f = LifelongClassificationForest(finite_sample_correction=tmp_dict)
         self.assertEqual(self.l2f.pl.default_voter_kwargs["finite_sample_correction"], bool(rand))
     
         
