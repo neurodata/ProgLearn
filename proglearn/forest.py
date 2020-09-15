@@ -54,6 +54,19 @@ class UncertaintyForest:
 	"""
 	A class used to represent an uncertainty forest.
 
+    Attributes
+    ---
+    lf : LifelongClassificationForest
+        A lifelong classification forest object
+    n_estimators : int
+        The number of estimaters used for the 
+        learner, as used in 
+        LifelongClassificationForest
+    finite_sample_correction : bool
+        Boolean indicating whether this learner 
+        will have finite sample correction used
+        as in LifelongClassifictionForest
+        
 	Methods
 	---
 	fit(X, y)
