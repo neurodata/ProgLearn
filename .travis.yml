@@ -27,3 +27,6 @@ install:
 
 script:
 - pytest proglearn/
+
+after_success:
+- codecov
