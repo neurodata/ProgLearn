@@ -18,7 +18,6 @@ class LifelongClassificationForest:
             default_voter_class=TreeClassificationVoter,
             default_voter_kwargs={"finite_sample_correction": finite_sample_correction},
             default_decider_class=SimpleAverage,
-            default_decider_kwargs={},
         )
 
     def add_task(
@@ -52,18 +51,30 @@ class LifelongClassificationForest:
 
 
 class UncertaintyForest:
-	"""
-	A class used to represent an uncertainty forest.
+    """
+    A class used to represent an uncertainty forest.
 
-	Methods
-	---
-	fit(X, y)
-		fits forest to data X with labels y
-	predict(X)
-		predicts class labels given data, X
-	predict_proba(X)
-		predicts posterior probabilities given data, X, of each class label
-	"""
+    Attributes
+    ---
+    lf : LifelongClassificationForest
+        A lifelong classification forest object
+    n_estimators : int
+        The number of estimaters used in the 
+	LifelongClassificationForest
+    finite_sample_correction : bool
+        Boolean indicating whether this learner 
+        will have finite sample correction used
+        as in LifelongClassifictionForest
+        
+    Methods
+    ---
+    fit(X, y)
+	fits forest to data X with labels y
+    predict(X)
+	predicts class labels given data, X
+    predict_proba(X)
+	predicts posterior probabilities given data, X, of each class label
+    """
     def __init__(self, n_estimators=100, finite_sample_correction=False):
         self.n_estimators = n_estimators
         self.finite_sample_correction = finite_sample_correction
@@ -75,9 +86,9 @@ class UncertaintyForest:
     	Attributes
     	---
     	X : array of shape [n_samples, n_features]
-    		The data that will be trained on
+    	    The data that will be trained on
     	y : array of shape [n_samples]
-    		The label for cluster membership of the given data
+    	    The label for cluster membership of the given data
     	"""
         self.lf = LifelongClassificationForest(
             n_estimators=self.n_estimators,
@@ -92,8 +103,8 @@ class UncertaintyForest:
 
     	Attributes
     	---
-    	X : numpy array (number of examples by number of classes)
-    		The data that will have its class predicted. 
+    	X : array of shape [n_samples, n_features]
+    	    The data on which we are performing inference.
     	"""
         return self.lf.predict(X, 0)
 
@@ -103,7 +114,7 @@ class UncertaintyForest:
 
     	Attributes
     	---
-    	X : numpy array (number of examples by number of classes)
-    		The data that will have its posterior probabilities returned
+    	X : array of shape [n_samples, n_features]
+	    The data whose posteriors we are estimating.
     	"""
         return self.lf.predict_proba(X, 0)
