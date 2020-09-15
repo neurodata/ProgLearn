@@ -77,7 +77,7 @@ def generate_gaussian_parity(n_samples, centers=None, class_label = None,
             n_features=2,
             centers=centers[blob].reshape(1,-1)
             )
-        print(centers[blob].reshape(1,-1))
+        
         if blob == 0:
             X = x_
             y = y_ + class_label[blob]
