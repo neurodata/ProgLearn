@@ -14,7 +14,7 @@ def _generate_2d_rotation(theta=0, acorn=None):
     return R
 
 def generate_gaussian_parity(n_samples, centers=None, class_label = None,
-                             cluster_std=1.0, angle_params=None, random_state=None):
+                             cluster_std=0.25, angle_params=None, random_state=None):
     """
     Generate 2-dimensional Gaussian XOR distribution.
     (Classic XOR problem but each point is the 
@@ -56,10 +56,10 @@ def generate_gaussian_parity(n_samples, centers=None, class_label = None,
 
     if centers == None:
         centers = np.array(
-            [(-.5,.5,), (.5,.5),
+            [(-.5,.5), (.5,.5),
             (-.5,-.5), (.5,-.5)]
         )
-
+    
     if class_label == None:
         class_label = [0,1,1,0]
 
@@ -70,23 +70,17 @@ def generate_gaussian_parity(n_samples, centers=None, class_label = None,
         n_samples, 
         1/blob_num * np.ones(blob_num)
         )
+    
+    X, y = make_blobs(
+        n_samples=samples_per_blob,
+        n_features=2,
+        centers=centers,
+        cluster_std=cluster_std
+    )
 
     for blob in range(blob_num):
-        x_, y_ = make_blobs(
-            samples_per_blob[blob],
-            n_features=2,
-            centers=centers[blob].reshape(1,-1)
-            )
-        
-        if blob == 0:
-            X = x_
-            y = y_ + class_label[blob]
-        else:
-            X = np.concatenate((X,x_))
-            y = np.concatenate(
-                (y,
-                y_+class_label[blob])
-                )
+        y[np.where(y==blob)] = class_label[blob] 
+    
 
     if angle_params != None:
         R = _generate_2d_rotation(angle_params)
