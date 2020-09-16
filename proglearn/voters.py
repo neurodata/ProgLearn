@@ -46,12 +46,12 @@ class TreeClassificationVoter(BaseVoter):
         """
         Fits data X given class labels y.
 
-    	Attributes
-    	---
-    	X : array of shape [n_samples, n_features]
-    	    the transformed data that will be trained on
-    	y : array of shape [n_samples]
-    	    the label for class membership of the given data
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+            the transformed data that will be trained on
+        y : array of shape [n_samples]
+            the label for class membership of the given data
         """
         check_classification_targets(y)
 
@@ -85,12 +85,12 @@ class TreeClassificationVoter(BaseVoter):
         Attributes
         ---
         X : array of shape [n_samples, n_features]
-    	    the transformed input data
+            the transformed input data
 
-    	Raises
-    	---
-    	NotFittedError :
-    	    when the model has not yet been fit for this transformation
+        Raises
+        ---
+        NotFittedError :
+            when the model has not yet been fit for this transformation
         """
 
         if not self.is_fitted():
@@ -124,9 +124,9 @@ class TreeClassificationVoter(BaseVoter):
         posteriors : array of shape[n_samples, n_classes]
             posterior for each sample
         num_points_in_partition : int
-    	    number of samples in this particular transformation
-    	num_classes : int
-    	    number of classes or labels
+            number of samples in this particular transformation
+        num_classes : int
+            number of classes or labels
         """
         correction_constant = 1 / (num_classes * num_points_in_partition)
 
@@ -168,12 +168,12 @@ class KNNClassificationVoter(BaseVoter):
         """
         Fits data X given class labels y.
 
-    	Attributes
-    	---
-    	X : array of shape [n_samples, n_features]
-    	    the transformed data that will be trained on
-    	y : array of shape [n_samples]
-    	    the label for class membership of the given data
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+            the transformed data that will be trained on
+        y : array of shape [n_samples]
+            the label for class membership of the given data
         """
         X, y = check_X_y(X, y)
         k = int(np.log2(len(X))) if self.k == None else self.k
@@ -190,12 +190,12 @@ class KNNClassificationVoter(BaseVoter):
         Attributes
         ---
         X : array of shape [n_samples, n_features]
-    	    the transformed input data
+            the transformed input data
 
-    	Raises
-    	---
-    	NotFittedError :
-    	    when the model has not yet been fit for this transformation
+        Raises
+        ---
+        NotFittedError :
+            when the model has not yet been fit for this transformation
         """
         if not self.is_fitted():
             msg = (
