@@ -70,6 +70,13 @@ class SimpleAverage(ClassificationDecider):
         return np.mean(vote_per_transformer_id, axis=0)
 
     def predict(self, X, transformer_ids=None):
+        if not self.is_fitted():
+            msg = (
+                "This %(name)s instance is not fitted yet. Call 'fit' with "
+                "appropriate arguments before using this decider."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+        
         vote_overall = self.predict_proba(X, transformer_ids=transformer_ids)
         return self.classes[np.argmax(vote_overall, axis=1)]
     
