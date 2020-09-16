@@ -217,7 +217,7 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
     def _append_decider_idx(self, task_id, decider_idx):
         self.task_id_to_decider_idx[task_id] = decider_idx
 
-    def _get_split_idxs(self, ra, transformer_voter_decider_split):
+    def _bifurcate_decider_idxs(self, ra, transformer_voter_decider_split):
         if transformer_voter_decider_split is None:
             return ra, ra
         else:
@@ -613,7 +613,7 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
         self.task_id_to_y[task_id] = y
 
         # split into transformer/voter and decider data
-        transformer_voter_data_idx, decider_idx = self._get_split_idxs(
+        transformer_voter_data_idx, decider_idx = self._bifurcate_decider_idxs(
             range(len(X)), transformer_voter_decider_split
         )
         self._append_decider_idx(task_id, decider_idx)
