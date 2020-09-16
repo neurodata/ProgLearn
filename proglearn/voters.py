@@ -18,17 +18,40 @@ from .base import BaseVoter
 
 
 class TreeClassificationVoter(BaseVoter):
-    def __init__(self, finite_sample_correction=False):
-        """
-        Doc strings here.
-        """
+    """
+    A class used to represent a tree classification voter.
 
+    Attributes
+    ---
+    finite_sample_correction : bool
+        boolean indicating whether this voter
+        will have finite sample correction
+
+    Methods
+    ---
+    fit(X, y)
+        fits tree classification to transformed data X with labels y
+    vote(X)
+        predicts posterior probabilities given transformed data, X, for each class label
+    is_fitted()
+        returns if the classifier has been fitted for this transformation yet
+    _finite_sample_correction(posteriors, num_points_in_partition, num_classes)
+        does a finite sample correction on input data
+    """
+    def __init__(self, finite_sample_correction=False):
         self.finite_sample_correction = finite_sample_correction
         self._is_fitted = False
 
     def fit(self, X, y):
         """
-        Doc strings here.
+        Fits data X given class labels y.
+
+    	Attributes
+    	---
+    	X : array of shape [n_samples, n_features]
+    	    the transformed data that will be trained on
+    	y : array of shape [n_samples]
+    	    the label for class membership of the given data
         """
         check_classification_targets(y)
 
@@ -57,7 +80,17 @@ class TreeClassificationVoter(BaseVoter):
 
     def vote(self, X):
         """
-        Doc strings here.
+        Returns the posterior probabilities of each class for data X.
+
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+    	    the transformed input data
+
+    	Raises
+    	---
+    	NotFittedError :
+    	    when the model has not yet been fit for this transformation
         """
 
         if not self.is_fitted():
@@ -77,14 +110,23 @@ class TreeClassificationVoter(BaseVoter):
 
     def is_fitted(self):
         """
-        Doc strings here.
+        Returns boolean specifying if the classifier has been been fit for the transformation yet or not.
         """
 
         return self._is_fitted
 
     def _finite_sample_correction(posteriors, num_points_in_partition, num_classes):
         """
-        encourage posteriors to approach uniform when there is low data
+        Encourage posteriors to approach uniform when there is low data through a finite sample correction.
+
+        Attributes
+        ---
+        posteriors : array of shape[n_samples, n_classes]
+            posterior for each sample
+        num_points_in_partition : int
+    	    number of samples in this particular transformation
+    	num_classes : int
+    	    number of classes or labels
         """
         correction_constant = 1 / (num_classes * num_points_in_partition)
 
@@ -97,17 +139,41 @@ class TreeClassificationVoter(BaseVoter):
 
 
 class KNNClassificationVoter(BaseVoter):
+    """
+    A class used to represent a k nearest neighbors classifier.
+
+    Attributes
+    ---
+    k : int
+        integer indicating number of neighbors to
+        use for each prediction during fitting and voting
+    kwargs : dictionary
+        contains all keyword arguments
+
+    Methods
+    ---
+    fit(X, y)
+        fits tree classification to transformed data X with labels y
+    vote(X)
+        predicts posterior probabilities given transformed data, X, for each class label
+    is_fitted()
+        returns if the classifier has been fitted for this transformation yet
+    """
     def __init__(self, k=None, kwargs={}):
-        """
-        Doc strings here.
-        """
         self._is_fitted = False
         self.k = k
         self.kwargs = kwargs
 
     def fit(self, X, y):
         """
-        Doc strings here.
+        Fits data X given class labels y.
+
+    	Attributes
+    	---
+    	X : array of shape [n_samples, n_features]
+    	    the transformed data that will be trained on
+    	y : array of shape [n_samples]
+    	    the label for class membership of the given data
         """
         X, y = check_X_y(X, y)
         k = int(np.log2(len(X))) if self.k == None else self.k
@@ -119,7 +185,17 @@ class KNNClassificationVoter(BaseVoter):
 
     def vote(self, X):
         """
-        Doc strings here.
+        Returns the posterior probabilities of each class for data X.
+
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+    	    the transformed input data
+
+    	Raises
+    	---
+    	NotFittedError :
+    	    when the model has not yet been fit for this transformation
         """
         if not self.is_fitted():
             msg = (
@@ -133,7 +209,7 @@ class KNNClassificationVoter(BaseVoter):
 
     def is_fitted(self):
         """
-        Doc strings here.
+        Returns boolean specifying if the classifier has been been fit for the transformation.
         """
 
         return self._is_fitted
