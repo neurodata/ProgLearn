@@ -4,8 +4,8 @@ import numpy as np
 from sklearn.utils.validation import NotFittedError
 
 from proglearn.progressive_learner import ProgressiveLearner
-from proglearn.deciders import SimpleAverage
-from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer 
+from proglearn.deciders import SimpleArgmaxAverage
+from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
 import unittest
@@ -34,10 +34,10 @@ class TestTreeClassificationVoter(unittest.TestCase):
 
         voter = TreeClassificationVoter()
         voter.fit(X, y)
-        
+
         y_hat = np.argmax(voter.vote(X), axis = 1)
 
         assert_allclose(y, y_hat)
-        
+
 if __name__ == '__main__':
     unittest.main()
