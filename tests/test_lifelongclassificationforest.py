@@ -45,7 +45,7 @@ class test_LifelongClassificationForest(unittest.TestCase):
         rand = random.randint(0, 1)
         tmp_dict = {"finite_sample_correction": bool(rand)}
         l2f = LifelongClassificationForest(finite_sample_correction=tmp_dict)
-        self.assertEqual(self.l2f.pl.default_voter_kwargs["finite_sample_correction"], bool(rand))
+        self.assertEqual(l2f.pl.default_voter_kwargs["finite_sample_correction"]["finite_sample_correction"], bool(rand))
     
         
 if __name__ == '__main__':
