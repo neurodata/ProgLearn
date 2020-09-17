@@ -161,14 +161,11 @@ for i,n1 in enumerate(n_xor):
     )
     mean_error[:,i] = np.mean(error,axis=0)
     std_error[:,i] = np.std(error,ddof=1,axis=0)
-    mean_te[0,i] = np.mean(error[:,0]/error[:,1])
-    mean_te[1,i] = np.mean(error[:,2]/error[:,3])
-    mean_te[2,i] = np.mean(error[:,0]/error[:,4])
-    mean_te[3,i] = np.mean(error[:,2]/error[:,5])
-    std_te[0,i] = np.std(error[:,0]/error[:,1],ddof=1)
-    std_te[1,i] = np.std(error[:,2]/error[:,3],ddof=1)
-    std_te[2,i] = np.std(error[:,0]/error[:,4],ddof=1)
-    std_te[3,i] = np.std(error[:,0]/error[:,5],ddof=1)
+    mean_te[0,i] = np.mean(error[:,0])/np.mean(error[:,1])
+    mean_te[1,i] = np.mean(error[:,2])/np.mean(error[:,3])
+    mean_te[2,i] = np.mean(error[:,0])/np.mean(error[:,4])
+    mean_te[3,i] = np.mean(error[:,2])/np.mean(error[:,5])
+    
 
     if n1==n_xor[-1]:
         for j,n2 in enumerate(n_nxor):
@@ -183,14 +180,10 @@ for i,n1 in enumerate(n_xor):
             )
             mean_error[:,i+j+1] = np.mean(error,axis=0)
             std_error[:,i+j+1] = np.std(error,ddof=1,axis=0)
-            mean_te[0,i+j+1] = np.mean(error[:,0]/error[:,1])
-            mean_te[1,i+j+1] = np.mean(error[:,2]/error[:,3])
-            mean_te[2,i+j+1] = np.mean(error[:,0]/error[:,4])
-            mean_te[3,i+j+1] = np.mean(error[:,2]/error[:,5])
-            std_te[0,i+j+1] = np.std(error[:,0]/error[:,1],ddof=1)
-            std_te[1,i+j+1] = np.std(error[:,2]/error[:,3],ddof=1)
-            std_te[2,i+j+1] = np.std(error[:,0]/error[:,4],ddof=1)
-            std_te[3,i+j+1] = np.std(error[:,0]/error[:,5],ddof=1)
+            mean_te[0,i+j+1] = np.mean(error[:,0])/np.mean(error[:,1])
+            mean_te[1,i+j+1] = np.mean(error[:,2])/np.mean(error[:,3])
+            mean_te[2,i+j+1] = np.mean(error[:,0])/np.mean(error[:,4])
+            mean_te[3,i+j+1] = np.mean(error[:,2])/np.mean(error[:,5])
 
 with open('./data/mean_xor_nxor.pickle','wb') as f:
     pickle.dump(mean_error,f)
@@ -201,8 +194,6 @@ with open('./data/std_xor_nxor.pickle','wb') as f:
 with open('./data/mean_te_xor_nxor.pickle','wb') as f:
     pickle.dump(mean_te,f)
     
-with open('./data/std_te_xor_nxor.pickle','wb') as f:
-    pickle.dump(std_te,f)
 
 
 
@@ -230,14 +221,10 @@ for i,n1 in enumerate(n_xor):
     )
     mean_error[:,i] = np.mean(error,axis=0)
     std_error[:,i] = np.std(error,ddof=1,axis=0)
-    mean_te[0,i] = np.mean(error[:,0]/error[:,1])
-    mean_te[1,i] = np.mean(error[:,2]/error[:,3])
-    mean_te[2,i] = np.mean(error[:,0]/error[:,4])
-    mean_te[3,i] = np.mean(error[:,2]/error[:,5])
-    std_te[0,i] = np.std(error[:,0]/error[:,1],ddof=1)
-    std_te[1,i] = np.std(error[:,2]/error[:,3],ddof=1)
-    std_te[2,i] = np.std(error[:,0]/error[:,4],ddof=1)
-    std_te[3,i] = np.std(error[:,0]/error[:,5],ddof=1)
+    mean_te[0,i] = np.mean(error[:,0])/np.mean(error[:,1])
+    mean_te[1,i] = np.mean(error[:,2])/np.mean(error[:,3])
+    mean_te[2,i] = np.mean(error[:,0])/np.mean(error[:,4])
+    mean_te[3,i] = np.mean(error[:,2])/np.mean(error[:,5])
 
     if n1==n_xor[-1]:
         for j,n2 in enumerate(n_rxor):
@@ -253,14 +240,10 @@ for i,n1 in enumerate(n_xor):
             )
             mean_error[:,i+j+1] = np.mean(error,axis=0)
             std_error[:,i+j+1] = np.std(error,ddof=1,axis=0)
-            mean_te[0,i+j+1] = np.mean(error[:,0]/error[:,1])
-            mean_te[1,i+j+1] = np.mean(error[:,2]/error[:,3])
-            mean_te[2,i+j+1] = np.mean(error[:,0]/error[:,4])
-            mean_te[3,i+j+1] = np.mean(error[:,2]/error[:,5])
-            std_te[0,i+j+1] = np.std(error[:,0]/error[:,1],ddof=1)
-            std_te[1,i+j+1] = np.std(error[:,2]/error[:,3],ddof=1)
-            std_te[2,i+j+1] = np.std(error[:,0]/error[:,4],ddof=1)
-            std_te[3,i+j+1] = np.std(error[:,0]/error[:,5],ddof=1)
+            mean_te[0,i+j+1] = np.mean(error[:,0])/np.mean(error[:,1])
+            mean_te[1,i+j+1] = np.mean(error[:,2])/np.mean(error[:,3])
+            mean_te[2,i+j+1] = np.mean(error[:,0])/np.mean(error[:,4])
+            mean_te[3,i+j+1] = np.mean(error[:,2])/np.mean(error[:,5])
 
 with open('./data/mean_xor_rxor.pickle','wb') as f:
     pickle.dump(mean_error,f)
@@ -270,6 +253,3 @@ with open('./data/std_xor_rxor.pickle','wb') as f:
     
 with open('./data/mean_te_xor_rxor.pickle','wb') as f:
     pickle.dump(mean_te,f)
-    
-with open('./data/std_te_xor_rxor.pickle','wb') as f:
-    pickle.dump(std_te,f)
