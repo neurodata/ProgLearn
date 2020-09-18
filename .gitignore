@@ -133,3 +133,6 @@ dmypy.json
 
 #experiments
 .DS_Store
+
+#pickle
+*.pickle
