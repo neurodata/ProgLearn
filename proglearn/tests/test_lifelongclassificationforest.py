@@ -6,7 +6,7 @@ import random
 from proglearn.forest import LifelongClassificationForest
 from proglearn.transformers import TreeClassificationTransformer
 from proglearn.voters import TreeClassificationVoter
-from proglearn.deciders import SimpleAverage
+from proglearn.deciders import SimpleArgmaxAverage
 
 class test_LifelongClassificationForest(unittest.TestCase):
     
@@ -23,7 +23,7 @@ class test_LifelongClassificationForest(unittest.TestCase):
         self.assertIs(self.l2f.pl.default_voter_class, TreeClassificationVoter)
         
     def test_correct_default_decider(self):
-        self.assertIs(self.l2f.pl.default_decider_class, SimpleAverage)
+        self.assertIs(self.l2f.pl.default_decider_class, SimpleArgmaxAverage)
         
     def test_correct_default_kwargs_transformer_decider_empty(self):
         self.assertFalse(self.l2f.pl.default_transformer_kwargs)
