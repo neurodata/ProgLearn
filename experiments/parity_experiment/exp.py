@@ -162,11 +162,12 @@ with open('./data/mean_sample_te.pickle','wb') as f:
 
 
 # %%
-with open('./data/mean_angle_te.pickle','rb') as f:
+with open('./data/mean_sample_te.pickle','rb') as f:
     te = pickle.load(f)
-angle_sweep = range(0,90,1)
+task2_sample_sweep = range(100,5010,50)
 
 sns.set_context("talk")
 fig, ax = plt.subplots(1,1, figsize=(8,8))
-ax.plot(angle_sweep,te,linewidth = 3)
+ax.plot(task2_sample_sweep,te,linewidth = 3)
+ax.set_xscale('log')
 # %%
