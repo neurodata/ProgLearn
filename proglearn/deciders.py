@@ -4,7 +4,7 @@ Corresponding Email: levinewill@icloud.com
 '''
 import numpy as np
 
-from .base import ClassificationDecider
+from .base import BaseClassificationDecider
 
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import Ridge
@@ -18,7 +18,7 @@ from sklearn.utils.validation import (
 from sklearn.utils.multiclass import type_of_target
 
 
-class SimpleArgmaxAverage(ClassificationDecider):
+class SimpleArgmaxAverage(BaseClassificationDecider):
     """
     Doc string here.
     """

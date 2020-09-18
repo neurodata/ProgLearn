@@ -3,9 +3,9 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 '''
 import numpy as np
-from .base import ClassificationDecider, ClassificationProgressiveLearner
+from .base import BaseClassificationDecider, BaseClassificationProgressiveLearner
 
-class ProgressiveLearner(ClassificationProgressiveLearner):
+class ProgressiveLearner(BaseClassificationProgressiveLearner):
     """
     A class for progressive learning in the classification setting. 
     
@@ -667,7 +667,7 @@ class ProgressiveLearner(ClassificationProgressiveLearner):
 
     def predict_proba(self, X, task_id, transformer_ids=None):
         decider = self.task_id_to_decider[task_id]
-        if isinstance(decider, ClassificationDecider):
+        if isinstance(decider, BaseClassificationDecider):
             return self.task_id_to_decider[task_id].predict_proba(
                 X, transformer_ids=transformer_ids
             )
