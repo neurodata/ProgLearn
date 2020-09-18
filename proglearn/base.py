@@ -133,9 +133,20 @@ class BaseDecider(abc.ABC):
             Input data matrix. 
         """
         pass
+    
+    @abc.abstractmethod
+    def is_fitted(self):
+        """
+        Indicates whether the decider is fitted.
+        
+        Parameters
+        ----------
+        None
+        """
+        pass
 
 
-class ClassificationDecider(BaseDecider):
+class BaseClassificationDecider(BaseDecider):
     """
     A class for a decider which inherits from the base decider 
     but adds the functionality of estimating posteriors.
@@ -208,7 +219,7 @@ class BaseProgressiveLearner(abc.ABC):
         pass
 
 
-class ClassificationProgressiveLearner(BaseProgressiveLearner):
+class BaseClassificationProgressiveLearner(BaseProgressiveLearner):
     """
     A class for a progressive learner which inherits from the base progressive learner 
     but adds the functionality of estimating posteriors for a given task_id.
