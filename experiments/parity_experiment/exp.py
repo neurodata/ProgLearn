@@ -138,9 +138,9 @@ def experiment(n_task1, n_task2, n_test=1000,
     return errors
 
 ###main hyperparameters###
-task2_sample_sweep = range(100,5000,50)
+task2_sample_sweep = range(50,5010,50)
 task1_sample = 100
-task2_angle = 10*np.pi/180
+task2_angle = 45*np.pi/180
 mc_rep = 10000
 
 mean_te = np.zeros(len(task2_sample_sweep), dtype=float)
@@ -164,7 +164,7 @@ with open('./data/mean_sample_te.pickle','wb') as f:
 # %%
 with open('./data/mean_sample_te.pickle','rb') as f:
     te = pickle.load(f)
-task2_sample_sweep = range(100,5010,50)
+task2_sample_sweep = range(50,5010,50)
 
 sns.set_context("talk")
 fig, ax = plt.subplots(1,1, figsize=(8,8))
