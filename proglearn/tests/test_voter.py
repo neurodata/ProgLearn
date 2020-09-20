@@ -8,8 +8,6 @@ from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
-import pytest
-
 from numpy import testing
 
 def generate_data(n = 100):
