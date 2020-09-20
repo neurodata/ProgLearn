@@ -27,6 +27,7 @@ install:
 
 script:
 - pytest proglearn/
+- black --check --diff ./proglearn
 
 after_success:
 - codecov
