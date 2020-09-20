@@ -51,8 +51,6 @@ class TestKNNClassificationVoter:
         Y = np.concatenate((np.zeros(100), np.ones(100)))
 
         #train model
-        kcv = 
-        kcv
         assert KNNClassificationVoter(3).fit(X, Y).k == 3
         assert KNNClassificationVoter().fit(X, Y).k == int(np.log2(len(X)))
 
