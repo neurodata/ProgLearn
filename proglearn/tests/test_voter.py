@@ -8,26 +8,24 @@ from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
-import unittest
+import pytest
 
-from numpy.testing import assert_allclose
+from numpy import testing
 
 def generate_data(n = 100):
     X = np.concatenate([np.zeros(n), np.ones(n)])
     y = np.concatenate([np.zeros(n), np.ones(n)])
     return X, y
 
-class TestTreeClassificationVoter(unittest.TestCase):
+class TestTreeClassificationVoter:
     def test_initialize(self):
         TreeClassificationVoter()
-        self.assertTrue(True)
+        assert True
 
 
     def test_predict_without_fit(self):
         X, y = generate_data()
-        with self.assertRaises(NotFittedError):
-            voter = TreeClassificationVoter()
-            voter.vote(X)
+        testing.assert_raises(NotFittedError, TreeClassificationVoter().vote, X)
 
     def test_correct_predict(self):
         X, y = generate_data()
@@ -37,7 +35,4 @@ class TestTreeClassificationVoter(unittest.TestCase):
 
         y_hat = np.argmax(voter.vote(X), axis = 1)
 
-        assert_allclose(y, y_hat)
-
-if __name__ == '__main__':
-    unittest.main()
+        testing.assert_allclose(y, y_hat)
