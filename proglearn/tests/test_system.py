@@ -63,7 +63,7 @@ def generate_gaussian_parity(n, mean=np.array([-1, -1]), cov_scale=1, angle_para
 
 
 class TestSystem:
-    def simulation_data_test(self):
+    def test_nxor(self):
         #tests proglearn on xor nxor simulation data
         np.random.seed(12345)
 

@@ -8,7 +8,7 @@ from proglearn.transformers import TreeClassificationTransformer
 from proglearn.voters import TreeClassificationVoter
 from proglearn.deciders import SimpleArgmaxAverage
 
-class test_LifelongClassificationForest:
+class TestLifelongClassificationForest:
     
     def test_initialize(self):
         l2f = LifelongClassificationForest()
@@ -24,7 +24,7 @@ class test_LifelongClassificationForest:
         
     def test_correct_default_decider(self):
         l2f = LifelongClassificationForest()
-        assert self.l2f.pl.default_decider_class == SimpleArgmaxAverage
+        assert l2f.pl.default_decider_class == SimpleArgmaxAverage
         
     def test_correct_default_kwargs(self):
         l2f = LifelongClassificationForest()

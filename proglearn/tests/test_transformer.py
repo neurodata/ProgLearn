@@ -5,7 +5,7 @@ from sklearn.exceptions import NotFittedError
 
 from proglearn.transformers import TreeClassificationTransformer
 
-class test_TreeClassificationTransformer:
+class TestTreeClassificationTransformer:
     
     def test_init(self):
         TreeClassificationTransformer()
