@@ -20,7 +20,7 @@ def generate_data(n = 100):
 class TestTreeClassificationVoter:
     def test_initialize(self):
         TreeClassificationVoter()
-        assert
+        assert True
 
 
     def test_predict_without_fit(self):
