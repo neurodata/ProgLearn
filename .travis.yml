@@ -24,9 +24,11 @@ cache: pip
 install:
 - pip install -r requirements.txt
 - pip install -U pytest pytest-cov codecov
+- pip install coverage
+- pip install coveralls
 
 script:
-- pytest proglearn/
+- coverage run -m unittest discover -s proglearn/test -p 'test*'
 
 after_success:
-- codecov
+- coveralls
