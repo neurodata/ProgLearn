@@ -3,9 +3,6 @@ import numpy as np
 
 from sklearn.utils.validation import NotFittedError
 
-from proglearn.progressive_learner import ProgressiveLearner
-from proglearn.deciders import SimpleArgmaxAverage
-from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
 from numpy import testing
