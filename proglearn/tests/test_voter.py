@@ -25,7 +25,7 @@ class TestTreeClassificationVoter:
 
     def test_predict_without_fit(self):
         X, y = generate_data()
-        assert_raises(NotFittedError, TreeClassificationVoter().vote, X)
+        testing.assert_raises(NotFittedError, TreeClassificationVoter().vote, X)
 
     def test_correct_predict(self):
         X, y = generate_data()
