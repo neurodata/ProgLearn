@@ -227,7 +227,7 @@ with open('plots/mean_angle_te.pickle','rb') as f:
 angle_sweep = range(0,90,1)
 
 ax.plot(angle_sweep,te,c='r',linewidth = 3)
-ax.set_xticks(range(0,91,10))
+ax.set_xticks(range(0,91,15))
 ax.tick_params(labelsize=labelsize)
 ax.set_xlabel('Angle of Rotation (Degrees)', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency (XOR)', fontsize=fontsize)
