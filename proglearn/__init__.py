@@ -1,4 +1,8 @@
-from .progressive_learner import *
-from .transformers import *
-from .voters import *
-from .deciders import *
+from . import progressive_learner, transformers, voters, deciders
+
+__all__ = [
+    'progressive_learner',
+    'transformers',
+    'voters',
+    'deciders
+]
