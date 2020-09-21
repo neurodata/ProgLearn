@@ -126,7 +126,7 @@ class BaseDecider(ABC):
     ----------
     fit(X, y, transformer_id_to_transformers, voter_id_to_voters)
         fits transformer to data X with labels y
-    predict(X)
+    decide(X)
         decides on the given input data X
     is_fitted()
         indicates whether the decider is fitted
@@ -150,7 +150,7 @@ class BaseDecider(ABC):
         pass
 
     @abstractmethod
-    def predict(self, X):
+    def decide(self, X):
         """
         Perform inference using the decider.
         
@@ -184,11 +184,11 @@ class BaseClassificationDecider(BaseDecider):
     
     Methods
     ----------
-    predict_proba(X)
+    decide_proba(X)
         returns class-posteriors for input data X
     """
     @abstractmethod
-    def predict_proba(self, X):
+    def decide_proba(self, X):
         """
         Estimate posteriors using the decider.
         
