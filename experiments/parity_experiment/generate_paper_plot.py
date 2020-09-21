@@ -256,7 +256,7 @@ ax.text(50, np.mean(ax.get_ylim())-.036, "50", fontsize=labelsize)
 ax.text(500, np.mean(ax.get_ylim())-.036, "500", fontsize=labelsize)
 ax.text(5000, np.mean(ax.get_ylim())-.036, "5000", fontsize=labelsize)
 
-ax.text(50, np.mean(ax.get_ylim())-.048, "Number of $45^\circ$-RXOR Training\n       Samples", fontsize=fontsize)
+ax.text(50, np.mean(ax.get_ylim())-.048, "Number of $25^\circ$-RXOR Training\n       Samples", fontsize=fontsize)
 ax.set_ylabel('Backward Transfer Efficiency (XOR)',fontsize=24)
 
 right_side = ax.spines["right"]
