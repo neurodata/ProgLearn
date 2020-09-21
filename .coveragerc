@@ -4,3 +4,8 @@ exclude_lines =
     pragma: no cover
     @abstract
     NotImplementedError
+
+[run]
+omit =
+    *__init__.py
+    *proglearn/base.py
