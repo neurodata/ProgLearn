@@ -4,7 +4,7 @@ Corresponding Email: levinewill@icloud.com
 '''
 from abc import ABC, abstractmethod
 
-class BaseTransformer(abc.ABC):
+class BaseTransformer(ABC):
     """
     A base class for a transformer.
     
@@ -50,7 +50,7 @@ class BaseTransformer(abc.ABC):
         pass
 
 
-class BaseVoter(abc.ABC):
+class BaseVoter(ABC):
     """
     A base class for a voter.
     
@@ -96,7 +96,7 @@ class BaseVoter(abc.ABC):
         pass
 
 
-class BaseDecider(abc.ABC):
+class BaseDecider(ABC):
     """
     A base class for a decider.
     
@@ -167,7 +167,7 @@ class BaseClassificationDecider(BaseDecider):
         """
         pass
     
-class BaseProgressiveLearner(abc.ABC):
+class BaseProgressiveLearner(ABC):
     """
     A base class for a progressive learner.
     
