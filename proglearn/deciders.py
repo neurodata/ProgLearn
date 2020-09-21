@@ -48,7 +48,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         self._is_fitted = True
         return self
 
-    def predict_proba(self, X, transformer_ids=None):
+    def decide_proba(self, X, transformer_ids=None):
         vote_per_transformer_id = []
         for transformer_id in (
             transformer_ids
@@ -69,7 +69,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0))
         return np.mean(vote_per_transformer_id, axis=0)
 
-    def predict(self, X, transformer_ids=None):
+    def decide(self, X, transformer_ids=None):
         if not self.is_fitted():
             msg = (
                 "This %(name)s instance is not fitted yet. Call 'fit' with "
@@ -77,7 +77,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             )
             raise NotFittedError(msg % {"name": type(self).__name__})
         
-        vote_overall = self.predict_proba(X, transformer_ids=transformer_ids)
+        vote_overall = self.decide_proba(X, transformer_ids=transformer_ids)
         return self.classes[np.argmax(vote_overall, axis=1)]
     
     def is_fitted(self):
