@@ -661,14 +661,14 @@ class ProgressiveLearner(BaseClassificationProgressiveLearner):
         )
 
     def predict(self, X, task_id, transformer_ids=None):
-        return self.task_id_to_decider[task_id].predict(
+        return self.task_id_to_decider[task_id].decide(
             X, transformer_ids=transformer_ids
         )
 
     def predict_proba(self, X, task_id, transformer_ids=None):
         decider = self.task_id_to_decider[task_id]
         if isinstance(decider, BaseClassificationDecider):
-            return self.task_id_to_decider[task_id].predict_proba(
+            return self.task_id_to_decider[task_id].decide_proba(
                 X, transformer_ids=transformer_ids
             )
         else:
