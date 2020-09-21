@@ -12,5 +12,13 @@ coverage:
       threshold: 5%  # allow for 5% reduction of coverage without failing
 
     # do not run coverage on patch nor changes
-    patch: false
-    changes: false
+    patch:
+     default:
+       enabled: no
+       if_not_found: success
+   changes:
+     default:
+       enabled: no
+       if_not_found: success
+    
+    
