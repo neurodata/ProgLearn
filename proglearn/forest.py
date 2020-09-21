@@ -23,8 +23,7 @@ class LifelongClassificationForest:
         to train on disjoint subsets of the data. This parameter is mostly 
         for internal use.
     finite_sample_correction : bool, default=False
-        Boolean indicating whether this learner will have finite sample 
-        correction used as in LifelongClassificationForest
+        Boolean indicating whether this learner will have finite sample correction 
 
     Methods
     ---
@@ -164,7 +163,7 @@ class UncertaintyForest:
     finite_sample_correction : bool
         Boolean indicating whether this learner 
         will have finite sample correction used
-        as in LifelongClassifictionForest
+        as in LifelongClassificationForest
         
     Methods
     ---
