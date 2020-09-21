@@ -2,7 +2,7 @@
 Main Author: Will LeVine 
 Corresponding Email: levinewill@icloud.com
 '''
-import abc
+from abc import ABC, abstractmethod
 
 class BaseTransformer(abc.ABC):
     """
@@ -12,7 +12,7 @@ class BaseTransformer(abc.ABC):
     ----------
     None
     """
-    @abc.abstractmethod
+    @abstractmethod
     def fit(self, X=None, y=None):
         """
         Fits the transformer.
@@ -26,7 +26,7 @@ class BaseTransformer(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def transform(self, X):
         """
         Perform inference using the transformer.
@@ -38,7 +38,7 @@ class BaseTransformer(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def is_fitted(self):
         """
         Indicates whether the transformer is fitted.
@@ -58,7 +58,7 @@ class BaseVoter(abc.ABC):
     ----------
     None
     """
-    @abc.abstractmethod
+    @abstractmethod
     def fit(self, X, y):
         """
         Fits the voter.
@@ -72,7 +72,7 @@ class BaseVoter(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def vote(self, X):
         """
         Perform inference using the voter.
@@ -84,7 +84,7 @@ class BaseVoter(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def is_fitted(self):
         """
         Indicates whether the voter is fitted.
@@ -104,7 +104,7 @@ class BaseDecider(abc.ABC):
     ----------
     None
     """
-    @abc.abstractmethod
+    @abstractmethod
     def fit(self, X, y, transformer_id_to_transformers, voter_id_to_voters):
         """
         Fits the decider.
@@ -122,7 +122,7 @@ class BaseDecider(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def predict(self, X):
         """
         Perform inference using the decider.
@@ -134,7 +134,7 @@ class BaseDecider(abc.ABC):
         """
         pass
     
-    @abc.abstractmethod
+    @abstractmethod
     def is_fitted(self):
         """
         Indicates whether the decider is fitted.
@@ -155,7 +155,7 @@ class BaseClassificationDecider(BaseDecider):
     ----------
     None
     """
-    @abc.abstractmethod
+    @abstractmethod
     def predict_proba(self, X):
         """
         Estimate posteriors using the decider.
@@ -175,7 +175,7 @@ class BaseProgressiveLearner(abc.ABC):
     ----------
     None
     """
-    @abc.abstractmethod
+    @abstractmethod
     def add_task(self, X, y):
         """
         Add a new unseen task to the progressive learner.
@@ -189,7 +189,7 @@ class BaseProgressiveLearner(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def add_transformer(self, X, y):
         """
         Add a new transformer (but no voters or transformers corresponding to the task 
@@ -204,7 +204,7 @@ class BaseProgressiveLearner(abc.ABC):
         """
         pass
     
-    @abc.abstractmethod
+    @abstractmethod
     def predict(self, X, task_id):
         """
         Perform inference corresponding to the input task_id using the progressive learner.
@@ -228,7 +228,7 @@ class BaseClassificationProgressiveLearner(BaseProgressiveLearner):
     ----------
     None
     """
-    @abc.abstractmethod
+    @abstractmethod
     def predict_proba(self, X, task_id):
         """
         Estimate posteriors under a given task_id using the decider.
