@@ -244,19 +244,20 @@ ax = fig.add_subplot(gs[23:29,12:19])
 
 with open('plots/mean_sample_te.pickle','rb') as f:
     te = pickle.load(f)
-task2_sample_sweep = range(50,5010,50)
+task2_sample_sweep = (2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
 
 ax.plot(task2_sample_sweep,te,c='r',linewidth = 3)
+ax.hlines(1, 60,5200, colors='gray', linestyles='dashed',linewidth=1.5)
 ax.set_xscale('log')
 ax.set_xticks([])
-ax.set_yticks([0.87,0.9,0.93])
+ax.set_yticks([0.98,1,1.02,1.04])
 ax.tick_params(labelsize=26)
 ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-ax.text(50, np.mean(ax.get_ylim())-.036, "50", fontsize=labelsize)
-ax.text(500, np.mean(ax.get_ylim())-.036, "500", fontsize=labelsize)
-ax.text(5000, np.mean(ax.get_ylim())-.036, "5000", fontsize=labelsize)
+ax.text(50, np.mean(ax.get_ylim())-.042, "50", fontsize=labelsize)
+ax.text(500, np.mean(ax.get_ylim())-.042, "500", fontsize=labelsize)
+ax.text(5000, np.mean(ax.get_ylim())-.042, "5000", fontsize=labelsize)
 
-ax.text(50, np.mean(ax.get_ylim())-.048, "Number of $25^\circ$-RXOR Training\n       Samples", fontsize=fontsize)
+ax.text(50, np.mean(ax.get_ylim())-.047, "Number of $25^\circ$-RXOR Training Samples", fontsize=fontsize-4)
 ax.set_ylabel('Backward Transfer Efficiency (XOR)',fontsize=24)
 
 right_side = ax.spines["right"]
