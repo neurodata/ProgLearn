@@ -2,17 +2,26 @@
 Main Author: Will LeVine 
 Corresponding Email: levinewill@icloud.com
 '''
-import abc
+from abc import ABC, abstractmethod
 
-class BaseTransformer(abc.ABC):
+class BaseTransformer(ABC):
     """
     A base class for a transformer.
     
     Parameters
     ----------
     None
+    
+    Methods
+    ----------
+    fit(X, y)
+        fits the transformer to data X with labels y
+    transform(X)
+        transformers the given data, X
+    is_fitted()
+        indicates whether the transformer is fitted
     """
-    @abc.abstractmethod
+    @abstractmethod
     def fit(self, X=None, y=None):
         """
         Fits the transformer.
@@ -26,7 +35,7 @@ class BaseTransformer(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def transform(self, X):
         """
         Perform inference using the transformer.
@@ -38,7 +47,7 @@ class BaseTransformer(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def is_fitted(self):
         """
         Indicates whether the transformer is fitted.
@@ -50,15 +59,24 @@ class BaseTransformer(abc.ABC):
         pass
 
 
-class BaseVoter(abc.ABC):
+class BaseVoter(ABC):
     """
     A base class for a voter.
     
     Parameters
     ----------
     None
+    
+    Methods
+    ----------
+    fit(X, y)
+        fits the voter to data X with labels y
+    vote(X)
+        provides inference votes on the given transformed data, X
+    is_fitted()
+        indicates whether the voter is fitted
     """
-    @abc.abstractmethod
+    @abstractmethod
     def fit(self, X, y):
         """
         Fits the voter.
@@ -66,16 +84,16 @@ class BaseVoter(abc.ABC):
         Parameters
         ----------
         X : ndarray
-            Input data matrix. 
+            Transformed data matrix. 
         y : ndarray
             Output (i.e. response) data matrix.
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def vote(self, X):
         """
-        Perform inference using the voter.
+        Perform inference using the voter on transformed data X.
         
         Parameters
         ----------
@@ -84,7 +102,7 @@ class BaseVoter(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def is_fitted(self):
         """
         Indicates whether the voter is fitted.
@@ -96,15 +114,24 @@ class BaseVoter(abc.ABC):
         pass
 
 
-class BaseDecider(abc.ABC):
+class BaseDecider(ABC):
     """
     A base class for a decider.
     
     Parameters
     ----------
     None
+    
+    Methods
+    ----------
+    fit(X, y, transformer_id_to_transformers, voter_id_to_voters)
+        fits transformer to data X with labels y
+    predict(X)
+        decides on the given input data X
+    is_fitted()
+        indicates whether the decider is fitted
     """
-    @abc.abstractmethod
+    @abstractmethod
     def fit(self, X, y, transformer_id_to_transformers, voter_id_to_voters):
         """
         Fits the decider.
@@ -122,7 +149,7 @@ class BaseDecider(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def predict(self, X):
         """
         Perform inference using the decider.
@@ -134,7 +161,7 @@ class BaseDecider(abc.ABC):
         """
         pass
     
-    @abc.abstractmethod
+    @abstractmethod
     def is_fitted(self):
         """
         Indicates whether the decider is fitted.
@@ -154,8 +181,13 @@ class BaseClassificationDecider(BaseDecider):
     Parameters
     ----------
     None
+    
+    Methods
+    ----------
+    predict_proba(X)
+        returns class-posteriors for input data X
     """
-    @abc.abstractmethod
+    @abstractmethod
     def predict_proba(self, X):
         """
         Estimate posteriors using the decider.
@@ -167,15 +199,26 @@ class BaseClassificationDecider(BaseDecider):
         """
         pass
     
-class BaseProgressiveLearner(abc.ABC):
+class BaseProgressiveLearner(ABC):
     """
     A base class for a progressive learner.
     
     Parameters
     ----------
     None
+    
+    Methods
+    ----------
+    add_task(X, y)
+        adds a new unseen task to the progressive learner
+    add_transformer(X, y)
+        adds a new transformer (but no voters or transformers corresponding 
+        to the task from which the transformer data was collected.
+    predict(X, task_id):
+        performs inference corresponding to the input task_id using the 
+        progressive learner.
     """
-    @abc.abstractmethod
+    @abstractmethod
     def add_task(self, X, y):
         """
         Add a new unseen task to the progressive learner.
@@ -189,11 +232,11 @@ class BaseProgressiveLearner(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def add_transformer(self, X, y):
         """
         Add a new transformer (but no voters or transformers corresponding to the task 
-        from which the transformer data was collected.
+        from which the transformer data was collected).
         
         Parameters
         ----------
@@ -204,10 +247,11 @@ class BaseProgressiveLearner(abc.ABC):
         """
         pass
     
-    @abc.abstractmethod
+    @abstractmethod
     def predict(self, X, task_id):
         """
-        Perform inference corresponding to the input task_id using the progressive learner.
+        Perform inference corresponding to the input task_id on input data X using the 
+        progressive learner.
         
         Parameters
         ----------
@@ -227,8 +271,14 @@ class BaseClassificationProgressiveLearner(BaseProgressiveLearner):
     Parameters
     ----------
     None
+    
+    Methods
+    ----------
+    predict_proba(X, task_id):
+        provides class-posteriors corresponding to the input task_id on input data X using 
+        the progressive learner.
     """
-    @abc.abstractmethod
+    @abstractmethod
     def predict_proba(self, X, task_id):
         """
         Estimate posteriors under a given task_id using the decider.
