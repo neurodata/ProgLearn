@@ -1,11 +1,11 @@
 '''
-Main Author: Will LeVine 
+Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 '''
 from .progressive_learner import ProgressiveLearner
 from .transformers import TreeClassificationTransformer
 from .voters import TreeClassificationVoter
-from .deciders import SimpleAverage
+from .deciders import SimpleArgmaxAverage
 import numpy as np
 
 class LifelongClassificationForest:
@@ -17,9 +17,12 @@ class LifelongClassificationForest:
             default_transformer_kwargs={},
             default_voter_class=TreeClassificationVoter,
             default_voter_kwargs={"finite_sample_correction": finite_sample_correction},
-            default_decider_class=SimpleAverage,
+            default_decider_class=SimpleArgmaxAverage,
+            default_decider_kwargs={},
         )
 
+        
+       
     def add_task(
         self, X, y, task_id=None):
         self.pl.add_task(
@@ -31,7 +34,7 @@ class LifelongClassificationForest:
             decider_kwargs = {"classes" : np.unique(y)}
         )
         return self
-    
+
     def add_transformer(self, X, y, transformer_id=None):
         self.pl.add_transformer(
             X,
@@ -60,7 +63,7 @@ class UncertaintyForest:
         A lifelong classification forest object
     n_estimators : int
         The number of estimaters used in the 
-	LifelongClassificationForest
+        LifelongClassificationForest
     finite_sample_correction : bool
         Boolean indicating whether this learner 
         will have finite sample correction used
@@ -69,52 +72,52 @@ class UncertaintyForest:
     Methods
     ---
     fit(X, y)
-	fits forest to data X with labels y
+        fits forest to data X with labels y
     predict(X)
-	predicts class labels given data, X
+        predicts class labels given data, X
     predict_proba(X)
-	predicts posterior probabilities given data, X, of each class label
+        predicts posterior probabilities given data, X, of each class label
     """
     def __init__(self, n_estimators=100, finite_sample_correction=False):
         self.n_estimators = n_estimators
         self.finite_sample_correction = finite_sample_correction
 
     def fit(self, X, y):
-    	"""
-    	fits data X given class labels y
+        """
+        fits data X given class labels y
 
-    	Attributes
-    	---
-    	X : array of shape [n_samples, n_features]
-    	    The data that will be trained on
-    	y : array of shape [n_samples]
-    	    The label for cluster membership of the given data
-    	"""
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+            The data that will be trained on
+        y : array of shape [n_samples]
+            The label for cluster membership of the given data
+        """
         self.lf = LifelongClassificationForest(
-            n_estimators=self.n_estimators,
-            finite_sample_correction=self.finite_sample_correction,
+            n_estimators = self.n_estimators,
+            finite_sample_correction = self.finite_sample_correction
         )
         self.lf.add_task(X, y, task_id=0)
         return self
 
     def predict(self, X):
-    	"""
-    	predicts the class labels given data X
+        """
+        predicts the class labels given data X
 
-    	Attributes
-    	---
-    	X : array of shape [n_samples, n_features]
-    	    The data on which we are performing inference.
-    	"""
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+            The data on which we are performing inference.
+        """
         return self.lf.predict(X, 0)
 
     def predict_proba(self, X):
-    	"""
-    	returns the posterior probabilities of each class for data X
+        """
+        returns the posterior probabilities of each class for data X
 
-    	Attributes
-    	---
-    	X : array of shape [n_samples, n_features]
-	    The data whose posteriors we are estimating.
-    	"""
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+            The data whose posteriors we are estimating.
+        """
         return self.lf.predict_proba(X, 0)

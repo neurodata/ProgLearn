@@ -22,10 +22,12 @@ import tensorflow as tf
 
 from numba import cuda
 
-from proglearn.progressive_learner import ProgressiveLearner
-from proglearn.deciders import SimpleArgmaxAverage
-from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
-from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
+import sys
+sys.path.append("../../proglearn/")
+from progressive_learner import ProgressiveLearner
+from deciders import SimpleArgmaxAverage
+from transformers import TreeClassificationTransformer, NeuralClassificationTransformer
+from voters import TreeClassificationVoter, KNNClassificationVoter
 
 def cross_val_data(data_x, data_y, total_cls=10):
     x = data_x.copy()
@@ -63,67 +65,57 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, 
 
     errors = np.zeros(2)
 
-    with tf.device('/gpu:'+str(int(angle //  granularity) % 4)):
-        for rep in range(reps):
-            train_x1, train_y1, train_x2, train_y2, test_x, test_y = cross_val_data(data_x, data_y, total_cls=10)
+    for rep in range(reps):
+        print("Starting Rep {} of Angle {}".format(rep, angle))
+        train_x1, train_y1, train_x2, train_y2, test_x, test_y = cross_val_data(data_x, data_y, total_cls=10)
 
 
-            #change data angle for second task
-            tmp_data = train_x2.copy()
-            _tmp_ = np.zeros((32,32,3), dtype=int)
-            total_data = tmp_data.shape[0]
+        #change data angle for second task
+        tmp_data = train_x2.copy()
+        _tmp_ = np.zeros((32,32,3), dtype=int)
+        total_data = tmp_data.shape[0]
 
-            for i in range(total_data):
-                tmp_ = image_aug(tmp_data[i],angle)
-                tmp_data[i] = tmp_
+        for i in range(total_data):
+            tmp_ = image_aug(tmp_data[i],angle)
+            tmp_data[i] = tmp_
 
-            if model == "uf":
-                train_x1 = train_x1.reshape((train_x1.shape[0], train_x1.shape[1] * train_x1.shape[2] * train_x1.shape[3]))
-                tmp_data = tmp_data.reshape((tmp_data.shape[0], tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3]))
-                test_x = test_x.reshape((test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3]))
+        if model == "uf":
+            train_x1 = train_x1.reshape((train_x1.shape[0], train_x1.shape[1] * train_x1.shape[2] * train_x1.shape[3]))
+            tmp_data = tmp_data.reshape((tmp_data.shape[0], tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3]))
+            test_x = test_x.reshape((test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3]))
 
-            if model == "dnn":
+        with tf.device('/gpu:'+str(int(angle //  granularity) % 4)):
+            default_transformer_class = NeuralClassificationTransformer
 
-                default_transformer_class = NeuralClassificationTransformer
+            network = keras.Sequential()
+            network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x1)[1:]))
+            network.add(layers.BatchNormalization())
+            network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+            network.add(layers.BatchNormalization())
+            network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+            network.add(layers.BatchNormalization())
+            network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+            network.add(layers.BatchNormalization())
+            network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
 
-                network = keras.Sequential()
-                network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x1)[1:]))
-                network.add(layers.BatchNormalization())
-                network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-                network.add(layers.BatchNormalization())
-                network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-                network.add(layers.BatchNormalization())
-                network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-                network.add(layers.BatchNormalization())
-                network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+            network.add(layers.Flatten())
+            network.add(layers.BatchNormalization())
+            network.add(layers.Dense(2000, activation='relu'))
+            network.add(layers.BatchNormalization())
+            network.add(layers.Dense(2000, activation='relu'))
+            network.add(layers.BatchNormalization())
+            network.add(layers.Dense(units=10, activation = 'softmax'))
 
-                network.add(layers.Flatten())
-                network.add(layers.BatchNormalization())
-                network.add(layers.Dense(2000, activation='relu'))
-                network.add(layers.BatchNormalization())
-                network.add(layers.Dense(2000, activation='relu'))
-                network.add(layers.BatchNormalization())
-                network.add(layers.Dense(units=10, activation = 'softmax'))
+            default_transformer_kwargs = {"network" : network,
+                                          "euclidean_layer_idx" : -2,
+                                          "num_classes" : 10,
+                                          "optimizer" : keras.optimizers.Adam(3e-4)
+                                         }
 
-                default_transformer_kwargs = {"network" : network,
-                                              "euclidean_layer_idx" : -2,
-                                              "num_classes" : 10,
-                                              "optimizer" : keras.optimizers.Adam(3e-4)
-                                             }
+            default_voter_class = KNNClassificationVoter
+            default_voter_kwargs = {"k" : int(np.log2(len(train_x1)))}
 
-                default_voter_class = KNNClassificationVoter
-                default_voter_kwargs = {"k" : int(np.log2(len(train_x1)))}
-
-                default_decider_class = SimpleArgmaxAverage
-            elif model == "uf":
-                default_transformer_class = TreeClassificationTransformer
-                default_transformer_kwargs = {"kwargs" : {"max_depth" : 30}}
-
-                default_voter_class = TreeClassificationVoter
-                default_voter_kwargs = {}
-
-                default_decider_class = SimpleArgmaxAverage
-
+            default_decider_class = SimpleArgmaxAverage
 
             progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
                                          default_transformer_kwargs = default_transformer_kwargs,
@@ -154,7 +146,7 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, 
 
     errors = errors/reps
     print("Errors For Angle {}: {}".format(angle, errors))
-    with open('results/angle_'+str(angle)+'_'+model+'.pickle', 'wb') as f:
+    with open('rotation_results/angle_'+str(angle)+'_'+model+'.pickle', 'wb') as f:
         pickle.dump(errors, f, protocol = 2)
 
 def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
@@ -173,7 +165,7 @@ def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
     return img_as_ubyte(image_aug_)
 
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 granularity = 2
 reps = 4
 ########################
@@ -188,11 +180,10 @@ def perform_angle(angle):
     LF_experiment(data_x, data_y, angle, model, granularity, reps=reps, ntrees=16, acorn=1)
 
 if model == "dnn":
-    for angle_adder in range(0, 180, granularity * 4):
+    for angle_adder in range(30, 180, granularity * 4):
         angles = angle_adder + np.arange(0, granularity * 4, granularity)
         with Pool(4) as p:
             p.map(perform_angle, angles)
 elif model == "uf":
-    angles = np.arange(0, 180,2)
-    with Pool(96) as p:
-        p.map(perform_angle, angles)
+    angles = np.arange(30,180,2)
+    Parallel(n_jobs=-1)(delayed(LF_experiment)(data_x, data_y, angle, model, granularity, reps=20, ntrees=16, acorn=1) for angle in angles)
