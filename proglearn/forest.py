@@ -15,28 +15,24 @@ class LifelongClassificationForest:
     Parameters:
     ---
     n_estimators : int, default=100
-        The number of estimators used in the LifelongClassificationForest
+        The number of estimators used in the Lifelong Classification Forest
     tree_construction_proportion : int, default=0.67
         The proportions of the input data set aside to train each decision 
-        tree. The remainder of the data is used to train the transformers. 
-        This is used in case you are using a bagging algorithm ensemble 
-        to train on disjoint subsets of the data. This parameter is mostly 
-        for internal use.
+        tree. The remainder of the data is used to fill in voting posteriors.
     finite_sample_correction : bool, default=False
-        Boolean indicating whether this learner will have finite sample correction 
+        Boolean indicating whether this learner will have finite sample correction
 
     Methods
     ---
     add_task(X, y, task_id)
         adds a task with id task_id, given input data matrix X 
-        and output data matrix y, to the progressive learner
+        and output data matrix y, to the Lifelong Classification Forest
     add_transformer(X, y, transformer_id)
         adds a transformer with id transformer_id, given input data matrix, X 
-        and output data matrix, y, to the progressive learner and trains the 
-        voters and deciders from new transformer to previous tasks
+        and output data matrix, y, to the Lifelong Classification Forest 
+        and trains the voters and deciders from new transformer to previous tasks
     predict(X, task_id)
-        predicts class labels of a task with id task_id given 
-        input data matrix X 
+        predicts class labels of a task with id task_id given input data matrix X 
     predict_proba(X, task_id)
         predicts posterior probabilities of each class label of a task 
         with id task_id given input data matrix X and 
@@ -59,7 +55,7 @@ class LifelongClassificationForest:
         self, X, y, task_id=None):
         """
         adds a task with id task_id, given input data matrix X 
-        and output data matrix y, to the progressive learner
+        and output data matrix y, to the Lifelong Classification Forest
         
         Parameters
         ---
@@ -76,7 +72,7 @@ class LifelongClassificationForest:
             The proportions of the input data set aside to 
             train each decision tree
         n_estimators : int
-            The number of estimators used in the LifelongClassificationForest
+            The number of estimators used in the Lifelong Classification Forest
         """
         self.pl.add_task(
             X,
@@ -90,8 +86,8 @@ class LifelongClassificationForest:
 
     def add_transformer(self, X, y, transformer_id=None):
         """
-        adds a transformer to the progressive learner and trains the voters 
-        and deciders from this new transformer to previous tasks
+        adds a transformer to the Lifelong Classification Forest and trains 
+        the voters and deciders from this new transformer to previous tasks
         
         Parameters
         ---
@@ -108,7 +104,7 @@ class LifelongClassificationForest:
             The proportions of the input data set aside to 
             train each decision tree
         n_estimators : int
-            The number of estimators used in the LifelongClassificationForest
+            The number of estimators used in the Lifelong Classification Forest
         """
         self.pl.add_transformer(
             X,
@@ -163,7 +159,7 @@ class UncertaintyForest:
     finite_sample_correction : bool
         Boolean indicating whether this learner 
         will have finite sample correction used
-        as in LifelongClassificationForest
+        as in LifelongClassifictionForest
         
     Methods
     ---
