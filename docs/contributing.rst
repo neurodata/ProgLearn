@@ -46,7 +46,7 @@ good feedback:
 - If an exception is raised, please **provide the full traceback**.
 
 - Please include your **operating system type and version number**, as well as
-  your **Python and ProgL versions**. This information
+  your **Python and hyppo versions**. This information
   can be found by running the following code snippet::
 
     import platform; print(platform.platform())
@@ -61,7 +61,7 @@ good feedback:
 Contributing Code
 -----------------
 
-The preferred workflow for contributing to `ProgL` is to fork the main
+The preferred workflow for contributing to `hyppo` is to fork the main
 repository on GitHub, clone, and develop on a branch. Steps:
 
 1. Fork the `project repository <https://github.com/neurodata/progressive-learning>`__ by clicking
@@ -70,12 +70,12 @@ repository on GitHub, clone, and develop on a branch. Steps:
    fork a repository see `this
    guide <https://help.github.com/articles/fork-a-repo/>`__.
 
-2. Clone your fork of the ``ProgL`` repo from your GitHub account to your
+2. Clone your fork of the ``hyppo`` repo from your GitHub account to your
    local disk:
 
    .. code:: bash
 
-      $ git clone git@github.com:YourLogin/progressive-learning.git
+      $ git clone git@github.com:YourLogin/hyppo.git
       $ cd progressive-learning
 
 3. Create a ``feature`` branch to hold your development changes:
@@ -150,7 +150,7 @@ before you submit a pull request:
 Coding Guidelines
 -----------------
 
-Uniformly formatted code makes it easier to share code ownership. ``ProgL``
+Uniformly formatted code makes it easier to share code ownership. ``hyppo``
 package closely follows the official Python guidelines detailed in
 `PEP8 <https://www.python.org/dev/peps/pep-0008/>`__ that detail how
 code should be formatted and indented. Please read it and follow it.

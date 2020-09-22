@@ -176,8 +176,8 @@ class KNNClassificationVoter(BaseVoter):
             the label for class membership of the given data
         """
         X, y = check_X_y(X, y)
-        self.k = int(np.log2(len(X))) if self.k == None else self.k
-        self.knn = KNeighborsClassifier(self.k, **self.kwargs)
+        k = int(np.log2(len(X))) if self.k == None else self.k
+        self.knn = KNeighborsClassifier(k, **self.kwargs)
         self.knn.fit(X, y)
         self._is_fitted = True
 
