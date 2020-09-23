@@ -7,7 +7,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class BaseTransformer(BaseEstimator, TransformerMixin):
-    """
+    """ 
     A base class for a transformer, derived from scikit-learn's BaseEstimator
     class and TransformerMixin mixin.
 
