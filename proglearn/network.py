@@ -17,20 +17,36 @@ class LifelongClassificationNetwork:
     """
     A class for progressive learning using Lifelong Learning Networks in a classification setting. 
     
-    Parameters
+    Attributes
     ----------
-    network: NeuralClassificationTransformer object
+    network: Keras model
         Transformer network used to map input to output. 
     loss: string
         String name of the function used to calculate the loss between labels and predictions. 
-    optimizer: Optimizer object
+    optimizer: Keras optimizer
         Algorithm used as the optimizer.
     epochs: int
         Number of times the entire training set is iterated over. 
     batch_size: int
-        Number of samples iterated through before making a prediction and generating error. 
+        Batch size used in the training of the network.
     verbose: bool
-        Boolean indicating the production of detailed logging information. 
+        Boolean indicating the production of detailed logging information during training of the
+        network.
+        
+    Methods
+    ---
+    add_task(X, y, task_id)
+        adds a task with id task_id, given input data matrix X 
+        and output data matrix y, to the Lifelong Classification Network
+    add_transformer(X, y, transformer_id)
+        adds a transformer with id transformer_id, trained on given input data matrix, X 
+        and output data matrix, y, to the Lifelong Classification Network. Also  
+        trains the voters and deciders from new transformer to previous tasks, and will
+        train voters and deciders from this transformer to all new tasks.
+    predict(X, task_id)
+        predicts class labels under task_id for each example in input data X.
+    predict_proba(X, task_id)
+        estimates class posteriors under task_id for each example in input data X.
     """
     
     def __init__(
@@ -76,7 +92,8 @@ class LifelongClassificationNetwork:
 
     def add_task(self, X, y, task_id=None, transformer_voter_decider_split=[0.67, 0.33, 0]):
         """
-        Add a new task to the progressive learner. 
+        adds a task with id task_id, given input data matrix X 
+        and output data matrix y, to the Lifelong Classification Network
         
         Parameters
         ----------
@@ -87,8 +104,9 @@ class LifelongClassificationNetwork:
         task_id: obj
             The id corresponding to the task being added. 
         transformer_voter_decider_split: ndarray
-            Array corresponding to the proportions of data used to train the transformer(s) corresponding to 
-            the task_id, to train the voter(s) from the transformer(s) to the task_id, and to train the decider, respectively.
+            Array corresponding to the proportions of data used to train the transformer(s) corresponding 
+            to the task_id, to train the voter(s) from the transformer(s) to the task_id, and to train 
+            the decider for task_id, respectively.
         """
         self.pl.add_task(
             X,
@@ -102,7 +120,10 @@ class LifelongClassificationNetwork:
 
     def add_transformer(self, X, y, transformer_id=None):
         """ 
-        Add a new transformer corresponding to the transformer_id. 
+        adds a transformer with id transformer_id, trained on given input data matrix, X 
+        and output data matrix, y, to the Lifelong Classification Network. Also  
+        trains the voters and deciders from new transformer to previous tasks, and will
+        train voters and deciders from this transformer to all new tasks.
         
         Parameters
         ----------
@@ -111,7 +132,7 @@ class LifelongClassificationNetwork:
         y: ndarray
             Output (response) data matrix. 
         transformer_id: obj
-            The transformer you are interested in adding to the progressive learner. 
+            The id corresponding to the transformer being added.
         """
         
         self.pl.add_transformer(
@@ -124,7 +145,7 @@ class LifelongClassificationNetwork:
 
     def predict(self, X, task_id):
         """
-        Perform inference corresponding to the input task_id using the progressive learner. 
+        Predicts class labels under task_id for each example in input data X.
         
         Parameters
         ----------
@@ -138,7 +159,7 @@ class LifelongClassificationNetwork:
 
     def predict_proba(self, X, task_id):
         """
-        Estimate posteriors under a given task_id using the decider. 
+        Estimates class posteriors under task_id for each example in input data X.
         
         Parameters
         ----------

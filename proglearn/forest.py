@@ -28,14 +28,14 @@ class LifelongClassificationForest:
         adds a task with id task_id, given input data matrix X 
         and output data matrix y, to the Lifelong Classification Forest
     add_transformer(X, y, transformer_id)
-        adds a transformer with id transformer_id, given input data matrix, X 
-        and output data matrix, y, to the Lifelong Classification Forest 
-        and trains the voters and deciders from new transformer to previous tasks
+        adds a transformer with id transformer_id, trained on given input data matrix, X 
+        and output data matrix, y, to the Lifelong Classification Forest. Also  
+        trains the voters and deciders from new transformer to previous tasks, and will
+        train voters and deciders from this transformer to all new tasks.
     predict(X, task_id)
-        predicts class labels of a task with id task_id given input data matrix X 
+        predicts class labels under task_id for each example in input data X.
     predict_proba(X, task_id)
-        predicts posterior probabilities of each class label of a task 
-        with id task_id given input data matrix X and 
+        estimates class posteriors under task_id for each example in input data X.
     """
     def __init__(self, n_estimators=100, tree_construction_proportion=0.67, finite_sample_correction=False):
         self.n_estimators = n_estimators
@@ -65,14 +65,6 @@ class LifelongClassificationForest:
             The output (response) data matrix.
         task_id : obj, default=None
             The id corresponding to the task being added.
-        
-        Attributes
-        ---
-        tree_construction_proportion : float
-            The proportions of the input data set aside to 
-            train each decision tree
-        n_estimators : int
-            The number of estimators used in the Lifelong Classification Forest
         """
         self.pl.add_task(
             X,
@@ -86,8 +78,10 @@ class LifelongClassificationForest:
 
     def add_transformer(self, X, y, transformer_id=None):
         """
-        adds a transformer to the Lifelong Classification Forest and trains 
-        the voters and deciders from this new transformer to previous tasks
+        adds a transformer with id transformer_id, trained on given input data matrix, X 
+        and output data matrix, y, to the Lifelong Classification Forest. Also  
+        trains the voters and deciders from new transformer to previous tasks, and will
+        train voters and deciders from this transformer to all new tasks.
         
         Parameters
         ---
@@ -97,14 +91,6 @@ class LifelongClassificationForest:
             The output (response) data matrix.
         transformer_id : obj, default=None
             The id corresponding to the transformer being added.
-
-        Attributes
-        ---
-        tree_construction_proportion : float
-            The proportions of the input data set aside to 
-            train each decision tree
-        n_estimators : int
-            The number of estimators used in the Lifelong Classification Forest
         """
         self.pl.add_transformer(
             X,
@@ -118,8 +104,7 @@ class LifelongClassificationForest:
 
     def predict(self, X, task_id):
         """
-        predicts the class labels for a particular task 
-        given data, X and task id, task_id
+        predicts class labels under task_id for each example in input data X.
         
         Parameters 
         ---
@@ -132,8 +117,7 @@ class LifelongClassificationForest:
 
     def predict_proba(self, X, task_id):
         """
-        predicts the posterior probabilities of each class for 
-        a particular task given data, X and task id, task_id
+        estimates class posteriors under task_id for each example in input data X.
         
         Parameters
         ---
@@ -154,21 +138,19 @@ class UncertaintyForest:
     lf : LifelongClassificationForest
         A lifelong classification forest object
     n_estimators : int
-        The number of estimaters used in the 
-        LifelongClassificationForest
+        The number of trees in the UncertaintyForest
     finite_sample_correction : bool
         Boolean indicating whether this learner 
-        will have finite sample correction used
-        as in LifelongClassifictionForest
+        will use finite sample correction
         
     Methods
     ---
     fit(X, y)
         fits forest to data X with labels y
     predict(X)
-        predicts class labels given data, X
+        predicts class labels for each example in input data X.
     predict_proba(X)
-        predicts posterior probabilities given data, X, of each class label
+        estimates class posteriors for each example in input data X.
     """
     def __init__(self, n_estimators=100, finite_sample_correction=False):
         self.n_estimators = n_estimators
@@ -176,9 +158,9 @@ class UncertaintyForest:
 
     def fit(self, X, y):
         """
-        fits data X given class labels y
+        fits forest to data X with labels y
 
-        Attributes
+        Parameters
         ---
         X : array of shape [n_samples, n_features]
             The data that will be trained on
@@ -194,9 +176,9 @@ class UncertaintyForest:
 
     def predict(self, X):
         """
-        predicts the class labels given data X
+        predicts class labels for each example in input data X.
 
-        Attributes
+        Parameters
         ---
         X : array of shape [n_samples, n_features]
             The data on which we are performing inference.
@@ -205,9 +187,9 @@ class UncertaintyForest:
 
     def predict_proba(self, X):
         """
-        returns the posterior probabilities of each class for data X
+        estimates class posteriors for each example in input data X.
 
-        Attributes
+        Parameters
         ---
         X : array of shape [n_samples, n_features]
             The data whose posteriors we are estimating.
