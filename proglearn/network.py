@@ -1,5 +1,5 @@
 '''
-Main Author: Will LeVine 
+Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 '''
 import numpy as np
@@ -7,7 +7,7 @@ import numpy as np
 from .progressive_learner import ProgressiveLearner
 from .transformers import NeuralClassificationTransformer
 from .voters import KNNClassificationVoter
-from .deciders import SimpleAverage
+from .deciders import SimpleArgmaxAverage
 
 from sklearn.utils import check_X_y, check_array
 from keras.optimizers import Adam
@@ -48,7 +48,7 @@ class LifelongClassificationNetwork:
         self.optimizer = optimizer
         self.verbose = verbose
         self.batch_size = batch_size
-        
+
         # Set transformer network hyperparameters.
         default_transformer_kwargs = {
             "network": self.network,
@@ -69,7 +69,9 @@ class LifelongClassificationNetwork:
             default_transformer_kwargs=default_transformer_kwargs,
             default_voter_class=KNNClassificationVoter,
             default_voter_kwargs={},
-            default_decider_class=SimpleAverage,
+            default_decider_class=SimpleArgmaxAverage,
+            default_decider_kwargs={},
+
         )
 
     def add_task(self, X, y, task_id=None, transformer_voter_decider_split=[0.67, 0.33, 0]):
@@ -97,7 +99,7 @@ class LifelongClassificationNetwork:
         )
 
         return self
-    
+
     def add_transformer(self, X, y, transformer_id=None):
         """ 
         Add a new transformer corresponding to the transformer_id. 
