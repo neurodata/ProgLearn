@@ -33,10 +33,9 @@ class LifelongClassificationForest:
         trains the voters and deciders from new transformer to previous tasks, and will
         train voters and deciders from this transformer to all new tasks.
     predict(X, task_id)
-        predicts class labels of a task with id task_id given input data matrix X 
+        predicts class labels under task_id for each example in input data X.
     predict_proba(X, task_id)
-        predicts posterior probabilities of each class label of a task 
-        with id task_id given input data matrix X 
+        estimates class posteriors under task_id for each example in input data X.
     """
     def __init__(self, n_estimators=100, tree_construction_proportion=0.67, finite_sample_correction=False):
         self.n_estimators = n_estimators
@@ -105,8 +104,7 @@ class LifelongClassificationForest:
 
     def predict(self, X, task_id):
         """
-        predicts the class labels for a particular task 
-        given data, X and task id, task_id
+        predicts class labels under task_id for each example in input data X.
         
         Parameters 
         ---
@@ -119,8 +117,7 @@ class LifelongClassificationForest:
 
     def predict_proba(self, X, task_id):
         """
-        predicts the posterior probabilities of each class for 
-        a particular task given data, X and task id, task_id
+        estimates class posteriors under task_id for each example in input data X.
         
         Parameters
         ---
@@ -151,9 +148,9 @@ class UncertaintyForest:
     fit(X, y)
         fits forest to data X with labels y
     predict(X)
-        predicts class labels given data, X
+        predicts class labels for each example in input data X.
     predict_proba(X)
-        predicts posterior probabilities given data, X, of each class label
+        estimates class posteriors for each example in input data X.
     """
     def __init__(self, n_estimators=100, finite_sample_correction=False):
         self.n_estimators = n_estimators
@@ -179,7 +176,7 @@ class UncertaintyForest:
 
     def predict(self, X):
         """
-        predicts class labels given data, X
+        predicts class labels for each example in input data X.
 
         Parameters
         ---
@@ -190,7 +187,7 @@ class UncertaintyForest:
 
     def predict_proba(self, X):
         """
-        predicts posterior probabilities given data, X, of each class label
+        estimates class posteriors for each example in input data X.
 
         Parameters
         ---
