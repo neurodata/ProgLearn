@@ -3,11 +3,13 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 from abc import ABC, abstractmethod
+from sklearn.base import BaseEstimator, TransformerMixin
 
 
-class BaseTransformer(ABC):
+class BaseTransformer(BaseEstimator, TransformerMixin):
     """
-    A base class for a transformer.
+    A base class for a transformer, derived from scikit-learn's BaseEstimator
+    class and TransformerMixin mixin.
 
     Parameters
     ----------
