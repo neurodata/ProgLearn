@@ -80,6 +80,7 @@ class LifelongClassificationForest:
             tree_construction_proportion = self.tree_construction_proportion
         if finite_sample_correction is None:
             finite_sample_correction = self.finite_sample_correction
+            
         self.pl.add_task(
             X,
             y,
