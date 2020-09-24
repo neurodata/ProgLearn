@@ -32,6 +32,10 @@ class LifelongClassificationNetwork:
     verbose: bool
         Boolean indicating the production of detailed logging information during training of the
         network.
+    transformer_voter_decider_split: ndarray
+            1D array of length 3 corresponding to the proportions of data used to train the 
+            transformer(s) corresponding to the task_id, to train the voter(s) from the 
+            transformer(s) to the task_id, and to train the decider for task_id, respectively.
         
     Methods
     ---
@@ -57,6 +61,7 @@ class LifelongClassificationNetwork:
         epochs=100,
         batch_size=32,
         verbose=False,
+        transformer_voter_decider_split=[0.67, 0.33, 0]  
     ):
         self.network = network
         self.loss = loss
@@ -64,6 +69,7 @@ class LifelongClassificationNetwork:
         self.optimizer = optimizer
         self.verbose = verbose
         self.batch_size = batch_size
+        self.transformer_voter_decider_split = transformer_voter_decider_split
 
         # Set transformer network hyperparameters.
         default_transformer_kwargs = {
@@ -90,7 +96,7 @@ class LifelongClassificationNetwork:
 
         )
 
-    def add_task(self, X, y, task_id=None, transformer_voter_decider_split=[0.67, 0.33, 0]):
+    def add_task(self, X, y, task_id=None, ):
         """
         adds a task with id task_id, given input data matrix X 
         and output data matrix y, to the Lifelong Classification Network
@@ -103,16 +109,12 @@ class LifelongClassificationNetwork:
             Output (response) data matrix. 
         task_id: obj
             The id corresponding to the task being added. 
-        transformer_voter_decider_split: ndarray
-            Array corresponding to the proportions of data used to train the transformer(s) corresponding 
-            to the task_id, to train the voter(s) from the transformer(s) to the task_id, and to train 
-            the decider for task_id, respectively.
         """
         self.pl.add_task(
             X,
             y,
             task_id=task_id,
-            transformer_voter_decider_split=transformer_voter_decider_split,
+            transformer_voter_decider_split=self.transformer_voter_decider_split,
             decider_kwargs = {"classes" : np.unique(y)}
         )
 
