@@ -52,4 +52,4 @@ class TestLifelongClassificationNetwork:
         
     def test_correct_default_transformer_voter_decider_split(self):
         l2n = LifelongClassificationNetwork()
-        assert l2n.default_transformer_voter_decider_split = [0.67, 0.33, 0]
+        assert l2n.default_transformer_voter_decider_split == [0.67, 0.33, 0]
