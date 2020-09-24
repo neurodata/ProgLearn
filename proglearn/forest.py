@@ -72,7 +72,7 @@ class LifelongClassificationForest:
             The proportions of the input data set aside to train each decision 
             tree. The remainder of the data is used to fill in voting posteriors.
             The default is used if 'None' is provided.
-        default_finite_sample_correction : bool, default=False
+        finite_sample_correction : bool, default=False
             Boolean indicating whether this learner will have finite sample correction
             The default is used if 'None' is provided.
         """
