@@ -114,7 +114,7 @@ class LifelongClassificationNetwork:
             1D array of length 3 corresponding to the proportions of data used to train the 
             transformer(s) corresponding to the task_id, to train the voter(s) from the 
             transformer(s) to the task_id, and to train the decider for task_id, respectively.
-            This will be used if it isn't provided in add_task.
+            The default is used if 'None' is provided.
         """
         if transformer_voter_decider_split is None:
             transformer_voter_decider_split = self.default_transformer_voter_decider_split
