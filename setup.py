@@ -8,7 +8,7 @@ requirements = [
     "joblib",
 ]
 
-with open("README.md", "r") as f:
+with open("README.md", mode="r", encoding = "utf8") as f:
     LONG_DESCRIPTION = f.read()
 
 setup(
