@@ -42,7 +42,8 @@ class LifelongClassificationForest:
     def __init__(self, n_estimators=100, default_tree_construction_proportion=0.67, 
                  default_finite_sample_correction=False):
         self.n_estimators = n_estimators
-        self.default_tree_construction_proportion=default_tree_construction_proportion
+        self.default_tree_construction_proportion = default_tree_construction_proportion
+        self.default_finite_sample_correction = default_finite_sample_correction
         self.pl = ProgressiveLearner(
             default_transformer_class=TreeClassificationTransformer,
             default_transformer_kwargs={},
@@ -77,9 +78,9 @@ class LifelongClassificationForest:
             The default is used if 'None' is provided.
         """
         if tree_construction_proportion is None:
-            tree_construction_proportion = self.tree_construction_proportion
+            tree_construction_proportion = self.default_tree_construction_proportion
         if finite_sample_correction is None:
-            finite_sample_correction = self.finite_sample_correction
+            finite_sample_correction = self.default_finite_sample_correction
             
         self.pl.add_task(
             X,
