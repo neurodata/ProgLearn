@@ -32,7 +32,7 @@ class TestLifelongClassificationNetwork:
         l2n = LifelongClassificationNetwork(keras.Sequential())
         
         #transformer 
-        assert l2f.pl.default_transformer_kwargs == {
+        assert l2n.pl.default_transformer_kwargs == {
             "network": self.network,
             "euclidean_layer_idx": -2,
             "loss": self.loss,
@@ -47,10 +47,10 @@ class TestLifelongClassificationNetwork:
         }
         
         #voter
-        assert l2f.pl.default_voter_kwargs == {}
+        assert l2n.pl.default_voter_kwargs == {}
         
         #decider
-        assert l2f.pl.default_decider_kwargs == {}
+        assert l2n.pl.default_decider_kwargs == {}
         
     def test_correct_default_transformer_voter_decider_split(self):
         l2n = LifelongClassificationNetwork(keras.Sequential())
