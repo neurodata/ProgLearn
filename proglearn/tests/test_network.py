@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 import random
 
-from proglearn.forest import LifelongClassificationNetwork
+from proglearn.network import LifelongClassificationNetwork
 from proglearn.transformers import NeuralClassificationTransformer
 from proglearn.voters import KNNClassificationVoter
 from proglearn.deciders import SimpleArgmaxAverage
