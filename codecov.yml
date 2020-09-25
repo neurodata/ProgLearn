@@ -1,2 +1,12 @@
 codecov:
   token: d73047ad-2322-4be0-962c-7de537deff4a
+  
+coverage:
+  status:
+    project:
+      default:
+        threshold: 0%
+        
+    patch:
+      default:
+        threshold: 0%
