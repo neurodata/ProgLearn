@@ -45,5 +45,5 @@ class TestLifelongClassificationForest:
         assert l2f.n_estimators == 100
     
     def test_correct_true_initilization_finite_sample_correction(self):
-        l2f = LifelongClassificationForest(finite_sample_correction=True)
+        l2f = LifelongClassificationForest(default_finite_sample_correction=True)
         assert l2f.pl.default_voter_kwargs == {"finite_sample_correction": True}
