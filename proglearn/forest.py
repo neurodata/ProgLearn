@@ -88,7 +88,7 @@ class LifelongClassificationForest:
             task_id=task_id,
             transformer_voter_decider_split=[tree_construction_proportion, 1-tree_construction_proportion, 0],
             num_transformers=self.n_estimators,
-            transformer_kwargs = {"finite_sample_correction": finite_sample_correction},
+            voter_kwargs = {"finite_sample_correction": finite_sample_correction},
             decider_kwargs = {"classes" : np.unique(y)}
         )
         return self
@@ -186,7 +186,7 @@ class UncertaintyForest:
         """
         self.lf = LifelongClassificationForest(
             n_estimators = self.n_estimators,
-            finite_sample_correction = self.finite_sample_correction
+            default_finite_sample_correction = self.finite_sample_correction
         )
         self.lf.add_task(X, y, task_id=0)
         return self
