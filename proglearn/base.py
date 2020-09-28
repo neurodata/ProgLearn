@@ -3,7 +3,7 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 from abc import ABC, abstractmethod
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
 
 
 class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
@@ -75,8 +75,8 @@ class BaseVoter(ABC, BaseEstimator):
     ----------
     fit(X, y)
         fits the voter to data X with labels y
-    predict_proba(X)
-        provides inference votes on the given transformed data, X
+    predict(X)
+        decides on the given input data X
     is_fitted()
         indicates whether the voter is fitted
     """
@@ -94,6 +94,45 @@ class BaseVoter(ABC, BaseEstimator):
             Output (i.e. response) data matrix.
         """
         pass
+    
+    @abstractmethod
+    def predict(self, X):
+        """
+        Perform inference using the voter.
+
+        Parameters
+        ----------
+        X : ndarray
+            Input data matrix.
+        """
+        pass
+    
+    @abstractmethod
+    def is_fitted(self):
+        """
+        Indicates whether the voter is fitted.
+
+        Parameters
+        ----------
+        None
+        """
+        pass
+
+class BaseClassificationVoter(BaseVoter, ClassifierMixin):
+    """
+    A class for a voter which inherits from scikit-learn's ClassifierMixin 
+    mixin and the base voter, with the additional functionality of 
+    performing inference.
+
+    Parameters
+    ----------
+    None
+
+    Methods
+    ----------
+    predict_proba(X)
+        provides inference votes on the given transformed data, X
+    """
 
     @abstractmethod
     def predict_proba(self, X):
@@ -106,19 +145,7 @@ class BaseVoter(ABC, BaseEstimator):
             Input data matrix.
         """
         pass
-
-    @abstractmethod
-    def is_fitted(self):
-        """
-        Indicates whether the voter is fitted.
-
-        Parameters
-        ----------
-        None
-        """
-        pass
-
-
+    
 class BaseDecider(ABC, BaseEstimator):
     """
     A base class for a decider, derived from scikit-learn's BaseEstimator class.
@@ -179,10 +206,10 @@ class BaseDecider(ABC, BaseEstimator):
         pass
 
 
-class BaseClassificationDecider(BaseDecider):
+class BaseClassificationDecider(BaseDecider, ClassifierMixin):
     """
-    A class for a decider which inherits from the base decider
-    but adds the functionality of estimating posteriors.
+    A class for a decider which inherits from scikit-learn's ClassifierMixin
+    mixin and the base decider, with added functionality of estimating posteriors.
 
     Parameters
     ----------

@@ -17,10 +17,8 @@ from sklearn.utils.validation import (
 
 from sklearn.utils.multiclass import type_of_target
 
-from sklearn.base import BaseEstimator, ClassifierMixin
 
-
-class SimpleArgmaxAverage(BaseClassificationDecider, BaseEstimator, ClassifierMixin):
+class SimpleArgmaxAverage(BaseClassificationDecider):
     """
     Doc string here.
     """
