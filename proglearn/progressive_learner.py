@@ -154,6 +154,9 @@ class ProgressiveLearner(BaseClassificationProgressiveLearner):
         specified in forward_transformer_ids (and from the newly added transformer(s) 
         corresponding to the input task_id if num_transformers > 0) to the 
         new task_id. 
+    predict(X, task_id, transformer_ids=None)
+        predicts labels under task_id for each example in input data X
+        using the given transformer_ids.
     """
     def __init__(
         self,
@@ -676,6 +679,21 @@ class ProgressiveLearner(BaseClassificationProgressiveLearner):
         )
 
     def predict(self, X, task_id, transformer_ids=None):
+        """
+        predicts labels under task_id for each example in input data X
+        using the given transformer_ids.
+        
+        Parameters 
+        ---
+        X : ndarray
+            The input data matrix.
+        task_id : obj
+            The id corresponding to the task being mapped to.
+        transformer_ids : list, default=None
+            The list of transformer_ids through which a user would like 
+            to send X (which will be pipelined with their corresponding 
+            voters) to make an inference prediction.
+        """
         return self.task_id_to_decider[task_id].predict(
             X, transformer_ids=transformer_ids
         )
