@@ -99,6 +99,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             num_transformers = 1 if model == "dnn" else ntrees,
             transformer_voter_decider_split = [0.67, 0.33, 0],
             decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])},
+            voter_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])},
             backward_task_ids=[0]
             )
         train_end_time = time.time()
