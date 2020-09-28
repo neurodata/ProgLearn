@@ -14,12 +14,15 @@ from sklearn.utils.validation import (
 
 from sklearn.utils.multiclass import check_classification_targets
 
+from sklearn.base import BaseEstimator, ClassifierMixin
+
 from .base import BaseVoter
 
 
-class TreeClassificationVoter(BaseVoter):
+class TreeClassificationVoter(BaseVoter, BaseEstimator, ClassifierMixin):
     """
-    A class used to vote on data transformed under a tree.
+    A class used to vote on data transformed under a tree, derived from 
+    scikit-learn's BaseEstimator class and ClassifierMixin mixin.
 
     Attributes
     ---
@@ -31,8 +34,10 @@ class TreeClassificationVoter(BaseVoter):
     ---
     fit(X, y)
         fits tree classification to transformed data X with labels y
-    vote(X)
+    predict_proba(X)
         predicts posterior probabilities given transformed data, X, for each class
+    predict(X)
+        predicts class labels given input data X
     is_fitted()
         returns if the classifier has been fitted for this transformation yet
     _finite_sample_correction(posteriors, num_points_in_partition, num_classes)
@@ -78,7 +83,7 @@ class TreeClassificationVoter(BaseVoter):
 
         return self
 
-    def vote(self, X):
+    def predict_proba(self, X):
         """
         Returns the posterior probabilities of each class for data X.
 
@@ -106,7 +111,19 @@ class TreeClassificationVoter(BaseVoter):
             else:
                 votes_per_example.append(self.uniform_posterior)
         return np.array(votes_per_example)
-
+    
+    def predict(self, X):
+        """
+        Returns the predicted class labels for data X.
+        
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+            the transformed input data
+        """
+        
+        return np.argmax(self.predict_proba(X), axis=1)
+    
     def is_fitted(self):
         """
         Returns boolean indicating whether the voter has been fit.
@@ -137,10 +154,11 @@ class TreeClassificationVoter(BaseVoter):
         return posteriors
 
 
-class KNNClassificationVoter(BaseVoter):
+class KNNClassificationVoter(BaseVoter, BaseEstimator, ClassifierMixin):
     """
-    A class used to vote on data under any transformer 
-    outputting data in continuous Euclidean space.
+    A class used to vote on data under any transformer outputting data 
+    in continuous Euclidean space, derived from scikit-learn's BaseEstimator 
+    class and ClassifierMixin mixin.
 
     Attributes
     ---
@@ -154,8 +172,10 @@ class KNNClassificationVoter(BaseVoter):
     ---
     fit(X, y)
         fits tree classification to transformed data X with labels y
-    vote(X)
+    predict_proba(X)
         predicts posterior probabilities given transformed data, X, for each class label
+    predict(X)
+        predicts class labels given input data X
     is_fitted()
         returns if the classifier has been fitted for this transformation yet
     """
@@ -183,7 +203,7 @@ class KNNClassificationVoter(BaseVoter):
 
         return self
 
-    def vote(self, X):
+    def predict_proba(self, X):
         """
         Returns the posterior probabilities of each class for data X.
 
@@ -206,6 +226,18 @@ class KNNClassificationVoter(BaseVoter):
 
         X = check_array(X)
         return self.knn.predict_proba(X)
+    
+    def predict(self, X):
+        """
+        Returns the predicted class labels for data X.
+        
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+            the transformed input data
+        """
+        
+        return np.argmax(self.predict_proba(X), axis=1)
 
     def is_fitted(self):
         """

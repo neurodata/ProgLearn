@@ -17,8 +17,10 @@ from sklearn.utils.validation import (
 
 from sklearn.utils.multiclass import type_of_target
 
+from sklearn.base import BaseEstimator, ClassifierMixin
 
-class SimpleArgmaxAverage(BaseClassificationDecider):
+
+class SimpleArgmaxAverage(BaseClassificationDecider, BaseEstimator, ClassifierMixin):
     """
     Doc string here.
     """
@@ -64,7 +66,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
                 ]
                 X_transformed = transformer.transform(X)
                 voter = self.transformer_id_to_voters[transformer_id][bag_id]
-                vote = voter.vote(X_transformed)
+                vote = voter.predict_proba(X_transformed)
                 vote_per_bag_id.append(vote)
             vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0))
         return np.mean(vote_per_transformer_id, axis=0)

@@ -63,9 +63,9 @@ class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
         pass
 
 
-class BaseVoter(ABC):
+class BaseVoter(ABC, BaseEstimator):
     """
-    A base class for a voter.
+    A base class for a voter, derived from scikit-learn's BaseEstimator class.
 
     Parameters
     ----------
@@ -75,7 +75,7 @@ class BaseVoter(ABC):
     ----------
     fit(X, y)
         fits the voter to data X with labels y
-    vote(X)
+    predict_proba(X)
         provides inference votes on the given transformed data, X
     is_fitted()
         indicates whether the voter is fitted
@@ -96,7 +96,7 @@ class BaseVoter(ABC):
         pass
 
     @abstractmethod
-    def vote(self, X):
+    def predict_proba(self, X):
         """
         Perform inference using the voter on transformed data X.
 
@@ -119,9 +119,9 @@ class BaseVoter(ABC):
         pass
 
 
-class BaseDecider(ABC):
+class BaseDecider(ABC, BaseEstimator):
     """
-    A base class for a decider.
+    A base class for a decider, derived from scikit-learn's BaseEstimator class.
 
     Parameters
     ----------
