@@ -124,7 +124,8 @@ class LifelongClassificationNetwork:
             y,
             task_id=task_id,
             transformer_voter_decider_split=transformer_voter_decider_split,
-            decider_kwargs = {"classes" : np.unique(y)}
+            decider_kwargs = {"classes" : np.unique(y)},
+            voter_kwargs = {"classes" : np.unique(y)}
         )
 
         return self

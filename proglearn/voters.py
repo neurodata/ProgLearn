@@ -61,12 +61,12 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
         num_classes = len(np.unique(y))
         self.missing_label_indices = []
-        
+
         if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
             for label in self.classes:
                 if label not in np.unique(y):
-                    self.missing_label_indices.append(label)
-        
+                    self.missing_label_indices.append(label)        
+
         self.uniform_posterior = np.ones(num_classes) / num_classes
 
         self.leaf_to_posterior = {}
@@ -116,14 +116,14 @@ class TreeClassificationVoter(BaseClassificationVoter):
                 votes_per_example.append(self.leaf_to_posterior[x])
             else:
                 votes_per_example.append(self.uniform_posterior)
-                
+
         votes_per_example = np.array(votes_per_example)
-        
+
         if len(self.missing_label_indices) > 0:
             for i in self.missing_label_indices:
                 new_col = np.zeros(votes_per_example.shape[0])
                 votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
-        
+
         return votes_per_example
     
     def predict(self, X):
@@ -224,6 +224,14 @@ class KNNClassificationVoter(BaseClassificationVoter):
                 if label not in np.unique(y):
                     self.missing_label_indices.append(label)
 
+        num_classes = len(np.unique(y))
+        self.missing_label_indices = []
+
+        if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
+            for label in self.classes:
+                if label not in np.unique(y):
+                    self.missing_label_indices.append(label)
+
         return self
 
     def predict_proba(self, X):
@@ -249,12 +257,12 @@ class KNNClassificationVoter(BaseClassificationVoter):
 
         X = check_array(X)
         votes_per_example = self.knn.predict_proba(X)
-        
+
         if len(self.missing_label_indices) > 0:
             for i in self.missing_label_indices:
                 new_col = np.zeros(votes_per_example.shape[0])
                 votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
-        
+
         return votes_per_example
     
     def predict(self, X):
