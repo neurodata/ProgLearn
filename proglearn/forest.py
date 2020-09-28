@@ -88,7 +88,7 @@ class LifelongClassificationForest:
             task_id=task_id,
             transformer_voter_decider_split=[tree_construction_proportion, 1-tree_construction_proportion, 0],
             num_transformers=self.n_estimators,
-            voter_kwargs = {"finite_sample_correction": finite_sample_correction},
+            voter_kwargs = {"classes" : np.unique(y), "finite_sample_correction": finite_sample_correction},
             decider_kwargs = {"classes" : np.unique(y)}
         )
         return self

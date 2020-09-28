@@ -38,9 +38,10 @@ class TreeClassificationVoter(BaseVoter):
     _finite_sample_correction(posteriors, num_points_in_partition, num_classes)
         performs finite sample correction on input data
     """
-    def __init__(self, finite_sample_correction=False):
+    def __init__(self, finite_sample_correction=False, classes=[]):
         self.finite_sample_correction = finite_sample_correction
         self._is_fitted = False
+        self.classes = classes
 
     def fit(self, X, y):
         """
@@ -56,6 +57,13 @@ class TreeClassificationVoter(BaseVoter):
         check_classification_targets(y)
 
         num_classes = len(np.unique(y))
+        self.missing_label_indices = []
+
+        if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
+            for label in self.classes:
+                if label not in np.unique(y):
+                    self.missing_label_indices.append(label)        
+
         self.uniform_posterior = np.ones(num_classes) / num_classes
 
         self.leaf_to_posterior = {}
@@ -105,7 +113,15 @@ class TreeClassificationVoter(BaseVoter):
                 votes_per_example.append(self.leaf_to_posterior[x])
             else:
                 votes_per_example.append(self.uniform_posterior)
-        return np.array(votes_per_example)
+        
+        votes_per_example = np.array(votes_per_example)
+
+        if len(self.missing_label_indices) > 0:
+            for i in self.missing_label_indices:
+                new_col = np.zeros(votes_per_example.shape[0])
+                votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
+
+        return votes_per_example
 
     def is_fitted(self):
         """
@@ -159,10 +175,11 @@ class KNNClassificationVoter(BaseVoter):
     is_fitted()
         returns if the classifier has been fitted for this transformation yet
     """
-    def __init__(self, k=None, kwargs={}):
+    def __init__(self, k=None, kwargs={}, classes=[]):
         self._is_fitted = False
         self.k = k
         self.kwargs = kwargs
+        self.classes = classes
 
     def fit(self, X, y):
         """
@@ -180,6 +197,14 @@ class KNNClassificationVoter(BaseVoter):
         self.knn = KNeighborsClassifier(self.k, **self.kwargs)
         self.knn.fit(X, y)
         self._is_fitted = True
+
+        num_classes = len(np.unique(y))
+        self.missing_label_indices = []
+
+        if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
+            for label in self.classes:
+                if label not in np.unique(y):
+                    self.missing_label_indices.append(label)
 
         return self
 
@@ -205,7 +230,13 @@ class KNNClassificationVoter(BaseVoter):
             raise NotFittedError(msg % {"name": type(self).__name__})
 
         X = check_array(X)
-        return self.knn.predict_proba(X)
+        votes_per_example = self.knn.predict_proba(X)
+
+        if len(self.missing_label_indices) > 0:
+            for i in self.missing_label_indices:
+                new_col = np.zeros(votes_per_example.shape[0])
+                votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
+        return votes_per_example
 
     def is_fitted(self):
         """
