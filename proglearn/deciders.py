@@ -6,9 +6,6 @@ import numpy as np
 
 from .base import BaseClassificationDecider
 
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.linear_model import Ridge
-
 from sklearn.utils.validation import (
     check_X_y,
     check_array,
@@ -55,6 +52,13 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             if transformer_ids is not None
             else self.transformer_id_to_voters.keys()
         ):
+            if not self.is_fitted():
+                msg = (
+                    "This %(name)s instance is not fitted yet. Call 'fit' with "
+                    "appropriate arguments before using this decider."
+                )
+                raise NotFittedError(msg % {"name": type(self).__name__})
+            
             vote_per_bag_id = []
             for bag_id in range(
                 len(self.transformer_id_to_transformers[transformer_id])
@@ -84,5 +88,4 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         """
         Doc strings here.
         """
-
         return self._is_fitted
