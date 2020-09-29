@@ -146,6 +146,17 @@ before you submit a pull request:
 
       $ pip install black
       $ black path/to/module.py
+      
+- PR into main. In this PR, link relevant issues (either via the use of `closing keywords <https://docs.github.com/en/enterprise/2.16/user/github/managing-your-work-on-github/closing-issues-using-keywords/>`__ in the comment or by directly linking relevant issues on the lower righthand side of the PR from the web interface), summarize the PR in the title, and comment on the PR with the following format:
+
+  .. code:: bash
+  
+      **Reference Issues/PRs**
+      
+      **What does this implement/fix? Explain your changes.**
+      
+      **Any other comments?**
+      
 
 Coding Guidelines
 -----------------
