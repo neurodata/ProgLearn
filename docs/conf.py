@@ -19,9 +19,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'ProgL'
-copyright = '2020, Jayanta Dey, Will LeVine'
-author = 'Jayanta Dey, Will LeVine'
+project = 'ProgLearn'
+copyright = '2020, Will LeVine, Jayanta Dey, Hayden Helm'
+author = 'Will LeVine, Jayanta Dey, Hayden Helm'
 
 # The short X.Y version
 version = ''
@@ -103,7 +103,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ProgLdoc'
+htmlhelp_basename = 'ProgLearnDoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -130,8 +130,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'ProgL.tex', 'ProgL Documentation',
-     'Jayanta Dey, Will LeVine', 'manual'),
+    (master_doc, 'ProgLearn.tex', 'ProgLearn Documentation',
+     'Will LeVine, Jayanta Dey, Hayden Helm', 'manual'),
 ]
 
 
@@ -140,7 +140,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'progl', 'ProgL Documentation',
+    (master_doc, 'proglearn', 'ProgLearn Documentation',
      [author], 1)
 ]
 
@@ -151,8 +151,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'ProgL', 'ProgL Documentation',
-     author, 'ProgL', 'One line description of project.',
+    (master_doc, 'ProgLearn', 'ProgLearn Documentation',
+     author, 'ProgLearn', 'One line description of project.',
      'Miscellaneous'),
 ]
 

@@ -1,4 +1,4 @@
-Contributing to Progressive-learning
+Contributing to ProgLearn
 ************************************
 
 (adopted from scikit-learn)
@@ -46,12 +46,12 @@ good feedback:
 - If an exception is raised, please **provide the full traceback**.
 
 - Please include your **operating system type and version number**, as well as
-  your **Python and ProgL versions**. This information
+  your **Python and ProgLearn versions**. This information
   can be found by running the following code snippet::
 
     import platform; print(platform.platform())
     import sys; print("Python", sys.version)
-    import progressive-learning; print("progressive-learning", progressive-learning.__version__)
+    import proglearn; print("ProgLearn", proglearn.__version__)
 
 - Please ensure all **code snippets and error messages are formatted in
   appropriate code blocks**.  See `Creating and highlighting code blocks
@@ -61,7 +61,7 @@ good feedback:
 Contributing Code
 -----------------
 
-The preferred workflow for contributing to `ProgL` is to fork the main
+The preferred workflow for contributing to `ProgLearn` is to fork the main
 repository on GitHub, clone, and develop on a branch. Steps:
 
 1. Fork the `project repository <https://github.com/neurodata/progressive-learning>`__ by clicking
@@ -70,7 +70,7 @@ repository on GitHub, clone, and develop on a branch. Steps:
    fork a repository see `this
    guide <https://help.github.com/articles/fork-a-repo/>`__.
 
-2. Clone your fork of the ``ProgL`` repo from your GitHub account to your
+2. Clone your fork of the ``ProgLearn`` repo from your GitHub account to your
    local disk:
 
    .. code:: bash
@@ -146,11 +146,22 @@ before you submit a pull request:
 
       $ pip install black
       $ black path/to/module.py
+      
+- PR into main. In this PR, link relevant issues (either via the use of `closing keywords <https://docs.github.com/en/enterprise/2.16/user/github/managing-your-work-on-github/closing-issues-using-keywords/>`__ in the comment or by directly linking relevant issues on the lower righthand side of the PR from the web interface), summarize the PR in the title, and comment on the PR with the following format:
+
+  .. code:: bash
+  
+      **Reference Issues/PRs**
+      
+      **What does this implement/fix? Explain your changes.**
+      
+      **Any other comments?**
+      
 
 Coding Guidelines
 -----------------
 
-Uniformly formatted code makes it easier to share code ownership. ``ProgL``
+Uniformly formatted code makes it easier to share code ownership. ``ProgLearn``
 package closely follows the official Python guidelines detailed in
 `PEP8 <https://www.python.org/dev/peps/pep-0008/>`__ that detail how
 code should be formatted and indented. Please read it and follow it.

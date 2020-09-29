@@ -4,16 +4,15 @@ Corresponding Email: levinewill@icloud.com
 '''
 import numpy as np
 
-from .progressive_learner import ProgressiveLearner
+from .progressive_learner import ClassificationProgressiveLearner
 from .transformers import NeuralClassificationTransformer
 from .voters import KNNClassificationVoter
 from .deciders import SimpleArgmaxAverage
 
-from sklearn.utils import check_X_y, check_array
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
 
-class LifelongClassificationNetwork:
+class LifelongClassificationNetwork(ClassificationProgressiveLearner):
     """
     A class for progressive learning using Lifelong Learning Networks in a classification setting. 
     
@@ -87,7 +86,7 @@ class LifelongClassificationNetwork:
             },
         }
 
-        self.pl = ProgressiveLearner(
+        self.pl = ClassificationProgressiveLearner(
             default_transformer_class=NeuralClassificationTransformer,
             default_transformer_kwargs=default_transformer_kwargs,
             default_voter_class=KNNClassificationVoter,
@@ -124,7 +123,8 @@ class LifelongClassificationNetwork:
             y,
             task_id=task_id,
             transformer_voter_decider_split=transformer_voter_decider_split,
-            decider_kwargs = {"classes" : np.unique(y)}
+            decider_kwargs = {"classes" : np.unique(y)},
+            voter_kwargs = {"classes" : np.unique(y)}
         )
 
         return self
