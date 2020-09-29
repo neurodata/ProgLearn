@@ -49,7 +49,7 @@ joblib
 # Installation Guide
 ## Install from pip
 ```
-
+pip install proglearn
 ```
 
 ## Install from Github
