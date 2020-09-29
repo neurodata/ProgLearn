@@ -53,11 +53,11 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             else self.transformer_id_to_voters.keys()
         ):
             if not self.is_fitted():
-            msg = (
-                "This %(name)s instance is not fitted yet. Call 'fit' with "
-                "appropriate arguments before using this decider."
-            )
-            raise NotFittedError(msg % {"name": type(self).__name__})
+                msg = (
+                    "This %(name)s instance is not fitted yet. Call 'fit' with "
+                    "appropriate arguments before using this decider."
+                )
+                raise NotFittedError(msg % {"name": type(self).__name__})
             
             vote_per_bag_id = []
             for bag_id in range(
