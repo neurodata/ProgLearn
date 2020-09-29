@@ -1,6 +1,6 @@
 License
 =======
-``Progressive-learning`` is distributed with a Apache 2.0 license.
+``ProgLearn`` is distributed with a Apache 2.0 license.
 
 ::
 
