@@ -114,7 +114,6 @@ class LifelongClassificationForest:
             y,
             transformer_id=transformer_id,
             num_transformers=self.n_estimators,
-            transformer_data_proportion=self.tree_construction_proportion
         )
 
         return self
