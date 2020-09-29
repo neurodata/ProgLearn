@@ -3,7 +3,7 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 '''
 import numpy as np
-from .base import BaseClassificationDecider, BaseClassificationProgressiveLearner, BaseProgressiveLearner
+from .base import BaseClassificationProgressiveLearner, BaseProgressiveLearner
 
 class ProgressiveLearner(BaseProgressiveLearner):
     """
@@ -698,7 +698,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
             X, transformer_ids=transformer_ids
         )
 
-class ClassificationProgressiveLearner(ProgressiveLearner):
+class ClassificationProgressiveLearner(BaseClassificationProgressiveLearner, ProgressiveLearner):
     '''
     A class for progressive learning in the classification setting. 
     
