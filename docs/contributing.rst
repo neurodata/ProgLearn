@@ -152,10 +152,13 @@ before you submit a pull request:
   .. code:: bash
   
       **Reference Issues/PRs**
+      <insert answer>
       
       **What does this implement/fix? Explain your changes.**
+      <insert answer>
       
       **Any other comments?**
+      <insert answer>
       
 
 Coding Guidelines
