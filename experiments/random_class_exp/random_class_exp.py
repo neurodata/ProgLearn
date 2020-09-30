@@ -24,17 +24,9 @@ from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
-import tensorflow as tf
-
 from sklearn.model_selection import train_test_split
 
 import time
-
-#%%
-def unpickle(file):
-    with open(file, 'rb') as fo:
-        dict = pickle.load(fo, encoding='bytes')
-    return dict
 
 #%%
 def LF_experiment(data_x, data_y, ntrees, shift, slot, model, num_points_per_task, acorn=None):
