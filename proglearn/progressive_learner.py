@@ -3,11 +3,11 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 '''
 import numpy as np
-from .base import BaseClassificationDecider, BaseClassificationProgressiveLearner
+from .base import BaseClassificationProgressiveLearner, BaseProgressiveLearner
 
-class ProgressiveLearner(BaseClassificationProgressiveLearner):
+class ProgressiveLearner(BaseProgressiveLearner):
     """
-    A class for progressive learning in the classification setting. 
+    A class for progressive learning.
     
     Parameters
     ----------
@@ -39,11 +39,7 @@ class ProgressiveLearner(BaseClassificationProgressiveLearner):
         progressive learner defaults if None is provided in any of the functions 
         which add or set deciders.
 
-    Attributes (class)
-    ----------
-    None
-
-    Attributes (object)
+    Attributes
     ----------
     task_id_to_X : dict
         A dictionary with keys of type obj corresponding to task ids
@@ -138,7 +134,29 @@ class ProgressiveLearner(BaseClassificationProgressiveLearner):
     default_decider_kwargs : dict
         Stores the default decider kwargs as specified by the parameter
         default_decider_kwargs.
-
+        
+    Methods
+    ---
+    add_transformer(X, y, transformer_data_proportion=1.0, transformer_voter_data_idx=None,
+        transformer_id=None, num_transformers=1, transformer_class=None,
+        transformer_kwargs=None, voter_class=None, voter_kwargs=None, 
+        backward_task_ids=None)
+        Adds a transformer to the progressive learner and trains the voters and 
+        deciders from this new transformer to the specified backward_task_ids.
+    add_task(X, y, task_id=None, transformer_voter_decider_split=[0.67, 0.33, 0],
+        num_transformers=1, transformer_class=None, transformer_kwargs=None, voter_class=None,
+        voter_kwargs=None, decider_class=None, decider_kwargs=None,backward_task_ids=None,
+        forward_transformer_ids=None)
+        Adds a task to the progressive learner. Optionally trains one or more
+        transformer from the input data (if num_transformers > 0), adds voters 
+        and deciders from this/these new transformer(s) to the tasks specified 
+        in backward_task_ids, and adds voters and deciders from the transformers 
+        specified in forward_transformer_ids (and from the newly added transformer(s) 
+        corresponding to the input task_id if num_transformers > 0) to the 
+        new task_id. 
+    predict(X, task_id, transformer_ids=None)
+        predicts labels under task_id for each example in input data X
+        using the given transformer_ids.
     """
     def __init__(
         self,
@@ -428,7 +446,7 @@ class ProgressiveLearner(BaseClassificationProgressiveLearner):
         transformer_kwargs=None,
         voter_class=None,
         voter_kwargs=None,
-        backward_task_ids=None,
+        backward_task_ids=None
     ):
         """
         Adds a transformer to the progressive learner and trains the voters and 
@@ -543,7 +561,7 @@ class ProgressiveLearner(BaseClassificationProgressiveLearner):
         decider_class=None,
         decider_kwargs=None,
         backward_task_ids=None,
-        forward_transformer_ids=None,
+        forward_transformer_ids=None
     ):
         """
         Adds a task to the progressive learner. Optionally trains one or more
@@ -661,17 +679,52 @@ class ProgressiveLearner(BaseClassificationProgressiveLearner):
         )
 
     def predict(self, X, task_id, transformer_ids=None):
+        """
+        predicts labels under task_id for each example in input data X
+        using the given transformer_ids.
+        
+        Parameters 
+        ---
+        X : ndarray
+            The input data matrix.
+        task_id : obj
+            The id corresponding to the task being mapped to.
+        transformer_ids : list, default=None
+            The list of transformer_ids through which a user would like 
+            to send X (which will be pipelined with their corresponding 
+            voters) to make an inference prediction.
+        """
         return self.task_id_to_decider[task_id].predict(
             X, transformer_ids=transformer_ids
         )
 
+class ClassificationProgressiveLearner(BaseClassificationProgressiveLearner, ProgressiveLearner):
+    '''
+    A class for progressive learning in the classification setting. 
+    
+    Methods
+    ---
+    predict_proba(X, task_id, transformer_ids=None)
+        predicts posteriors under task_id for each example in input data X
+        using the given transformer_ids.
+    '''
     def predict_proba(self, X, task_id, transformer_ids=None):
+        """
+        predicts posteriors under task_id for each example in input data X
+        using the given transformer_ids.
+        
+        Parameters 
+        ---
+        X : ndarray
+            The input data matrix.
+        task_id : obj
+            The id corresponding to the task being mapped to.
+        transformer_ids : list, default=None
+            The list of transformer_ids through which a user would like 
+            to send X (which will be pipelined with their corresponding 
+            voters) to estimate posteriors.
+        """
         decider = self.task_id_to_decider[task_id]
-        if isinstance(decider, BaseClassificationDecider):
-            return self.task_id_to_decider[task_id].predict_proba(
-                X, transformer_ids=transformer_ids
-            )
-        else:
-            raise AttributeError(
-                "Cannot call `predict_proba` on non-classification decider."
-            )
+        return self.task_id_to_decider[task_id].predict_proba(
+            X, transformer_ids=transformer_ids
+        )

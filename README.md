@@ -1,11 +1,12 @@
-# progressive-learning
+# ProgLearn
 
 [![Build Status](https://travis-ci.org/neurodata/progressive-learning.svg?branch=master)](https://travis-ci.org/neurodata/progressive-learning)
 [![codecov](https://codecov.io/gh/neurodata/progressive-learning/branch/master/graph/badge.svg)](https://codecov.io/gh/neurodata/progressive-learning)
+[![PyPI version](https://img.shields.io/pypi/v/proglearn.svg)](https://pypi.org/project/proglearn/)
 [![arXiv shield](https://img.shields.io/badge/arXiv-2004.12908-red.svg?style=flat)](https://arxiv.org/abs/2004.12908)
 [![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/licenses/MIT)
 
-progressive-learning is a package for exploring and using progressive learning algorithms developed by the [neurodata group](https://neurodata.io).
+`proglearn` (**Prog**ressive **Learn**ing) is a package for exploring and using progressive learning algorithms developed by the [neurodata group](https://neurodata.io).
 
 - [Overview](#overview)
 - [Documentation](#documentation)
@@ -24,7 +25,7 @@ The progressive learning package utilizes representation ensembling algorithms t
 
 # System Requirements
 ## Hardware requirements
-`progressive-learning` package requires only a standard computer with enough RAM to support the in-memory operations. 
+`proglearn` package requires only a standard computer with enough RAM to support the in-memory operations. 
 
 ## Software requirements
 ### OS Requirements
@@ -37,7 +38,7 @@ This package is supported for *Linux* and *macOS*. The package has been tested o
 This package is written for Python3. Currently, it is supported for Python 3.6 and 3.7.
 
 ### Python Dependencies
-`progressive-learning` mainly depends on the Python scientific stack.
+`proglearn` mainly depends on the Python scientific stack.
 ```
 keras
 tensorflow
@@ -49,7 +50,7 @@ joblib
 # Installation Guide
 ## Install from pip
 ```
-
+pip install proglearn
 ```
 
 ## Install from Github

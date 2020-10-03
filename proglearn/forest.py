@@ -2,13 +2,13 @@
 Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 '''
-from .progressive_learner import ProgressiveLearner
+from .progressive_learner import ClassificationProgressiveLearner
 from .transformers import TreeClassificationTransformer
 from .voters import TreeClassificationVoter
 from .deciders import SimpleArgmaxAverage
 import numpy as np
 
-class LifelongClassificationForest:
+class LifelongClassificationForest(ClassificationProgressiveLearner):
     """
     A class used to represent a lifelong classification forest.
     
@@ -44,7 +44,7 @@ class LifelongClassificationForest:
         self.n_estimators = n_estimators
         self.default_tree_construction_proportion = default_tree_construction_proportion
         self.default_finite_sample_correction = default_finite_sample_correction
-        self.pl = ProgressiveLearner(
+        self.pl = ClassificationProgressiveLearner(
             default_transformer_class=TreeClassificationTransformer,
             default_transformer_kwargs={},
             default_voter_class=TreeClassificationVoter,
@@ -114,7 +114,6 @@ class LifelongClassificationForest:
             y,
             transformer_id=transformer_id,
             num_transformers=self.n_estimators,
-            transformer_data_proportion=self.tree_construction_proportion
         )
 
         return self

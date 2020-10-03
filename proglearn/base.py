@@ -3,7 +3,7 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 from abc import ABC, abstractmethod
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
 
 
 class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
@@ -63,9 +63,9 @@ class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
         pass
 
 
-class BaseVoter(ABC):
+class BaseVoter(ABC, BaseEstimator):
     """
-    A base class for a voter.
+    A base class for a voter, derived from scikit-learn's BaseEstimator class.
 
     Parameters
     ----------
@@ -75,8 +75,8 @@ class BaseVoter(ABC):
     ----------
     fit(X, y)
         fits the voter to data X with labels y
-    vote(X)
-        provides inference votes on the given transformed data, X
+    predict(X)
+        decides on the given input data X
     is_fitted()
         indicates whether the voter is fitted
     """
@@ -94,11 +94,11 @@ class BaseVoter(ABC):
             Output (i.e. response) data matrix.
         """
         pass
-
+    
     @abstractmethod
-    def vote(self, X):
+    def predict(self, X):
         """
-        Perform inference using the voter on transformed data X.
+        Perform inference using the voter.
 
         Parameters
         ----------
@@ -106,7 +106,7 @@ class BaseVoter(ABC):
             Input data matrix.
         """
         pass
-
+    
     @abstractmethod
     def is_fitted(self):
         """
@@ -118,10 +118,37 @@ class BaseVoter(ABC):
         """
         pass
 
-
-class BaseDecider(ABC):
+class BaseClassificationVoter(BaseVoter, ClassifierMixin):
     """
-    A base class for a decider.
+    A class for a voter which inherits from scikit-learn's ClassifierMixin 
+    mixin and the base voter, with the additional functionality of 
+    performing inference.
+
+    Parameters
+    ----------
+    None
+
+    Methods
+    ----------
+    predict_proba(X)
+        provides inference votes on the given transformed data, X
+    """
+
+    @abstractmethod
+    def predict_proba(self, X):
+        """
+        Perform inference using the voter on transformed data X.
+
+        Parameters
+        ----------
+        X : ndarray
+            Input data matrix.
+        """
+        pass
+    
+class BaseDecider(ABC, BaseEstimator):
+    """
+    A base class for a decider, derived from scikit-learn's BaseEstimator class.
 
     Parameters
     ----------
@@ -179,10 +206,10 @@ class BaseDecider(ABC):
         pass
 
 
-class BaseClassificationDecider(BaseDecider):
+class BaseClassificationDecider(BaseDecider, ClassifierMixin):
     """
-    A class for a decider which inherits from the base decider
-    but adds the functionality of estimating posteriors.
+    A class for a decider which inherits from scikit-learn's ClassifierMixin
+    mixin and the base decider, with added functionality of estimating posteriors.
 
     Parameters
     ----------

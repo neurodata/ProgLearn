@@ -2,10 +2,7 @@ import numpy as np
 from sklearn.datasets import make_blobs
 
 
-def _generate_2d_rotation(theta=0, acorn=None):
-    if acorn is not None:
-        np.random.seed(acorn)
-    
+def _generate_2d_rotation(theta=0):    
     R = np.array([
         [np.cos(theta), np.sin(theta)],
         [-np.sin(theta), np.cos(theta)]
