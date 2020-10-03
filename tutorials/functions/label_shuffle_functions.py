@@ -1,29 +1,17 @@
 import random
-import keras
-from keras import layers
-import tensorflow as tf
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import sys
 
 from proglearn.forest import LifelongClassificationForest 
-from proglearn.network import LifelongClassificationNetwork
 
-def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0, shift=1):
-    train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, num_points_per_task, shift=shift)
+def run_parallel_exp(data_x, data_y, n_trees, num_points_per_task, slot=0, shift=1):
     
-    if model == "dnn":
-        # Configure the GPU
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-        sess = tf.Session(config=config)
-        with tf.device('/gpu:'+str(shift % 4)):
-            df = LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, model, num_points_per_task, acorn=12345)
-        return df
-    else:
-        df = LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, model, num_points_per_task, acorn=12345)
-        return df
+    train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, num_points_per_task, shift=shift)
+    df = LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, num_points_per_task, acorn=12345)
+    return df
 
 def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
     x = data_x.copy()
@@ -55,41 +43,15 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
                 
     return train_x, train_y, test_x, test_y
 
-def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, num_points_per_task, acorn=None):
+def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, num_points_per_task, acorn=None):
     
     #We initialize lists to store the results   
     df = pd.DataFrame()
     shifts = []
-    accuracies_across_tasks = []
-    learner = None
+    accuracies_across_tasks = []   
     
-    if model == "dnn":
-        # We initialize the convolutional neural network model for the DNN
-        network = keras.Sequential()
-        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x)[1:]))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-
-        network.add(layers.Flatten())
-        network.add(layers.BatchNormalization())
-        network.add(layers.Dense(2000, activation='relu'))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Dense(2000, activation='relu'))
-        network.add(layers.BatchNormalization())
-        network.add(layers.Dense(units=10, activation = 'softmax'))
-        
-        # Declare the progressive learner model (L2N), using the neural network model as input
-        learner = LifelongClassificationNetwork(network=network)
-        
-    elif model == "uf":
-        # Declare the progressive learner model (L2F), with ntrees as a parameter
-        learner = LifelongClassificationForest(n_estimators=ntrees)
+    # Declare the progressive learner model (L2F), with ntrees as a parameter
+    learner = LifelongClassificationForest(n_estimators=ntrees)
                                            
     for task_ii in range(10):
         print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))
@@ -137,10 +99,10 @@ def get_bte(err):
     
     return bte  
 
-def calc_bte(df_list, slots, shifts, alg_name, alg_no):
+def calc_bte(df_list, slots, shifts):
     shifts = shifts - 1
     reps = slots*shifts
-    btes = np.zeros((len(alg_name),10),dtype=float)
+    btes = np.zeros((1,10),dtype=float)
 
     bte_tmp = [[] for _ in range(reps)]
 
@@ -149,12 +111,8 @@ def calc_bte(df_list, slots, shifts, alg_name, alg_no):
         for slot in range(slots):
             
             # Get the dataframe containing the accuracies for the given shift and slot
-            if alg_name[0] == "L2N":
-                multitask_df = df_list[slot][shift]
-            else :
-                multitask_df = df_list[slot+shift*slots]
+            multitask_df = df_list[slot+shift*slots]
             err = []
-            
             
             for ii in range(10):
                 err.extend(
@@ -169,22 +127,19 @@ def calc_bte(df_list, slots, shifts, alg_name, alg_no):
             count+=1
     
         # Calculate the mean backwards transfer efficiency
-        btes[alg_no] = np.mean(bte_tmp, axis = 0)
+        btes[0] = np.mean(bte_tmp, axis = 0)
     return btes
     
 
-def plot_bte(alg_name, alg_no, btes):
+def plot_bte(btes):
     # Initialize the plot and color
     clr = ["#00008B"]
     c = sns.color_palette(clr, n_colors=len(clr))
     fig, ax = plt.subplots(1,1, figsize=(10,8))
 
     # Plot the results
-    for alg_no,alg in enumerate(alg_name):
-        if alg_no<2:
-            ax.plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no], linewidth=3)
-        else:
-            ax.plot(np.arange(1,11),btes[alg_no], c=c[alg_no], label=alg_name[alg_no])
+    ax.plot(np.arange(1,11),btes[0], c=c[0], label='L2F', linewidth=3)
+        
 
     # Format the plot, and show result
     ax.set_yticks([.9,.95, 1, 1.05,1.1,1.15,1.2])
