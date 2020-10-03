@@ -1,5 +1,6 @@
 # Import the packages for experiment
 import warnings
+
 warnings.simplefilter("ignore")
 
 import pandas as pd
@@ -20,7 +21,10 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 # Import the progressive learning packages
 from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
-from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
+from proglearn.transformers import (
+    TreeClassificationTransformer,
+    NeuralClassificationTransformer,
+)
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
 # The method randomly selects training and testing subsets from the original datasets,
@@ -64,6 +68,7 @@ def cross_val_data(
 
     return data_x_train, data_y_train, data_x_test, data_y_test
 
+
 # The method runs the lifelong learning experiments
 def L2_experiment(
     data_x, data_y, ntrees, shift, slot, model, num_points_per_task, acorn=None
@@ -89,7 +94,7 @@ def L2_experiment(
         default_transformer_kwargs={"kwargs": {"max_depth": 30}},
         default_voter_class=TreeClassificationVoter,
         default_voter_kwargs={},
-        default_decider_class=SimpleArgmaxAverage
+        default_decider_class=SimpleArgmaxAverage,
     )
 
     # training process
@@ -135,7 +140,7 @@ def L2_experiment(
             X=train_x,
             y=train_y,
             transformer_data_proportion=1,
-            num_transformers = ntrees,
+            num_transformers=ntrees,
             backward_task_ids=[0],
         )
         train_end_time = time.time()
@@ -162,6 +167,7 @@ def L2_experiment(
     # save results
     return df
 
+
 # The method allows multiple lifelong forest experiments to be run at the same time
 def run_parallel_exp(
     data_x, data_y, n_trees, model, num_points_per_task, slot=0, shift=1
@@ -177,8 +183,9 @@ def run_parallel_exp(
         acorn=12345,
     )
 
+
 # The method calculates the bte and time results
-def calculate_results(df_results,slot_num,shift_num):
+def calculate_results(df_results, slot_num, shift_num):
     btes = []
     train_times = []
     inference_times = []
@@ -199,13 +206,14 @@ def calculate_results(df_results,slot_num,shift_num):
             train_times.append(df["train_times"])
             inference_times.append(df["inference_times"])
 
-    return btes,train_times,inference_times
+    return btes, train_times, inference_times
 
 
 # Import the packages for plotting
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
-rcParams.update({'figure.autolayout': True})
+
+rcParams.update({"figure.autolayout": True})
 
 # The method plots the Backward Transfer Efficiency
 def plot_bte(bte):
@@ -240,8 +248,9 @@ def plot_bte(bte):
     plt.tight_layout()
     plt.show()
 
+
 # The method plots the time changes
-def plot_time(train_time_across_tasks,inference_time_across_tasks):
+def plot_time(train_time_across_tasks, inference_time_across_tasks):
 
     # plot the recorded times
     ax = plt.subplot(111)
