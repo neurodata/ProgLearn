@@ -7,7 +7,7 @@ from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
 
 
 class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
-    """ 
+    """
     A base class for a transformer, derived from scikit-learn's BaseEstimator
     class and TransformerMixin mixin.
 
@@ -94,7 +94,7 @@ class BaseVoter(ABC, BaseEstimator):
             Output (i.e. response) data matrix.
         """
         pass
-    
+
     @abstractmethod
     def predict(self, X):
         """
@@ -106,7 +106,7 @@ class BaseVoter(ABC, BaseEstimator):
             Input data matrix.
         """
         pass
-    
+
     @abstractmethod
     def is_fitted(self):
         """
@@ -118,10 +118,11 @@ class BaseVoter(ABC, BaseEstimator):
         """
         pass
 
+
 class BaseClassificationVoter(BaseVoter, ClassifierMixin):
     """
-    A class for a voter which inherits from scikit-learn's ClassifierMixin 
-    mixin and the base voter, with the additional functionality of 
+    A class for a voter which inherits from scikit-learn's ClassifierMixin
+    mixin and the base voter, with the additional functionality of
     performing inference.
 
     Parameters
@@ -145,7 +146,8 @@ class BaseClassificationVoter(BaseVoter, ClassifierMixin):
             Input data matrix.
         """
         pass
-    
+
+
 class BaseDecider(ABC, BaseEstimator):
     """
     A base class for a decider, derived from scikit-learn's BaseEstimator class.
