@@ -61,7 +61,7 @@ good feedback:
 Contributing Code
 -----------------
 
-The preferred workflow for contributing to `ProgLearn` is to fork the main
+The preferred workflow for contributing to `ProgLearn` is to fork the staging
 repository on GitHub, clone, and develop on a branch. Steps:
 
 1. Fork the `project repository <https://github.com/neurodata/progressive-learning>`__ by clicking
@@ -84,8 +84,8 @@ repository on GitHub, clone, and develop on a branch. Steps:
 
       $ git checkout -b my-feature
 
-   Always use a ``feature`` branch. It’s good practice to never work on
-   the ``main`` branch!
+   Always use a ``feature`` branch forked from ``staging``. It’s good practice to never work on
+   the raw ``main`` or ``staging`` branches!
 
 4. Develop the feature on your feature branch. Add changed files using
    ``git add`` and then ``git commit`` files:
@@ -147,18 +147,21 @@ before you submit a pull request:
       $ pip install black
       $ black path/to/module.py
       
-- PR into main. In this PR, link relevant issues (either via the use of `closing keywords <https://docs.github.com/en/enterprise/2.16/user/github/managing-your-work-on-github/closing-issues-using-keywords/>`__ in the comment or by directly linking relevant issues on the lower righthand side of the PR from the web interface), summarize the PR in the title, and comment on the PR with the following format:
+- PR into ``staging``. In this PR, link relevant issues (either via the use of `closing keywords <https://docs.github.com/en/enterprise/2.16/user/github/managing-your-work-on-github/closing-issues-using-keywords/>`__ in the comment or by directly linking relevant issues on the lower righthand side of the PR from the web interface), summarize the PR in the title, and comment on the PR with the following format:
 
   .. code:: bash
   
-      **Reference Issues/PRs**
-      <insert answer>
-      
-      **What does this implement/fix? Explain your changes.**
-      <insert answer>
-      
-      **Any other comments?**
-      <insert answer>
+      #### Reference issue
+      <Example: Closes gh-WXYZ>
+
+      #### Type of change
+      <Bug, Documentation, Feature Request>
+
+      #### What does this implement/fix?
+      <Please explain your changes>
+
+      #### Additional information
+      <Any additional information you think is important>
       
 
 Coding Guidelines
