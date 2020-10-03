@@ -13,7 +13,7 @@ def run_parallel_exp(data_x, data_y, n_trees, num_points_per_task, slot=0, shift
     train_x, train_y, test_x, test_y = cross_val_data(
         data_x, data_y, num_points_per_task, shift=shift
     )
-    df = LF_experiment(
+    df = label_shuffle_experiment(
         train_x,
         train_y,
         test_x,
@@ -27,7 +27,7 @@ def run_parallel_exp(data_x, data_y, n_trees, num_points_per_task, slot=0, shift
     return df
 
 
-def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
+def cross_val_data(data_x, data_y, num_points_per_task, shift, total_task=10):
     x = data_x.copy()
     y = data_y.copy()
     idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
@@ -132,7 +132,7 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
     return train_x, train_y, test_x, test_y
 
 
-def LF_experiment(
+def label_shuffle_experiment(
     train_x,
     train_y,
     test_x,
