@@ -25,17 +25,13 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
     classes : list, default=[]
         Defaults to an empty list of classes.
 
-    _is_fitted : boolean, default=False
-        Boolean variable to see if the decider is fitted, defaults to False
-
-    Attributes (class):
-    -----------
-    None
-
     Attributes (objects):
     -----------
     classes : list, default=[]
         Defaults to an empty list of classes.
+
+    _is_fitted : boolean, default=False
+        Boolean variable to see if the decider is fitted, defaults to False
 
     transformer_id_to_transformers : dict
         A dictionary with keys of type obj corresponding to transformer ids
@@ -46,8 +42,22 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         A dictionary with keys of type obj corresponding to transformer ids
         and values of type obj corresponding to a voter class. This dictionary
         maps voter classes to a particular transformer id.
-    """
 
+    Methods
+    -----------
+    fit(X, y, transformer_id_to_transformers, transformer_id_to_voters, classes=None)
+        Fits tree classification to transformed data X with labels y.
+
+    predict_proba(X, transformers_id=None)
+        Predicts posterior probabilities given input data, X, for each class.
+
+    predict(X, transformer, transformer_ids=None)
+        Predicts the most likely class given input data X.
+
+    is_fitted()
+        Returns if the Decider has been fitted.
+    """
+    
     def __init__(self, classes=[]):
         self.classes = classes
         self._is_fitted = False
@@ -79,10 +89,15 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         classes : list, default=None
             A list of classes of type obj.
 
+        Raises:
+        -----------
+        ValueError :
+            When the labels have not been provided. len(y) == 0.
+
         Returns:
         ----------
-        SimpleAverage obj
-            The ClassificationDecider object of class SimpleAverage is returned.
+        SimpleArgmaxAverage obj
+            The ClassificationDecider object of class SimpleArgmaxAverage is returned.
         """
         self,
         X,
@@ -124,10 +139,15 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         transformer_ids : list, default=None
             A list with all transformer ids. Defaults to None if no transformer ids
             are given.
+        
+        Raises:
+        -----------
+        NotFittedError :
+            When the model is not fitted.
 
         Returns:
         -----------
-        Returns mean vote across transformer ids.
+        Returns mean vote across transformer ids as an ndarray.
         """
         vote_per_transformer_id = []
         for transformer_id in (
@@ -174,7 +194,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
 
         Returns:
         -----------
-        The class with the highest vote.
+        The class with the highest vote based on the argmax of the votes as an int.
         """
         if not self.is_fitted():
             msg = (
@@ -189,8 +209,6 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
     def is_fitted(self):
         """
         Getter function to check if the decider is fitted.
-
-        Returns the class attribute _is_fitted.
 
         Returns:
         -----------
