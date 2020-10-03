@@ -17,7 +17,35 @@ from sklearn.utils.multiclass import type_of_target
 
 class SimpleArgmaxAverage(BaseClassificationDecider):
     """
-    Doc string here.
+    A class for a decider that uses the average vote for classification. 
+    Uses BaseClassificationDecider as a base class.
+
+    Parameters:
+    -----------
+    classes : list, default=[]
+        Defaults to an empty list of classes.
+
+    _is_fitted : boolean, default=False
+        Boolean variable to see if the decider is fitted, defaults to False
+
+    Attributes (class):
+    -----------
+    None
+
+    Attributes (objects):
+    -----------
+    classes : list, default=[]
+        Defaults to an empty list of classes.
+
+    transformer_id_to_transformers : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type obj corresponding to a transformer. This dictionary 
+        maps transformers to a particular transformer id.
+
+    transformer_id_to_voters : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type obj corresponding to a voter class. This dictionary
+        maps voter classes to a particular transformer id.
     """
 
     def __init__(self, classes=[]):
@@ -25,6 +53,37 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         self._is_fitted = False
 
     def fit(
+        """
+        Function for fitting.
+        Stores attributes (classes, transformer_id_to_transformers, 
+        and transformer_id_to_voters) of a ClassificationDecider.
+
+        Parameters:
+        -----------
+        X : ndarray
+            Input data matrix.
+
+        y : ndarray
+            Output (i.e. response) data matrix.
+
+        transformer_id_to_transformers : dict
+            A dictionary with keys of type obj corresponding to transformer ids
+            and values of type obj corresponding to a transformer. This dictionary 
+            maps transformers to a particular transformer id.
+
+        transformer_id_to_voters : dict
+            A dictionary with keys of type obj corresponding to transformer ids
+            and values of type obj corresponding to a voter class. This dictionary thus
+            maps voter classes to a particular transformer id.
+
+        classes : list, default=None
+            A list of classes of type obj.
+
+        Returns:
+        ----------
+        SimpleAverage obj
+            The ClassificationDecider object of class SimpleAverage is returned.
+        """
         self,
         X,
         y,
@@ -48,6 +107,28 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         return self
 
     def predict_proba(self, X, transformer_ids=None):
+        """
+        Predicts posterior probabilities per input example.
+
+        Loops through each transformer and bag of transformers.
+        Performs a transformation of the input data with the transformer.
+        Gets a voter to map the transformed input data into a posterior distribution.
+        Gets the mean vote per bag and append it to a vote per transformer id.
+        Returns the average vote per transformer id.
+
+        Parameters:
+        -----------
+        X : ndarray
+            Input data matrix.
+
+        transformer_ids : list, default=None
+            A list with all transformer ids. Defaults to None if no transformer ids
+            are given.
+
+        Returns:
+        -----------
+        Returns mean vote across transformer ids.
+        """
         vote_per_transformer_id = []
         for transformer_id in (
             transformer_ids
@@ -76,6 +157,25 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         return np.mean(vote_per_transformer_id, axis=0)
 
     def predict(self, X, transformer_ids=None):
+        """
+        Predicts the most likely class per input example.
+
+        Uses the predict_proba method to get the mean vote per id. 
+        Returns the class with the highest vote.
+
+        Parameters:
+        -----------
+        X : ndarray
+            Input data matrix.
+
+        transformer_ids : list, default=None
+            A list with all transformer ids. Defaults to None if no transformer ids
+            are given.
+
+        Returns:
+        -----------
+        The class with the highest vote.
+        """
         if not self.is_fitted():
             msg = (
                 "This %(name)s instance is not fitted yet. Call 'fit' with "
@@ -88,6 +188,12 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
 
     def is_fitted(self):
         """
-        Doc strings here.
+        Getter function to check if the decider is fitted.
+
+        Returns the class attribute _is_fitted.
+
+        Returns:
+        -----------
+        Boolean class attribute _is_fitted.
         """
         return self._is_fitted
