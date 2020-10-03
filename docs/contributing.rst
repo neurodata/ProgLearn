@@ -151,14 +151,17 @@ before you submit a pull request:
 
   .. code:: bash
   
-      **Reference Issues/PRs**
-      <insert answer>
-      
-      **What does this implement/fix? Explain your changes.**
-      <insert answer>
-      
-      **Any other comments?**
-      <insert answer>
+      #### Reference issue
+      <Example: Closes gh-WXYZ>
+
+      #### Type of change
+      <Bug, Documentation, Feature Request>
+
+      #### What does this implement/fix?
+      <Please explain your changes>
+
+      #### Additional information
+      <Any additional information you think is important>
       
 
 Coding Guidelines
