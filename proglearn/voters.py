@@ -1,7 +1,7 @@
-'''
+"""
 Main Author: Will LeVine 
 Corresponding Email: levinewill@icloud.com
-'''
+"""
 import numpy as np
 
 from sklearn.neighbors import KNeighborsClassifier
@@ -19,7 +19,7 @@ from .base import BaseClassificationVoter
 
 class TreeClassificationVoter(BaseClassificationVoter):
     """
-    A class used to vote on data transformed under a tree, which inherits from 
+    A class used to vote on data transformed under a tree, which inherits from
     the BaseClassificationVoter class in base.py.
 
     Attributes
@@ -41,6 +41,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
     _finite_sample_correction(posteriors, num_points_in_partition, num_classes)
         performs finite sample correction on input data
     """
+
     def __init__(self, finite_sample_correction=False, classes=[]):
         self.finite_sample_correction = finite_sample_correction
         self._is_fitted = False
@@ -65,7 +66,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
             for label in self.classes:
                 if label not in np.unique(y):
-                    self.missing_label_indices.append(label)        
+                    self.missing_label_indices.append(label)
 
         self.uniform_posterior = np.ones(num_classes) / num_classes
 
@@ -125,19 +126,19 @@ class TreeClassificationVoter(BaseClassificationVoter):
                 votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
 
         return votes_per_example
-    
+
     def predict(self, X):
         """
         Returns the predicted class labels for data X.
-        
+
         Attributes
         ---
         X : array of shape [n_samples, n_features]
             the transformed input data
         """
-        
+
         return np.argmax(self.predict_proba(X), axis=1)
-    
+
     def is_fitted(self):
         """
         Returns boolean indicating whether the voter has been fit.
@@ -170,14 +171,14 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
 class KNNClassificationVoter(BaseClassificationVoter):
     """
-    A class used to vote on data under any transformer outputting data 
-    in continuous Euclidean space, which inherits from the BaseClassificationVoter 
+    A class used to vote on data under any transformer outputting data
+    in continuous Euclidean space, which inherits from the BaseClassificationVoter
     class in base.py.
 
     Attributes
     ---
     k : int
-        integer indicating number of neighbors to use for each prediction during 
+        integer indicating number of neighbors to use for each prediction during
         fitting and voting
     kwargs : dictionary
         contains all keyword arguments for the underlying KNN
@@ -193,6 +194,7 @@ class KNNClassificationVoter(BaseClassificationVoter):
     is_fitted()
         returns if the classifier has been fitted for this transformation yet
     """
+
     def __init__(self, k=None, kwargs={}, classes=[]):
         self._is_fitted = False
         self.k = k
@@ -215,10 +217,10 @@ class KNNClassificationVoter(BaseClassificationVoter):
         self.knn = KNeighborsClassifier(self.k, **self.kwargs)
         self.knn.fit(X, y)
         self._is_fitted = True
-        
+
         num_classes = len(np.unique(y))
         self.missing_label_indices = []
-        
+
         if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
             for label in self.classes:
                 if label not in np.unique(y):
@@ -264,17 +266,17 @@ class KNNClassificationVoter(BaseClassificationVoter):
                 votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
 
         return votes_per_example
-    
+
     def predict(self, X):
         """
         Returns the predicted class labels for data X.
-        
+
         Attributes
         ---
         X : array of shape [n_samples, n_features]
             the transformed input data
         """
-        
+
         return np.argmax(self.predict_proba(X), axis=1)
 
     def is_fitted(self):

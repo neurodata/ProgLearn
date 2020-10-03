@@ -1,7 +1,7 @@
-'''
+"""
 Main Author: Will LeVine 
 Corresponding Email: levinewill@icloud.com
-'''
+"""
 import numpy as np
 
 from sklearn.tree import DecisionTreeClassifier
@@ -65,7 +65,7 @@ class NeuralClassificationTransformer(BaseTransformer):
     compile_kwargs : dict
         A dictionary containing metrics for judging network performance.
     fit_kwargs : dict
-        A dictionary to hold epochs, callbacks, verbose, and validation split for the network.   
+        A dictionary to hold epochs, callbacks, verbose, and validation split for the network.
 
     Methods
     ----------
