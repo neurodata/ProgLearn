@@ -11,15 +11,15 @@ an issue if you have found a bug or wish to see a feature implemented.
 
 In case you experience issues using this package, do not hesitate to submit a
 ticket to the
-`Issue Tracker <https://github.com/neurodata/progressive-learning/issues>`_. You are
+`Issue Tracker <https://github.com/neurodata/ProgLearn/issues>`_. You are
 also welcome to post feature requests or pull requests.
 
 It is recommended to check that your issue complies with the
 following rules before submitting:
 
 -  Verify that your issue is not being currently addressed by other
-   `issues <https://github.com/neurodata/progressive-learning/issues?q=>`_
-   or `pull requests <https://github.com/neurodata/progressive-learning/pulls?q=>`_.
+   `issues <https://github.com/neurodata/ProgLearn/issues?q=>`_
+   or `pull requests <https://github.com/neurodata/ProgLearn/pulls?q=>`_.
 
 -  If you are submitting a bug report, we strongly encourage you to follow the
    guidelines in :ref:`filing_bugs`.
@@ -64,7 +64,7 @@ Contributing Code
 The preferred workflow for contributing to `ProgLearn` is to fork the staging
 repository on GitHub, clone, and develop on a branch. Steps:
 
-1. Fork the `project repository <https://github.com/neurodata/progressive-learning>`__ by clicking
+1. Fork the `project repository <https://github.com/neurodata/ProgLearn>`__ by clicking
    on the ‘Fork’ button near the top right of the page. This creates a copy
    of the code under your GitHub user account. For more details on how to
    fork a repository see `this
@@ -75,8 +75,8 @@ repository on GitHub, clone, and develop on a branch. Steps:
 
    .. code:: bash
 
-      $ git clone git@github.com:YourLogin/progressive-learning.git
-      $ cd progressive-learning
+      $ git clone git@github.com:YourLogin/ProgLearn.git
+      $ cd ProgLearn
 
 3. Create a ``feature`` branch to hold your development changes:
 
@@ -146,11 +146,11 @@ before you submit a pull request:
 
       $ pip install black
       $ black path/to/module.py
-      
+
 - PR into ``staging``. In this PR, link relevant issues (either via the use of `closing keywords <https://docs.github.com/en/enterprise/2.16/user/github/managing-your-work-on-github/closing-issues-using-keywords/>`__ in the comment or by directly linking relevant issues on the lower righthand side of the PR from the web interface), summarize the PR in the title, and comment on the PR with the following format:
 
   .. code:: bash
-  
+
       #### Reference issue
       <Example: Closes gh-WXYZ>
 
@@ -162,7 +162,7 @@ before you submit a pull request:
 
       #### Additional information
       <Any additional information you think is important>
-      
+
 
 Coding Guidelines
 -----------------
