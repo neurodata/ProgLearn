@@ -57,7 +57,7 @@ pip install proglearn
 ## Install from Github
 ```
 git clone https://github.com/neurodata/progressive-learning.git
-cd progressive-learning
+cd ProgLearn
 python3 setup.py install
 ```
 
@@ -77,4 +77,4 @@ We appreciate detailed bug reports and feature requests (though we appreciate pu
 # Citing progressive-learning
 If you find progressive-learning useful in your work, please cite the package via the [progressive-learning paper](https://arxiv.org/pdf/2004.12908.pdf)
 
-> Vogelstein JT, Helm HS, Mehta RD, Dey J, Yang W, Tower B, LeVine W, Larson J, White C, Priebe CE. A general approach to progressive learning. arXiv preprint arXiv:2004.12908. 2020 Apr 27.
+> Vogelstein JT, Helm HS, Dey J, LeVine W, Mehta RD, Yang W, Tower B,  Larson J, White C, Priebe CE. A general approach to progressive learning. arXiv preprint arXiv:2004.12908. 2020 Apr 27.

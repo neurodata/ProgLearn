@@ -11,15 +11,15 @@ an issue if you have found a bug or wish to see a feature implemented.
 
 In case you experience issues using this package, do not hesitate to submit a
 ticket to the
-`Issue Tracker <https://github.com/neurodata/progressive-learning/issues>`_. You are
+`Issue Tracker <https://github.com/neurodata/ProgLearn/issues>`_. You are
 also welcome to post feature requests or pull requests.
 
 It is recommended to check that your issue complies with the
 following rules before submitting:
 
 -  Verify that your issue is not being currently addressed by other
-   `issues <https://github.com/neurodata/progressive-learning/issues?q=>`_
-   or `pull requests <https://github.com/neurodata/progressive-learning/pulls?q=>`_.
+   `issues <https://github.com/neurodata/ProgLearn/issues?q=>`_
+   or `pull requests <https://github.com/neurodata/ProgLearn/pulls?q=>`_.
 
 -  If you are submitting a bug report, we strongly encourage you to follow the
    guidelines in :ref:`filing_bugs`.
@@ -30,7 +30,7 @@ How to make a good bug report
 -----------------------------
 
 When you submit an issue to `Github
-<https://github.com/neurodata/progressive-learning/issues>`__, please do your best to
+<https://github.com/neurodata/ProgLearn/issues>`__, please do your best to
 follow these guidelines! This will make it a lot easier to provide you with
 good feedback:
 
@@ -46,12 +46,12 @@ good feedback:
 - If an exception is raised, please **provide the full traceback**.
 
 - Please include your **operating system type and version number**, as well as
-  your **Python and ProgLearn versions**. This information
+  your **Python and ProgL versions**. This information
   can be found by running the following code snippet::
 
     import platform; print(platform.platform())
     import sys; print("Python", sys.version)
-    import proglearn; print("ProgLearn", proglearn.__version__)
+    import progressive-learning; print("progressive-learning", progressive-learning.__version__)
 
 - Please ensure all **code snippets and error messages are formatted in
   appropriate code blocks**.  See `Creating and highlighting code blocks
@@ -61,16 +61,16 @@ good feedback:
 Contributing Code
 -----------------
 
-The preferred workflow for contributing to `ProgLearn` is to fork the staging
+The preferred workflow for contributing to `ProgL` is to fork the main
 repository on GitHub, clone, and develop on a branch. Steps:
 
-1. Fork the `project repository <https://github.com/neurodata/progressive-learning>`__ by clicking
+1. Fork the `project repository <https://github.com/neurodata/ProgLearn>`__ by clicking
    on the ‘Fork’ button near the top right of the page. This creates a copy
    of the code under your GitHub user account. For more details on how to
    fork a repository see `this
    guide <https://help.github.com/articles/fork-a-repo/>`__.
 
-2. Clone your fork of the ``ProgLearn`` repo from your GitHub account to your
+2. Clone your fork of the ``ProgL`` repo from your GitHub account to your
    local disk:
 
    .. code:: bash
@@ -84,8 +84,8 @@ repository on GitHub, clone, and develop on a branch. Steps:
 
       $ git checkout -b my-feature
 
-   Always use a ``feature`` branch forked from ``staging``. It’s good practice to never work on
-   the raw ``main`` or ``staging`` branches!
+   Always use a ``feature`` branch. It’s good practice to never work on
+   the ``master`` branch!
 
 4. Develop the feature on your feature branch. Add changed files using
    ``git add`` and then ``git commit`` files:
@@ -146,28 +146,11 @@ before you submit a pull request:
 
       $ pip install black
       $ black path/to/module.py
-      
-- PR into ``staging``. In this PR, link relevant issues (either via the use of `closing keywords <https://docs.github.com/en/enterprise/2.16/user/github/managing-your-work-on-github/closing-issues-using-keywords/>`__ in the comment or by directly linking relevant issues on the lower righthand side of the PR from the web interface), summarize the PR in the title, and comment on the PR with the following format:
-
-  .. code:: bash
-  
-      #### Reference issue
-      <Example: Closes gh-WXYZ>
-
-      #### Type of change
-      <Bug, Documentation, Feature Request>
-
-      #### What does this implement/fix?
-      <Please explain your changes>
-
-      #### Additional information
-      <Any additional information you think is important>
-      
 
 Coding Guidelines
 -----------------
 
-Uniformly formatted code makes it easier to share code ownership. ``ProgLearn``
+Uniformly formatted code makes it easier to share code ownership. ``ProgL``
 package closely follows the official Python guidelines detailed in
 `PEP8 <https://www.python.org/dev/peps/pep-0008/>`__ that detail how
 code should be formatted and indented. Please read it and follow it.

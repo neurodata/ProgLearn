@@ -1,9 +1,9 @@
-.. ProgL documentation master file, created by
+.. ProgLearn documentation master file, created by
    sphinx-quickstart on Fri Sep 11 15:20:09 2020.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to ProgLearn's documentation!
+Welcome to ProgL's documentation!
 =================================
 
 .. toctree::
@@ -25,5 +25,6 @@ Documentation
 .. toctree::
    :maxdepth: 6
 
+   reference/index
    contributing
    license
