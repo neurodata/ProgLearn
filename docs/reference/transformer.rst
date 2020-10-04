@@ -3,8 +3,11 @@ Transformers
 
 .. currentmodule:: proglearn.transformers
 
-Transformer
---------------------------------
+Deepnet transformer
+-------------------
 .. autoclass:: NeuralClassificationTransformer
+
+Tree transformer
+-----------------
 .. autoclass:: TreeClassificationTransformer
 
