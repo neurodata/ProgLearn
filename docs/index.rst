@@ -25,5 +25,6 @@ Documentation
 .. toctree::
    :maxdepth: 6
 
+   reference/index
    contributing
    license

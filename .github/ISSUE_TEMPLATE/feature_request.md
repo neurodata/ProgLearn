@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for hyppo
+about: Suggest an idea for ProgLearn
 label: enhancement
 
 ---

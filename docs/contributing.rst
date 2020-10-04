@@ -30,7 +30,7 @@ How to make a good bug report
 -----------------------------
 
 When you submit an issue to `Github
-<https://github.com/neurodata/progressive-learning/issues>`__, please do your best to
+<https://github.com/neurodata/ProgLearn/issues>`__, please do your best to
 follow these guidelines! This will make it a lot easier to provide you with
 good feedback:
 
