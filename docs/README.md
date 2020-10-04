@@ -2,7 +2,7 @@
 
 We currently use Sphinx
 
-If you only want to get the documentation, this can be found at [https://docs.neurodata.io/progressive-learning/](http://docs.neurodata.io/progressive-learning/).
+If you only want to get the documentation, this can be found at [https://docs.neurodata.io/ProgLearn/](http://docs.neurodata.io/ProgLearn/).
 
 ## Python Dependencies
 
