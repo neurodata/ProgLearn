@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Create a report to help us improve hyppo
+about: Create a report to help us improve ProgLearn
 label: bug
 
 ---
