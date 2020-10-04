@@ -21,7 +21,7 @@ setup(
     description="A package to implement and extend the methods desribed in 'A General Approach to Progressive Learning'",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
-    url="https://github.com/neurodata/progressive-learning/",
+    url="https://github.com/neurodata/ProgLearn/",
     license="MIT",
     classifiers=[
         "Intended Audience :: Science/Research",
