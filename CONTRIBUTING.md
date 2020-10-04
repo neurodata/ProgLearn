@@ -11,7 +11,7 @@ being contribution of code or documentation to the project. Improving the
 documentation is no less important than improving the library itself. If you
 find a typo in the documentation, or have made improvements, do not hesitate to
 submit a GitHub pull request. Documentation can be found under the
-[docs/](https://github.com/neurodata/ProgLearn/tree/master/docs) directory.
+[docs/](https://github.com/neurodata/ProgLearn/tree/main/docs) directory.
 
 But there are many other ways to help. In particular answering queries on the
 [issue tracker](https://github.com/neurodata/ProgLearn/issues), and

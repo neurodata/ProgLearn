@@ -62,14 +62,14 @@ python3 setup.py install
 ```
 
 # Contributing
-We welcome contributions from anyone. Please see our [contribution guidelines](https://github.com/neurodata/ProgLearn/blob/master/CONTRIBUTING.md) before making a pull request. Our
+We welcome contributions from anyone. Please see our [contribution guidelines](https://github.com/neurodata/ProgLearn/blob/main/CONTRIBUTING.md) before making a pull request. Our
 [issues](https://github.com/neurodata/ProgLearn/issues) page is full of places we could use help!
 If you have an idea for an improvement not listed there, please
 [make an issue](https://github.com/neurodata/ProgLearn/issues/new) first so you can discuss with the
 developers.
 
 # License
-This project is covered under the [MIT License](https://github.com/neurodata/ProgLearn/blob/master/LICENSE).
+This project is covered under the [MIT License](https://github.com/neurodata/ProgLearn/blob/main/LICENSE).
 
 # Issues
 We appreciate detailed bug reports and feature requests (though we appreciate pull requests even more!). Please visit our [issues](https://github.com/neurodata/ProgLearn/issues) page if you have questions or ideas.
