@@ -46,7 +46,7 @@ good feedback:
 - If an exception is raised, please **provide the full traceback**.
 
 - Please include your **operating system type and version number**, as well as
-  your **Python and ProgL versions**. This information
+  your **Python and ProgLearn versions**. This information
   can be found by running the following code snippet::
 
     import platform; print(platform.platform())
@@ -61,7 +61,7 @@ good feedback:
 Contributing Code
 -----------------
 
-The preferred workflow for contributing to `ProgL` is to fork the main
+The preferred workflow for contributing to `ProgLearn` is to fork the main
 repository on GitHub, clone, and develop on a branch. Steps:
 
 1. Fork the `project repository <https://github.com/neurodata/ProgLearn>`__ by clicking
@@ -70,7 +70,7 @@ repository on GitHub, clone, and develop on a branch. Steps:
    fork a repository see `this
    guide <https://help.github.com/articles/fork-a-repo/>`__.
 
-2. Clone your fork of the ``ProgL`` repo from your GitHub account to your
+2. Clone your fork of the ``ProgLearn`` repo from your GitHub account to your
    local disk:
 
    .. code:: bash
@@ -85,7 +85,7 @@ repository on GitHub, clone, and develop on a branch. Steps:
       $ git checkout -b my-feature
 
    Always use a ``feature`` branch. It’s good practice to never work on
-   the ``master`` branch!
+   the ``main`` branch!
 
 4. Develop the feature on your feature branch. Add changed files using
    ``git add`` and then ``git commit`` files:
@@ -150,7 +150,7 @@ before you submit a pull request:
 Coding Guidelines
 -----------------
 
-Uniformly formatted code makes it easier to share code ownership. ``ProgL``
+Uniformly formatted code makes it easier to share code ownership. ``ProgLearn``
 package closely follows the official Python guidelines detailed in
 `PEP8 <https://www.python.org/dev/peps/pep-0008/>`__ that detail how
 code should be formatted and indented. Please read it and follow it.
