@@ -96,7 +96,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
 
         Returns:
         ----------
-        SimpleArgmaxAverage obj
+        SimpleArgmaxAverage : obj
             The ClassificationDecider object of class SimpleArgmaxAverage is returned.
         """
         self,
