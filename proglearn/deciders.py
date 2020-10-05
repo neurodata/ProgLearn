@@ -63,6 +63,13 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         self._is_fitted = False
 
     def fit(
+        self,
+        X,
+        y,
+        transformer_id_to_transformers,
+        transformer_id_to_voters,
+        classes=None,
+    ):
         """
         Function for fitting.
         Stores attributes (classes, transformer_id_to_transformers, 
@@ -99,13 +106,6 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         SimpleArgmaxAverage : obj
             The ClassificationDecider object of class SimpleArgmaxAverage is returned.
         """
-        self,
-        X,
-        y,
-        transformer_id_to_transformers,
-        transformer_id_to_voters,
-        classes=None,
-    ):
         if not isinstance(self.classes, (list, np.ndarray)):
             if len(y) == 0:
                 raise ValueError(
