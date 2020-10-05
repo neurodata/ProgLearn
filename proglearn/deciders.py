@@ -48,7 +48,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
     Methods
     -----------
     fit(X, y, transformer_id_to_transformers, transformer_id_to_voters, classes=None)
-        Fits the a Decider to the given voters and transformers.
+        Fits the decider to inputs X and final classification outputs y.
 
     predict_proba(X, transformers_id=None)
         Predicts posterior probabilities given input data, X, for each class.
@@ -57,7 +57,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         Predicts the most likely class given input data X.
 
     is_fitted()
-        Returns if the Decider has been fitted.
+        Returns if the decider has been fitted.
     """
 
     def __init__(self, classes=[]):
