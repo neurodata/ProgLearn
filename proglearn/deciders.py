@@ -17,7 +17,7 @@ from sklearn.utils.multiclass import type_of_target
 
 class SimpleArgmaxAverage(BaseClassificationDecider):
     """
-    A class for a decider that uses the average vote for classification. 
+    A class for a decider that uses the average vote for classification.
     Uses BaseClassificationDecider as a base class.
 
     Parameters:
@@ -35,7 +35,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
 
     transformer_id_to_transformers : dict
         A dictionary with keys of type obj corresponding to transformer ids
-        and values of type obj corresponding to a transformer. This dictionary 
+        and values of type obj corresponding to a transformer. This dictionary
         maps transformers to a particular transformer id.
 
     transformer_id_to_voters : dict
@@ -72,7 +72,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
     ):
         """
         Function for fitting.
-        Stores attributes (classes, transformer_id_to_transformers, 
+        Stores attributes (classes, transformer_id_to_transformers,
         and transformer_id_to_voters) of a ClassificationDecider.
 
         Parameters:
@@ -85,7 +85,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
 
         transformer_id_to_transformers : dict
             A dictionary with keys of type obj corresponding to transformer ids
-            and values of type obj corresponding to a transformer. This dictionary 
+            and values of type obj corresponding to a transformer. This dictionary
             maps transformers to a particular transformer id.
 
         transformer_id_to_voters : dict
@@ -180,7 +180,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         """
         Predicts the most likely class per input example.
 
-        Uses the predict_proba method to get the mean vote per id. 
+        Uses the predict_proba method to get the mean vote per id.
         Returns the class with the highest vote.
 
         Parameters:
