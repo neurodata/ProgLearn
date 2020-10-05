@@ -57,7 +57,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
     is_fitted()
         Returns if the Decider has been fitted.
     """
-    
+
     def __init__(self, classes=[]):
         self.classes = classes
         self._is_fitted = False
@@ -139,7 +139,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         transformer_ids : list, default=None
             A list with all transformer ids. Defaults to None if no transformer ids
             are given.
-        
+
         Raises:
         -----------
         NotFittedError :
