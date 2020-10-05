@@ -23,11 +23,13 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
     Parameters:
     -----------
     classes : list, default=[]
+        List of final output classification labels of type obj.
         Defaults to an empty list of classes.
 
     Attributes (objects):
     -----------
     classes : list, default=[]
+        List of final output classification labels of type obj.
         Defaults to an empty list of classes.
 
     _is_fitted : boolean, default=False
@@ -46,7 +48,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
     Methods
     -----------
     fit(X, y, transformer_id_to_transformers, transformer_id_to_voters, classes=None)
-        Fits tree classification to transformed data X with labels y.
+        Fits the a Decider to the given voters and transformers.
 
     predict_proba(X, transformers_id=None)
         Predicts posterior probabilities given input data, X, for each class.
@@ -94,12 +96,12 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             maps voter classes to a particular transformer id.
 
         classes : list, default=None
-            A list of classes of type obj.
+            List of final output classification labels of type obj.
 
         Raises:
         -----------
         ValueError :
-            When the labels have not been provided. len(y) == 0.
+            When the labels have not been provided and the classes are empty.
 
         Returns:
         ----------
@@ -137,8 +139,8 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             Input data matrix.
 
         transformer_ids : list, default=None
-            A list with all transformer ids. Defaults to None if no transformer ids
-            are given.
+            A list with specific transformer ids that will be used for inference. Defaults
+            to using all transformers if no transformer ids are given.
 
         Raises:
         -----------
