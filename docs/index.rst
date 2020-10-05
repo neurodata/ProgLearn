@@ -30,7 +30,7 @@ Python
 
 Python is a powerful programming language that allows concise expressions of
 network algorithms.  Python has a vibrant and growing ecosystem of packages
-that hyppo uses to provide more features such as numerical linear algebra and
+that ProgLearn uses to provide more features such as numerical linear algebra and
 plotting.  In order to make the most out of ``ProgLearn`` you will want to know how
 to write basic programs in Python.  Among the many guides to Python, we
 recommend the `Python documentation <https://docs.python.org/3/>`_.
