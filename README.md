@@ -18,14 +18,6 @@
 Some system/package requirements:
 - **Python**: 3.6+
 - **OS**: All major platforms (Linux, macOS, Windows)
-- **Dependencies**: 
-``
-keras>=2.3.1
-tensorflow>=1.19.0
-scikit-learn>=0.22.0
-scipy==1.4.1
-numpy<1.19
-joblib>=0.14.1
-``
+- **Dependencies**: keras, scikit-learn, scipy, numpy, joblib
 
 `ProgLearn` intends to be a comprehensive progressive learning package and runs on all major versions of operating systems. It also includes novel tests not found in other packages. It is quick to install and free of charge. If you need to use progressive learning, be sure to give `ProgLearn` a try!
