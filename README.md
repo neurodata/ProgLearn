@@ -6,7 +6,7 @@
 [![arXiv shield](https://img.shields.io/badge/arXiv-2004.12908-red.svg?style=flat)](https://arxiv.org/abs/2004.12908)
 [![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/licenses/MIT)
 
-`proglearn` (**Prog**ressive **Learn**ing) is a package for exploring and using progressive learning algorithms developed by the [neurodata group](https://neurodata.io).
+`ProgLearn` (**Prog**ressive **Learn**ing) is a package for exploring and using progressive learning algorithms developed by the [neurodata group](https://neurodata.io).
 
 - **Installation Guide:** [./docs/install.rst](docs/install.rst)
 - **Documentation:** [./docs/index.rst](docs/index.rst)
