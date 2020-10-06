@@ -23,7 +23,7 @@ Overview of ProgLearn_
 Motivation
 ----------
 
-In biological learning, data are used to improve performance simultaneously on the current task, as well as previously encountered and as yet unencountered tasks.  In contrast, classical machine learning starts from a blank slate,or tabula rasa, using data only for the single task at hand. While typical transfer learning algorithms can improveperformance on future tasks, their performance on prior tasks degrades upon learning new tasks (called catastrophicforgetting).  Many recent approaches have attempted tomaintainperformance given new tasks.  But striving toavoid forgetting sets the goal unnecessarily low: the goal of ``ProgLearn`` is to improveperformance on all tasks (including past and future) with any new data.
+In biological learning, data are used to improve performance simultaneously on the current task, as well as previously encountered and as yet unencountered tasks.  In contrast, classical machine learning starts from a blank slate, or tabula rasa, using data only for the single task at hand. While typical transfer learning algorithms can improve performance on future tasks, their performance on prior tasks degrades upon learning new tasks (called "catastrophic forgetting").  Many recent approaches have attempted to maintain performance given new tasks.  But striving to avoid forgetting sets the goal unnecessarily low: the goal of ``ProgLearn`` is to improve performance on all tasks (including past and future) with any new data.
 
 Python
 ------
