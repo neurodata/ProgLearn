@@ -252,7 +252,7 @@ class TreeRegressionTransformer(BaseTransformer):
         return self._is_fitted
 
     
-class TreeRegressionRandomTransformer(BaseTransformer):
+class RandomTransformer(BaseTransformer):
     def __init__(self, kwargs={}):
         """
         Doc strings here.
@@ -289,7 +289,8 @@ class TreeRegressionRandomTransformer(BaseTransformer):
             raise NotFittedError(msg % {"name": type(self).__name__})
 
         X = check_array(X)
-        return np.random.rand(X.shape[0], 1)
+        max_depth = self.kwargs['max_depth']
+        return np.random.randint(low=0, high=2**(max_depth - 1), size=len(X))
 
     def is_fitted(self):
         """
