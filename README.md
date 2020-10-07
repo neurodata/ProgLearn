@@ -1,7 +1,7 @@
 # ProgLearn
 
-[![Build Status](https://travis-ci.org/neurodata/ProgLearn.svg?branch=master)](https://travis-ci.org/neurodata/ProgLearn)
-[![codecov](https://codecov.io/gh/neurodata/ProgLearn/branch/master/graph/badge.svg)](https://codecov.io/gh/neurodata/ProgLearn)
+[![Build Status](https://travis-ci.org/neurodata/ProgLearn.svg?branch=main)](https://travis-ci.org/neurodata/ProgLearn)
+[![codecov](https://codecov.io/gh/neurodata/ProgLearn/branch/main/graph/badge.svg)](https://codecov.io/gh/neurodata/ProgLearn)
 [![PyPI version](https://img.shields.io/pypi/v/proglearn.svg)](https://pypi.org/project/proglearn/)
 [![arXiv shield](https://img.shields.io/badge/arXiv-2004.12908-red.svg?style=flat)](https://arxiv.org/abs/2004.12908)
 [![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/licenses/MIT)
