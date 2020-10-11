@@ -106,7 +106,7 @@ Pull Request Checklist
 ----------------------
 
 We recommended that your contribution complies with the following rules 
-(which are a brief summary of `The Bits and Brains PR Checlist <https://bitsandbrains.io/2020/10/05/pr-checklist>`__)
+(which are a brief summary of `The Bits and Brains PR Checklist <https://bitsandbrains.io/2020/10/05/pr-checklist>`__)
 before you submit a pull request:
 
 -  Follow the `coding-guidelines <#coding-guidelines>`__.
