@@ -57,7 +57,6 @@ Documentation
    :caption: Using ProgLearn
 
    install
-   tutorials
    reference/index
    tutorials/
    contributing
