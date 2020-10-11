@@ -5,4 +5,4 @@ Lifelong Learning Forest
 
 .. autoclass:: LifelongClassificationForest
 
-
+.. autoclass:: UncertaintyForest
