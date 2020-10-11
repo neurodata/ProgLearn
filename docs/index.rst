@@ -3,7 +3,7 @@
 .. _contents:
 
 Overview of ProgLearn_
-===================
+======================
 
 .. _proglearn: https://proglearn.neurodata.io/
 
@@ -54,9 +54,11 @@ Documentation
 
 .. toctree::
    :maxdepth: 1
+   :caption: Using ProgLearn
 
    install
    reference/index
+   tutorials/
    contributing
    license
 
