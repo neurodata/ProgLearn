@@ -58,7 +58,6 @@ Documentation
 
    install
    reference/index
-   tutorials/
    contributing
    license
 
