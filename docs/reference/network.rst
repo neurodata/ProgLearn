@@ -1,4 +1,4 @@
-Lifelong Learning Networks
+Lifelong Learning Network
 **************************
 
 .. currentmodule:: proglearn.network
