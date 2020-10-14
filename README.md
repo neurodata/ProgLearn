@@ -8,12 +8,12 @@
 
 `ProgLearn` (**Prog**ressive **Learn**ing) is a package for exploring and using progressive learning algorithms developed by the [neurodata group](https://neurodata.io).
 
-- **Installation Guide:** [./docs/install.rst](docs/install.rst)
-- **Documentation:** [./docs/index.rst](docs/index.rst)
-- **Tutorials:** [./tutorials](tutorials)
-- **Source Code:** [./proglearn](proglearn)
+- **Installation Guide:** [http://proglearn.neurodata.io/install.html](http://proglearn.neurodata.io/install.html)
+- **Documentation:** [http://proglearn.neurodata.io](http://proglearn.neurodata.io)
+- **Tutorials:** [http://proglearn.neurodata.io/tutorials.html](http://proglearn.neurodata.io/tutorials.html)
+- **Source Code:** [http://proglearn.neurodata.io/reference/index.html](http://proglearn.neurodata.io/reference/index.html)
 - **Issues:** [https://github.com/neurodata/proglearn/issues](https://github.com/neurodata/proglearn/issues)
-- **Contribution Guide:** [./docs/contributing.rst](./docs/contributing.rst)
+- **Contribution Guide:** [http://proglearn.neurodata.io/contributing.html](http://proglearn.neurodata.io/contributing.html)
 
 Some system/package requirements:
 - **Python**: 3.6+
