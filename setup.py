@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+import os
 
 requirements = [
     "keras",
@@ -7,6 +8,12 @@ requirements = [
     "numpy",
     "joblib",
 ]
+
+# Find mgc version.
+PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
+for line in open(os.path.join(PROJECT_PATH, "proglearn", "__init__.py")):
+    if line.startswith("__version__ = "):
+        VERSION = line.strip().split()[2][1:-1]
 
 with open("README.md", mode="r", encoding = "utf8") as f:
     LONG_DESCRIPTION = f.read()
