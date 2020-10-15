@@ -20,7 +20,7 @@ with open("README.md", mode="r", encoding = "utf8") as f:
 
 setup(
     name="proglearn",
-    version="0.0.1",
+    version=VERSION,
     author="Will LeVine, Jayanta Dey, Hayden Helm",
     author_email="levinewill@icloud.com",
     maintainer="Will LeVine, Jayanta Dey",
