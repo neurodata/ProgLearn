@@ -33,3 +33,10 @@ script:
 
 after_success:
 - codecov
+
+deploy:
+  provider: pypi
+  username: "__token__"
+  password: "pypi-AgEIcHlwaS5vcmcCJGExMGU2ZDIwLWZjZjItNDE2OC1hMTAwLTBjMjcwODk0NmVhNgACOnsicGVybWlzc2lvbnMiOiB7InByb2plY3RzIjogWyJwcm9nbGVhcm4iXX0sICJ2ZXJzaW9uIjogMX0AAAYg4-9xmR2nprlOAV7X-Nv6Dkvi6N-WkTBEyTe8WvrWUC0"
+  on:
+    branch: main
