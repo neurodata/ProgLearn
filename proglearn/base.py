@@ -98,7 +98,6 @@ class BaseClassificationVoter(BaseVoter, ClassifierMixin):
     ----------
     None
     """
-
     @abstractmethod
     def predict_proba(self, X):
         """
@@ -124,7 +123,6 @@ class BaseDecider(ABC, BaseEstimator):
     ----------
     None
     """
-
     @abstractmethod
     def fit(self, X, y, transformer_id_to_transformers, voter_id_to_voters):
         """
@@ -171,7 +169,6 @@ class BaseClassificationDecider(BaseDecider, ClassifierMixin):
     ----------
     None
     """
-
     @abstractmethod
     def predict_proba(self, X):
         """
@@ -197,7 +194,6 @@ class BaseProgressiveLearner(ABC):
     ----------
     None
     """
-
     @abstractmethod
     def add_task(self, X, y):
         """
@@ -259,7 +255,6 @@ class BaseClassificationProgressiveLearner(BaseProgressiveLearner):
     ----------
     None
     """
-
     @abstractmethod
     def predict_proba(self, X, task_id):
         """
