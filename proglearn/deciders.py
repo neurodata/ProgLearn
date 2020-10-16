@@ -85,8 +85,8 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
                 self.classes = np.unique(y)
         else:
             self.classes = np.array(self.classes)
-        self.transformer_id_to_transformers_ = transformer_id_to_transformers_
-        self.transformer_id_to_voters_ = transformer_id_to_voters_
+        self.transformer_id_to_transformers_ = transformer_id_to_transformers
+        self.transformer_id_to_voters_ = transformer_id_to_voters
         return self
 
     def predict_proba(self, X, transformer_ids=None):

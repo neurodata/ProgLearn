@@ -67,7 +67,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(label)
                    
-        num_classes = num_fit_classes + len(self.missing_label_indices)
+        num_classes = num_fit_classes + len(self.missing_label_indices_)
 
         self.uniform_posterior_ = np.ones(num_classes) / num_classes
 
