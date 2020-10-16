@@ -11,4 +11,3 @@ Reference
    decider
    network
    forest
-   progressive_learner
