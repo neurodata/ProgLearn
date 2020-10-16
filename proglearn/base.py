@@ -5,6 +5,7 @@ Corresponding Email: levinewill@icloud.com
 from abc import ABC, abstractmethod
 from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
 
+
 class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
     """
     A base class for a transformer, derived from scikit-learn's BaseEstimator
@@ -13,11 +14,12 @@ class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
     Parameters
     ----------
     None
-    
+
     Attributes
     ----------
     None
     """
+
     @abstractmethod
     def fit(self, X=None, y=None):
         """
@@ -44,6 +46,7 @@ class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
         """
         pass
 
+
 class BaseVoter(ABC, BaseEstimator):
     """
     A base class for a voter, derived from scikit-learn's BaseEstimator class.
@@ -56,6 +59,7 @@ class BaseVoter(ABC, BaseEstimator):
     ----------
     None
     """
+
     @abstractmethod
     def fit(self, X, y):
         """
@@ -65,7 +69,7 @@ class BaseVoter(ABC, BaseEstimator):
         ----------
         X : ndarray
             Transformed data matrix.
-            
+
         y : ndarray
             Output (i.e. response) data matrix.
         """
@@ -98,6 +102,7 @@ class BaseClassificationVoter(BaseVoter, ClassifierMixin):
     ----------
     None
     """
+
     @abstractmethod
     def predict_proba(self, X):
         """
@@ -123,6 +128,7 @@ class BaseDecider(ABC, BaseEstimator):
     ----------
     None
     """
+
     @abstractmethod
     def fit(self, X, y, transformer_id_to_transformers, voter_id_to_voters):
         """
@@ -132,13 +138,13 @@ class BaseDecider(ABC, BaseEstimator):
         ----------
         X : ndarray
             Input data matrix.
-            
+
         y : ndarray
             Output (i.e. response) data matrix.
-            
+
         transformer_id_to_transformers : dict
             A dictionary with keys of transformer ids and values of the corresponding transformers.
-            
+
         voter_id_to_voters : dict
             A dictionary with keys of voter ids and values of the corresponding voter.
         """
@@ -156,6 +162,7 @@ class BaseDecider(ABC, BaseEstimator):
         """
         pass
 
+
 class BaseClassificationDecider(BaseDecider, ClassifierMixin):
     """
     A class for a decider which inherits from scikit-learn's ClassifierMixin
@@ -169,6 +176,7 @@ class BaseClassificationDecider(BaseDecider, ClassifierMixin):
     ----------
     None
     """
+
     @abstractmethod
     def predict_proba(self, X):
         """
@@ -194,6 +202,7 @@ class BaseProgressiveLearner(ABC):
     ----------
     None
     """
+
     @abstractmethod
     def add_task(self, X, y):
         """
@@ -203,7 +212,7 @@ class BaseProgressiveLearner(ABC):
         ----------
         X : ndarray
             Input data matrix.
-            
+
         y : ndarray
             Output (i.e. response) data matrix.
         """
@@ -219,7 +228,7 @@ class BaseProgressiveLearner(ABC):
         ----------
         X : ndarray
             Input data matrix.
-            
+
         y : ndarray
             Output (i.e. response) data matrix.
         """
@@ -235,7 +244,7 @@ class BaseProgressiveLearner(ABC):
         ----------
         X : ndarray
             Input data matrix.
-            
+
         task_id : obj
             The task on which you are interested in performing inference.
         """
@@ -255,6 +264,7 @@ class BaseClassificationProgressiveLearner(BaseProgressiveLearner):
     ----------
     None
     """
+
     @abstractmethod
     def predict_proba(self, X, task_id):
         """
@@ -264,7 +274,7 @@ class BaseClassificationProgressiveLearner(BaseProgressiveLearner):
         ----------
         X : ndarray
             Input data matrix.
-            
+
         task_id : obj
             The task on which you are interested in estimating posteriors.
         """

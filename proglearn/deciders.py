@@ -12,6 +12,7 @@ from sklearn.utils.validation import (
     check_is_fitted,
 )
 
+
 class SimpleArgmaxAverage(BaseClassificationDecider):
     """
     A class for a decider that uses the average vote for classification.
@@ -67,14 +68,15 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             and values of type obj corresponding to a voter class. This dictionary thus
             maps voter classes to a particular transformer id.
 
+        Returns
+        -------
+        self : SimpleArgmaxAverage
+            The object itself.
+
         Raises
         -------
         ValueError
             When the labels have not been provided and the classes are empty.
-
-        Returns
-        -------
-        The SimpleArgmaxAverage object itself.
         """
         if not isinstance(self.classes, (list, np.ndarray)):
             if len(y) == 0:
@@ -108,14 +110,16 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             A list with specific transformer ids that will be used for inference. Defaults
             to using all transformers if no transformer ids are given.
 
+        Returns
+        -------
+        y_proba_hat : ndarray of shape [n_samples, n_classes]
+            posteriors per example
+
+
         Raises
         ------
         NotFittedError
             When the model is not fitted.
-
-        Returns
-        -------
-        Mean vote across transformer ids as an ndarray.
         """
         check_is_fitted(self)
         vote_per_transformer_id = []
@@ -154,15 +158,16 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         transformer_ids : list, default=None
             A list with all transformer ids. Defaults to None if no transformer ids
             are given.
-            
+
+        Returns
+        -------
+        y_hat : ndarray of shape [n_samples]
+            predicted class label per example
+
         Raises
         ------
         NotFittedError
             When the model is not fitted.
-
-        Returns
-        -------
-        The class with the highest vote based on the argmax of the votes as an int.
         """
         vote_overall = self.predict_proba(X, transformer_ids=transformer_ids)
         return self.classes[np.argmax(vote_overall, axis=1)]

@@ -25,22 +25,22 @@ class NeuralClassificationTransformer(BaseTransformer):
     ----------
     network : object
         A neural network used in the classification transformer.
-        
+
     euclidean_layer_idx : int
         An integer to represent the final layer of the transformer.
-        
+
     optimizer : str or keras.optimizers instance
         An optimizer used when compiling the neural network.
-        
+
     loss : str, default="categorical_crossentropy"
         A loss function used when compiling the neural network.
-        
+
     pretrained : bool, default=False
         A boolean used to identify if the network is pretrained.
-        
+
     compile_kwargs : dict, default={"metrics": ["acc"]}
         A dictionary containing metrics for judging network performance.
-        
+
     fit_kwargs : dict, default={
                 "epochs": 100,
                 "callbacks": [keras.callbacks.EarlyStopping(patience=5, monitor="val_acc")],
@@ -49,12 +49,13 @@ class NeuralClassificationTransformer(BaseTransformer):
             },
         A dictionary to hold epochs, callbacks, verbose, and validation split for the network.
 
-    Attributes 
+    Attributes
     ----------
     encoder_ : object
-        A Keras model with inputs and outputs based on the network attribute. 
+        A Keras model with inputs and outputs based on the network attribute.
         Output layers are determined by the euclidean_layer_idx parameter.
     """
+
     def __init__(
         self,
         network,
@@ -91,6 +92,11 @@ class NeuralClassificationTransformer(BaseTransformer):
             Input data matrix.
         y : ndarray
             Output (i.e. response data matrix).
+
+        Returns
+        -------
+        self : NeuralClassificationTransformer
+            The object itself.
         """
         check_X_y(X, y)
         _, y = np.unique(y, return_inverse=True)
@@ -99,12 +105,8 @@ class NeuralClassificationTransformer(BaseTransformer):
         self.network.compile(
             loss=self.loss, optimizer=self.optimizer, **self.compile_kwargs
         )
-        
-        self.network.fit(
-            X,
-            keras.utils.to_categorical(y),
-            **self.fit_kwargs
-        )
+
+        self.network.fit(X, keras.utils.to_categorical(y), **self.fit_kwargs)
 
         return self
 
@@ -116,7 +118,12 @@ class NeuralClassificationTransformer(BaseTransformer):
         ----------
         X : ndarray
             Input data matrix.
-            
+
+        Returns
+        -------
+        X_transformed : ndarray
+            The transformed input.
+
         Raises
         ------
         NotFittedError
@@ -126,6 +133,7 @@ class NeuralClassificationTransformer(BaseTransformer):
         check_array(X)
         return self.encoder_.predict(X)
 
+
 class TreeClassificationTransformer(BaseTransformer):
     """
     A class used to transform data from a category to a specialized representation.
@@ -134,12 +142,13 @@ class TreeClassificationTransformer(BaseTransformer):
     ----------
     kwargs : dict, default={}
         A dictionary to contain parameters of the tree.
-        
+
     Attributes
     ----------
     transformer : sklearn.tree.DecisionTreeClassifier
         an internal sklearn DecisionTreeClassifier
     """
+
     def __init__(self, kwargs={}):
         self.kwargs = kwargs
 
@@ -153,6 +162,11 @@ class TreeClassificationTransformer(BaseTransformer):
             Input data matrix.
         y : ndarray
             Output (i.e. response data matrix).
+
+        Returns
+        -------
+        self : TreeClassificationTransformer
+            The object itself.
         """
         X, y = check_X_y(X, y)
         self.transformer_ = DecisionTreeClassifier(**self.kwargs).fit(X, y)
@@ -166,7 +180,12 @@ class TreeClassificationTransformer(BaseTransformer):
         ----------
         X : ndarray
             Input data matrix.
-            
+
+        Returns
+        -------
+        X_transformed : ndarray
+            The transformed input.
+
         Raises
         ------
         NotFittedError

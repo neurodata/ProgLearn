@@ -12,6 +12,7 @@ from .deciders import SimpleArgmaxAverage
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
 
+
 class LifelongClassificationNetwork(ClassificationProgressiveLearner):
     """
     A class for progressive learning using Lifelong Learning Networks in a classification setting.
@@ -20,23 +21,23 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
     ----------
     network: Keras model
         Transformer network used to map input to output.
-        
+
     loss: string
         String name of the function used to calculate the loss between labels and predictions.
-        
+
     optimizer: str or instance of keras.optimizers
         Algorithm used as the optimizer.
-        
+
     epochs: int
         Number of times the entire training set is iterated over.
-        
+
     batch_size: int
         Batch size used in the training of the network.
-        
+
     verbose: bool
         Boolean indicating the production of detailed logging information during training of the
         network.
-        
+
     default_transformer_voter_decider_split: ndarray
             1D array of length 3 corresponding to the proportions of data used to train the
             transformer(s) corresponding to the task_id, to train the voter(s) from the
@@ -49,6 +50,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         Internal ClassificationProgressiveLearner used to train and make
         inference.
     """
+
     def __init__(
         self,
         network,
@@ -102,25 +104,30 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         ----------
         X: ndarray
             Input data matrix.
-            
+
         y: ndarray
             Output (response) data matrix.
-            
+
         task_id: obj
             The id corresponding to the task being added.
-            
+
         transformer_voter_decider_split: ndarray, default=None
             1D array of length 3 corresponding to the proportions of data used to train the
             transformer(s) corresponding to the task_id, to train the voter(s) from the
             transformer(s) to the task_id, and to train the decider for task_id, respectively.
             The default is used if 'None' is provided.
+
+        Returns
+        -------
+        self : LifelongClassificationNetwork
+            The object itself.
         """
         if transformer_voter_decider_split is None:
             transformer_voter_decider_split = (
                 self.default_transformer_voter_decider_split
             )
 
-        self.pl_.add_task(
+        return self.pl_.add_task(
             X,
             y,
             task_id=task_id,
@@ -128,8 +135,6 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
             decider_kwargs={"classes": np.unique(y)},
             voter_kwargs={"classes": np.unique(y)},
         )
-
-        return self
 
     def add_transformer(self, X, y, transformer_id=None):
         """
@@ -142,16 +147,19 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         ----------
         X: ndarray
             Input data matrix.
-            
+
         y: ndarray
             Output (response) data matrix.
-            
+
         transformer_id: obj
             The id corresponding to the transformer being added.
-        """
-        self.pl_.add_transformer(X, y, transformer_id=transformer_id)
 
-        return self
+        Returns
+        -------
+        self : LifelongClassificationNetwork
+            The object itself.
+        """
+        return self.pl_.add_transformer(X, y, transformer_id=transformer_id)
 
     def predict(self, X, task_id):
         """
@@ -161,11 +169,15 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         ----------
         X: ndarray
             Input data matrix.
-            
+
         task_id: obj
             The task on which you are interested in performing inference.
-        """
 
+        Returns
+        -------
+        y_hat : ndarray of shape [n_samples]
+            predicted class label per example
+        """
         return self.pl_.predict(X, task_id)
 
     def predict_proba(self, X, task_id):
@@ -176,9 +188,13 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         ----------
         X: ndarray
             Input data matrix.
-            
+
         task_id: obj
             The task on which you are interested in estimating posteriors.
-        """
 
+        Returns
+        -------
+        y_proba_hat : ndarray of shape [n_samples, n_classes]
+            posteriors per example
+        """
         return self.pl_.predict_proba(X, task_id)

@@ -12,17 +12,18 @@ from sklearn.utils.validation import (
 from sklearn.utils.multiclass import check_classification_targets
 from .base import BaseClassificationVoter
 
+
 class TreeClassificationVoter(BaseClassificationVoter):
     """
     A class used to vote on data transformed under a tree, which inherits from
     the BaseClassificationVoter class in base.py.
-    
+
     Parameters
     ----------
     finite_sample_correction : bool
         boolean indicating whether this voter
         will have finite sample correction
-        
+
     classes : list, default=[]
         list of all possible output label values
 
@@ -30,12 +31,12 @@ class TreeClassificationVoter(BaseClassificationVoter):
     ----------
     missing_label_indices_ : list
         a (potentially empty) list of label values
-        that exist in the ``classes`` parameter but 
-        are missing in the latest ``fit`` function 
+        that exist in the ``classes`` parameter but
+        are missing in the latest ``fit`` function
         call
-        
+
     uniform_posterior_ : ndarray of shape (n_classes,)
-        the uniform posterior associated with the 
+        the uniform posterior associated with the
     """
 
     def __init__(self, finite_sample_correction=False, classes=[]):
@@ -46,12 +47,17 @@ class TreeClassificationVoter(BaseClassificationVoter):
         """
         Fits transformed data X given corresponding class labels y.
 
-        Attributes
+        Parameters
         ----------
         X : array of shape [n_samples, n_features]
             the transformed input data
         y : array of shape [n_samples]
             the class labels
+
+        Returns
+        -------
+        self : TreeClassificationVoter
+            The object itself.
         """
         check_classification_targets(y)
 
@@ -62,7 +68,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
             for label in self.classes:
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(label)
-                   
+
         num_classes = num_fit_classes + len(self.missing_label_indices_)
 
         self.uniform_posterior_ = np.ones(num_classes) / num_classes
@@ -82,17 +88,22 @@ class TreeClassificationVoter(BaseClassificationVoter):
                 )
 
             self.leaf_to_posterior_[leaf_id] = posteriors
-            
+
         return self
 
     def predict_proba(self, X):
         """
         Returns the posterior probabilities of each class for data X.
 
-        Attributes
+        Parameters
         ----------
         X : array of shape [n_samples, n_features]
             the transformed input data
+
+        Returns
+        -------
+        y_proba_hat : ndarray of shape [n_samples, n_classes]
+            posteriors per example
 
         Raises
         ------
@@ -120,11 +131,16 @@ class TreeClassificationVoter(BaseClassificationVoter):
         """
         Returns the predicted class labels for data X.
 
-        Attributes
+        Parameters
         ----------
         X : array of shape [n_samples, n_features]
             the transformed input data
-            
+
+        Returns
+        -------
+        y_hat : ndarray of shape [n_samples]
+            predicted class label per example
+
         Raises
         ------
         NotFittedError
@@ -136,7 +152,8 @@ class TreeClassificationVoter(BaseClassificationVoter):
         """
         Encourage posteriors to approach uniform when there is low data through a finite sample correction.
 
-        Attributes
+
+        Parameters
         ----------
         posteriors : array of shape[n_samples, n_classes]
             posterior of each class for each sample
@@ -144,6 +161,11 @@ class TreeClassificationVoter(BaseClassificationVoter):
             number of samples in this particular transformation
         num_classes : int
             number of classes or labels
+
+        Returns
+        -------
+        y_proba_hat : ndarray of shape [n_samples, n_classes]
+            posteriors per example
         """
         correction_constant = 1 / (num_classes * num_points_in_partition)
 
@@ -166,23 +188,23 @@ class KNNClassificationVoter(BaseClassificationVoter):
     k : int
         integer indicating number of neighbors to use for each prediction during
         fitting and voting
-        
+
     kwargs : dictionary, default={}
         contains all keyword arguments for the underlying KNN
-        
+
     classes : list, default=[]
         list of all possible output label values
-        
+
     Attributes
     ----------
     missing_label_indices_ : list
         a (potentially empty) list of label values
-        that exist in the ``classes`` parameter but 
-        are missing in the latest ``fit`` function 
+        that exist in the ``classes`` parameter but
+        are missing in the latest ``fit`` function
         call
-        
+
     knn_ : sklearn.neighbors.KNeighborsClassifier
-        the internal sklearn instance of KNN 
+        the internal sklearn instance of KNN
         classifier
     """
 
@@ -195,12 +217,17 @@ class KNNClassificationVoter(BaseClassificationVoter):
         """
         Fits data X given class labels y.
 
-        Attributes
+        Parameters
         ----------
         X : array of shape [n_samples, n_features]
             the transformed data that will be trained on
         y : array of shape [n_samples]
             the label for class membership of the given data
+
+        Returns
+        -------
+        self : KNNClassificationVoter
+            The object itself.
         """
         X, y = check_X_y(X, y)
         k = int(np.log2(len(X))) if self.k == None else self.k
@@ -221,10 +248,15 @@ class KNNClassificationVoter(BaseClassificationVoter):
         """
         Returns the posterior probabilities of each class for data X.
 
-        Attributes
+        Parameters
         ----------
         X : array of shape [n_samples, n_features]
             the transformed input data
+
+        Returns
+        -------
+        y_proba_hat : ndarray of shape [n_samples, n_classes]
+            posteriors per example
 
         Raises
         ------
@@ -246,11 +278,16 @@ class KNNClassificationVoter(BaseClassificationVoter):
         """
         Returns the predicted class labels for data X.
 
-        Attributes
+        Parameters
         ----------
         X : array of shape [n_samples, n_features]
             the transformed input data
-            
+
+        Returns
+        -------
+        y_hat : ndarray of shape [n_samples]
+            predicted class label per example
+
         Raises
         ------
         NotFittedError
