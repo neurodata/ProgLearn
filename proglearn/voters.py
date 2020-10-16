@@ -3,17 +3,13 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 import numpy as np
-
 from sklearn.neighbors import KNeighborsClassifier
-
 from sklearn.utils.validation import (
     check_X_y,
     check_array,
     check_is_fitted,
 )
-
 from sklearn.utils.multiclass import check_classification_targets
-
 from .base import BaseClassificationVoter
 
 class TreeClassificationVoter(BaseClassificationVoter):

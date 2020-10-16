@@ -52,8 +52,8 @@ class NeuralClassificationTransformer(BaseTransformer):
     Attributes 
     ----------
     encoder_ : object
-        A Keras model with inputs and outputs based on the network attribute. Output layers
-        are determined by the euclidean_layer_idx parameter.
+        A Keras model with inputs and outputs based on the network attribute. 
+        Output layers are determined by the euclidean_layer_idx parameter.
     """
     def __init__(
         self,
