@@ -5,7 +5,6 @@ Corresponding Email: levinewill@icloud.com
 from abc import ABC, abstractmethod
 from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
 
-
 class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
     """
     A base class for a transformer, derived from scikit-learn's BaseEstimator
@@ -14,17 +13,11 @@ class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
     Parameters
     ----------
     None
-
-    Methods
+    
+    Attributes
     ----------
-    fit(X, y)
-        fits the transformer to data X with labels y
-    transform(X)
-        transformers the given data, X
-    is_fitted()
-        indicates whether the transformer is fitted
+    None
     """
-
     @abstractmethod
     def fit(self, X=None, y=None):
         """
@@ -51,18 +44,6 @@ class BaseTransformer(ABC, BaseEstimator, TransformerMixin):
         """
         pass
 
-    @abstractmethod
-    def is_fitted(self):
-        """
-        Indicates whether the transformer is fitted.
-
-        Parameters
-        ----------
-        None
-        """
-        pass
-
-
 class BaseVoter(ABC, BaseEstimator):
     """
     A base class for a voter, derived from scikit-learn's BaseEstimator class.
@@ -71,16 +52,10 @@ class BaseVoter(ABC, BaseEstimator):
     ----------
     None
 
-    Methods
+    Attributes
     ----------
-    fit(X, y)
-        fits the voter to data X with labels y
-    predict(X)
-        decides on the given input data X
-    is_fitted()
-        indicates whether the voter is fitted
+    None
     """
-
     @abstractmethod
     def fit(self, X, y):
         """
@@ -90,6 +65,7 @@ class BaseVoter(ABC, BaseEstimator):
         ----------
         X : ndarray
             Transformed data matrix.
+            
         y : ndarray
             Output (i.e. response) data matrix.
         """
@@ -107,17 +83,6 @@ class BaseVoter(ABC, BaseEstimator):
         """
         pass
 
-    @abstractmethod
-    def is_fitted(self):
-        """
-        Indicates whether the voter is fitted.
-
-        Parameters
-        ----------
-        None
-        """
-        pass
-
 
 class BaseClassificationVoter(BaseVoter, ClassifierMixin):
     """
@@ -129,10 +94,9 @@ class BaseClassificationVoter(BaseVoter, ClassifierMixin):
     ----------
     None
 
-    Methods
+    Attributes
     ----------
-    predict_proba(X)
-        provides inference votes on the given transformed data, X
+    None
     """
 
     @abstractmethod
@@ -156,14 +120,9 @@ class BaseDecider(ABC, BaseEstimator):
     ----------
     None
 
-    Methods
+    Attributes
     ----------
-    fit(X, y, transformer_id_to_transformers, voter_id_to_voters)
-        fits transformer to data X with labels y
-    predict(X)
-        decides on the given input data X
-    is_fitted()
-        indicates whether the decider is fitted
+    None
     """
 
     @abstractmethod
@@ -175,10 +134,13 @@ class BaseDecider(ABC, BaseEstimator):
         ----------
         X : ndarray
             Input data matrix.
+            
         y : ndarray
             Output (i.e. response) data matrix.
+            
         transformer_id_to_transformers : dict
             A dictionary with keys of transformer ids and values of the corresponding transformers.
+            
         voter_id_to_voters : dict
             A dictionary with keys of voter ids and values of the corresponding voter.
         """
@@ -196,18 +158,6 @@ class BaseDecider(ABC, BaseEstimator):
         """
         pass
 
-    @abstractmethod
-    def is_fitted(self):
-        """
-        Indicates whether the decider is fitted.
-
-        Parameters
-        ----------
-        None
-        """
-        pass
-
-
 class BaseClassificationDecider(BaseDecider, ClassifierMixin):
     """
     A class for a decider which inherits from scikit-learn's ClassifierMixin
@@ -217,10 +167,9 @@ class BaseClassificationDecider(BaseDecider, ClassifierMixin):
     ----------
     None
 
-    Methods
+    Attributes
     ----------
-    predict_proba(X)
-        returns class-posteriors for input data X
+    None
     """
 
     @abstractmethod
@@ -244,16 +193,9 @@ class BaseProgressiveLearner(ABC):
     ----------
     None
 
-    Methods
+    Attributes
     ----------
-    add_task(X, y)
-        adds a new unseen task to the progressive learner
-    add_transformer(X, y)
-        adds a new transformer (but no voters or transformers corresponding
-        to the task from which the transformer data was collected.
-    predict(X, task_id):
-        performs inference corresponding to the input task_id using the
-        progressive learner.
+    None
     """
 
     @abstractmethod
@@ -265,6 +207,7 @@ class BaseProgressiveLearner(ABC):
         ----------
         X : ndarray
             Input data matrix.
+            
         y : ndarray
             Output (i.e. response) data matrix.
         """
@@ -280,6 +223,7 @@ class BaseProgressiveLearner(ABC):
         ----------
         X : ndarray
             Input data matrix.
+            
         y : ndarray
             Output (i.e. response) data matrix.
         """
@@ -295,6 +239,7 @@ class BaseProgressiveLearner(ABC):
         ----------
         X : ndarray
             Input data matrix.
+            
         task_id : obj
             The task on which you are interested in performing inference.
         """
@@ -310,11 +255,9 @@ class BaseClassificationProgressiveLearner(BaseProgressiveLearner):
     ----------
     None
 
-    Methods
+    Attributes
     ----------
-    predict_proba(X, task_id):
-        provides class-posteriors corresponding to the input task_id on input data X using
-        the progressive learner.
+    None
     """
 
     @abstractmethod
@@ -326,6 +269,7 @@ class BaseClassificationProgressiveLearner(BaseProgressiveLearner):
         ----------
         X : ndarray
             Input data matrix.
+            
         task_id : obj
             The task on which you are interested in estimating posteriors.
         """
