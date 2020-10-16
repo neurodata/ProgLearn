@@ -27,7 +27,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         boolean indicating whether this voter
         will have finite sample correction
         
-    classes : list
+    classes : list, default = []
         list of all possible output label values
 
     Attributes
@@ -169,7 +169,7 @@ class KNNClassificationVoter(BaseClassificationVoter):
     kwargs : dictionary
         contains all keyword arguments for the underlying KNN
         
-    classes : list
+    classes : list, default = []
         list of all possible output label values
         
     Attributes
