@@ -13,38 +13,29 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
     """
     A class used to represent a lifelong classification forest.
 
-    Parameters:
-    ---
+    Parameters
+    ----------
     n_estimators : int, default=100
         The number of estimators used in the Lifelong Classification Forest
+        
     default_tree_construction_proportion : int, default=0.67
         The proportions of the input data set aside to train each decision
         tree. The remainder of the data is used to fill in voting posteriors.
         This is used if 'tree_construction_proportion' is not fed to add_task.
+        
     default_finite_sample_correction : bool, default=False
         Boolean indicating whether this learner will have finite sample correction.
         This is used if 'finite_sample_correction' is not fed to add_task.
+        
     default_max_depth : int, default=30
         The maximum depth of a tree in the Lifelong Classification Forest.
         This is used if 'max_depth' is not fed to add_task.
-
-    Methods
-    ---
-    add_task(X, y, task_id, tree_construction_proportion, finite_sample_correction, max_depth)
-        adds a task with id task_id, max tree depth max_depth, given input data matrix X
-        and output data matrix y, to the Lifelong Classification Forest. Also splits
-        data for training and voting based on tree_construction_proportion and uses the
-        value of finite_sample_correction to determine whether the learner will have
-        finite sample correction.
-    add_transformer(X, y, transformer_id, max_depth)
-        adds a transformer with id transformer_id and max tree depth max_depth, trained on
-        given input data matrix, X, and output data matrix, y, to the Lifelong Classification Forest.
-        Also trains the voters and deciders from new transformer to previous tasks, and will
-        train voters and deciders from this transformer to all new tasks.
-    predict(X, task_id)
-        predicts class labels under task_id for each example in input data X.
-    predict_proba(X, task_id)
-        estimates class posteriors under task_id for each example in input data X.
+        
+    Attributes
+    ----------
+    pl_ : ClassificationProgressiveLearner
+        Internal ClassificationProgressiveLearner used to train and make
+        inference.
     """
 
     def __init__(
@@ -58,7 +49,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self.default_tree_construction_proportion = default_tree_construction_proportion
         self.default_finite_sample_correction = default_finite_sample_correction
         self.default_max_depth = default_max_depth
-        self.pl = ClassificationProgressiveLearner(
+        self.pl_ = ClassificationProgressiveLearner(
             default_transformer_class=TreeClassificationTransformer,
             default_transformer_kwargs={},
             default_voter_class=TreeClassificationVoter,
@@ -86,20 +77,25 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         finite sample correction.
 
         Parameters
-        ---
+        ----------
         X : ndarray
             The input data matrix.
+            
         y : ndarray
             The output (response) data matrix.
+            
         task_id : obj, default=None
             The id corresponding to the task being added.
+            
         tree_construction_proportion : int, default=None
             The proportions of the input data set aside to train each decision
             tree. The remainder of the data is used to fill in voting posteriors.
             The default is used if 'None' is provided.
+            
         finite_sample_correction : bool, default=False
             Boolean indicating whether this learner will have finite sample correction.
             The default is used if 'None' is provided.
+            
         max_depth : int, default=30
             The maximum depth of a tree in the Lifelong Classification Forest.
             The default is used if 'None' is provided.
@@ -111,7 +107,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         if max_depth is None:
             max_depth = self.default_max_depth
 
-        self.pl.add_task(
+        self.pl_.add_task(
             X,
             y,
             task_id=task_id,
@@ -138,13 +134,16 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         train voters and deciders from this transformer to all new tasks.
 
         Parameters
-        ---
+        ----------
         X : ndarray
             The input data matrix.
+            
         y : ndarray
             The output (response) data matrix.
+            
         transformer_id : obj, default=None
             The id corresponding to the transformer being added.
+            
         max_depth : int, default=30
             The maximum depth of a tree in the UncertaintyForest.
             The default is used if 'None' is provided.
@@ -152,7 +151,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         if max_depth is None:
             max_depth = self.default_max_depth
 
-        self.pl.add_transformer(
+        self.pl_.add_transformer(
             X,
             y,
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
@@ -167,52 +166,51 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         predicts class labels under task_id for each example in input data X.
 
         Parameters
-        ---
+        ----------
         X : ndarray
             The input data matrix.
+            
         task_id : obj
             The id corresponding to the task being mapped to.
         """
-        return self.pl.predict(X, task_id)
+        return self.pl_.predict(X, task_id)
 
     def predict_proba(self, X, task_id):
         """
         estimates class posteriors under task_id for each example in input data X.
 
         Parameters
-        ---
+        ----------
         X : ndarray
             The input data matrix.
+            
         task_id:
             The id corresponding to the task being mapped to.
         """
-        return self.pl.predict_proba(X, task_id)
+        return self.pl_.predict_proba(X, task_id)
 
 
 class UncertaintyForest:
     """
     A class used to represent an uncertainty forest.
 
-    Attributes
-    ---
-    lf : LifelongClassificationForest
-        A lifelong classification forest object
+    Parameters
+    ----------
     n_estimators : int, default=100
         The number of trees in the UncertaintyForest
+        
     finite_sample_correction : bool, default=False
         Boolean indicating whether this learner
         will use finite sample correction
+        
     max_depth : int, default=30
         The maximum depth of a tree in the UncertaintyForest
-
-    Methods
-    ---
-    fit(X, y)
-        fits forest to data X with labels y
-    predict(X)
-        predicts class labels for each example in input data X.
-    predict_proba(X)
-        estimates class posteriors for each example in input data X.
+        
+    Attributes
+    ----------
+    lf_ : LifelongClassificationForest
+        Internal LifelongClassificationForest used to train and make
+        inference.
     """
 
     def __init__(self, n_estimators=100, finite_sample_correction=False, max_depth=30):
@@ -225,18 +223,19 @@ class UncertaintyForest:
         fits forest to data X with labels y
 
         Parameters
-        ---
+        ----------
         X : array of shape [n_samples, n_features]
             The data that will be trained on
+            
         y : array of shape [n_samples]
             The label for cluster membership of the given data
         """
-        self.lf = LifelongClassificationForest(
+        self.lf_ = LifelongClassificationForest(
             n_estimators=self.n_estimators,
             default_finite_sample_correction=self.finite_sample_correction,
             default_max_depth=max_depth,
         )
-        self.lf.add_task(X, y, task_id=0)
+        self.lf_.add_task(X, y, task_id=0)
         return self
 
     def predict(self, X):
@@ -244,19 +243,19 @@ class UncertaintyForest:
         predicts class labels for each example in input data X.
 
         Parameters
-        ---
+        ----------
         X : array of shape [n_samples, n_features]
             The data on which we are performing inference.
         """
-        return self.lf.predict(X, 0)
+        return self.lf_.predict(X, 0)
 
     def predict_proba(self, X):
         """
         estimates class posteriors for each example in input data X.
 
         Parameters
-        ---
+        ----------
         X : array of shape [n_samples, n_features]
             The data whose posteriors we are estimating.
         """
-        return self.lf.predict_proba(X, 0)
+        return self.lf_.predict_proba(X, 0)
