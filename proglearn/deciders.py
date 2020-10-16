@@ -15,7 +15,6 @@ from sklearn.utils.validation import (
 class SimpleArgmaxAverage(BaseClassificationDecider):
     """
     A class for a decider that uses the average vote for classification.
-    Uses BaseClassificationDecider as a base class.
 
     Parameters
     ----------
@@ -97,8 +96,8 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         Loops through each transformer and bag of transformers.
         Performs a transformation of the input data with the transformer.
         Gets a voter to map the transformed input data into a posterior distribution.
-        Gets the mean vote per bag and append it to a vote per transformer id.
-        Returns the average vote per transformer id.
+        Gets the mean vote per bagging component and append it to a vote per transformer id.
+        Returns the aggregate average vote.
 
         Parameters
         ----------
@@ -158,7 +157,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             
         Raises
         ------
-        NotFittedError :
+        NotFittedError
             When the model is not fitted.
 
         Returns
