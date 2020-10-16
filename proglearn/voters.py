@@ -100,8 +100,8 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
         Raises
         ------
-        NotFittedError :
-            when the model has not yet been fit for this transformation
+        NotFittedError
+            When the model is not fitted.
         """
         check_is_fitted(self)
         votes_per_example = []
@@ -128,6 +128,11 @@ class TreeClassificationVoter(BaseClassificationVoter):
         ----------
         X : array of shape [n_samples, n_features]
             the transformed input data
+            
+        Raises
+        ------
+        NotFittedError
+            When the model is not fitted.
         """
         return np.argmax(self.predict_proba(X), axis=1)
 
@@ -166,7 +171,7 @@ class KNNClassificationVoter(BaseClassificationVoter):
         integer indicating number of neighbors to use for each prediction during
         fitting and voting
         
-    kwargs : dictionary
+    kwargs : dictionary, default={}
         contains all keyword arguments for the underlying KNN
         
     classes : list, default=[]
@@ -227,8 +232,8 @@ class KNNClassificationVoter(BaseClassificationVoter):
 
         Raises
         ------
-        NotFittedError :
-            when the model has not yet been fit for this transformation
+        NotFittedError
+            When the model is not fitted.
         """
         check_is_fitted(self)
         X = check_array(X)
@@ -249,5 +254,10 @@ class KNNClassificationVoter(BaseClassificationVoter):
         ----------
         X : array of shape [n_samples, n_features]
             the transformed input data
+            
+        Raises
+        ------
+        NotFittedError
+            When the model is not fitted.
         """
         return np.argmax(self.predict_proba(X), axis=1)
