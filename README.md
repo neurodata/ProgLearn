@@ -5,7 +5,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/proglearn.svg)](https://pypi.org/project/proglearn/)
 [![arXiv](https://img.shields.io/badge/arXiv-2004.12908-red.svg?style=flat)](https://arxiv.org/abs/2004.12908)
 [![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/licenses/MIT)
-[![Documentation Status](https://readthedocs.org/projects/proglearn/badge/?version=main)](http://proglearn.readthedocs.io/?badge=main)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/97f86f49-81ed-4292-a100-f7031b54ecc7/deploy-status)](https://app.netlify.com/sites/neuro-data-proglearn/deploys)
 ![Downloads](https://img.shields.io/pypi/dm/proglearn.svg)
 
 
