@@ -21,7 +21,6 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
     ----------
     classes : list, default=[]
         List of final output classification labels of type obj.
-        Defaults to an empty list of classes.
 
     Attributes
     ----------
@@ -69,15 +68,14 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             and values of type obj corresponding to a voter class. This dictionary thus
             maps voter classes to a particular transformer id.
 
-        Raises:
-        -----------
-        ValueError :
+        Raises
+        -------
+        ValueError
             When the labels have not been provided and the classes are empty.
 
-        Returns:
-        ----------
-        SimpleArgmaxAverage : obj
-            The ClassificationDecider object of class SimpleArgmaxAverage is returned.
+        Returns
+        -------
+        The SimpleArgmaxAverage object itself.
         """
         if not isinstance(self.classes, (list, np.ndarray)):
             if len(y) == 0:
@@ -102,8 +100,8 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         Gets the mean vote per bag and append it to a vote per transformer id.
         Returns the average vote per transformer id.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         X : ndarray
             Input data matrix.
 
@@ -111,14 +109,14 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             A list with specific transformer ids that will be used for inference. Defaults
             to using all transformers if no transformer ids are given.
 
-        Raises:
-        -------
-        NotFittedError :
+        Raises
+        ------
+        NotFittedError
             When the model is not fitted.
 
-        Returns:
-        --------
-        Returns mean vote across transformer ids as an ndarray.
+        Returns
+        -------
+        Mean vote across transformer ids as an ndarray.
         """
         check_is_fitted(self)
         vote_per_transformer_id = []
@@ -149,8 +147,8 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         Uses the predict_proba method to get the mean vote per id.
         Returns the class with the highest vote.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         X : ndarray
             Input data matrix.
 
@@ -158,13 +156,13 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             A list with all transformer ids. Defaults to None if no transformer ids
             are given.
             
-        Raises:
-        -------
+        Raises
+        ------
         NotFittedError :
             When the model is not fitted.
 
-        Returns:
-        --------
+        Returns
+        -------
         The class with the highest vote based on the argmax of the votes as an int.
         """
         vote_overall = self.predict_proba(X, transformer_ids=transformer_ids)
