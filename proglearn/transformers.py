@@ -55,7 +55,6 @@ class NeuralClassificationTransformer(BaseTransformer):
         A Keras model with inputs and outputs based on the network attribute. Output layers
         are determined by the euclidean_layer_idx parameter.
     """
-
     def __init__(
         self,
         network,
@@ -117,6 +116,11 @@ class NeuralClassificationTransformer(BaseTransformer):
         ----------
         X : ndarray
             Input data matrix.
+            
+        Raises
+        ------
+        NotFittedError
+            When the model is not fitted.
         """
         check_is_fitted(self)
         check_array(X)
@@ -162,6 +166,11 @@ class TreeClassificationTransformer(BaseTransformer):
         ----------
         X : ndarray
             Input data matrix.
+            
+        Raises
+        ------
+        NotFittedError
+            When the model is not fitted.
         """
         check_is_fitted(self)
         X = check_array(X)
