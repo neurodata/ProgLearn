@@ -132,7 +132,7 @@ class TreeClassificationTransformer(BaseTransformer):
 
     Parameters
     ----------
-    kwargs : dict
+    kwargs : dict, default={}
         A dictionary to contain parameters of the tree.
         
     Attributes
