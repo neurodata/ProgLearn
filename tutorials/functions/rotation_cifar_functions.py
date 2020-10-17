@@ -8,17 +8,7 @@ import random
 from skimage.transform import rotate
 from scipy import ndimage
 from skimage.util import img_as_ubyte
-from sklearn.ensemble.forest import _generate_unsampled_indices
-from sklearn.ensemble.forest import _generate_sample_indices
 import numpy as np
-from sklearn.ensemble import BaggingClassifier
-from sklearn.tree import DecisionTreeClassifier
-from itertools import product
-import keras
-from joblib import Parallel, delayed
-from multiprocessing import Pool
-import tensorflow as tf
-from numba import cuda
 import seaborn as sns
 
 # Import the progressive learning packages
@@ -64,7 +54,7 @@ def cross_val_data(data_x, data_y, total_cls=10):
 
 # Runs the experiments
 def LF_experiment(
-    data_x, data_y, angle, granularity, max_depth, reps=1, ntrees=29, acorn=None
+    angle, data_x, data_y, granularity, max_depth, reps=1, ntrees=29, acorn=None
 ):
 
     # Set random seed to acorn if acorn is specified
@@ -75,74 +65,67 @@ def LF_experiment(
         2
     )  # initializes array of errors that will be generated during each rep
 
-    with tf.device("/gpu:" + str(int(angle // granularity) % 4)):
-        for rep in range(reps):
-            print(
-                "rep:{}".format(rep)
-            )  # Allows user to track the progress of the notebook while the experiment is running
+    for rep in range(reps):
+        # training and testing subsets are randomly selected by calling the cross_val_data function
+        train_x1, train_y1, train_x2, train_y2, test_x, test_y = cross_val_data(
+            data_x, data_y, total_cls=10
+        )
 
-            # training and testing subsets are randomly selected by calling the cross_val_data function
-            train_x1, train_y1, train_x2, train_y2, test_x, test_y = cross_val_data(
-                data_x, data_y, total_cls=10
+        # Change data angle for second task
+        tmp_data = train_x2.copy()
+        _tmp_ = np.zeros((32, 32, 3), dtype=int)
+        total_data = tmp_data.shape[0]
+
+        for i in range(total_data):
+            tmp_ = image_aug(tmp_data[i], angle)
+            # 2D image is flattened into a 1D array as random forests can only take in flattened images as inputs
+            tmp_data[i] = tmp_
+
+        # .shape gives the dimensions of each numpy array
+        # .reshape gives a new shape to the numpy array without changing its data
+        train_x1 = train_x1.reshape(
+            (
+                train_x1.shape[0],
+                train_x1.shape[1] * train_x1.shape[2] * train_x1.shape[3],
             )
-
-            # Change data angle for second task
-            tmp_data = train_x2.copy()
-            _tmp_ = np.zeros((32, 32, 3), dtype=int)
-            total_data = tmp_data.shape[0]
-
-            for i in range(total_data):
-                tmp_ = image_aug(tmp_data[i], angle)
-                # 2D image is flattened into a 1D array as random forests can only take in flattened images as inputs
-                tmp_data[i] = tmp_
-
-            # .shape gives the dimensions of each numpy array
-            # .reshape gives a new shape to the numpy array without changing its data
-            train_x1 = train_x1.reshape(
-                (
-                    train_x1.shape[0],
-                    train_x1.shape[1] * train_x1.shape[2] * train_x1.shape[3],
-                )
+        )
+        tmp_data = tmp_data.reshape(
+            (
+                tmp_data.shape[0],
+                tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3],
             )
-            tmp_data = tmp_data.reshape(
-                (
-                    tmp_data.shape[0],
-                    tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3],
-                )
-            )
-            test_x = test_x.reshape(
-                (test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3])
-            )
-            # number of trees (estimators) to use is passed as an argument because the default is 100 estimators
-            progressive_learner = LifelongClassificationForest(
-                n_estimators=ntrees, default_max_depth=max_depth
-            )
+        )
+        test_x = test_x.reshape(
+            (test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3])
+        )
+        # number of trees (estimators) to use is passed as an argument because the default is 100 estimators
+        progressive_learner = LifelongClassificationForest(
+            n_estimators=ntrees, default_max_depth=max_depth
+        )
 
-            # Add the original task
-            progressive_learner.add_task(X=train_x1, y=train_y1)
+        # Add the original task
+        progressive_learner.add_task(X=train_x1, y=train_y1)
 
-            # Predict and get errors for original task
-            llf_single_task = progressive_learner.predict(test_x, task_id=0)
+        # Predict and get errors for original task
+        llf_single_task = progressive_learner.predict(test_x, task_id=0)
 
-            # Add the new transformer
-            progressive_learner.add_transformer(X=tmp_data, y=train_y2)
+        # Add the new transformer
+        progressive_learner.add_transformer(X=tmp_data, y=train_y2)
 
-            # Predict and get errors with the new transformer
-            llf_task1 = progressive_learner.predict(test_x, task_id=0)
+        # Predict and get errors with the new transformer
+        llf_task1 = progressive_learner.predict(test_x, task_id=0)
 
-            errors[1] = errors[1] + (
-                1 - np.mean(llf_task1 == test_y)
-            )  # errors from transfer learning
-            errors[0] = errors[0] + (
-                1 - np.mean(llf_single_task == test_y)
-            )  # errors from original task
+        errors[1] = errors[1] + (
+            1 - np.mean(llf_task1 == test_y)
+        )  # errors from transfer learning
+        errors[0] = errors[0] + (
+            1 - np.mean(llf_single_task == test_y)
+        )  # errors from original task
 
     errors = (
         errors / reps
     )  # errors are averaged across all reps ==> more reps means more accurate errors
-    # Prints errors for each angle
-    print("Errors For Angle {}: {}".format(angle, errors))
-
+    
     # Average errors for original task and transfer learning are returned for the angle tested
     return errors
 
