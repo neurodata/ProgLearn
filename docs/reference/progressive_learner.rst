@@ -3,6 +3,12 @@ Lifelong Learner
 
 .. currentmodule:: proglearn.progressive_learner
 
-.. autoclass:: ProgressiveLearner
-.. autoclass:: ClassificationProgressiveLearner
+Progressiver Learner
+--------------------
 
+.. autoclass:: ProgressiveLearner
+
+Classification Progressiver Learner
+-----------------------------------
+
+.. autoclass:: ClassificationProgressiveLearner

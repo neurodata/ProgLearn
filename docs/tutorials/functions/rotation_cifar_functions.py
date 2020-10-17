@@ -125,7 +125,7 @@ def LF_experiment(
     errors = (
         errors / reps
     )  # errors are averaged across all reps ==> more reps means more accurate errors
-    
+
     # Average errors for original task and transfer learning are returned for the angle tested
     return errors
 
