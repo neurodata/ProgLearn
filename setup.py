@@ -10,10 +10,8 @@ for line in open(os.path.join(PROJECT_PATH, "proglearn", "__init__.py")):
 with open("README.md", mode="r", encoding = "utf8") as f:
     LONG_DESCRIPTION = f.read()
 
-REQUIREMENTS = []
-for line in open("requirements.txt", mode="r", encoding = "utf8"):
-    package = line.split()[0]
-    REQUIREMENTS.append(package)
+with open("requirements.txt", mode="r", encoding = "utf8") as f:
+    REQUIREMENTS = f.read()
 
 setup(
     name="proglearn",
