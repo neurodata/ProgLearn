@@ -234,7 +234,7 @@ class UncertaintyForest:
         self.lf = LifelongClassificationForest(
             n_estimators=self.n_estimators,
             default_finite_sample_correction=self.finite_sample_correction,
-            default_max_depth=max_depth,
+            default_max_depth=self.max_depth,
         )
         self.lf.add_task(X, y, task_id=0)
         return self
