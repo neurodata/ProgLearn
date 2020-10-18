@@ -32,7 +32,7 @@ def binary_deep_neural_network(
 
     dnn_model = Sequential()
 
-    dnn_model.add(Dense(8, activation="relu"))
+    dnn_model.add(Dense(X_train.shape[1], activation="relu"))
     dnn_model.add(Dense(8, activation="relu"))
     dnn_model.add(Dense(units=1, activation="sigmoid"))
 
