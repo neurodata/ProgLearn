@@ -65,9 +65,9 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         X,
         y,
         task_id=None,
-        tree_construction_proportion='default',
-        finite_sample_correction='default',
-        max_depth='default',
+        tree_construction_proportion="default",
+        finite_sample_correction="default",
+        max_depth="default",
     ):
         """
         adds a task with id task_id, max tree depth max_depth, given input data matrix X
@@ -105,11 +105,11 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self : LifelongClassificationForest
             The object itself.
         """
-        if tree_construction_proportion == 'default':
+        if tree_construction_proportion == "default":
             tree_construction_proportion = self.default_tree_construction_proportion
-        if finite_sample_correction == 'default':
+        if finite_sample_correction == "default":
             finite_sample_correction = self.default_finite_sample_correction
-        if max_depth == 'default':
+        if max_depth == "default":
             max_depth = self.default_max_depth
 
         self.pl_.add_task(
@@ -131,7 +131,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         )
         return self
 
-    def add_transformer(self, X, y, transformer_id=None, max_depth='default'):
+    def add_transformer(self, X, y, transformer_id=None, max_depth="default"):
         """
         adds a transformer with id transformer_id and max tree depth max_depth, trained on
         given input data matrix, X, and output data matrix, y, to the Lifelong Classification Forest.
@@ -158,7 +158,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self : LifelongClassificationForest
             The object itself.
         """
-        if max_depth == 'default':
+        if max_depth == "default":
             max_depth = self.default_max_depth
 
         self.pl_.add_transformer(

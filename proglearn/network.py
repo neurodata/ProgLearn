@@ -95,7 +95,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
             default_decider_kwargs={},
         )
 
-    def add_task(self, X, y, task_id=None, transformer_voter_decider_split='default'):
+    def add_task(self, X, y, task_id=None, transformer_voter_decider_split="default"):
         """
         adds a task with id task_id, given input data matrix X
         and output data matrix y, to the Lifelong Classification Network
@@ -122,7 +122,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         self : LifelongClassificationNetwork
             The object itself.
         """
-        if transformer_voter_decider_split == 'default':
+        if transformer_voter_decider_split == "default":
             transformer_voter_decider_split = (
                 self.default_transformer_voter_decider_split
             )
