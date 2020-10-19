@@ -16,7 +16,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
     Parameters
     ----------
     default_n_estimators : int, default=100
-        The number of trees used in the Lifelong Classification Forest 
+        The number of trees used in the Lifelong Classification Forest
         used if 'n_estimators' is not fed to add_{task, transformer}.
 
     default_tree_construction_proportion : int, default=0.67
@@ -88,7 +88,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
 
         task_id : obj, default=None
             The id corresponding to the task being added.
-            
+
         n_estimators : int or str, default="default
             The number of trees used for the given task.
 
@@ -139,10 +139,10 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         return self
 
     def add_transformer(
-        self, 
-        X, 
-        y, 
-        transformer_id=None, 
+        self,
+        X,
+        y,
+        transformer_id=None,
         n_estimators="default",
         max_depth="default",
     ):
@@ -159,7 +159,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
 
         y : ndarray
             The output (response) data matrix.
-            
+
         n_estimators : int or str, default="default
             The number of trees used for the given task.
 
