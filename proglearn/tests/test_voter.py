@@ -46,15 +46,6 @@ class TestKNNClassificationVoter:
         X = np.random.randn(100, 3)
         testing.assert_raises(NotFittedError, KNNClassificationVoter().predict_proba, X)
 
-    def test_correct_k(self):
-        # generate training data and classes
-        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
-        Y = np.concatenate((np.zeros(100), np.ones(100)))
-
-        # train model
-        assert KNNClassificationVoter(3).fit(X, Y).k == 3
-        assert KNNClassificationVoter().fit(X, Y).k == int(np.log2(len(X)))
-
     def test_correct_vote(self):
         # set random seed
         np.random.seed(0)

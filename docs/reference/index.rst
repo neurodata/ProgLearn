@@ -1,3 +1,8 @@
+.. _reference:
+
+Reference
+*********
+
 .. toctree::
    :maxdepth: 2
 
@@ -6,4 +11,3 @@
    decider
    network
    forest
-   progressive_learner

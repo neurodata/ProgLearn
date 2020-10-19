@@ -30,4 +30,4 @@ To build the HTML documentation, enter:
 
     make html
 
-in the `docs/` directory. If all goes well, this will generate a `build/html/` subdirectory containing the built documentation.
+in the `docs/` directory. If all goes well, this will generate a `_build/html/` subdirectory containing the built documentation.
