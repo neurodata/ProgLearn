@@ -65,9 +65,9 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         X,
         y,
         task_id=None,
-        tree_construction_proportion=None,
-        finite_sample_correction=None,
-        max_depth=None,
+        tree_construction_proportion="default",
+        finite_sample_correction="default",
+        max_depth="default",
     ):
         """
         adds a task with id task_id, max tree depth max_depth, given input data matrix X
@@ -87,29 +87,29 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         task_id : obj, default=None
             The id corresponding to the task being added.
 
-        tree_construction_proportion : int, default=None
+        tree_construction_proportion : int or str, default='default'
             The proportions of the input data set aside to train each decision
             tree. The remainder of the data is used to fill in voting posteriors.
-            The default is used if 'None' is provided.
+            The default is used if 'default' is provided.
 
-        finite_sample_correction : bool, default=False
+        finite_sample_correction : bool or str, default='default'
             Boolean indicating whether this learner will have finite sample correction.
-            The default is used if 'None' is provided.
+            The default is used if 'default' is provided.
 
-        max_depth : int, default=30
+        max_depth : int or str, default='default'
             The maximum depth of a tree in the Lifelong Classification Forest.
-            The default is used if 'None' is provided.
+            The default is used if 'default' is provided.
 
         Returns
         -------
         self : LifelongClassificationForest
             The object itself.
         """
-        if tree_construction_proportion is None:
+        if tree_construction_proportion == "default":
             tree_construction_proportion = self.default_tree_construction_proportion
-        if finite_sample_correction is None:
+        if finite_sample_correction == "default":
             finite_sample_correction = self.default_finite_sample_correction
-        if max_depth is None:
+        if max_depth == "default":
             max_depth = self.default_max_depth
 
         self.pl_.add_task(
@@ -131,7 +131,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         )
         return self
 
-    def add_transformer(self, X, y, transformer_id=None, max_depth=None):
+    def add_transformer(self, X, y, transformer_id=None, max_depth="default"):
         """
         adds a transformer with id transformer_id and max tree depth max_depth, trained on
         given input data matrix, X, and output data matrix, y, to the Lifelong Classification Forest.
@@ -149,16 +149,16 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         transformer_id : obj, default=None
             The id corresponding to the transformer being added.
 
-        max_depth : int, default=30
+        max_depth : int or str, default='default'
             The maximum depth of a tree in the UncertaintyForest.
-            The default is used if 'None' is provided.
+            The default is used if 'default' is provided.
 
         Returns
         -------
         self : LifelongClassificationForest
             The object itself.
         """
-        if max_depth is None:
+        if max_depth == "default":
             max_depth = self.default_max_depth
 
         self.pl_.add_transformer(
