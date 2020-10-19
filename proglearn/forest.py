@@ -87,16 +87,16 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         task_id : obj, default=None
             The id corresponding to the task being added.
 
-        tree_construction_proportion : int, default='default'
+        tree_construction_proportion : int or str, default='default'
             The proportions of the input data set aside to train each decision
             tree. The remainder of the data is used to fill in voting posteriors.
             The default is used if 'default' is provided.
 
-        finite_sample_correction : bool, default='default'
+        finite_sample_correction : bool or str, default='default'
             Boolean indicating whether this learner will have finite sample correction.
             The default is used if 'default' is provided.
 
-        max_depth : int, default='default'
+        max_depth : int or str, default='default'
             The maximum depth of a tree in the Lifelong Classification Forest.
             The default is used if 'default' is provided.
 
@@ -149,7 +149,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         transformer_id : obj, default=None
             The id corresponding to the transformer being added.
 
-        max_depth : int, default='default'
+        max_depth : int or str, default='default'
             The maximum depth of a tree in the UncertaintyForest.
             The default is used if 'default' is provided.
 
