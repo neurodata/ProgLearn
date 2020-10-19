@@ -15,8 +15,9 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
 
     Parameters
     ----------
-    n_estimators : int, default=100
-        The number of estimators used in the Lifelong Classification Forest
+    default_n_estimators : int, default=100
+        The number of trees used in the Lifelong Classification Forest
+        used if 'n_estimators' is not fed to add_{task, transformer}.
 
     default_tree_construction_proportion : int, default=0.67
         The proportions of the input data set aside to train each decision
@@ -40,12 +41,12 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
 
     def __init__(
         self,
-        n_estimators=100,
+        default_n_estimators=100,
         default_tree_construction_proportion=0.67,
         default_finite_sample_correction=False,
         default_max_depth=30,
     ):
-        self.n_estimators = n_estimators
+        self.default_n_estimators = default_n_estimators
         self.default_tree_construction_proportion = default_tree_construction_proportion
         self.default_finite_sample_correction = default_finite_sample_correction
         self.default_max_depth = default_max_depth
@@ -65,6 +66,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         X,
         y,
         task_id=None,
+        n_estimators="default",
         tree_construction_proportion="default",
         finite_sample_correction="default",
         max_depth="default",
@@ -87,6 +89,9 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         task_id : obj, default=None
             The id corresponding to the task being added.
 
+        n_estimators : int or str, default='default'
+            The number of trees used for the given task.
+
         tree_construction_proportion : int or str, default='default'
             The proportions of the input data set aside to train each decision
             tree. The remainder of the data is used to fill in voting posteriors.
@@ -105,6 +110,8 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self : LifelongClassificationForest
             The object itself.
         """
+        if n_estimators == "default":
+            n_estimators = self.default_n_estimators
         if tree_construction_proportion == "default":
             tree_construction_proportion = self.default_tree_construction_proportion
         if finite_sample_correction == "default":
@@ -121,7 +128,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
                 1 - tree_construction_proportion,
                 0,
             ],
-            num_transformers=self.n_estimators,
+            num_transformers=n_estimators,
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
             voter_kwargs={
                 "classes": np.unique(y),
@@ -131,7 +138,14 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         )
         return self
 
-    def add_transformer(self, X, y, transformer_id=None, max_depth="default"):
+    def add_transformer(
+        self,
+        X,
+        y,
+        transformer_id=None,
+        n_estimators="default",
+        max_depth="default",
+    ):
         """
         adds a transformer with id transformer_id and max tree depth max_depth, trained on
         given input data matrix, X, and output data matrix, y, to the Lifelong Classification Forest.
@@ -149,6 +163,9 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         transformer_id : obj, default=None
             The id corresponding to the transformer being added.
 
+        n_estimators : int or str, default='default'
+            The number of trees used for the given task.
+
         max_depth : int or str, default='default'
             The maximum depth of a tree in the UncertaintyForest.
             The default is used if 'default' is provided.
@@ -158,6 +175,8 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self : LifelongClassificationForest
             The object itself.
         """
+        if n_estimators == "default":
+            n_estimators = self.default_n_estimators
         if max_depth == "default":
             max_depth = self.default_max_depth
 
@@ -166,7 +185,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             y,
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
             transformer_id=transformer_id,
-            num_transformers=self.n_estimators,
+            num_transformers=n_estimators,
         )
 
         return self
@@ -256,7 +275,7 @@ class UncertaintyForest:
             The object itself.
         """
         self.lf_ = LifelongClassificationForest(
-            n_estimators=self.n_estimators,
+            default_n_estimators=self.n_estimators,
             default_finite_sample_correction=self.finite_sample_correction,
             default_max_depth=self.max_depth,
         )
