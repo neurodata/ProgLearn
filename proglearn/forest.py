@@ -89,7 +89,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         task_id : obj, default=None
             The id corresponding to the task being added.
 
-        n_estimators : int or str, default="default
+        n_estimators : int or str, default='default'
             The number of trees used for the given task.
 
         tree_construction_proportion : int or str, default='default'
@@ -160,11 +160,11 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         y : ndarray
             The output (response) data matrix.
 
-        n_estimators : int or str, default="default
-            The number of trees used for the given task.
-
         transformer_id : obj, default=None
             The id corresponding to the transformer being added.
+            
+        n_estimators : int or str, default='default'
+            The number of trees used for the given task.
 
         max_depth : int or str, default='default'
             The maximum depth of a tree in the UncertaintyForest.
