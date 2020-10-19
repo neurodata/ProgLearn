@@ -111,7 +111,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         task_id: obj
             The id corresponding to the task being added.
 
-        transformer_voter_decider_split: ndarray, default='default'
+        transformer_voter_decider_split: ndarray or str, default='default'
             1D array of length 3 corresponding to the proportions of data used to train the
             transformer(s) corresponding to the task_id, to train the voter(s) from the
             transformer(s) to the task_id, and to train the decider for task_id, respectively.
