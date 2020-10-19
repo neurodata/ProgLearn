@@ -162,7 +162,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
 
         transformer_id : obj, default=None
             The id corresponding to the transformer being added.
-            
+
         n_estimators : int or str, default='default'
             The number of trees used for the given task.
 
