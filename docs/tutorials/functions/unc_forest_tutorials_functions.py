@@ -156,5 +156,5 @@ def plot_fig1(algos, num_plotted_trials, X_eval):
     axes[3].set_ylabel(r"Var($\hat P(Y = 1|X = x)$)")
     
     fig.tight_layout()
-    plt.savefig("fig1.pdf")
+    # plt.savefig("fig1.pdf")
     plt.show()

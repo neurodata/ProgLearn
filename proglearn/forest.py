@@ -233,10 +233,11 @@ class UncertaintyForest:
         inference.
     """
 
-    def __init__(self, n_estimators=100, finite_sample_correction=False, max_depth=30):
+    def __init__(self, n_estimators=100, finite_sample_correction=False, max_depth=30, tree_construction_proportion=0.67):
         self.n_estimators = n_estimators
         self.finite_sample_correction = finite_sample_correction
         self.max_depth = max_depth
+        self.tree_construction_proportion = tree_construction_proportion
 
     def fit(self, X, y):
         """
@@ -259,6 +260,7 @@ class UncertaintyForest:
             n_estimators=self.n_estimators,
             default_finite_sample_correction=self.finite_sample_correction,
             default_max_depth=self.max_depth,
+            default_tree_construction_proportion=self.tree_construction_proportion,
         )
         self.lf_.add_task(X, y, task_id=0)
         return self
