@@ -244,6 +244,10 @@ class UncertaintyForest:
 
     max_depth : int, default=30
         The maximum depth of a tree in the UncertaintyForest
+    
+    tree_construction_proportion : float, default = 0.67
+        The proportions of the input data set aside to train each decision
+        tree. The remainder of the data is used to fill in voting posteriors.
 
     Attributes
     ----------
