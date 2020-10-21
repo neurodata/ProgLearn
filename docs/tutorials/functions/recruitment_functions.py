@@ -41,11 +41,81 @@ class PosteriorsByTree(SimpleArgmaxAverage):
             #saa = np.mean(vote_per_transformer_id, axis=0) # original simpleargmaxaverage output
         return vote_per_alltrees
     
+    def predict_probaORIG(self, X, transformer_ids=None):
+        """
+        Predicts posterior probabilities per input example.
+
+        Loops through each transformer and bag of transformers.
+        Performs a transformation of the input data with the transformer.
+        Gets a voter to map the transformed input data into a posterior distribution.
+        Gets the mean vote per bagging component and append it to a vote per transformer id.
+        Returns the aggregate average vote.
+
+        Parameters
+        ----------
+        X : ndarray
+            Input data matrix.
+
+        transformer_ids : list, default=None
+            A list with specific transformer ids that will be used for inference. Defaults
+            to using all transformers if no transformer ids are given.
+
+        Returns
+        -------
+        y_proba_hat : ndarray of shape [n_samples, n_classes]
+            posteriors per example
+
+
+        Raises
+        ------
+        NotFittedError
+            When the model is not fitted.
+        """
+        #check_is_fitted(self)
+        vote_per_transformer_id = []
+        for transformer_id in (
+            transformer_ids
+            if transformer_ids is not None
+            else self.transformer_id_to_voters.keys()
+        ):
+            #check_is_fitted(self)
+            vote_per_bag_id = []
+            for bag_id in range(len(self.transformer_id_to_transformers[transformer_id])):
+                transformer = self.transformer_id_to_transformers[transformer_id][bag_id]
+                X_transformed = transformer.transform(X)
+                voter = self.transformer_id_to_voters[transformer_id][bag_id]
+                vote = voter.predict_proba(X_transformed)
+                vote_per_bag_id.append(vote)
+            vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0))
+        return np.mean(vote_per_transformer_id, axis=0)
+    
     def predict(self, X, transformer_ids=None):
         """
+        Predicts the most likely class per input example.
+
+        Uses the predict_proba method to get the mean vote per id.
+        Returns the class with the highest vote.
+
+        Parameters
+        ----------
+        X : ndarray
+            Input data matrix.
+
+        transformer_ids : list, default=None
+            A list with all transformer ids. Defaults to None if no transformer ids
+            are given.
+
+        Returns
+        -------
+        y_hat : ndarray of shape [n_samples]
+            predicted class label per example
+
+        Raises
+        ------
+        NotFittedError
+            When the model is not fitted.
         """
-        vote_per_alltrees = self.predict_proba(X, transformer_ids=transformer_ids)
-        vote_overall = np.mean(vote_per_alltrees, axis=0)
+        vote_overall = self.predict_probaORIG(X, transformer_ids=transformer_ids)
         return self.classes[np.argmax(vote_overall, axis=1)]
 
 
@@ -135,7 +205,7 @@ def experiment(data_x, data_y, ntrees, reps, estimation_set, num_points_per_task
                         cur_X, 
                         cur_y,
                         num_transformers = ntrees,
-                        transformer_kwargs={"kwargs":{"max_depth": ceil(log2(num_points_per_forest))}},
+                        #transformer_kwargs={"kwargs":{"max_depth": ceil(log2(num_points_per_forest))}},
                         voter_kwargs={"classes": np.unique(cur_y),"finite_sample_correction": False},
                         decider_kwargs={"classes": np.unique(cur_y)}
                     )
@@ -144,7 +214,7 @@ def experiment(data_x, data_y, ntrees, reps, estimation_set, num_points_per_task
                         cur_X, 
                         cur_y,
                         num_transformers = ntrees,
-                        transformer_kwargs={"kwargs":{"max_depth": ceil(log2(estimation_sample_no))}},
+                        #transformer_kwargs={"kwargs":{"max_depth": ceil(log2(estimation_sample_no))}},
                         voter_kwargs={"classes": np.unique(cur_y),"finite_sample_correction": False},
                         #decider_kwargs={"classes": np.unique(cur_y)}
                     )
@@ -157,7 +227,7 @@ def experiment(data_x, data_y, ntrees, reps, estimation_set, num_points_per_task
                 cur_X, 
                 cur_y,
                 num_transformers = ntrees,
-                transformer_kwargs={"kwargs":{"max_depth": ceil(log2(estimation_sample_no))}},
+                #transformer_kwargs={"kwargs":{"max_depth": ceil(log2(estimation_sample_no))}},
                 voter_kwargs={"classes": np.unique(cur_y),"finite_sample_correction": False},
                 #decider_kwargs={"classes": np.unique(cur_y)}
             )
@@ -197,15 +267,9 @@ def experiment(data_x, data_y, ntrees, reps, estimation_set, num_points_per_task
             best_25_uf_tree = np.argsort(error_across_trees)[:25]
 
             ## evaluation
-            # get posteriors for all data points in test set using first 9 tasks
-            posteriors_across_trees = l2f.predict_proba(
-                test_x_across_task[9],
-                task_id=0,
-                transformer_ids=[0,1,2,3,4,5,6,7,8]
-                )
-
             # train 10th tree under each scenario: building, recruiting, hybrid, UF
             # RECRUITING
+            posteriors_across_trees = l2f.predict_proba(test_x_across_task[9],task_id=0,transformer_ids=[0,1,2,3,4,5,6,7,8])
             recruiting_posterior = np.mean(np.array(posteriors_across_trees)[best_50_tree],axis=0)
             res = np.argmax(recruiting_posterior,axis=1) + 90
             recruiting[rep] = 1 - np.mean(test_y_across_task[9]==res)
@@ -221,6 +285,11 @@ def experiment(data_x, data_y, ntrees, reps, estimation_set, num_points_per_task
             hybrid_posterior = np.mean(hybrid_posterior_all,axis=0)
             hybrid_res = np.argmax(hybrid_posterior,axis=1) + 90
             hybrid[rep] = 1 - np.mean(test_y_across_task[9]==hybrid_res)
+        
+        print(np.mean(hybrid))
+        print(np.mean(building))
+        print(np.mean(recruiting))
+        print(np.mean(uf))
 
         # calculate mean and stdev for each
         mean_accuracy_dict['hybrid'].append(np.mean(hybrid))
