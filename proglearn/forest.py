@@ -244,7 +244,7 @@ class UncertaintyForest:
 
     max_depth : int, default=30
         The maximum depth of a tree in the UncertaintyForest
-    
+
     tree_construction_proportion : float, default = 0.67
         The proportions of the input data set aside to train each decision
         tree. The remainder of the data is used to fill in voting posteriors.
@@ -256,7 +256,13 @@ class UncertaintyForest:
         inference.
     """
 
-    def __init__(self, n_estimators=100, finite_sample_correction=False, max_depth=30, tree_construction_proportion=0.67):
+    def __init__(
+        self,
+        n_estimators=100,
+        finite_sample_correction=False,
+        max_depth=30,
+        tree_construction_proportion=0.67,
+    ):
         self.n_estimators = n_estimators
         self.finite_sample_correction = finite_sample_correction
         self.max_depth = max_depth
