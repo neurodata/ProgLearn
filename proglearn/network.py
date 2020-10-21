@@ -39,8 +39,8 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         network.
 
     default_network_construction_proportion: float, default = 0.67
-        The proportions of the input data set aside to train each network. The remainder of the 
-        data is used to fill in voting posteriors. This is used if 'tree_construction_proportion' 
+        The proportions of the input data set aside to train each network. The remainder of the
+        data is used to fill in voting posteriors. This is used if 'tree_construction_proportion'
         is not fed to add_task.
 
     Attributes
@@ -111,7 +111,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
             The id corresponding to the task being added.
 
         network_construction_proportion: float or str, default='default'
-            The proportions of the input data set aside to train each network. The remainder of the 
+            The proportions of the input data set aside to train each network. The remainder of the
             data is used to fill in voting posteriors. The default is used if 'default' is provided.
 
         Returns
@@ -120,15 +120,17 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
             The object itself.
         """
         if network_construction_proportion == "default":
-            network_construction_proportion = (
-                self.network_construction_proportion
-            )
+            network_construction_proportion = self.network_construction_proportion
 
         return self.pl_.add_task(
             X,
             y,
             task_id=task_id,
-            transformer_voter_decider_split=[network_construction_proportion, 1 - network_construction_proportion, 0],
+            transformer_voter_decider_split=[
+                network_construction_proportion,
+                1 - network_construction_proportion,
+                0,
+            ],
             decider_kwargs={"classes": np.unique(y)},
             voter_kwargs={"classes": np.unique(y)},
         )
