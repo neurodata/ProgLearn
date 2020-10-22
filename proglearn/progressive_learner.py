@@ -80,25 +80,25 @@ class ProgressiveLearner(BaseProgressiveLearner):
         and values of type obj corresponding to a decider. This dictionary thus
         maps deciders to a particular task.
 
-    transformer_id_to_voter_class : dict
-        A dictionary with keys of type obj corresponding to transformer ids
-        and values of type obj corresponding to a voter class. This dictionary thus
-        maps voter classes to a particular transformer id.
-
-    transformer_id_to_voter_kwargs : dict
-        A dictionary with keys of type obj corresponding to transformer ids
-        and values of type obj corresponding to a voter kwargs. This dictionary thus
-        maps voter kwargs to a particular transformer id.
-
     task_id_to_decider_class : dict
-        A dictionary with keys of type obj corresponding to transformer ids
+        A dictionary with keys of type obj corresponding to task ids
         and values of type obj corresponding to a decider class. This dictionary
-        thus maps decider classes to a particular transformer id.
+        thus maps decider classes to a particular task id.
+
+    task_id_to_voter_class : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a voter class. This dictionary thus
+        maps voter classes to a particular task id.
+
+    task_id_to_voter_kwargs : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a voter kwargs. This dictionary thus
+        maps voter kwargs to a particular task id.
 
     task_id_to_decider_kwargs : dict
-        A dictionary with keys of type obj corresponding to transformer ids
+        A dictionary with keys of type obj corresponding to task ids
         and values of type obj corresponding to a decider kwargs. This dictionary
-        thus maps decider kwargs to a particular transformer id.
+        thus maps decider kwargs to a particular task id.
 
     task_id_to_bag_id_to_voter_data_idx : dict
         A nested dictionary with outer keys of type obj corresponding to task ids
@@ -158,11 +158,11 @@ class ProgressiveLearner(BaseProgressiveLearner):
         self.task_id_to_transformer_id_to_voters = {}
         self.task_id_to_decider = {}
 
-        self.transformer_id_to_voter_class = {}
-        self.transformer_id_to_voter_kwargs = {}
-
         self.task_id_to_decider_class = {}
         self.task_id_to_decider_kwargs = {}
+
+        self.task_id_to_voter_class = {}
+        self.task_id_to_voter_kwargs = {}
 
         self.task_id_to_bag_id_to_voter_data_idx = {}
         self.task_id_to_decider_idx = {}
@@ -239,8 +239,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_data_idx=None,
         transformer_class=None,
         transformer_kwargs=None,
-        default_voter_class=None,
-        default_voter_kwargs=None,
     ):
 
         if transformer_id is None:
@@ -298,9 +296,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 transformer_id, transformer_class(**transformer_kwargs).fit(X, y)
             )
 
-        self.transformer_id_to_voter_class[transformer_id] = default_voter_class
-        self.transformer_id_to_voter_kwargs[transformer_id] = default_voter_kwargs
-
     def set_voter(
         self,
         transformer_id,
@@ -319,10 +314,10 @@ class ProgressiveLearner(BaseProgressiveLearner):
 
         if voter_class is None:
             if (
-                transformer_id in list(self.transformer_id_to_voter_class.keys())
-                and self.transformer_id_to_voter_class[transformer_id] is not None
+                task_id in list(self.task_id_to_voter_class.keys())
+                and self.task_id_to_voter_class[task_id] is not None
             ):
-                voter_class = self.transformer_id_to_voter_class[transformer_id]
+                voter_class = self.task_id_to_voter_class[task_id]
             elif self.default_voter_class is not None:
                 voter_class = self.default_voter_class
             else:
@@ -334,10 +329,10 @@ class ProgressiveLearner(BaseProgressiveLearner):
 
         if voter_kwargs is None:
             if (
-                transformer_id in list(self.transformer_id_to_voter_kwargs.keys())
-                and self.transformer_id_to_voter_kwargs[transformer_id] is not None
+                task_id in list(self.task_id_to_voter_kwargs.keys())
+                and self.task_id_to_voter_kwargs[task_id] is not None
             ):
-                voter_kwargs = self.transformer_id_to_voter_kwargs[transformer_id]
+                voter_kwargs = self.task_id_to_voter_kwargs[task_id]
             elif self.default_voter_kwargs is not None:
                 voter_kwargs = self.default_voter_kwargs
             else:
@@ -369,6 +364,9 @@ class ProgressiveLearner(BaseProgressiveLearner):
                     transformer.transform(X[voter_data_idx]), y[voter_data_idx]
                 ),
             )
+
+        self.task_id_to_voter_class[task_id] = voter_class
+        self.task_id_to_voter_kwargs[task_id] = voter_kwargs
 
     def set_decider(
         self, task_id, transformer_ids, decider_class=None, decider_kwargs=None
@@ -423,8 +421,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
         num_transformers=1,
         transformer_class=None,
         transformer_kwargs=None,
-        voter_class=None,
-        voter_kwargs=None,
         backward_task_ids=None,
     ):
         """
@@ -466,14 +462,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_kwargs : dict, default=None
             A dictionary with keys of type string and values of type obj corresponding
             to the given string kwarg. This determines the kwargs of the transformer(s)
-            being added.
-
-        voter_class : BaseVoter, default=None
-            The class of the voter(s) being added.
-
-        voter_kwargs : dict, default=None
-            A dictionary with keys of type string and values of type obj corresponding
-            to the given string kwarg. This determines the kwargs of the voter(s)
             being added.
 
         backward_task_ids : ndarray, default=None
@@ -521,8 +509,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 transformer_data_idx=transformer_data_idx,
                 transformer_class=transformer_class,
                 transformer_kwargs=transformer_kwargs,
-                default_voter_class=voter_class,
-                default_voter_kwargs=voter_kwargs,
             )
             voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
             self._append_voter_data_idx(
@@ -663,8 +649,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 num_transformers=num_transformers,
                 transformer_class=transformer_class,
                 transformer_kwargs=transformer_kwargs,
-                voter_class=voter_class,
-                voter_kwargs=voter_kwargs,
                 backward_task_ids=backward_task_ids,
             )
 
@@ -674,7 +658,12 @@ class ProgressiveLearner(BaseProgressiveLearner):
             if forward_transformer_ids
             else self.get_transformer_ids()
         ):
-            self.set_voter(transformer_id=transformer_id, task_id=task_id)
+            self.set_voter(
+                transformer_id=transformer_id,
+                task_id=task_id,
+                voter_class=voter_class,
+                voter_kwargs=voter_kwargs,
+            )
 
         # train decider of new task
         if forward_transformer_ids:
@@ -716,8 +705,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-
-        print(task_id, 'hi')
         return self.task_id_to_decider[task_id].predict(
             X, transformer_ids=transformer_ids
         )
