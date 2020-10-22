@@ -20,9 +20,9 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
     Parameters
     ----------
-    finite_sample_correction : bool
-        boolean indicating whether this voter
-        will have finite sample correction
+    kappa : float
+        coefficient for finite sample correction
+        If set to default, no finite sample correction is performed.
 
     classes : list, default=[]
         list of all possible output label values
@@ -39,8 +39,8 @@ class TreeClassificationVoter(BaseClassificationVoter):
         the uniform posterior associated with the
     """
 
-    def __init__(self, finite_sample_correction=False, classes=[]):
-        self.finite_sample_correction = finite_sample_correction
+    def __init__(self, kappa=np.inf, classes=[]):
+        self.kappa = kappa
         self.classes = classes
 
     def fit(self, X, y):
@@ -82,10 +82,10 @@ class TreeClassificationVoter(BaseClassificationVoter):
             ]
             posteriors = np.nan_to_num(np.array(class_counts) / np.sum(class_counts))
 
-            if self.finite_sample_correction:
-                posteriors = self._finite_sample_correction(
-                    posteriors, len(idxs_in_leaf), num_classes
-                )
+            
+            posteriors = self._finite_sample_correction(
+                posteriors, len(idxs_in_leaf), kappa
+            )
 
             self.leaf_to_posterior_[leaf_id] = posteriors
 
@@ -149,7 +149,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         return np.argmax(self.predict_proba(X), axis=1)
 
     def _finite_sample_correction(
-        self, posteriors, num_points_in_partition, num_classes
+        self, posteriors, num_points_in_partition, kappa
     ):
         """
         Encourage posteriors to approach uniform when there is low data through a finite sample correction.
@@ -161,15 +161,15 @@ class TreeClassificationVoter(BaseClassificationVoter):
             posterior of each class for each sample
         num_points_in_partition : int
             number of samples in this particular transformation
-        num_classes : int
-            number of classes or labels
+        kappa : float
+            coefficient for finite sample correction
 
         Returns
         -------
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        correction_constant = 1 / (num_classes * num_points_in_partition)
+        correction_constant = 1 / (kappa * num_points_in_partition)
 
         zero_posterior_idxs = np.where(posteriors == 0)[0]
         posteriors[zero_posterior_idxs] = correction_constant
