@@ -148,7 +148,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         """
         return np.argmax(self.predict_proba(X), axis=1)
 
-    def _finite_sample_correction(posteriors, num_points_in_partition, num_classes):
+    def _finite_sample_correction(self, posteriors, num_points_in_partition, num_classes):
         """
         Encourage posteriors to approach uniform when there is low data through a finite sample correction.
 
