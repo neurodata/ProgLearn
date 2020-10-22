@@ -54,9 +54,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             default_transformer_class=TreeClassificationTransformer,
             default_transformer_kwargs={},
             default_voter_class=TreeClassificationVoter,
-            default_voter_kwargs={
-                "kappa": default_kappa
-            },
+            default_voter_kwargs={"kappa": default_kappa},
             default_decider_class=SimpleArgmaxAverage,
             default_decider_kwargs={},
         )
@@ -239,7 +237,7 @@ class UncertaintyForest:
         The number of trees in the UncertaintyForest
 
     kappa : float, default=np.inf
-        The coefficient for finite sample correction. 
+        The coefficient for finite sample correction.
         If set to the default value, finite sample correction is not performed.
 
     max_depth : int, default=30

@@ -82,7 +82,6 @@ class TreeClassificationVoter(BaseClassificationVoter):
             ]
             posteriors = np.nan_to_num(np.array(class_counts) / np.sum(class_counts))
 
-            
             posteriors = self._finite_sample_correction(
                 posteriors, len(idxs_in_leaf), kappa
             )
@@ -148,9 +147,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         """
         return np.argmax(self.predict_proba(X), axis=1)
 
-    def _finite_sample_correction(
-        self, posteriors, num_points_in_partition, kappa
-    ):
+    def _finite_sample_correction(self, posteriors, num_points_in_partition, kappa):
         """
         Encourage posteriors to approach uniform when there is low data through a finite sample correction.
 
