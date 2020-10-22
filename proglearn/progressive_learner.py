@@ -223,11 +223,13 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 transformer_voter_decider_split[2],
             ]
             if np.sum(split) > 1:
-                return [np.random.choice(ra, int(len(ra) * p)) for p in split]
+                return [
+                    np.random.choice(ra, int(len(ra) * p), replace=False) for p in split
+                ]
             else:
-                first_idx = np.random.choice(ra, int(len(ra) * split[0]))
+                first_idx = np.random.choice(ra, int(len(ra) * split[0]), replace=False)
                 second_idx = np.random.choice(
-                    np.delete(ra, first_idx), int(len(ra) * split[1])
+                    np.delete(ra, first_idx), int(len(ra) * split[1]), replace=False
                 )
                 return first_idx, second_idx
 
@@ -512,7 +514,9 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 n = None
             if n is not None:
                 transformer_data_idx = np.random.choice(
-                    transformer_voter_data_idx, int(transformer_data_proportion * n)
+                    transformer_voter_data_idx,
+                    int(transformer_data_proportion * n),
+                    replace=False,
                 )
             else:
                 transformer_data_idx = None
