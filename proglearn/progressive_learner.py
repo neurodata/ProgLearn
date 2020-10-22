@@ -716,6 +716,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
+
+        print(task_id, 'hi')
         return self.task_id_to_decider[task_id].predict(
             X, transformer_ids=transformer_ids
         )

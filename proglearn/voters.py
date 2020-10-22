@@ -120,6 +120,10 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
         votes_per_example = np.array(votes_per_example)
 
+        print(self.missing_label_indices_,'missing')
+        print(votes_per_example.shape)
+        print(self.classes, 'all classes')
+
         if len(self.missing_label_indices_) > 0:
             for i in self.missing_label_indices_:
                 new_col = np.zeros(votes_per_example.shape[0])
