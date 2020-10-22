@@ -13,6 +13,7 @@ def generate_spirals(
 
     Parameters
     ----------
+    
     n_samples : int
         Total number of points divided among the four
         clusters with equal probability.
@@ -30,6 +31,7 @@ def generate_spirals(
 
     Returns
     -------
+
     X : array of shape [n_samples, 2]
         The generated samples.
     y : array of shape [n_samples]
