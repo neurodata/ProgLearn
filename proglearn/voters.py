@@ -3,7 +3,8 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
+from scipy.stats import multivariate_normal
+from sklearn.neighbors import KNeighborsClassifier, KernelDensity
 from sklearn.utils.validation import (
     check_X_y,
     check_array,
@@ -43,7 +44,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         self.finite_sample_correction = finite_sample_correction
         self.classes = classes
 
-    def fit(self, X, y):
+    def fit(self, X, y, transformer):
         """
         Fits transformed data X given corresponding class labels y.
 
@@ -74,6 +75,9 @@ class TreeClassificationVoter(BaseClassificationVoter):
         self.uniform_posterior_ = np.ones(num_classes) / num_classes
 
         self.leaf_to_posterior_ = {}
+        
+        self.transformer_ = transformer
+        X = self.transformer_.transform(X)
 
         for leaf_id in np.unique(X):
             idxs_in_leaf = np.where(X == leaf_id)[0]
@@ -112,7 +116,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         """
         check_is_fitted(self)
         votes_per_example = []
-        for x in X:
+        for x in self.transformer_.transform(X):
             if x in list(self.leaf_to_posterior_.keys()):
                 votes_per_example.append(self.leaf_to_posterior_[x])
             else:
@@ -175,6 +179,113 @@ class TreeClassificationVoter(BaseClassificationVoter):
         posteriors /= sum(posteriors)
 
         return posteriors
+    
+class KDTClassificationVoter(BaseClassificationVoter):
+    def __init__(self, classes=[]):
+        """
+        Doc strings here.
+        """
+        self.classes = classes
+        
+    def fit(self, X, y, transformer):
+        check_classification_targets(y)
+        _, y = np.unique(y, return_inverse = True)
+        
+        num_fit_classes = len(np.unique(y))
+        self.missing_label_indices_ = []
+
+        if np.asarray(self.classes).size != 0 and num_fit_classes < len(self.classes):
+            for label in self.classes:
+                if label not in np.unique(y):
+                    self.missing_label_indices_.append(label)
+        
+        polytope_ids = transformer.transform(X)
+        
+        #an array of all of the X-values of the class-wise means in each leaf
+        self.polytope_means_X = []
+
+        #an array of all of the y-values (i.e. class values) of the class-wise means in each leaf
+        self.polytope_means_y = []
+
+        #an array of all of the number of points that comprise the means in each leaf
+        self.polytope_means_weight = []
+
+        #an array of all of the average variances of the points in each leaf corresponding to 
+        #a single class from the class-wise mean in that leaf
+        self.polytope_means_cov = []
+        
+        for polytope_value in np.unique(polytope_ids, axis = 0):
+            for y_val in np.unique(y):
+                idxs_in_polytope_of_class = np.where((y == y_val) & (polytope_ids == polytope_value))[0]
+                if len(idxs_in_polytope_of_class) > 1:
+                    mean = np.mean(X[idxs_in_polytope_of_class], axis = 0)
+                    self.polytope_means_X.append(mean)
+                    #we already know the y value, so just append it 
+                    self.polytope_means_y.append(y_val)
+                    #compute the number of points in that leaf corresponding to that y value
+                    #and append to the aggregate array
+                    self.polytope_means_weight.append(len(idxs_in_polytope_of_class))
+                    #compute the distances of all the points in that leaf corresponding to that y value
+                    #from the mean X-value of the points in that leaf corresponding to that y value
+                    #compute the covariance as the average distance of the class-wise points in that leaf 
+                    #and append to the aggregate array
+                    cov = np.mean((X[idxs_in_polytope_of_class] - mean) ** 2, axis = 0)
+                    self.polytope_means_cov.append(np.eye(len(cov)) * cov)
+        return self
+                    
+    def predict_proba(self, X, likelihood = True):
+        check_is_fitted(self)
+        y_vals = np.unique(self.polytope_means_y)
+        votes_per_example = np.zeros((len(X), len(y_vals)))
+        
+        def compute_pdf(X, polytope_mean_id):
+            polytope_mean_X = self.polytope_means_X[polytope_mean_id]
+            polytope_mean_y = self.polytope_means_y[polytope_mean_id]
+            polytope_mean_weight = self.polytope_means_weight[polytope_mean_id]
+            covs_of_class = np.array(self.polytope_means_cov)[np.where(polytope_mean_y ==self.polytope_means_y)[0]]
+            weights_of_class = np.array(self.polytope_means_weight)[np.where(polytope_mean_y ==self.polytope_means_y)[0]]
+            polytope_mean_cov = np.average(covs_of_class, weights = weights_of_class, axis = 0)
+            var = multivariate_normal(mean=polytope_mean_X, cov=polytope_mean_cov, allow_singular=True)
+            return var.pdf(X) * polytope_mean_weight / np.sum(weights_of_class)
+        
+        likelihoods = np.array([compute_pdf(X, polytope_mean_id) for polytope_mean_id in range(len(self.polytope_means_X))])
+        for polytope_id in range(len(likelihoods)):
+            votes_per_example[:, self.polytope_means_y[polytope_id]] += likelihoods[polytope_id]
+            
+        if len(self.missing_label_indices_) > 0:
+            for i in self.missing_label_indices_:
+                new_col = np.zeros(votes_per_example.shape[0])
+                votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
+                
+        if not likelihood:
+            #normalize the posteriors per example so the posterior per example
+            #sums to 1
+            sum_per_example = np.sum(votes_per_example, axis = 1)
+            for y_val in range(np.shape(votes_per_example)[1]):
+                votes_per_example[:, y_val] /= sum_per_example
+                                
+        return votes_per_example
+    
+    def predict(self, X):
+        """
+        Returns the predicted class labels for data X.
+
+        Parameters
+        ----------
+        X : array of shape [n_samples, n_features]
+            the transformed input data
+
+        Returns
+        -------
+        y_hat : ndarray of shape [n_samples]
+            predicted class label per example
+
+        Raises
+        ------
+        NotFittedError
+            When the model is not fitted.
+        """
+        return np.argmax(self.predict_proba(X), axis=1)
 
 
 class KNNClassificationVoter(BaseClassificationVoter):

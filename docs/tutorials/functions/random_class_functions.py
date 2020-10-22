@@ -22,7 +22,7 @@ rcParams.update({"figure.autolayout": True})
 from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import TreeClassificationTransformer
-from proglearn.voters import TreeClassificationVoter
+from proglearn.voters import KDTClassificationVoter
 
 # The method randomly selects training and testing subsets from the original datasets,
 # making cross-validation on program results possible.
@@ -85,8 +85,8 @@ def L2_experiment(
     # choose Uncertainty Forest as transformer
     progressive_learner = ProgressiveLearner(
         default_transformer_class=TreeClassificationTransformer,
-        default_transformer_kwargs={"kwargs": {"max_depth": 30}},
-        default_voter_class=TreeClassificationVoter,
+        default_transformer_kwargs={"kwargs": {"max_depth": 10}},
+        default_voter_class=KDTClassificationVoter,
         default_voter_kwargs={},
         default_decider_class=SimpleArgmaxAverage,
     )

@@ -4,7 +4,7 @@ import random
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from proglearn.forest import LifelongClassificationForest, UncertaintyForest
+from proglearn.forest import LifelongClassificationForest, LifelongClassificationKDF, UncertaintyForest, KDF
 from proglearn.sims import *
 
 
@@ -46,8 +46,8 @@ def experiment(n_xor, n_nxor, n_test, reps, n_trees, max_depth, acorn=None):
     for i in range(reps):
 
         # initialize learners
-        progressive_learner = LifelongClassificationForest(n_estimators=n_trees)
-        uf = UncertaintyForest(n_estimators=2 * n_trees)
+        progressive_learner = LifelongClassificationKDF(default_n_estimators=n_trees)
+        uf = KDF(n_estimators=2 * n_trees)
 
         # source data
         xor, label_xor = generate_gaussian_parity(n_xor, angle_params=0)

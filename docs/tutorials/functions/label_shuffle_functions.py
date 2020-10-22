@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import sys
 
-from proglearn.forest import LifelongClassificationForest
+from proglearn.forest import LifelongClassificationKDF
 
 
 def run_parallel_exp(data_x, data_y, n_trees, num_points_per_task, slot=0, shift=1):
@@ -150,7 +150,7 @@ def label_shuffle_experiment(
     accuracies_across_tasks = []
 
     # Declare the progressive learner model (L2F), with ntrees as a parameter
-    learner = LifelongClassificationForest(n_estimators=ntrees)
+    learner = LifelongClassificationKDF(default_n_estimators=ntrees, default_max_depth=10)
 
     for task_ii in range(10):
         print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))

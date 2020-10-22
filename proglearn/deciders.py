@@ -128,17 +128,12 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             if transformer_ids is not None
             else self.transformer_id_to_voters_.keys()
         ):
-            check_is_fitted(self)
             vote_per_bag_id = []
             for bag_id in range(
                 len(self.transformer_id_to_transformers_[transformer_id])
             ):
-                transformer = self.transformer_id_to_transformers_[transformer_id][
-                    bag_id
-                ]
-                X_transformed = transformer.transform(X)
                 voter = self.transformer_id_to_voters_[transformer_id][bag_id]
-                vote = voter.predict_proba(X_transformed)
+                vote = voter.predict_proba(X)
                 vote_per_bag_id.append(vote)
             vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0))
         return np.mean(vote_per_transformer_id, axis=0)

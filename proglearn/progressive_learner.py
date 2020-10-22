@@ -366,7 +366,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 transformer_id,
                 task_id,
                 voter_class(**voter_kwargs).fit(
-                    transformer.transform(X[voter_data_idx]), y[voter_data_idx]
+                    X[voter_data_idx], y[voter_data_idx], transformer
                 ),
             )
 

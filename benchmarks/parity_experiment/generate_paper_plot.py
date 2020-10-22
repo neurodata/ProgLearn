@@ -72,8 +72,8 @@ ax.axis("off")
 ######################
 mean_error = unpickle("plots/mean_xor_nxor.pickle")
 
-n_xor = (100 * np.arange(0.5, 7.25, step=0.25)).astype(int)
-n_nxor = (100 * np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_xor = (100*np.arange(1.0, 7.50, step=0.50)).astype(int)
+n_nxor = (100*np.arange(1.0, 7.50, step=0.50)).astype(int)
 
 n1s = n_xor
 n2s = n_nxor
@@ -239,10 +239,10 @@ ax1.plot(
 
 ax1.set_ylabel("Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
 ax1.legend(loc="upper left", fontsize=20, frameon=False)
-ax1.set_ylim(0.05, 2.52)
+ax1.set_ylim(0.05, 1.2)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
-ax1.set_yticks([0.05, 1, 2.5])
+ax1.set_yticks([0.05, 1, 1.2])
 ax1.set_xticks([250, 750, 1500])
 # ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 right_side = ax1.spines["right"]
@@ -281,10 +281,10 @@ ax1.plot(
 
 ax1.set_ylabel("Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
 # ax1.legend(loc='upper left', fontsize=20, frameon=False)
-ax1.set_ylim(0.2, 1.2)
+ax1.set_ylim(0.1, 1.2)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
-ax1.set_yticks([0.2, 0.6, 1, 1.2])
+ax1.set_yticks([0.1, 1, 1.2])
 ax1.set_xticks([250, 750, 1500])
 # ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 right_side = ax1.spines["right"]
@@ -321,28 +321,16 @@ ax = fig.add_subplot(gs[15:21, 18:24])
 
 with open("plots/mean_sample_te.pickle", "rb") as f:
     te = pickle.load(f)
-task2_sample_sweep = (2 ** np.arange(np.log2(60), np.log2(5010) + 1, 0.25)).astype(
-    "int"
-)
+task2_sample_sweep = (2**np.arange(np.log2(110), np.log2(5010)+1, .50)).astype('int')
 
 ax.plot(task2_sample_sweep, te, c="r", linewidth=3)
-ax.hlines(1, 60, 5200, colors="gray", linestyles="dashed", linewidth=1.5)
-ax.set_xscale("log")
-ax.set_xticks([])
-ax.set_yticks([0.98, 1, 1.02, 1.04])
+ax.hlines(1, np.min(task2_sample_sweep),np.max(task2_sample_sweep), colors='gray', linestyles='dashed',linewidth=1.5)
+ax.set_xscale('log')
 ax.tick_params(labelsize=26)
 ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-ax.text(50, np.mean(ax.get_ylim()) - 0.042, "50", fontsize=labelsize)
-ax.text(500, np.mean(ax.get_ylim()) - 0.042, "500", fontsize=labelsize)
-ax.text(5000, np.mean(ax.get_ylim()) - 0.042, "5000", fontsize=labelsize)
 
-ax.text(
-    50,
-    np.mean(ax.get_ylim()) - 0.047,
-    "Number of $25^\circ$-RXOR Training Samples",
-    fontsize=fontsize - 4,
-)
-ax.set_ylabel("Backward Transfer Efficiency (XOR)", fontsize=fontsize)
+ax.set_xlabel("Number of $25^\circ$-RXOR Training Samples", fontsize=24)
+ax.set_ylabel('Backward Transfer Efficiency (XOR)',fontsize=24)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
