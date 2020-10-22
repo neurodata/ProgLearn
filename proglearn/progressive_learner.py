@@ -229,7 +229,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
             else:
                 first_idx = np.random.choice(ra, int(len(ra) * split[0]), replace=False)
                 second_idx = np.random.choice(
-                    np.delete(ra, first_idx), int(len(ra) * split[1], replace=False)
+                    np.delete(ra, first_idx), int(len(ra) * split[1]), replace=False
                 )
                 return first_idx, second_idx
 
