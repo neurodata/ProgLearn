@@ -40,6 +40,6 @@ class TestLifelongClassificationNetwork:
         # decider
         assert len(l2n.pl_.default_decider_kwargs) == 0
 
-    def test_correct_default_transformer_voter_decider_split(self):
+    def test_correct_default_network_construction_proportion(self):
         l2n = LifelongClassificationNetwork(keras.Sequential())
-        assert l2n.default_transformer_voter_decider_split == [0.67, 0.33, 0]
+        assert l2n.default_network_construction_proportion == 0.67
