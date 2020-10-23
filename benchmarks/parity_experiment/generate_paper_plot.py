@@ -92,23 +92,6 @@ labelsize = 28
 colors = sns.color_palette("Set1", n_colors=2)
 
 ax1 = fig.add_subplot(gs[7:13, 2:8])
-# for i, algo in enumerate(algorithms):
-ax1.plot(
-    n1s,
-    mean_error[0, : len(n1s)],
-    label=algorithms[0],
-    c=colors[1],
-    ls=ls[np.sum(0 > 1).astype(int)],
-    lw=3,
-)
-ax1.plot(
-    ns[len(n1s) :],
-    mean_error[2, len(n1s) :],
-    label=algorithms[1],
-    c=colors[1],
-    ls=ls[1],
-    lw=3,
-)
 
 ax1.plot(
     ns,
@@ -134,7 +117,7 @@ ax1.legend(loc="upper left", fontsize=20, frameon=False)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.1, 0.3, 0.5])
-ax1.set_xticks([250, 750, 1500])
+ax1.set_xticks([50, 750, 1500])
 # ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 ax1.set_title("XOR", fontsize=30)
 
@@ -155,29 +138,12 @@ TASK1 = "XOR"
 TASK2 = "N-XOR"
 
 ax1 = fig.add_subplot(gs[7:13, 10:16])
-ax1.plot(
-    n1s,
-    mean_error[0, : len(n1s)],
-    label=algorithms[0],
-    c=colors[1],
-    ls=ls[np.sum(0 > 1).astype(int)],
-    lw=3,
-)
-ax1.plot(
-    ns[len(n1s) :],
-    mean_error[2, len(n1s) :],
-    label=algorithms[1],
-    c=colors[1],
-    ls=ls[1],
-    lw=3,
-)
 
 ax1.plot(
     ns[len(n1s) :],
     mean_error[3, len(n1s) :],
     label=algorithms[2],
     c=colors[0],
-    ls=ls[1],
     lw=3,
 )
 ax1.plot(
@@ -185,7 +151,6 @@ ax1.plot(
     mean_error[5, len(n1s) :],
     label=algorithms[3],
     c="g",
-    ls=ls[1],
     lw=3,
 )
 
@@ -196,7 +161,7 @@ ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.1, 0.5, 0.9])
 # ax1.set_yticks([0.15, 0.2])
-ax1.set_xticks([250, 750, 1500])
+ax1.set_xticks([50, 750, 1500])
 # ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
 # ax1.set_ylim(0.11, 0.21)
@@ -243,7 +208,7 @@ ax1.set_ylim(0.05, 2.52)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.05, 1, 2.5])
-ax1.set_xticks([250, 750, 1500])
+ax1.set_xticks([50, 750, 1500])
 # ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 right_side = ax1.spines["right"]
 right_side.set_visible(False)
@@ -270,13 +235,12 @@ ax1.plot(
     mean_te[1, len(n1s) :],
     label=algorithms[1],
     c=colors[0],
-    ls=ls[1],
     lw=3,
 )
 
 ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
 ax1.plot(
-    ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
+    ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", lw=3
 )
 
 ax1.set_ylabel("Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
@@ -285,7 +249,7 @@ ax1.set_ylim(0.2, 1.2)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.2, 0.6, 1, 1.2])
-ax1.set_xticks([250, 750, 1500])
+ax1.set_xticks([50, 750, 1500])
 # ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 right_side = ax1.spines["right"]
 right_side.set_visible(False)
