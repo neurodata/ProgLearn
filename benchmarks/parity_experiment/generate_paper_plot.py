@@ -80,7 +80,7 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls = ["-", "--"]
-algorithms = ["XOR Forest", "N-XOR Forest", "Lifelong Forest", "Naive Forest"]
+algorithms = ["XOR Forest", "N-XOR Forest", "Progressive Learning Forest (PLF)", "Random Forest (RF)"]
 
 
 TASK1 = "XOR"
@@ -132,7 +132,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 #######################
 mean_error = unpickle("plots/mean_xor_nxor.pickle")
 
-algorithms = ["XOR Forest", "N-XOR Forest", "Lifelong Forest", "Naive Forest"]
+algorithms = ["XOR Forest", "N-XOR Forest", "Progressive Learning Forest (PLF)", "Random Forest (RF)"]
 
 TASK1 = "XOR"
 TASK2 = "N-XOR"
@@ -179,7 +179,7 @@ ax1.set_title("N-XOR", fontsize=30)
 
 ##################
 mean_te = unpickle("plots/mean_te_xor_nxor.pickle")
-algorithms = ["Lifelong BTE", "Lifelong FTE", "Naive BTE", "Naive FTE"]
+algorithms = ["PLF BTE", "PLF FTE", "RF BTE", "RF FTE"]
 
 TASK1 = "XOR"
 TASK2 = "N-XOR"
