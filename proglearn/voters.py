@@ -61,13 +61,13 @@ class TreeClassificationVoter(BaseClassificationVoter):
         """
         check_classification_targets(y)
 
-        _, y = np.unique(y, return_inverse=True)
-        num_fit_classes = len(np.unique(y))
+        _, y_idxs = np.unique(y, return_inverse=True)
+        num_fit_classes = len(np.unique(y_idxs))
         self.missing_label_indices_ = []
 
         if np.asarray(self.classes).size != 0 and num_fit_classes < len(self.classes):
             for label in self.classes:
-                if label not in np.unique(y):
+                if label not in np.unique(y_idxs):
                     self.missing_label_indices_.append(label)
 
         num_classes = num_fit_classes + len(self.missing_label_indices_)
