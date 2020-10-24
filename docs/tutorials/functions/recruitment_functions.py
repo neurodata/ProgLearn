@@ -8,135 +8,87 @@ from proglearn.voters import TreeClassificationVoter
 from proglearn.deciders import SimpleArgmaxAverage
 
 
-class PosteriorsByTree(SimpleArgmaxAverage):
-    """Variation on the decider class SimpleArgmaxAverage to allow for return of posterior probabilities by tree.
+
+class ClassificationProgressiveLearner_ByTree(ClassificationProgressiveLearner):
+    """
+    Variation on the progressive learner class ClassificationProgressiveLearner 
+    to allow for return of posterior probabilities by tree.
     """
     
-    def predict_proba(self, X, transformer_ids=None):
+    def predict_proba(self, X, task_id, transformer_ids=None):
         """
+        Calls predict_proba_tree for the decider class. Works in conjunction with
+        class PosteriorsByTree.
+        """
+        decider = self.task_id_to_decider[task_id]
+        return self.task_id_to_decider[task_id].predict_proba_tree(
+            X, transformer_ids=transformer_ids
+        )
+    
+
+class PosteriorsByTree(SimpleArgmaxAverage):
+    """Variation on the decider class SimpleArgmaxAverage to allow for return of 
+    posterior probabilities by tree.
+    """
+    
+    def predict_proba_tree(self, X, transformer_ids=None):
+        """
+        Predicts posterior probabilities by tree. 
+        
+        Returns array of dimension (num_transformers*len(transformer_ids)) 
+        containing posterior probabilities.
         """
         #vote_per_transformer_id = []
         vote_per_alltrees = []
         for transformer_id in (
             transformer_ids
             if transformer_ids is not None
-            else self.transformer_id_to_voters.keys()
+            else self.transformer_id_to_voters_.keys()
         ):
-            if not self.is_fitted():
-                msg = (
-                    "This %(name)s instance is not fitted yet. Call 'fit' with "
-                    "appropriate arguments before using this decider."
-                )
-                raise NotFittedError(msg % {"name": type(self).__name__})
-
             #vote_per_bag_id = []
-            for bag_id in range(len(self.transformer_id_to_transformers[transformer_id])):
-                transformer = self.transformer_id_to_transformers[transformer_id][bag_id]
+            for bag_id in range(
+                len(self.transformer_id_to_transformers_[transformer_id])
+            ):
+                transformer = self.transformer_id_to_transformers_[transformer_id][
+                    bag_id
+                ]
                 X_transformed = transformer.transform(X)
-                voter = self.transformer_id_to_voters[transformer_id][bag_id]
+                voter = self.transformer_id_to_voters_[transformer_id][bag_id]
                 vote = voter.predict_proba(X_transformed)
                 #vote_per_bag_id.append(vote) #posteriors per tree: 50 x (37,10)
                 vote_per_alltrees.append(vote)
             #vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0)) #avg over each bag (forest)
             #saa = np.mean(vote_per_transformer_id, axis=0) # original simpleargmaxaverage output
         return vote_per_alltrees
-    
-    def predict_probaORIG(self, X, transformer_ids=None):
-        """
-        Predicts posterior probabilities per input example.
-
-        Loops through each transformer and bag of transformers.
-        Performs a transformation of the input data with the transformer.
-        Gets a voter to map the transformed input data into a posterior distribution.
-        Gets the mean vote per bagging component and append it to a vote per transformer id.
-        Returns the aggregate average vote.
-
-        Parameters
-        ----------
-        X : ndarray
-            Input data matrix.
-
-        transformer_ids : list, default=None
-            A list with specific transformer ids that will be used for inference. Defaults
-            to using all transformers if no transformer ids are given.
-
-        Returns
-        -------
-        y_proba_hat : ndarray of shape [n_samples, n_classes]
-            posteriors per example
-
-
-        Raises
-        ------
-        NotFittedError
-            When the model is not fitted.
-        """
-        #check_is_fitted(self)
-        vote_per_transformer_id = []
-        for transformer_id in (
-            transformer_ids
-            if transformer_ids is not None
-            else self.transformer_id_to_voters.keys()
-        ):
-            #check_is_fitted(self)
-            vote_per_bag_id = []
-            for bag_id in range(len(self.transformer_id_to_transformers[transformer_id])):
-                transformer = self.transformer_id_to_transformers[transformer_id][bag_id]
-                X_transformed = transformer.transform(X)
-                voter = self.transformer_id_to_voters[transformer_id][bag_id]
-                vote = voter.predict_proba(X_transformed)
-                vote_per_bag_id.append(vote)
-            vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0))
-        return np.mean(vote_per_transformer_id, axis=0)
-    
-    def predict(self, X, transformer_ids=None):
-        """
-        Predicts the most likely class per input example.
-
-        Uses the predict_proba method to get the mean vote per id.
-        Returns the class with the highest vote.
-
-        Parameters
-        ----------
-        X : ndarray
-            Input data matrix.
-
-        transformer_ids : list, default=None
-            A list with all transformer ids. Defaults to None if no transformer ids
-            are given.
-
-        Returns
-        -------
-        y_hat : ndarray of shape [n_samples]
-            predicted class label per example
-
-        Raises
-        ------
-        NotFittedError
-            When the model is not fitted.
-        """
-        vote_overall = self.predict_probaORIG(X, transformer_ids=transformer_ids)
-        return self.classes[np.argmax(vote_overall, axis=1)]
 
 
 def sort_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
+    """
+    Sorts data into training and testing data sets for each task.
+    """
+    
+    # get data and indices
     x = data_x.copy()
     y = data_y.copy()
     idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
+    
+    # initialize lists
     train_x_across_task = []
     train_y_across_task = []
     test_x_across_task = []
     test_y_across_task = []
-
+    
+    # calculate amount of samples per task
     batch_per_task=5000//num_points_per_task
     sample_per_class = num_points_per_task//total_task
     test_data_slot=100//batch_per_task
-
+    
+    # sort data into batches per class
     for task in range(total_task):
         for batch in range(batch_per_task):
             for class_no in range(task*10,(task+1)*10,1):
                 indx = np.roll(idx[class_no],(shift-1)*100)
-                
+                # if first batch, reset arrays with new data ; otherwise, concatenate arrays
                 if batch==0 and class_no==task*10:
                     train_x = x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]
                     train_y = y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]
@@ -148,6 +100,7 @@ def sort_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
                     test_x = np.concatenate((test_x, x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]), axis=0)
                     test_y = np.concatenate((test_y, y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]), axis=0)
         
+        # append data to lists
         train_x_across_task.append(train_x)
         train_y_across_task.append(train_y)
         test_x_across_task.append(test_x)
@@ -156,10 +109,10 @@ def sort_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
     return train_x_across_task, train_y_across_task, test_x_across_task, test_y_across_task
 
 
-def experiment(data_x, data_y, ntrees, reps, estimation_set, num_points_per_task, num_points_per_forest, task_10_sample):
-    
-    # sort data
-    train_x_across_task, train_y_across_task, test_x_across_task, test_y_across_task = sort_data(data_x,data_y,num_points_per_task)
+def experiment(train_x_across_task, train_y_across_task, test_x_across_task, test_y_across_task, ntrees, reps, estimation_set, num_points_per_task, num_points_per_forest, task_10_sample):
+    """
+    Run the recruitment experiment.
+    """
     
     # create matrices for storing values
     hybrid = np.zeros(reps,dtype=float)
@@ -181,7 +134,7 @@ def experiment(data_x, data_y, ntrees, reps, estimation_set, num_points_per_task
             print("doing {} samples for {} th rep".format(ns,rep))
 
             # initiate lifelong learner
-            l2f = ClassificationProgressiveLearner(
+            l2f = ClassificationProgressiveLearner_ByTree(
                 default_transformer_class=TreeClassificationTransformer,
                 default_transformer_kwargs={},
                 default_voter_class=TreeClassificationVoter,
@@ -199,49 +152,37 @@ def experiment(data_x, data_y, ntrees, reps, estimation_set, num_points_per_task
                 cur_X = train_x_across_task[task][indx]
                 cur_y = train_y_across_task[task][indx]
 
-                # if task number is 0, add task; else, add transformer for task
-                if task == 0:
-                    l2f.add_task(
-                        cur_X, 
-                        cur_y,
-                        num_transformers = ntrees,
-                        #transformer_kwargs={"kwargs":{"max_depth": ceil(log2(num_points_per_forest))}},
-                        voter_kwargs={"classes": np.unique(cur_y),"finite_sample_correction": False},
-                        decider_kwargs={"classes": np.unique(cur_y)}
-                    )
-                else:
-                    l2f.add_transformer(
-                        cur_X, 
-                        cur_y,
-                        num_transformers = ntrees,
-                        #transformer_kwargs={"kwargs":{"max_depth": ceil(log2(estimation_sample_no))}},
-                        voter_kwargs={"classes": np.unique(cur_y),"finite_sample_correction": False},
-                        #decider_kwargs={"classes": np.unique(cur_y)}
-                    )
+                l2f.add_task(
+                    cur_X, 
+                    cur_y,
+                    num_transformers = ntrees,
+                    #transformer_kwargs={"kwargs":{"max_depth": ceil(log2(num_points_per_forest))}},
+                    voter_kwargs={"classes": np.unique(cur_y),"finite_sample_correction": False},
+                    decider_kwargs={"classes": np.unique(cur_y)}
+                )
 
             # train l2f on 10th task
             task_10_train_indx = np.random.choice(num_points_per_task, ns, replace=False)
             cur_X = train_x_across_task[9][task_10_train_indx[:estimation_sample_no]]
             cur_y = train_y_across_task[9][task_10_train_indx[:estimation_sample_no]]
-            l2f.add_transformer(
+
+            l2f.add_task(
                 cur_X, 
                 cur_y,
                 num_transformers = ntrees,
                 #transformer_kwargs={"kwargs":{"max_depth": ceil(log2(estimation_sample_no))}},
                 voter_kwargs={"classes": np.unique(cur_y),"finite_sample_correction": False},
-                #decider_kwargs={"classes": np.unique(cur_y)}
+                decider_kwargs={"classes": np.unique(cur_y)}
             )
 
-            ## L2F validation
+            # L2F validation
             # get posteriors for l2f on first 9 tasks
             # want posteriors_across_trees to have dimension 9*ntrees, validation_sample_no, 10
             posteriors_across_trees = l2f.predict_proba(
                 train_x_across_task[9][task_10_train_indx[estimation_sample_no:]],
-                task_id=0,
+                task_id=9,
                 transformer_ids=[0,1,2,3,4,5,6,7,8]
                 )
-            if len(posteriors_across_trees) != 9*ntrees: ############################################
-                print("ERROR IN NUMBER OF TREES")
             # compare error in each tree and choose best 25/50 trees
             error_across_trees = np.zeros(9*ntrees)
             validation_target = train_y_across_task[9][task_10_train_indx[estimation_sample_no:]]
@@ -255,7 +196,7 @@ def experiment(data_x, data_y, ntrees, reps, estimation_set, num_points_per_task
             # get posteriors for l2f on only the 10th task
             posteriors_across_trees = l2f.predict_proba(
                 train_x_across_task[9][task_10_train_indx[estimation_sample_no:]],
-                task_id=0,
+                task_id=9,
                 transformer_ids=[9]
                 )
             # compare error in each tree and choose best 25 trees
@@ -269,23 +210,38 @@ def experiment(data_x, data_y, ntrees, reps, estimation_set, num_points_per_task
             ## evaluation
             # train 10th tree under each scenario: building, recruiting, hybrid, UF
             # RECRUITING
-            posteriors_across_trees = l2f.predict_proba(test_x_across_task[9],task_id=0,transformer_ids=[0,1,2,3,4,5,6,7,8])
+            posteriors_across_trees = l2f.predict_proba(
+                test_x_across_task[9],
+                task_id=9,
+                transformer_ids=[0,1,2,3,4,5,6,7,8]
+            )
             recruiting_posterior = np.mean(np.array(posteriors_across_trees)[best_50_tree],axis=0)
             res = np.argmax(recruiting_posterior,axis=1) + 90
             recruiting[rep] = 1 - np.mean(test_y_across_task[9]==res)
+            #print("recruit", 1 - np.mean(test_y_across_task[9]==res))
             # BUILDING
-            building_res = l2f.predict(test_x_across_task[9],task_id=0,transformer_ids=[0,1,2,3,4,5,6,7,8,9]) + 90
+            building_res = l2f.predict(test_x_across_task[9],task_id=9) 
             building[rep] = 1 - np.mean(test_y_across_task[9]==building_res)
+            #print("building", 1 - np.mean(test_y_across_task[9]==building_res))
             # UF
-            uf_res = l2f.predict(test_x_across_task[9],task_id=0,transformer_ids=[9]) + 90
+            uf_res = l2f.predict(test_x_across_task[9],task_id=9,transformer_ids=[9]) 
             uf[rep] = 1 - np.mean(test_y_across_task[9]==uf_res)
+            #print("uf", 1 - np.mean(test_y_across_task[9]==uf_res))
             # HYBRID
-            posteriors_across_trees_hybrid_uf = l2f.predict_proba(test_x_across_task[9],task_id=0,transformer_ids=[9])
-            hybrid_posterior_all = np.concatenate((np.array(posteriors_across_trees)[best_25_tree],np.array(posteriors_across_trees_hybrid_uf)[best_25_uf_tree]),axis=0)
+            posteriors_across_trees_hybrid_uf = l2f.predict_proba(
+                test_x_across_task[9],
+                task_id=9,
+                transformer_ids=[9]
+            )
+            hybrid_posterior_all = np.concatenate(
+                (np.array(posteriors_across_trees)[best_25_tree],np.array(posteriors_across_trees_hybrid_uf)[best_25_uf_tree]),
+                axis=0
+            )
             hybrid_posterior = np.mean(hybrid_posterior_all,axis=0)
             hybrid_res = np.argmax(hybrid_posterior,axis=1) + 90
             hybrid[rep] = 1 - np.mean(test_y_across_task[9]==hybrid_res)
-        
+            #print("hybrid", 1 - np.mean(test_y_across_task[9]==hybrid_res))
+
         print(np.mean(hybrid))
         print(np.mean(building))
         print(np.mean(recruiting))
