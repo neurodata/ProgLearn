@@ -269,7 +269,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ################################
     # Plots of Generalization Error
     ################################
-    algorithms = ["XOR Forest", "N-XOR Forest", "Progressive Learning Forest (PLF)", "Random Forest (RF)"]
+    algorithms = ["XOR Forest", "N-XOR Forest", "PLF", "RF"]
 
     fontsize=30
     labelsize=28
@@ -283,7 +283,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax1.plot(ns, mean_error[4], label=algorithms[3], c='g', ls=ls[np.sum(1 > 1).astype(int)], lw=3)
 
     ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontsize=fontsize)
-    ax1.legend(loc='upper right', fontsize=20, frameon=False)
+    ax1.legend(loc='upper left', fontsize=20, frameon=False)
     #ax1.set_ylim(0.09, 0.21)
     ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
     ax1.tick_params(labelsize=labelsize)
@@ -302,7 +302,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
 
     ##############
 
-    algorithms = ["XOR Forest", "N-XOR Forest", "Progressive Learning Forest (PLF)", "Random Forest (RF)"]
+    algorithms = ["XOR Forest", "N-XOR Forest", "PLF", "RF"]
 
     TASK1='XOR'
     TASK2='N-XOR'
@@ -313,7 +313,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax1.plot(ns[len(n1s):], mean_error[5, len(n1s):], label=algorithms[3], c='g', lw=3)
 
     ax1.set_ylabel('Generalization Error (%s)'%(TASK2), fontsize=fontsize)
-    ax1.legend(loc='upper right', fontsize=18, frameon=False)
+    ax1.legend(loc='upper left', fontsize=20, frameon=False)
     ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
     ax1.tick_params(labelsize=labelsize)
     ax1.set_xticks([50,750,1500])
