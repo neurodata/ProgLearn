@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 
-def random_forest_classifier_model(X_train, y_train, num_trees, max_depth, verbose):
+def random_forest_classifier_model(X_train, y_train, num_trees, max_depth, n_jobs, verbose):
     """
     Returns a random forest classifier model trained on data X_train and labels y_train
 
@@ -35,7 +35,7 @@ def random_forest_classifier_model(X_train, y_train, num_trees, max_depth, verbo
     """
 
     rf_model = RandomForestClassifier(
-        n_estimators=num_trees, max_depth=max_depth, verbose=verbose
+        n_estimators=num_trees, max_depth=max_depth,  n_jobs = n_jobs, verbose=verbose
     )
     rf_model.fit(X_train, y_train)
 
@@ -43,7 +43,7 @@ def random_forest_classifier_model(X_train, y_train, num_trees, max_depth, verbo
 
 
 def binary_deep_neural_network(
-    X_train, y_train, epochs, batch_size, learning_rate, validation_split, verbose
+    X_train, y_train, epochs, batch_size, learning_rate, validation_split, hidden_nodes, verbose
 ):
     """
     Returns a binary neural network model trained on data X_train and labels y_train
@@ -72,7 +72,7 @@ def binary_deep_neural_network(
     dnn_model = Sequential()
 
     dnn_model.add(Dense(X_train.shape[1], activation="relu"))
-    dnn_model.add(Dense(8, activation="relu"))
+    dnn_model.add(Dense(hidden_nodes, activation="relu"))
     dnn_model.add(Dense(units=1, activation="sigmoid"))
 
     adam_optimizer = Adam(learning_rate=learning_rate)
