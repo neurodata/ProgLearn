@@ -61,6 +61,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         """
         check_classification_targets(y)
 
+        _, y = np.unique(y, return_inverse=True)
         num_fit_classes = len(np.unique(y))
         self.missing_label_indices_ = []
 
@@ -146,9 +147,11 @@ class TreeClassificationVoter(BaseClassificationVoter):
         NotFittedError
             When the model is not fitted.
         """
-        return np.argmax(self.predict_proba(X), axis=1)
+        return self.classes[np.argmax(self.predict_proba(X), axis=1)]
 
-    def _finite_sample_correction(posteriors, num_points_in_partition, num_classes):
+    def _finite_sample_correction(
+        self, posteriors, num_points_in_partition, num_classes
+    ):
         """
         Encourage posteriors to approach uniform when there is low data through a finite sample correction.
 
