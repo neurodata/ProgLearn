@@ -1,7 +1,7 @@
-'''
+"""
 Main Author: Will LeVine 
 Corresponding Email: levinewill@icloud.com
-'''
+"""
 import numpy as np
 
 from sklearn.neighbors import KNeighborsClassifier
@@ -14,12 +14,13 @@ from sklearn.utils.validation import (
 
 from sklearn.utils.multiclass import check_classification_targets
 
-from .base import BaseVoter
+from .base import BaseClassificationVoter
 
 
-class TreeClassificationVoter(BaseVoter):
+class TreeClassificationVoter(BaseClassificationVoter):
     """
-    A class used to vote on data transformed under a tree.
+    A class used to vote on data transformed under a tree, which inherits from
+    the BaseClassificationVoter class in base.py.
 
     Attributes
     ---
@@ -31,16 +32,20 @@ class TreeClassificationVoter(BaseVoter):
     ---
     fit(X, y)
         fits tree classification to transformed data X with labels y
-    vote(X)
+    predict_proba(X)
         predicts posterior probabilities given transformed data, X, for each class
+    predict(X)
+        predicts class labels given input data X
     is_fitted()
         returns if the classifier has been fitted for this transformation yet
     _finite_sample_correction(posteriors, num_points_in_partition, num_classes)
         performs finite sample correction on input data
     """
-    def __init__(self, finite_sample_correction=False):
+
+    def __init__(self, finite_sample_correction=False, classes=[]):
         self.finite_sample_correction = finite_sample_correction
         self._is_fitted = False
+        self.classes = classes
 
     def fit(self, X, y):
         """
@@ -56,6 +61,13 @@ class TreeClassificationVoter(BaseVoter):
         check_classification_targets(y)
 
         num_classes = len(np.unique(y))
+        self.missing_label_indices = []
+
+        if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
+            for label in self.classes:
+                if label not in np.unique(y):
+                    self.missing_label_indices.append(label)
+
         self.uniform_posterior = np.ones(num_classes) / num_classes
 
         self.leaf_to_posterior = {}
@@ -78,7 +90,7 @@ class TreeClassificationVoter(BaseVoter):
 
         return self
 
-    def vote(self, X):
+    def predict_proba(self, X):
         """
         Returns the posterior probabilities of each class for data X.
 
@@ -105,7 +117,27 @@ class TreeClassificationVoter(BaseVoter):
                 votes_per_example.append(self.leaf_to_posterior[x])
             else:
                 votes_per_example.append(self.uniform_posterior)
-        return np.array(votes_per_example)
+
+        votes_per_example = np.array(votes_per_example)
+
+        if len(self.missing_label_indices) > 0:
+            for i in self.missing_label_indices:
+                new_col = np.zeros(votes_per_example.shape[0])
+                votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
+
+        return votes_per_example
+
+    def predict(self, X):
+        """
+        Returns the predicted class labels for data X.
+
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+            the transformed input data
+        """
+
+        return np.argmax(self.predict_proba(X), axis=1)
 
     def is_fitted(self):
         """
@@ -137,15 +169,16 @@ class TreeClassificationVoter(BaseVoter):
         return posteriors
 
 
-class KNNClassificationVoter(BaseVoter):
+class KNNClassificationVoter(BaseClassificationVoter):
     """
-    A class used to vote on data under any transformer 
-    outputting data in continuous Euclidean space.
+    A class used to vote on data under any transformer outputting data
+    in continuous Euclidean space, which inherits from the BaseClassificationVoter
+    class in base.py.
 
     Attributes
     ---
     k : int
-        integer indicating number of neighbors to use for each prediction during 
+        integer indicating number of neighbors to use for each prediction during
         fitting and voting
     kwargs : dictionary
         contains all keyword arguments for the underlying KNN
@@ -154,15 +187,19 @@ class KNNClassificationVoter(BaseVoter):
     ---
     fit(X, y)
         fits tree classification to transformed data X with labels y
-    vote(X)
+    predict_proba(X)
         predicts posterior probabilities given transformed data, X, for each class label
+    predict(X)
+        predicts class labels given input data X
     is_fitted()
         returns if the classifier has been fitted for this transformation yet
     """
-    def __init__(self, k=None, kwargs={}):
+
+    def __init__(self, k=None, kwargs={}, classes=[]):
         self._is_fitted = False
         self.k = k
         self.kwargs = kwargs
+        self.classes = classes
 
     def fit(self, X, y):
         """
@@ -181,9 +218,25 @@ class KNNClassificationVoter(BaseVoter):
         self.knn.fit(X, y)
         self._is_fitted = True
 
+        num_classes = len(np.unique(y))
+        self.missing_label_indices = []
+
+        if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
+            for label in self.classes:
+                if label not in np.unique(y):
+                    self.missing_label_indices.append(label)
+
+        num_classes = len(np.unique(y))
+        self.missing_label_indices = []
+
+        if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
+            for label in self.classes:
+                if label not in np.unique(y):
+                    self.missing_label_indices.append(label)
+
         return self
 
-    def vote(self, X):
+    def predict_proba(self, X):
         """
         Returns the posterior probabilities of each class for data X.
 
@@ -205,7 +258,26 @@ class KNNClassificationVoter(BaseVoter):
             raise NotFittedError(msg % {"name": type(self).__name__})
 
         X = check_array(X)
-        return self.knn.predict_proba(X)
+        votes_per_example = self.knn.predict_proba(X)
+
+        if len(self.missing_label_indices) > 0:
+            for i in self.missing_label_indices:
+                new_col = np.zeros(votes_per_example.shape[0])
+                votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
+
+        return votes_per_example
+
+    def predict(self, X):
+        """
+        Returns the predicted class labels for data X.
+
+        Attributes
+        ---
+        X : array of shape [n_samples, n_features]
+            the transformed input data
+        """
+
+        return np.argmax(self.predict_proba(X), axis=1)
 
     def is_fitted(self):
         """
