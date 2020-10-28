@@ -12,7 +12,7 @@ from .deciders import SimpleArgmaxAverage
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
 
-from sklearn.validation import (
+from sklearn.utils.validation import (
     check_X_y,
     check_array
 )
