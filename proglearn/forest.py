@@ -14,7 +14,6 @@ from sklearn.validation import (
     check_array
 )
 
-
 class LifelongClassificationForest(ClassificationProgressiveLearner):
     """
     A class used to represent a lifelong classification forest.
