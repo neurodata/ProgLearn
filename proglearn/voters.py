@@ -70,9 +70,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(label)
 
-        num_classes = num_fit_classes + len(self.missing_label_indices_)
-
-        self.uniform_posterior_ = np.ones(num_classes) / num_classes
+        self.uniform_posterior_ = np.ones(num_fit_classes) / num_fit_classes
 
         self.leaf_to_posterior_ = {}
 
@@ -85,7 +83,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
             if self.finite_sample_correction:
                 posteriors = self._finite_sample_correction(
-                    posteriors, len(idxs_in_leaf), num_classes
+                    posteriors, len(idxs_in_leaf), num_fit_classes
                 )
 
             self.leaf_to_posterior_[leaf_id] = posteriors
