@@ -12,10 +12,8 @@ from .deciders import SimpleArgmaxAverage
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
 
-from sklearn.utils.validation import (
-    check_X_y,
-    check_array
-)
+from sklearn.utils.validation import check_X_y, check_array
+
 
 class LifelongClassificationNetwork(ClassificationProgressiveLearner):
     """
@@ -54,6 +52,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         Internal ClassificationProgressiveLearner used to train and make
         inference.
     """
+
     def __init__(
         self,
         network,
@@ -130,7 +129,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
                 self.default_transformer_voter_decider_split
             )
 
-        X, y = check_X_y(X, y, ensure_2d = False)
+        X, y = check_X_y(X, y, ensure_2d=False)
         return self.pl_.add_task(
             X,
             y,
@@ -163,7 +162,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         self : LifelongClassificationNetwork
             The object itself.
         """
-        X, y = check_X_y(X, y, ensure_2d = False)
+        X, y = check_X_y(X, y, ensure_2d=False)
         return self.pl_.add_transformer(X, y, transformer_id=transformer_id)
 
     def predict(self, X, task_id):
@@ -183,7 +182,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.pl_.predict(check_array(X, ensure_2d = False), task_id)
+        return self.pl_.predict(check_array(X, ensure_2d=False), task_id)
 
     def predict_proba(self, X, task_id):
         """
@@ -202,4 +201,4 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return self.pl_.predict_proba(check_array(X, ensure_2d = False), task_id)
+        return self.pl_.predict_proba(check_array(X, ensure_2d=False), task_id)

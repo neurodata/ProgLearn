@@ -9,10 +9,8 @@ from .deciders import SimpleArgmaxAverage
 
 import numpy as np
 
-from sklearn.utils.validation import (
-    check_X_y,
-    check_array
-)
+from sklearn.utils.validation import check_X_y, check_array
+
 
 class LifelongClassificationForest(ClassificationProgressiveLearner):
     """
