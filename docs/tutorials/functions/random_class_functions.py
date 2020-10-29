@@ -166,7 +166,8 @@ def run_parallel_exp(
 
 # The method calculates the bte and time results
 def calculate_results(df_results, slot_num, shift_num):
-    btes = []
+    first = []
+    total = []
 
     # read the experiment results
     for slot in range(slot_num):
@@ -177,10 +178,15 @@ def calculate_results(df_results, slot_num, shift_num):
 
             # calculate the backward transfer efficiency
             err = 1 - df["accuracy"]
-            bte = err[0] / err
 
             # record information
-            btes.append(bte)
+            first.append(err[0])
+            total.append(err)
+
+    # average the errors
+    ave_first = np.mean(first, axis=0)
+    ave_total = np.mean(total, axis=0)
+    btes = np.divide(ave_first, ave_total)
 
     return btes
 
