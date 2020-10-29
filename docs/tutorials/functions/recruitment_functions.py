@@ -38,14 +38,12 @@ class PosteriorsByTree(SimpleArgmaxAverage):
         Returns array of dimension (num_transformers*len(transformer_ids)) 
         containing posterior probabilities.
         """
-        #vote_per_transformer_id = []
         vote_per_alltrees = []
         for transformer_id in (
             transformer_ids
             if transformer_ids is not None
             else self.transformer_id_to_voters_.keys()
         ):
-            #vote_per_bag_id = []
             for bag_id in range(
                 len(self.transformer_id_to_transformers_[transformer_id])
             ):
@@ -55,10 +53,7 @@ class PosteriorsByTree(SimpleArgmaxAverage):
                 X_transformed = transformer.transform(X)
                 voter = self.transformer_id_to_voters_[transformer_id][bag_id]
                 vote = voter.predict_proba(X_transformed)
-                #vote_per_bag_id.append(vote) #posteriors per tree: 50 x (37,10)
                 vote_per_alltrees.append(vote)
-            #vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0)) #avg over each bag (forest)
-            #saa = np.mean(vote_per_transformer_id, axis=0) # original simpleargmaxaverage output
         return vote_per_alltrees
 
 
@@ -119,8 +114,8 @@ def experiment(train_x_across_task, train_y_across_task, test_x_across_task, tes
     building = np.zeros(reps,dtype=float)
     recruiting= np.zeros(reps,dtype=float)
     uf = np.zeros(reps,dtype=float)
-    mean_accuracy_dict = {'hybrid':[],'building':[],'recruiting':[],'UF':[]}
-    std_accuracy_dict = {'hybrid':[],'building':[],'recruiting':[],'UF':[]}
+    mean_accuracy_dict = {'building':[],'UF':[],'recruiting':[],'hybrid':[]}
+    std_accuracy_dict = {'building':[],'UF':[],'recruiting':[],'hybrid':[]}
 
     # iterate over all sample sizes ns
     for ns in task_10_sample: 
@@ -141,7 +136,6 @@ def experiment(train_x_across_task, train_y_across_task, test_x_across_task, tes
                 default_voter_kwargs={
                     "finite_sample_correction": False
                 },
-                #default_decider_class=SimpleArgmaxAverage,
                 default_decider_class=PosteriorsByTree,
                 default_decider_kwargs={},
             )
@@ -209,6 +203,12 @@ def experiment(train_x_across_task, train_y_across_task, test_x_across_task, tes
 
             ## evaluation
             # train 10th tree under each scenario: building, recruiting, hybrid, UF
+            # BUILDING
+            building_res = l2f.predict(test_x_across_task[9],task_id=9) 
+            building[rep] = 1 - np.mean(test_y_across_task[9]==building_res)
+            # UF
+            uf_res = l2f.predict(test_x_across_task[9],task_id=9,transformer_ids=[9]) 
+            uf[rep] = 1 - np.mean(test_y_across_task[9]==uf_res)
             # RECRUITING
             posteriors_across_trees = l2f.predict_proba(
                 test_x_across_task[9],
@@ -218,15 +218,6 @@ def experiment(train_x_across_task, train_y_across_task, test_x_across_task, tes
             recruiting_posterior = np.mean(np.array(posteriors_across_trees)[best_50_tree],axis=0)
             res = np.argmax(recruiting_posterior,axis=1) + 90
             recruiting[rep] = 1 - np.mean(test_y_across_task[9]==res)
-            #print("recruit", 1 - np.mean(test_y_across_task[9]==res))
-            # BUILDING
-            building_res = l2f.predict(test_x_across_task[9],task_id=9) 
-            building[rep] = 1 - np.mean(test_y_across_task[9]==building_res)
-            #print("building", 1 - np.mean(test_y_across_task[9]==building_res))
-            # UF
-            uf_res = l2f.predict(test_x_across_task[9],task_id=9,transformer_ids=[9]) 
-            uf[rep] = 1 - np.mean(test_y_across_task[9]==uf_res)
-            #print("uf", 1 - np.mean(test_y_across_task[9]==uf_res))
             # HYBRID
             posteriors_across_trees_hybrid_uf = l2f.predict_proba(
                 test_x_across_task[9],
@@ -240,21 +231,58 @@ def experiment(train_x_across_task, train_y_across_task, test_x_across_task, tes
             hybrid_posterior = np.mean(hybrid_posterior_all,axis=0)
             hybrid_res = np.argmax(hybrid_posterior,axis=1) + 90
             hybrid[rep] = 1 - np.mean(test_y_across_task[9]==hybrid_res)
-            #print("hybrid", 1 - np.mean(test_y_across_task[9]==hybrid_res))
 
-        print(np.mean(hybrid))
         print(np.mean(building))
-        print(np.mean(recruiting))
         print(np.mean(uf))
+        print(np.mean(recruiting))
+        print(np.mean(hybrid))
 
         # calculate mean and stdev for each
-        mean_accuracy_dict['hybrid'].append(np.mean(hybrid))
-        std_accuracy_dict['hybrid'].append(np.std(hybrid,ddof=1))
         mean_accuracy_dict['building'].append(np.mean(building))
         std_accuracy_dict['building'].append(np.std(building,ddof=1))
-        mean_accuracy_dict['recruiting'].append(np.mean(recruiting))
-        std_accuracy_dict['recruiting'].append(np.std(recruiting,ddof=1))
         mean_accuracy_dict['UF'].append(np.mean(uf))
         std_accuracy_dict['UF'].append(np.std(uf,ddof=1))
+        mean_accuracy_dict['recruiting'].append(np.mean(recruiting))
+        std_accuracy_dict['recruiting'].append(np.std(recruiting,ddof=1))
+        mean_accuracy_dict['hybrid'].append(np.mean(hybrid))
+        std_accuracy_dict['hybrid'].append(np.std(hybrid,ddof=1))
         
     return mean_accuracy_dict, std_accuracy_dict
+
+def recruitment_plot(mean_acc_dict, std_acc_dict, ns):
+    """
+    Plot the results from the recruitment experiment.
+    """
+    
+    # determine colors and labels for figure
+    colors = sns.color_palette('Set1', n_colors=len(mean_acc_dict))
+    labels = ['L2F (building)', 'UF (new)', 'recruiting', 'hybrid']
+    
+    # plot and format figure
+    fig, ax = plt.subplots(1,1, figsize=(8,8))
+    for i, key in enumerate(mean_acc_dict):
+        ax.plot(ns, mean_acc_dict[key], c=colors[i], label=labels[i])
+        upper_bound = np.array(mean_acc_dict[key]) + 1.96*np.array(std_acc_dict[key])
+        lower_bound = np.array(mean_acc_dict[key]) - 1.96*np.array(std_acc_dict[key])
+        ax.fill_between(ns, 
+                        upper_bound, 
+                        lower_bound, 
+                        where=upper_bound >= lower_bound,
+                        facecolor=colors[i], 
+                        alpha=0.15,
+                        interpolate=False)
+    #ax.set_title("CIFAR Recruitment Experiment",fontsize=30)
+    ax.set_ylabel('Generalization Error (Task 10)', fontsize=28)
+    ax.set_xlabel('Number of Task 10 Samples', fontsize=30)
+    ax.tick_params(labelsize=28)
+    ax.set_xscale('log')
+    ax.set_xticks([100, 500, 5000])
+    ax.get_xaxis().set_major_formatter(ScalarFormatter())
+    ax.set_ylim(0.450, 0.825)
+    ax.set_yticks([0.45, 0.55, 0.65, 0.75])
+    ax.legend(fontsize=12)
+    right_side = ax.spines["right"]
+    right_side.set_visible(False)
+    top_side = ax.spines["top"]
+    top_side.set_visible(False)
+    plt.tight_layout()
