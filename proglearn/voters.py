@@ -84,7 +84,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
             posteriors = np.nan_to_num(np.array(class_counts) / np.sum(class_counts))
 
             posteriors = self._finite_sample_correction(
-                posteriors, len(idxs_in_leaf), kappa
+                posteriors, len(idxs_in_leaf), self.kappa
             )
 
             self.leaf_to_posterior_[leaf_id] = posteriors
