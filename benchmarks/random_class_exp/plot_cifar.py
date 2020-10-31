@@ -27,7 +27,8 @@ def unpickle(file):
 #%%
 reps = slots * shifts
 
-btes = []
+first = []
+total = []
 train_times = []
 inference_times = []
 
@@ -46,14 +47,14 @@ for slot in range(0, slots):
         df = unpickle(filename)
 
         err = 1 - df["accuracy"]
-        bte = err[0] / err
-
-        btes.append(bte)
+        first.append(err[0])
+        total.append(err)
         train_times.append(df["train_times"])
         inference_times.append(df["inference_times"])
 
-
-bte = np.mean(btes, axis=0)
+ave_first = np.mean(first, axis=0)
+ave_total = np.mean(total, axis=0)
+bte = np.divide(ave_first, ave_total)
 train_time_across_tasks = np.mean(train_times, axis=0)
 inference_time_across_tasks = np.mean(inference_times, axis=0)
 
