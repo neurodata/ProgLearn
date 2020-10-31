@@ -2,6 +2,10 @@ import numpy as np
 from math import log2, ceil 
 import random
 
+import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
+import seaborn as sns
+
 from proglearn.progressive_learner import ClassificationProgressiveLearner
 from proglearn.transformers import TreeClassificationTransformer
 from proglearn.voters import TreeClassificationVoter
@@ -9,7 +13,7 @@ from proglearn.deciders import SimpleArgmaxAverage
 
 
 
-class ClassificationProgressiveLearner_ByTree(ClassificationProgressiveLearner):
+class PosteriorsByTreeLearner(ClassificationProgressiveLearner):
     """
     Variation on the progressive learner class ClassificationProgressiveLearner 
     to allow for return of posterior probabilities by tree.
@@ -129,7 +133,7 @@ def experiment(train_x_across_task, train_y_across_task, test_x_across_task, tes
             print("doing {} samples for {} th rep".format(ns,rep))
 
             # initiate lifelong learner
-            l2f = ClassificationProgressiveLearner_ByTree(
+            l2f = PosteriorsByTreeLearner(
                 default_transformer_class=TreeClassificationTransformer,
                 default_transformer_kwargs={},
                 default_voter_class=TreeClassificationVoter,
@@ -169,9 +173,9 @@ def experiment(train_x_across_task, train_y_across_task, test_x_across_task, tes
                 decider_kwargs={"classes": np.unique(cur_y)}
             )
 
-            # L2F validation
+            ## L2F validation ####################################
             # get posteriors for l2f on first 9 tasks
-            # want posteriors_across_trees to have dimension 9*ntrees, validation_sample_no, 10
+            # want posteriors_across_trees to have shape (9*ntrees, validation_sample_no, 10)
             posteriors_across_trees = l2f.predict_proba(
                 train_x_across_task[9][task_10_train_indx[estimation_sample_no:]],
                 task_id=9,
@@ -186,7 +190,7 @@ def experiment(train_x_across_task, train_y_across_task, test_x_across_task, tes
             best_50_tree = np.argsort(error_across_trees)[:50]
             best_25_tree = best_50_tree[:25]
 
-            ## uf trees validation
+            ## uf trees validation ###############################
             # get posteriors for l2f on only the 10th task
             posteriors_across_trees = l2f.predict_proba(
                 train_x_across_task[9][task_10_train_indx[estimation_sample_no:]],
@@ -201,7 +205,7 @@ def experiment(train_x_across_task, train_y_across_task, test_x_across_task, tes
                 error_across_trees[tree] = 1-np.mean(validation_target==res)
             best_25_uf_tree = np.argsort(error_across_trees)[:25]
 
-            ## evaluation
+            ## evaluation ########################################
             # train 10th tree under each scenario: building, recruiting, hybrid, UF
             # BUILDING
             building_res = l2f.predict(test_x_across_task[9],task_id=9) 
@@ -232,10 +236,10 @@ def experiment(train_x_across_task, train_y_across_task, test_x_across_task, tes
             hybrid_res = np.argmax(hybrid_posterior,axis=1) + 90
             hybrid[rep] = 1 - np.mean(test_y_across_task[9]==hybrid_res)
 
-        print(np.mean(building))
-        print(np.mean(uf))
-        print(np.mean(recruiting))
-        print(np.mean(hybrid))
+        #print(np.mean(building))
+        #print(np.mean(uf))
+        #print(np.mean(recruiting))
+        #print(np.mean(hybrid))
 
         # calculate mean and stdev for each
         mean_accuracy_dict['building'].append(np.mean(building))
