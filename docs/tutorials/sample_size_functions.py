@@ -11,8 +11,10 @@ from tensorflow.keras.optimizers import Adam
 import time
 
 __all__ = [
-    "random_forest_classifier_model",
-    "binary_deep_neural_network"
+    "rf_classifier",
+    "binary_dn",
+    "sparse_parity",
+    "test_suite"
 ]
 
 
@@ -74,7 +76,7 @@ def binary_dn(
     """
 
     dnn_model = Sequential()
-
+    
     dnn_model.add(Dense(X_train.shape[1], activation="relu"))
     dnn_model.add(Dense(hidden_nodes, activation="relu"))
     dnn_model.add(Dense(units=1, activation="sigmoid"))
@@ -127,7 +129,8 @@ def sparse_parity(num_samples, p, p_star):
 
 
 def test_suite(
-    sample_sizes,
+    training_sample_sizes,
+    testing_sample_size,
     iterations,
     p,
     p_star,
@@ -198,17 +201,32 @@ def test_suite(
             accuracies across sample sizes and iterations.
     """
 
-    rf_evolution = np.zeros((len(sample_sizes), iterations))
-    dnn_evolution = np.zeros((len(sample_sizes), iterations))
+    # rf_evolution = np.zeros((len(sample_sizes), iterations))
+    # dnn_evolution = np.zeros((len(sample_sizes), iterations))
+
+    rf_evolution = np.zeros((len(training_sample_sizes), iterations))
+    dnn_evolution = np.zeros((len(training_sample_sizes), iterations))
 
     for iteration in range(iterations):
 
-        for sample_size_index, max_sample_size in enumerate(sample_sizes):
+        ############################
+        print('ITERATION: ', iteration)
+        ############################
 
-            X, y = sparse_parity(max_sample_size, p, p_star)
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.3, random_state=101
-            )
+        for sample_size_index, max_sample_size in enumerate(training_sample_sizes):
+
+            # X, y = sparse_parity(max_sample_size, p, p_star)
+            # X_train, X_test, y_train, y_test = train_test_split(
+            #     X, y, test_size=0.3, random_state=101
+            # )
+            # X_train = X_train.astype('float32')
+            # y_train = y_train.astype('float32')
+
+            X_train, y_train = sparse_parity(max_sample_size, p, p_star)
+            X_train = X_train.astype('float32')
+            y_train = y_train.astype('float32')
+
+            X_test, y_test = sparse_parity(testing_sample_size, p, p_star)
 
             rf_model = rf_classifier(
                 X_train=X_train,
