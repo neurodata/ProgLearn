@@ -233,7 +233,7 @@ def estimate_ce(X, y, label):
         return np.mean(entropy(p.T, base = np.exp(1)))
     elif label == "UF":
         frac_eval = 0.3
-        uf = UncertaintyForest(n_estimators = n_estimators, tree_construction_proportion = 0.4, kappa = 3.0)
+        uf = UncertaintyForest(n_estimators = 300, tree_construction_proportion = 0.4, kappa = 3.0)
         # X_train, y_train, X_eval, y_eval = split_train_eval(X, y, frac_eval)
         X_train, X_eval, y_train, y_eval = train_test_split(X, y, test_size=frac_eval)
         p = uf.predict_proba(X_eval)
