@@ -6,7 +6,10 @@ from .progressive_learner import ClassificationProgressiveLearner
 from .transformers import TreeClassificationTransformer
 from .voters import TreeClassificationVoter
 from .deciders import SimpleArgmaxAverage
+
 import numpy as np
+
+from sklearn.utils.validation import check_X_y, check_array
 
 
 class LifelongClassificationForest(ClassificationProgressiveLearner):
@@ -119,7 +122,8 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         if max_depth == "default":
             max_depth = self.default_max_depth
 
-        self.pl_.add_task(
+        X, y = check_X_y(X, y)
+        return self.pl_.add_task(
             X,
             y,
             task_id=task_id,
@@ -136,7 +140,6 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             },
             decider_kwargs={"classes": np.unique(y)},
         )
-        return self
 
     def add_transformer(
         self,
@@ -180,15 +183,14 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         if max_depth == "default":
             max_depth = self.default_max_depth
 
-        self.pl_.add_transformer(
+        X, y = check_X_y(X, y)
+        return self.pl_.add_transformer(
             X,
             y,
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
             transformer_id=transformer_id,
             num_transformers=n_estimators,
         )
-
-        return self
 
     def predict_proba(self, X, task_id):
         """
@@ -207,7 +209,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return self.pl_.predict_proba(X, task_id)
+        return self.pl_.predict_proba(check_array(X), task_id)
 
     def predict(self, X, task_id):
         """
@@ -226,7 +228,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.pl_.predict(X, task_id)
+        return self.pl_.predict(check_array(X), task_id)
 
 
 class UncertaintyForest:
@@ -285,14 +287,13 @@ class UncertaintyForest:
         self : UncertaintyForest
             The object itself.
         """
-        self.lf_ = LifelongClassificationForest(
+        X, y = check_X_y(X, y)
+        return LifelongClassificationForest(
             default_n_estimators=self.n_estimators,
             default_finite_sample_correction=self.finite_sample_correction,
             default_max_depth=self.max_depth,
             default_tree_construction_proportion=self.tree_construction_proportion,
-        )
-        self.lf_.add_task(X, y, task_id=0)
-        return self
+        ).add_task(X, y, task_id=0)
 
     def predict_proba(self, X):
         """
@@ -308,7 +309,7 @@ class UncertaintyForest:
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return self.lf_.predict_proba(X, 0)
+        return self.lf_.predict_proba(check_array(X), 0)
 
     def predict(self, X):
         """
@@ -324,4 +325,4 @@ class UncertaintyForest:
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.lf_.predict(X, 0)
+        return self.lf_.predict(check_array(X), 0)
