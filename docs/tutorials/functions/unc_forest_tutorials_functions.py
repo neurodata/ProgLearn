@@ -218,6 +218,29 @@ def format_func(value, tick_number):
     else:
         return ""
 
+def estimate_ce(X, y, label):
+    if label == "CART":
+        return CART_estimate(X, y)
+    elif label == "IRF":
+        frac_eval = 0.3
+        irf = CalibratedClassifierCV(base_estimator=RandomForestClassifier(n_estimators = 300), 
+                                     method='isotonic', 
+                                     cv = 5)
+        # X_train, y_train, X_eval, y_eval = split_train_eval(X, y, frac_eval)
+        X_train, X_eval, y_train, y_eval = train_test_split(X, y, test_size=frac_eval)
+        irf.fit(X_train, y_train)
+        p = irf.predict_proba(X_eval)
+        return np.mean(entropy(p.T, base = np.exp(1)))
+    elif label == "UF":
+        frac_eval = 0.3
+        uf = UncertaintyForest(n_estimators = n_estimators, tree_construction_proportion = 0.4, kappa = 3.0)
+        # X_train, y_train, X_eval, y_eval = split_train_eval(X, y, frac_eval)
+        X_train, X_eval, y_train, y_eval = train_test_split(X, y, test_size=frac_eval)
+        p = uf.predict_proba(X_eval)
+        return np.mean(entropy(p.T, base = np.exp(1)))
+    else:
+        raise ValueError("Unrecognized Label!")
+
 def get_cond_entropy_vs_n(mean, d, num_trials, sample_sizes, algos):
     
     def worker(t):
