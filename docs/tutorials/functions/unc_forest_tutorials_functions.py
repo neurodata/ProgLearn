@@ -221,7 +221,7 @@ def format_func(value, tick_number):
 def get_cond_entropy_vs_n(mean, d, num_trials, sample_sizes, algos):
     
     def worker(t):
-        X, y = generate_data(elem, d, mu = mean)
+        X, y = generate_data_fig2(elem, d, mu = mean)
         
         ret = []
         for algo in algos:
@@ -244,7 +244,7 @@ def get_cond_entropy_vs_n(mean, d, num_trials, sample_sizes, algos):
 def get_cond_entropy_vs_mu(n, d, num_trials, mus, algos):
     
     def worker(t):
-        X, y = generate_data(n, d, mu = elem)
+        X, y = generate_data_fig2(n, d, mu = elem)
         
         ret = []
         for algo in algos:
