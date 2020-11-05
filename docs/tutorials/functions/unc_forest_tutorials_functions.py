@@ -173,7 +173,7 @@ def generate_data_fig2(n, d, mu = 1):
   
     return X, y
 
-def CART_estimate(X, y, n_trees = 300, bootstrap = True):
+def cart_estimate(X, y, n_trees = 300, bootstrap = True):
     model = RandomForestClassifier(bootstrap = bootstrap, n_estimators =n_trees)
     model.fit(X, y)
     class_counts = np.zeros((X.shape[0], model.n_classes_))
