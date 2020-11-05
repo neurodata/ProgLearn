@@ -220,7 +220,7 @@ def format_func(value, tick_number):
 
 def estimate_ce(X, y, label):
     if label == "CART":
-        return CART_estimate(X, y)
+        return cart_estimate(X, y)
     elif label == "IRF":
         frac_eval = 0.3
         irf = CalibratedClassifierCV(base_estimator=RandomForestClassifier(n_estimators = 300), 
