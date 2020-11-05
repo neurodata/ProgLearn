@@ -254,9 +254,22 @@ def get_cond_entropy_vs_n(mean, d, num_trials, sample_sizes, algos):
     
     output = np.zeros((len(algos), len(sample_sizes), num_trials))
     for i, elem in enumerate(sample_sizes):
-        results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        # results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        # for j in range(len(algos)):
+        #     output[j, i, :] = results[:, j]
+
+        results = []
+        for t in range(num_trials):
+            print(t)
+            results.append(worker(t))
+        results = np.array(results)
         for j in range(len(algos)):
             output[j, i, :] = results[:, j]
+        
+        print(Xlist[0]-Xlist[1])
+        print(np.where(0, Xlist[0],Xlist[1]))
+        print(ylist[0]-ylist[1])
+        print(np.where(0, ylist[0],ylist[1]))
         
     pickle.dump(sample_sizes, open('output/sample_sizes_d_%d.pkl' % d, 'wb'))
     for j, algo in enumerate(algos):
@@ -277,9 +290,22 @@ def get_cond_entropy_vs_mu(n, d, num_trials, mus, algos):
     
     output = np.zeros((len(algos), len(mus), num_trials))
     for i, elem in enumerate(mus):
-        results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        # results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        # for j in range(len(algos)):
+        #     output[j, i, :] = results[:, j]
+
+        results = []
+        for t in range(num_trials):
+            print(t)
+            results.append(worker(t))
+        results = np.array(results)
         for j in range(len(algos)):
             output[j, i, :] = results[:, j]
+        
+        print(Xlist[0]-Xlist[1])
+        print(np.where(0, Xlist[0],Xlist[1]))
+        print(ylist[0]-ylist[1])
+        print(np.where(0, ylist[0],ylist[1]))
     
     pickle.dump(mus, open('output/mus.pkl', 'wb'))
     for j, algo in enumerate(algos):
