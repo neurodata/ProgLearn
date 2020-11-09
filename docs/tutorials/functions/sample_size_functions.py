@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -14,7 +16,8 @@ __all__ = [
     "rf_classifier",
     "binary_dn",
     "sparse_parity",
-    "test_suite"
+    "test_suite",
+    "plot_sample_size_experiment",
 ]
 
 
@@ -38,7 +41,7 @@ def rf_classifier(X_train, y_train, num_trees, max_depth, n_jobs, verbose):
     """
 
     rf_model = RandomForestClassifier(
-        n_estimators=num_trees, max_depth=max_depth,  n_jobs = n_jobs, verbose=verbose
+        n_estimators=num_trees, max_depth=max_depth, n_jobs=n_jobs, verbose=verbose
     )
     rf_model.fit(X_train, y_train)
 
@@ -46,7 +49,14 @@ def rf_classifier(X_train, y_train, num_trees, max_depth, n_jobs, verbose):
 
 
 def binary_dn(
-    X_train, y_train, hidden_nodes, batch_size, epochs, learning_rate, validation_split, verbose
+    X_train,
+    y_train,
+    hidden_nodes,
+    batch_size,
+    epochs,
+    learning_rate,
+    validation_split,
+    verbose,
 ):
     """
     Returns a binary neural network model trained on data X_train and labels y_train
@@ -65,28 +75,28 @@ def binary_dn(
         learning_rate : float
             A float to identify the learning rate of the Adam optimizer.
         validation_split : float
-            A float between 0 and 1 to represent the amount of training data to be 
+            A float between 0 and 1 to represent the amount of training data to be
             used for validation.
         verbose : int
             An int to represent the level of output while training the model.
 
     Returns:
-        dnn_model : object
+        dn_model : object
             A trained binary neural network.
     """
 
-    dnn_model = Sequential()
-    
-    dnn_model.add(Dense(X_train.shape[1], activation="relu"))
-    dnn_model.add(Dense(hidden_nodes, activation="relu"))
-    dnn_model.add(Dense(units=1, activation="sigmoid"))
+    dn_model = Sequential()
+
+    dn_model.add(Dense(X_train.shape[1], activation="relu"))
+    dn_model.add(Dense(hidden_nodes, activation="relu"))
+    dn_model.add(Dense(units=1, activation="sigmoid"))
 
     adam_optimizer = Adam(learning_rate=learning_rate)
-    dnn_model.compile(
+    dn_model.compile(
         optimizer=adam_optimizer, loss="binary_crossentropy", metrics=["accuracy"]
     )
 
-    dnn_model.fit(
+    dn_model.fit(
         x=X_train,
         y=y_train,
         epochs=epochs,
@@ -95,7 +105,7 @@ def binary_dn(
         verbose=verbose,
     )
 
-    return dnn_model
+    return dn_model
 
 
 def sparse_parity(num_samples, p, p_star):
@@ -127,51 +137,52 @@ def sparse_parity(num_samples, p, p_star):
     return X, y
 
 
-
 def test_suite(
     training_sample_sizes,
     testing_sample_size,
-    iterations,
+    trials,
     p,
     p_star,
     num_trees=500,
     max_depth=None,
-    n_jobs=None,
+    n_jobs=-1,
     rf_verbose=0,
     hidden_nodes=4,
-    batch_size=50,
+    batch_size=3,
     epochs=10,
     learning_rate=0.001,
     validation_split=0.3,
-    dnn_verbose=0,
+    dn_verbose=0,
 ):
     """
-    Runs a testing suite to evaluare RF and DN classifiers over a range of sample sizes 
-    and a given number of iterations. Returns an ndarray for each classifier that 
-    contains individual model accuracies for each sample size and each iteration.
+    Runs a testing suite to evaluare RF and DN classifiers over a range of sample sizes
+    and a given number of trials. Returns an ndarray for each classifier that
+    contains individual model accuracies for each sample size and each trial.
 
     Args:
-        sample_sizes : list
-            A list containing sample sizes to train/test each model with. The sample 
-            size values represent the total sparse parity data generated. To get the 
-            individual training set sample size and test set sample size, these values 
-            are fed through a train_test_split.
-        iterations : int
-            An int representing the number of iterations the model is run for. A higher 
-            iterations number produces smoother outputs, but takes more time to run.
+        training_sample_sizes : list
+            A list containing sample sizes to train each model with. The model iterates
+            over each sample size and trains a separate DN and RF model with the provided
+            amount of data.
+        testing_sample_size : int
+            An int representing the size of the generated test set that will be used
+            to evaluate each model. The test data is regenerated for each loop.
+        trials : int
+            An int representing the number of trials the model is run for. A higher
+            trials number produces smoother outputs, but takes more time to run.
         p : int
-            An int to identify the number of dimensions for generating the sparse 
+            An int to identify the number of dimensions for generating the sparse
             parity data.
         p_star : int
-            An int to identify the number of informative dimensions for generating 
+            An int to identify the number of informative dimensions for generating
             the sparse parity data.
         num_trees : int, default=500
             An int to represent the number of trees for fitting the RF classifier.
         max_depth : int, default=None
             An int to represent the max depth for fitting the RF classifier.
         n_jobs : int, default=None
-            An int to identify the number of jobs to run in parallel for the RF model. 
-            Increasing n_jobs uses additional processors to parallelize training across 
+            An int to identify the number of jobs to run in parallel for the RF model.
+            Increasing n_jobs uses additional processors to parallelize training across
             trees.
         rf_verbose : int, default=0
             An int to identify the output of the RF model while trained.
@@ -188,43 +199,29 @@ def test_suite(
         validation_split : float, default=0.3
             A float to represent the fraction of training data to be used as validation
             data.
-        dnn_verbose : int, default=0
+        dn_verbose : int, default=0
             An int to identify the output of the DN model while trained.
 
     Returns:
         rf_evolution : ndarray
-            A ndarray of size [len(sample_sizes), iterations] containing the RF model 
-            accuracies across sample sizes and iterations.
-            
-        dnn_evolution : ndarray
-            A ndarray of size [len(sample_sizes), iterations] containing the DNN model 
-            accuracies across sample sizes and iterations.
+            A ndarray of size [len(sample_sizes), trials] containing the RF model
+            accuracies across sample sizes and trials.
+
+        dn_evolution : ndarray
+            A ndarray of size [len(sample_sizes), trials] containing the DN model
+            accuracies across sample sizes and trials.
     """
 
-    # rf_evolution = np.zeros((len(sample_sizes), iterations))
-    # dnn_evolution = np.zeros((len(sample_sizes), iterations))
+    rf_evolution = np.zeros((len(training_sample_sizes), trials))
+    dn_evolution = np.zeros((len(training_sample_sizes), trials))
 
-    rf_evolution = np.zeros((len(training_sample_sizes), iterations))
-    dnn_evolution = np.zeros((len(training_sample_sizes), iterations))
-
-    for iteration in range(iterations):
-
-        ############################
-        print('ITERATION: ', iteration)
-        ############################
+    for trial in range(trials):
 
         for sample_size_index, max_sample_size in enumerate(training_sample_sizes):
 
-            # X, y = sparse_parity(max_sample_size, p, p_star)
-            # X_train, X_test, y_train, y_test = train_test_split(
-            #     X, y, test_size=0.3, random_state=101
-            # )
-            # X_train = X_train.astype('float32')
-            # y_train = y_train.astype('float32')
-
             X_train, y_train = sparse_parity(max_sample_size, p, p_star)
-            X_train = X_train.astype('float32')
-            y_train = y_train.astype('float32')
+            X_train = X_train.astype("float32")
+            y_train = y_train.astype("float32")
 
             X_test, y_test = sparse_parity(testing_sample_size, p, p_star)
 
@@ -239,9 +236,9 @@ def test_suite(
 
             rf_predictions = rf_model.predict(X_test)
             rf_error = 1 - accuracy_score(y_test, rf_predictions)
-            rf_evolution[sample_size_index][iteration] = rf_error
+            rf_evolution[sample_size_index][trial] = rf_error
 
-            dnn_model = binary_dn(
+            dn_model = binary_dn(
                 X_train=X_train,
                 y_train=y_train,
                 epochs=epochs,
@@ -249,10 +246,10 @@ def test_suite(
                 learning_rate=learning_rate,
                 validation_split=validation_split,
                 hidden_nodes=hidden_nodes,
-                verbose=dnn_verbose,
+                verbose=dn_verbose,
             )
-            
-            score = dnn_model.evaluate(
+
+            score = dn_model.evaluate(
                 X_test,
                 y_test,
                 batch_size=None,
@@ -266,7 +263,74 @@ def test_suite(
                 return_dict=False,
             )
 
-            dnn_error = 1 - score[1]
-            dnn_evolution[sample_size_index][iteration] = dnn_error
+            dn_error = 1 - score[1]
+            dn_evolution[sample_size_index][trial] = dn_error
 
-    return rf_evolution, dnn_evolution
+    return rf_evolution, dn_evolution
+
+
+def plot_sample_size_experiment(
+    rf_evolution, dn_evolution, training_sample_sizes, p, p_star
+):
+    """
+    Plots a figure to visualize the evolution of the RF model and the DN model over
+    the range of sample sizes. Error bars are calculated based on the standard
+    error of the mean.
+
+    Args:
+        rf_evolution : ndarray
+            A ndarray of size [len(sample_sizes), trials] containing the RF model
+            accuracies across sample sizes and trials.
+        dn_evolution : ndarray
+            A ndarray of size [len(sample_sizes), trials] containing the DN model
+            accuracies across sample sizes and trials.
+        training_sample_sizes : list
+            A list containing the sample sizes the model was trained with.
+        p : int
+            The p value for the sparse parity distribution. This is used for plotting
+            the title of the figure.
+        p_star : int
+            The p_star value for the sparse parity distribution. This is used for
+            plotting the title of the figure.
+
+    Returns:
+        None
+    """
+    dn_evolution_mean = np.mean(dn_evolution, axis=1)
+    rf_evolution_mean = np.mean(rf_evolution, axis=1)
+
+    yerr_dn = stats.sem(dn_evolution, axis=1)
+    yerr_rf = stats.sem(rf_evolution, axis=1)
+
+    fig = plt.figure(figsize=(10, 8))
+    ax = plt.subplot(111)
+
+    ax.errorbar(
+        training_sample_sizes,
+        dn_evolution_mean,
+        yerr=yerr_dn,
+        linewidth=4,
+        c="b",
+        alpha=0.8,
+        label="DN",
+    )
+    ax.errorbar(
+        training_sample_sizes,
+        rf_evolution_mean,
+        yerr=yerr_rf,
+        linewidth=5,
+        c="r",
+        alpha=0.8,
+        label="RF",
+    )
+
+    plt.xticks(range(0, 25000, 5000), fontsize=20)
+    plt.yticks(fontsize=20)
+
+    plt.title("sparse parity: p={}, p*={}".format(p, p_star), fontsize=24)
+    plt.xlabel("number of training samples", fontsize=24)
+    plt.ylabel("classification error", fontsize=24)
+
+    handles, labels = ax.get_legend_handles_labels()
+    handles = [h[0] for h in handles]
+    ax.legend(handles, labels, prop={"size": 24})
