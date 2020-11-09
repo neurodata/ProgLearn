@@ -3,14 +3,11 @@ import matplotlib.pyplot as plt
 from scipy import stats
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
-
-import time
 
 __all__ = [
     "rf_classifier",
