@@ -27,9 +27,9 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         tree. The remainder of the data is used to fill in voting posteriors.
         This is used if 'tree_construction_proportion' is not fed to add_task.
 
-    default_finite_sample_correction : bool, default=False
-        Boolean indicating whether this learner will have finite sample correction.
-        This is used if 'finite_sample_correction' is not fed to add_task.
+    default_kappa : float, default=np.inf
+        The coefficient for finite sample correction.
+        This is used if 'kappa' is not fed to add_task.
 
     default_max_depth : int, default=30
         The maximum depth of a tree in the Lifelong Classification Forest.
@@ -46,20 +46,18 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self,
         default_n_estimators=100,
         default_tree_construction_proportion=0.67,
-        default_finite_sample_correction=False,
+        default_kappa=np.inf,
         default_max_depth=30,
     ):
         self.default_n_estimators = default_n_estimators
         self.default_tree_construction_proportion = default_tree_construction_proportion
-        self.default_finite_sample_correction = default_finite_sample_correction
+        self.default_kappa = default_kappa
         self.default_max_depth = default_max_depth
         self.pl_ = ClassificationProgressiveLearner(
             default_transformer_class=TreeClassificationTransformer,
             default_transformer_kwargs={},
             default_voter_class=TreeClassificationVoter,
-            default_voter_kwargs={
-                "finite_sample_correction": default_finite_sample_correction
-            },
+            default_voter_kwargs={"kappa": default_kappa},
             default_decider_class=SimpleArgmaxAverage,
             default_decider_kwargs={},
         )
@@ -71,14 +69,14 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         task_id=None,
         n_estimators="default",
         tree_construction_proportion="default",
-        finite_sample_correction="default",
+        kappa="default",
         max_depth="default",
     ):
         """
         adds a task with id task_id, max tree depth max_depth, given input data matrix X
         and output data matrix y, to the Lifelong Classification Forest. Also splits
         data for training and voting based on tree_construction_proportion and uses the
-        value of finite_sample_correction to determine whether the learner will have
+        value of kappa to determine whether the learner will have
         finite sample correction.
 
         Parameters
@@ -100,8 +98,8 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             tree. The remainder of the data is used to fill in voting posteriors.
             The default is used if 'default' is provided.
 
-        finite_sample_correction : bool or str, default='default'
-            Boolean indicating whether this learner will have finite sample correction.
+        kappa : float or str, default='default'
+            The coefficient for finite sample correction.
             The default is used if 'default' is provided.
 
         max_depth : int or str, default='default'
@@ -117,8 +115,8 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             n_estimators = self.default_n_estimators
         if tree_construction_proportion == "default":
             tree_construction_proportion = self.default_tree_construction_proportion
-        if finite_sample_correction == "default":
-            finite_sample_correction = self.default_finite_sample_correction
+        if kappa == "default":
+            kappa = self.default_kappa
         if max_depth == "default":
             max_depth = self.default_max_depth
 
@@ -136,7 +134,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
             voter_kwargs={
                 "classes": np.unique(y),
-                "finite_sample_correction": finite_sample_correction,
+                "kappa": kappa,
             },
             decider_kwargs={"classes": np.unique(y)},
         )
@@ -240,9 +238,9 @@ class UncertaintyForest:
     n_estimators : int, default=100
         The number of trees in the UncertaintyForest
 
-    finite_sample_correction : bool, default=False
-        Boolean indicating whether this learner
-        will use finite sample correction
+    kappa : float, default=np.inf
+        The coefficient for finite sample correction.
+        If set to the default value, finite sample correction is not performed.
 
     max_depth : int, default=30
         The maximum depth of a tree in the UncertaintyForest
@@ -261,12 +259,12 @@ class UncertaintyForest:
     def __init__(
         self,
         n_estimators=100,
-        finite_sample_correction=False,
+        kappa=np.inf,
         max_depth=30,
         tree_construction_proportion=0.67,
     ):
         self.n_estimators = n_estimators
-        self.finite_sample_correction = finite_sample_correction
+        self.kappa = kappa
         self.max_depth = max_depth
         self.tree_construction_proportion = tree_construction_proportion
 
@@ -290,7 +288,7 @@ class UncertaintyForest:
         X, y = check_X_y(X, y)
         return LifelongClassificationForest(
             default_n_estimators=self.n_estimators,
-            default_finite_sample_correction=self.finite_sample_correction,
+            default_kappa=self.kappa,
             default_max_depth=self.max_depth,
             default_tree_construction_proportion=self.tree_construction_proportion,
         ).add_task(X, y, task_id=0)
