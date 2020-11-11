@@ -1,6 +1,5 @@
 #%%
 import random
-import matplotlib.pyplot as plt
 import tensorflow as tf
 import keras
 from keras import layers
@@ -16,7 +15,9 @@ from math import log2, ceil
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
-from proglearn.progressive_learner import ProgressiveLearner
+from keras.optimizers import Adam
+from keras.callbacks import EarlyStopping
+from proglearn.progressive_learner import ClassificationProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import NeuralClassificationTransformer, TreeClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
@@ -66,12 +67,19 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         network.add(layers.BatchNormalization())
         network.add(layers.Dense(units=10, activation = 'softmax'))
 
-        default_transformer_kwargs = {"network" : network,
-                                      "euclidean_layer_idx" : -2,
-                                      "num_classes" : 10,
-                                      "optimizer" : keras.optimizers.Adam(3e-4)
-                                     }
-
+        default_transformer_kwargs = {
+            "network": network,
+            "euclidean_layer_idx": -2,
+            "loss": "categorical_crossentropy",
+            "optimizer": Adam(3e-4),
+            "fit_kwargs": {
+                "epochs": 100,
+                "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
+                "verbose": False,
+                "validation_split": 0.33,
+                "batch_size": 32,
+            },
+        }
         default_voter_class = KNNClassificationVoter
         default_voter_kwargs = {"k" : int(np.log2(num_points_per_task))}
 
@@ -86,11 +94,14 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         default_decider_class = SimpleArgmaxAverage
 
 
-    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
-                                         default_transformer_kwargs = default_transformer_kwargs,
-                                         default_voter_class = default_voter_class,
-                                         default_voter_kwargs = default_voter_kwargs,
-                                         default_decider_class = default_decider_class)
+    progressive_learner = ClassificationProgressiveLearner(
+            default_transformer_class=NeuralClassificationTransformer,
+            default_transformer_kwargs=default_transformer_kwargs,
+            default_voter_class=KNNClassificationVoter,
+            default_voter_kwargs={},
+            default_decider_class=SimpleArgmaxAverage,
+            default_decider_kwargs={},
+        )
 
     for task_ii in range(10):
         print("Starting Task {} For Fold {}".format(task_ii, shift))
@@ -98,12 +109,13 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             np.random.seed(acorn)
 
         train_start_time = time.time()
+
         progressive_learner.add_task(
             X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
             y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
             num_transformers = 1 if model == "dnn" else ntrees,
             transformer_voter_decider_split = [0.67, 0.33, 0],
-            decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
+            decider_kwargs = {"classes": 10}
             )
         train_end_time = time.time()
 
@@ -187,9 +199,9 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
     train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, num_points_per_task, shift=shift)
 
     if model == "dnn":
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
-        sess = tf.Session(config=config)
+        sess = tf.compat.v1.Session(config=config)
         with tf.device('/gpu:'+str(shift % 4)):
             LF_experiment(train_x, train_y, test_x, test_y, n_trees, shift, slot, model, num_points_per_task, acorn=12345)
     else:
@@ -197,7 +209,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 500
 ########################
 
@@ -210,7 +222,7 @@ data_y = data_y[:, 0]
 
 
 #%%
-if model == "uf":
+'''if model == "uf":
     slot_fold = range(10)
     shift_fold = range(1,7,1)
     n_trees=[10]
@@ -237,6 +249,20 @@ elif model == "dnn":
     stage_2_shifts = range(5, 7)
     stage_2_iterable = product(stage_2_shifts,slot_fold)
     with Pool(4) as p:
-        p.map(perform_shift, stage_2_iterable)
+        p.map(perform_shift, stage_2_iterable)'''
 
+slot_fold = range(10)
+shift_fold = range(1,7,1)
+n_trees=[0]
+iterable = product(n_trees,shift_fold,slot_fold)
+'''Parallel(n_jobs=-2,verbose=1)(
+    delayed(run_parallel_exp)(
+            data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
+            ) for ntree,shift,slot in iterable
+        )'''
+
+for ntree,shift,slot in iterable:
+    run_parallel_exp(
+            data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
+            )
 # %%
