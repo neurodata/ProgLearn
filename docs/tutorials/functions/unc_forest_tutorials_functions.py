@@ -236,6 +236,7 @@ def estimate_ce(X, y, label):
         uf = UncertaintyForest(n_estimators = 300, tree_construction_proportion = 0.4, kappa = 3.0)
         # X_train, y_train, X_eval, y_eval = split_train_eval(X, y, frac_eval)
         X_train, X_eval, y_train, y_eval = train_test_split(X, y, test_size=frac_eval)
+        uf.fit(X_train,y_train)
         p = uf.predict_proba(X_eval)
         return np.mean(entropy(p.T, base = np.exp(1)))
     else:
@@ -260,16 +261,11 @@ def get_cond_entropy_vs_n(mean, d, num_trials, sample_sizes, algos):
 
         results = []
         for t in range(num_trials):
-            print(t)
+            # print(t)
             results.append(worker(t))
         results = np.array(results)
         for j in range(len(algos)):
             output[j, i, :] = results[:, j]
-        
-        print(Xlist[0]-Xlist[1])
-        print(np.where(0, Xlist[0],Xlist[1]))
-        print(ylist[0]-ylist[1])
-        print(np.where(0, ylist[0],ylist[1]))
         
     pickle.dump(sample_sizes, open('output/sample_sizes_d_%d.pkl' % d, 'wb'))
     for j, algo in enumerate(algos):
@@ -296,16 +292,12 @@ def get_cond_entropy_vs_mu(n, d, num_trials, mus, algos):
 
         results = []
         for t in range(num_trials):
-            print(t)
+            # print(t)
             results.append(worker(t))
         results = np.array(results)
         for j in range(len(algos)):
             output[j, i, :] = results[:, j]
         
-        print(Xlist[0]-Xlist[1])
-        print(np.where(0, Xlist[0],Xlist[1]))
-        print(ylist[0]-ylist[1])
-        print(np.where(0, ylist[0],ylist[1]))
     
     pickle.dump(mus, open('output/mus.pkl', 'wb'))
     for j, algo in enumerate(algos):
