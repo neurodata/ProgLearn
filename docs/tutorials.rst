@@ -13,4 +13,3 @@ The following tutorials highlight what one can do with the ``ProgLearn`` package
     tutorials/random_class_exp
     tutorials/uncertaintyforest_fig1
     tutorials/uncertaintyforest_running_example
-    tutorials/installation_guide
