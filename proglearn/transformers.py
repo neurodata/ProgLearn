@@ -15,6 +15,7 @@ from sklearn.utils.validation import (
 import keras as keras
 
 from .base import BaseTransformer
+from .oblique_tree import ObliqueTreeClassifier
 
 
 class NeuralClassificationTransformer(BaseTransformer):
@@ -170,6 +171,67 @@ class TreeClassificationTransformer(BaseTransformer):
         """
         X, y = check_X_y(X, y)
         self.transformer_ = DecisionTreeClassifier(**self.kwargs).fit(X, y)
+        return self
+
+    def transform(self, X):
+        """
+        Performs inference using the transformer.
+
+        Parameters
+        ----------
+        X : ndarray
+            Input data matrix.
+
+        Returns
+        -------
+        X_transformed : ndarray
+            The transformed input.
+
+        Raises
+        ------
+        NotFittedError
+            When the model is not fitted.
+        """
+        check_is_fitted(self)
+        X = check_array(X)
+        return self.transformer_.apply(X)
+
+class ObliqueTreeClassificationTransformer(BaseTransformer):
+    """
+    A class used to transform data from a category to a specialized representation.
+
+    Parameters
+    ----------
+    kwargs : dict, default={}
+        A dictionary to contain parameters of the tree.
+
+    Attributes
+    ----------
+    transformer : sklearn.tree.DecisionTreeClassifier
+        an internal sklearn DecisionTreeClassifier
+    """
+
+    def __init__(self, kwargs={}):
+        self.kwargs = kwargs
+
+    def fit(self, X, y):
+        """
+        Fits the transformer to data X with labels y.
+
+        Parameters
+        ----------
+        X : ndarray
+            Input data matrix.
+        y : ndarray
+            Output (i.e. response data matrix).
+
+        Returns
+        -------
+        self : TreeClassificationTransformer
+            The object itself.
+        """
+        X, y = check_X_y(X, y)
+        self.transformer_ = ObliqueTreeClassifier(**self.kwargs).fit(X, y)
         return self
 
     def transform(self, X):
