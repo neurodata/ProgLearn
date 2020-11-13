@@ -1,5 +1,6 @@
 #%%
 import random
+import matplotlib.pyplot as plt
 import tensorflow as tf
 import keras
 from keras import layers
@@ -17,7 +18,7 @@ from multiprocessing import Pool
 
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
-from proglearn.progressive_learner import ClassificationProgressiveLearner
+from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import NeuralClassificationTransformer, TreeClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
@@ -94,40 +95,56 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         default_decider_class = SimpleArgmaxAverage
 
 
-    progressive_learner = ClassificationProgressiveLearner(
-            default_transformer_class=NeuralClassificationTransformer,
-            default_transformer_kwargs=default_transformer_kwargs,
-            default_voter_class=KNNClassificationVoter,
-            default_voter_kwargs={},
-            default_decider_class=SimpleArgmaxAverage,
-            default_decider_kwargs={},
-        )
+    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
+                                         default_transformer_kwargs = default_transformer_kwargs,
+                                         default_voter_class = default_voter_class,
+                                         default_voter_kwargs = default_voter_kwargs,
+                                         default_decider_class = default_decider_class)
 
     for task_ii in range(10):
         print("Starting Task {} For Fold {}".format(task_ii, shift))
-        if acorn is not None:
-            np.random.seed(acorn)
+
 
         train_start_time = time.time()
+        
+        if acorn is not None:
+            np.random.seed(acorn)
 
         progressive_learner.add_task(
             X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
             y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
             num_transformers = 1 if model == "dnn" else ntrees,
             transformer_voter_decider_split = [0.67, 0.33, 0],
-            decider_kwargs = {"classes": 10}
+            decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
             )
         train_end_time = time.time()
+        
+        single_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
+                                         default_transformer_kwargs = default_transformer_kwargs,
+                                         default_voter_class = default_voter_class,
+                                         default_voter_kwargs = default_voter_kwargs,
+                                         default_decider_class = default_decider_class)
+
+        if acorn is not None:
+            np.random.seed(acorn)
+
+        single_learner.add_task(
+            X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
+            y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
+            num_transformers = 1 if model == "dnn" else (task_ii+1)*ntrees,
+            transformer_voter_decider_split = [0.67, 0.33, 0],
+            decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
+            )
 
         train_times_across_tasks.append(train_end_time - train_start_time)
 
         single_task_inference_start_time = time.time()
-        llf_task=progressive_learner.predict(
+        single_task=progressive_learner.predict(
             X = test_x[task_ii*1000:(task_ii+1)*1000,:], transformer_ids=[task_ii], task_id=task_ii
             )
         single_task_inference_end_time = time.time()
         single_task_accuracies[task_ii] = np.mean(
-                llf_task == test_y[task_ii*1000:(task_ii+1)*1000]
+                single_task == test_y[task_ii*1000:(task_ii+1)*1000]
                     )
         single_task_inference_times_across_tasks.append(single_task_inference_end_time - single_task_inference_start_time)
 
@@ -161,6 +178,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     df_single_task['single_task_inference_times'] = single_task_inference_times_across_tasks
     df_single_task['train_times'] = train_times_across_tasks
 
+    print(df)
     summary = (df,df_single_task)
     file_to_save = 'result/result/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
@@ -209,7 +227,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
+model = "uf"
 num_points_per_task = 500
 ########################
 
@@ -222,7 +240,7 @@ data_y = data_y[:, 0]
 
 
 #%%
-'''if model == "uf":
+if model == "uf":
     slot_fold = range(10)
     shift_fold = range(1,7,1)
     n_trees=[10]
@@ -249,20 +267,14 @@ elif model == "dnn":
     stage_2_shifts = range(5, 7)
     stage_2_iterable = product(stage_2_shifts,slot_fold)
     with Pool(4) as p:
-        p.map(perform_shift, stage_2_iterable)'''
+        p.map(perform_shift, stage_2_iterable)
 
-slot_fold = range(10)
-shift_fold = range(1,7,1)
+'''slot_fold = range(1)
+shift_fold = [2,3,5,6]
 n_trees=[0]
 iterable = product(n_trees,shift_fold,slot_fold)
-'''Parallel(n_jobs=-2,verbose=1)(
-    delayed(run_parallel_exp)(
-            data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
-            ) for ntree,shift,slot in iterable
-        )'''
 
 for ntree,shift,slot in iterable:
     run_parallel_exp(
-            data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
-            )
-# %%
+                data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
+                )'''
