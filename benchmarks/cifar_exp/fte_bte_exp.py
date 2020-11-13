@@ -1,6 +1,5 @@
 #%%
 import random
-import matplotlib.pyplot as plt
 import tensorflow as tf
 import keras
 from keras import layers
