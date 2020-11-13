@@ -259,7 +259,7 @@ class KNNClassificationVoter(BaseClassificationVoter):
             When the model is not fitted.
         """
         check_is_fitted(self)
-        X = check_array(X)
+        X = check_array(X, ensure_2d=False)
         votes_per_example = self.knn_.predict_proba(X)
 
         if len(self.missing_label_indices_) > 0:

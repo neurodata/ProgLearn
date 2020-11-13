@@ -138,8 +138,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         train_times_across_tasks.append(train_end_time - train_start_time)
 
         single_task_inference_start_time = time.time()
-        single_task=progressive_learner.predict(
-            X = test_x[task_ii*1000:(task_ii+1)*1000,:], transformer_ids=[task_ii], task_id=task_ii
+        single_task=single_learner.predict(
+            X = test_x[task_ii*1000:(task_ii+1)*1000,:], transformer_ids=[0], task_id=0
             )
         single_task_inference_end_time = time.time()
         single_task_accuracies[task_ii] = np.mean(
