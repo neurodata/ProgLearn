@@ -264,13 +264,9 @@ def get_cond_entropy_vs_n(mean, d, num_trials, sample_sizes, algos):
         #     # print(t)
         #     results.append(worker(t))
         # results = np.array(results)
-        for j in range(len(algos)):
-            output[j, i, :] = results[:, j]
-        
-    pickle.dump(sample_sizes, open('output/sample_sizes_d_%d.pkl' % d, 'wb'))
-    for j, algo in enumerate(algos):
-        pickle.dump(output[j], open('output/%s_by_n_d_%d.pkl' % (algo['label'], d), 'wb'))
-        
+        # for j in range(len(algos)):
+        #     output[j, i, :] = results[:, j]
+                
     return output
 
 def get_cond_entropy_vs_mu(n, d, num_trials, mus, algos):
@@ -295,21 +291,22 @@ def get_cond_entropy_vs_mu(n, d, num_trials, mus, algos):
         #     # print(t)
         #     results.append(worker(t))
         # results = np.array(results)
-        for j in range(len(algos)):
-            output[j, i, :] = results[:, j]
+        # for j in range(len(algos)):
+        #     output[j, i, :] = results[:, j]
         
     
-    pickle.dump(mus, open('output/mus.pkl', 'wb'))
-    for j, algo in enumerate(algos):
-        pickle.dump(output[j], open('output/%s_by_mu_d_%d.pkl' % (algo['label'], d), 'wb'))
+    # pickle.dump(mus, open('output/mus.pkl', 'wb'))
+    # for j, algo in enumerate(algos):
+    #     pickle.dump(output[j], open('output/%s_by_mu_d_%d.pkl' % (algo['label'], d), 'wb'))
         
     return output
 
-def plot_cond_entropy_by_n(ax, num_plotted_trials, d, mu, algos, panel):
+def plot_cond_entropy_by_n(ax, num_plotted_trials, d, mu, algos, panel, num_trials, sample_sizes):
         
-    sample_sizes = np.array(pickle.load(open('output/sample_sizes_d_%d.pkl' % d, 'rb')))
+    results = get_cond_entropy_vs_n(mu, d, num_trials, sample_sizes, algos)
     for j, algo in enumerate(algos):
-        result = pickle.load(open('output/%s_by_n_d_%d.pkl' % (algo['label'], d), 'rb'))
+        result = results[j,:,:]
+
         # Plot the mean over trials as a solid line.
         ax.plot(sample_sizes,
                 np.mean(result, axis = 1).flatten(), 
@@ -333,11 +330,12 @@ def plot_cond_entropy_by_n(ax, num_plotted_trials, d, mu, algos, panel):
     ax.set_title("%s) Effect Size = %.1f" % (panel, mu))
     ax.set_ylim(ymin = -0.05, ymax = 1.05)
 
-def plot_cond_entropy_by_mu(ax, d, n, algos, panel):
+def plot_cond_entropy_by_mu(ax, d, n, algos, panel, num_trials, mus):
     
-    mus = pickle.load(open('output/mus.pkl', 'rb'))
+    results = get_cond_entropy_vs_mu(n, d, num_trials, mus, algos)
     for j, algo in enumerate(algos):
-        result = pickle.load(open('output/%s_by_mu_d_%d.pkl' % (algo['label'], d), 'rb'))
+        result = results[j,:,:]
+
         # Plot the mean over trials as a solid line.
         ax.plot(mus,
                 np.mean(result, axis = 1).flatten(), 
@@ -355,18 +353,18 @@ def plot_cond_entropy_by_mu(ax, d, n, algos, panel):
     ax.set_ylabel("Estimated Conditional Entropy")
 
 
-def plot_fig2(num_plotted_trials, d1, d2, n1, n2, effect_size, algos):
+def plot_fig2(num_plotted_trials, d1, d2, n1, n2, effect_size, algos, num_trials, sample_sizes_d1, sample_sizes_d2, mus):
     sns.set(font_scale = 3)
     sns.set_style("ticks")
     plt.rcParams["font.family"] = "sans-serif"
     plt.rcParams['figure.figsize'] = [30, 20]
     fig, axes = plt.subplots(2, 2)
     
-    plot_cond_entropy_by_n(axes[0, 0], num_plotted_trials, d1, effect_size, algos, "A")
-    plot_cond_entropy_by_mu(axes[0, 1], d1, n1, algos, "B")
+    plot_cond_entropy_by_n(axes[0, 0], num_plotted_trials, d1, effect_size, algos, "A", num_trials, sample_sizes_d1)
+    plot_cond_entropy_by_mu(axes[0, 1], d1, n1, algos, "B", num_trials, mus)
     
-    plot_cond_entropy_by_n(axes[1, 0], num_plotted_trials, d2, effect_size, algos, "C") 
-    plot_cond_entropy_by_mu(axes[1, 1], d2, n2, algos, "D")
+    plot_cond_entropy_by_n(axes[1, 0], num_plotted_trials, d2, effect_size, algos, "C", num_trials, sample_sizes_d2) 
+    plot_cond_entropy_by_mu(axes[1, 1], d2, n2, algos, "D", num_trials, mus)
     
     axes[0,0].legend(loc = "upper left")
     
