@@ -8,7 +8,9 @@ from .base import BaseClassificationProgressiveLearner, BaseProgressiveLearner
 
 class ProgressiveLearner(BaseProgressiveLearner):
     """
-    A class for progressive learning.
+    A (mostly) internal class for progressive learning. Most users who desire to
+    utilize ProgLearn should use the classes defined in {network, forest}.py instead
+    of this class.
 
     Parameters
     ----------
@@ -718,7 +720,9 @@ class ClassificationProgressiveLearner(
     BaseClassificationProgressiveLearner, ProgressiveLearner
 ):
     """
-    A class for progressive learning in the classification setting.
+    A (mostly) internal class for progressive learning in the classification
+    setting. Most users who desire to utilize ProgLearn should use the classes
+    defined in {network, forest}.py instead of this class.
     """
 
     def predict_proba(self, X, task_id, transformer_ids=None):
