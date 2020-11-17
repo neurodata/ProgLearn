@@ -8,15 +8,19 @@ Overview of ProgLearn_
 .. _proglearn: https://proglearn.neurodata.io/
 
 .. image:: https://travis-ci.org/neurodata/ProgLearn.svg?branch=master
-   :target: https://travis-ci.org/neurodata/progressive-learning
+   :target: https://travis-ci.org/neurodata/ProgLearn
 .. image:: https://codecov.io/gh/neurodata/ProgLearn/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/neurodata/progressive-learning
+   :target: https://codecov.io/gh/neurodata/ProgLearn
 .. image:: https://img.shields.io/pypi/v/proglearn.svg
    :target: https://pypi.org/project/proglearn/
 .. image:: https://img.shields.io/badge/arXiv-2004.12908-red.svg?style=flat
    :target: https://arxiv.org/abs/2004.12908
 .. image:: https://img.shields.io/badge/License-MIT-blue
    :target: https://opensource.org/licenses/MIT
+.. image:: https://api.netlify.com/api/v1/badges/97f86f49-81ed-4292-a100-f7031b54ecc7/deploy-status
+   :target: https://app.netlify.com/sites/neuro-data-proglearn/deploys
+.. image:: https://img.shields.io/pypi/dm/proglearn.svg
+   :target: https://github.com/neurodata/ProgLearn
 
 ``ProgLearn`` (**Prog**\ ressive **Learn**\ ing) is a package for exploring and using progressive learning algorithms.
 
