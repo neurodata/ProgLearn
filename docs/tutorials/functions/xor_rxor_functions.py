@@ -445,11 +445,11 @@ def plot_bte_v_nsamples(mean_te):
     #ax.set_yticks([0.87,0.9,0.93])
     ax.tick_params(labelsize=26)
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-    ax.text(50, np.mean(ax.get_ylim())-.042, "50", fontsize=26)
-    ax.text(500, np.mean(ax.get_ylim())-.042, "500", fontsize=26)
-    ax.text(5000, np.mean(ax.get_ylim())-.042, "5000", fontsize=26)
+    ax.text(50, np.mean(ax.get_ylim())-.060, "50", fontsize=26)
+    ax.text(500, np.mean(ax.get_ylim())-.060, "500", fontsize=26)
+    ax.text(5000, np.mean(ax.get_ylim())-.060, "5000", fontsize=26)
 
-    ax.text(50, np.mean(ax.get_ylim())-.046, "Number of $25^\circ$-RXOR Training Samples", fontsize=24)
+    ax.text(50, np.mean(ax.get_ylim())-.068, "Number of $25^\circ$-RXOR Training Samples", fontsize=24)
     ax.set_ylabel('Backward Transfer Efficiency (XOR)',fontsize=24)
 
     right_side = ax.spines["right"]
