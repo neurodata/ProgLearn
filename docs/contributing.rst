@@ -192,7 +192,14 @@ It is recommended to check that your tutorial completes the following
 steps before submitting:
 
 - Add your notebook name to `docs/tutorials.rst
-  <https://github.com/neurodata/ProgLearn/blob/staging/docs/tutorials.rst>`_.
+  </docs/tutorials.rst>`_ if applicable.
+
+- Organize local functions into a separate file and put it in
+  `docs/tutorials/functions </docs/tutorials/functions>`_.
+  This function file and the notebook should have the same name.
+
+- Make your tutorial self-contained if possible. It should neither
+  output any file nor read from any file.
 
 - Format the first markdown line with "#" at front and make it the
   **one and only** informative title instead of using "overview"
@@ -202,5 +209,11 @@ steps before submitting:
 - Format the subtitles with "##" at front so that
   they will show up as submenus on website.
 
+- Minimize cell outputs and avoid unnecessary prints.
+
+- Remove all empty cells.
+
 - Check the Netlify deployment preview for your PR, which is
-  included as one of the required checks.
+  included as one of the required checks. Be aware that what
+  you see on GitHub or local machine might be different from
+  Netlify deployment, especially math formulas.
