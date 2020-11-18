@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from numpy import random as rng
 from numpy.testing import assert_almost_equal, assert_warns, assert_raises
+from sklearn.datasets import load_iris
 
 import sys
 sys.path.append("../")
@@ -75,8 +76,6 @@ class TestObliqueSplitter:
         
         splitter = ObliqueSplitter(X, y, proj_dims, density, random_state)
         
-        # Impurity of empty thing should be throw exception 
-
         # Impurity of one thing should be 0
         impurity = splitter.impurity([0])
         assert 0 == impurity
@@ -95,22 +94,56 @@ class TestObliqueSplitter:
     
     def test_split(self):
 
-        pass
+        random_state = 0
+        rng.seed(random_state)
 
+        X = rng.rand(100, 100)
 
+        density = 0.5
+        proj_dims = 50
+
+        y = np.zeros(100)
+        for i in range(10):
+            for j in range(10):
+                y[10*i + j] = i
+        
+        splitter = ObliqueSplitter(X, y, proj_dims, density, random_state)
+        
+        split_info = splitter.split(np.array([i for i in range(100)]))
 
 class TestObliqueTree:
 
     def test_add_node(self):
+        
+        # Add a root node
+        tree = ObliqueTree(None, 0, 0, 0, 0, 0)
+
+        tree.add_node(0, False,
+                      0, 0, False,
+                      0, 0, None,
+                      0, 0)
+
+        # Add a regular node
+        tree.add_node(0, False,
+                      0, 0, False,
+                      0, 0, None,
+                      0, 0)
+
+        # Add a leaf node
+        tree.add_node(1, False,
+                      0, 0, True,
+                      0, 0, None,
+                      0, 0)
+
+        assert 3 == len(tree.nodes)
+        assert 3 == tree.node_count
 
 
+    def test_fit(self):
 
-        pass
-
-
-    def test_build(self):
-
-        pass
+        data = load_iris() 
+        clf = ObliqueTreeClassifier()
+        clf.fit(data.data, data.target)
 
     def test_predict(self):
         Xtrain = np.random.rand(6, 5)
