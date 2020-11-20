@@ -121,6 +121,13 @@ class ObliqueSplitter:
         ---
         sample_inds : array of shape [n_samples]
             The data we are transforming.
+
+        Returns
+        ---
+        proj_mat : {ndarray, sparse matrix} of shape (n_samples, n_features)
+            The generated sparse random matrix.
+        proj_mat : {ndarray, sparse matrix} of shape (n_samples, n_features)
+            Projected matrix.
         """
 
         proj_mat = SparseRandomProjection(density=self.density,
@@ -138,8 +145,15 @@ class ObliqueSplitter:
         Parameters
         ---
         idx : array of shape [n_samples]
-            The indeces of the samples that are at the leaf node for which the label
+            The indices of the samples that are at the leaf node for which the label
             and probability need to be found.
+
+        Returns
+        ---
+       label : int
+            The label for any sample that is predicted to be at this node.
+        proba : float
+            The probability of the predicted sample to have this node's label.
         """
 
         samples = self.y[idx]
@@ -165,6 +179,11 @@ class ObliqueSplitter:
             is being calculated.
         t : float
             The threshold determining where to split y_sort.
+
+        Returns
+        ---
+        gini : float
+            The Gini impurity of the split.
         """
 
         left = y_sort[:t]
@@ -195,6 +214,11 @@ class ObliqueSplitter:
         ---
         idx : array of shape [n_samples]
             The indices of the nodes in the set for which the impurity is being calculated.
+
+        Returns
+        ---
+        impurity : float
+            Actual impurity of split.
         """
 
         samples = self.y[idx]
@@ -221,6 +245,11 @@ class ObliqueSplitter:
         ---
         sample_inds : array of shape [n_samples]
             The indices of the nodes in the set for which the best split is found.
+
+        Returns
+        ---
+        split_info : SplitInfo
+            Class holding information about the split.
         """
 
         # Project the data
@@ -285,8 +314,18 @@ class ObliqueSplitter:
 #--------------------------------------------------------------------------
 
 class Node:
-    def __init__(self): 
-        
+    """
+    A class used to represent an oblique node.
+
+    Parameters:
+    ---
+    None
+
+    Methods
+    ---
+    None
+    """
+    def __init__(self):
         self.node_id = None
         self.is_leaf = None
         self.parent = None
@@ -303,6 +342,29 @@ class Node:
         self.proba = None
 
 class StackRecord:
+    """
+    A class used to keep track of a node's parent and other information about the node and its split.
+
+    Parameters:
+    ---
+    parent : int
+        The index of the parent node.
+    depth : int
+        The depth at which this node is.
+    is_left : bool
+        Represents if the node is a left child or not.
+    impurity : float
+        This is Gini impurity of this node.
+    sample_idx : array of shape [n_samples]
+        This is the indices of the nodes that are in this node.
+    n_samples : int
+        The number of samples in this node.
+
+    Methods
+    ---
+    None
+    """
+
     def __init__(self, parent, depth, is_left, 
                  impurity, sample_idx, n_samples):
 
@@ -314,7 +376,34 @@ class StackRecord:
         self.n_samples = n_samples
 
 class ObliqueTree:
-    
+    """
+    A class used to represent a tree with oblique splits.
+
+    Parameters:
+    ---
+    splitter : class
+        The type of splitter for this tree, should be an ObliqueSplitter.
+    min_samples_split : int
+        Minimum number of samples possible at a node.
+    min_samples_leaf : int
+        Minimum number of samples possible at a leaf.
+    max_depth : int
+        Maximum depth allowed for the tree.
+    min_impurity_split : float
+        Minimum Gini impurity value that must be achieved for a split to occur on the node.
+    min_impurity_decrease : float
+        Minimum amount Gini impurity value must decrease by for a split to be valid.
+
+    Methods
+    ---
+    add_node(parent, is_left, impurity, n_samples, is_leaf, feature, threshold, proj_mat, label, proba)
+        Adds a node to the existing tree
+    build()
+        This is what is initially called on to completely build the oblique tree.
+    predict(X)
+        Finds the final node for each input sample as it passes through the decision tree.
+    """
+
     def __init__(self, splitter, min_samples_split, min_samples_leaf,
                  max_depth, min_impurity_split, min_impurity_decrease):
         
@@ -340,7 +429,41 @@ class ObliqueTree:
                  impurity, n_samples, is_leaf, 
                  feature, threshold, proj_mat,
                  label, proba):
-        
+        """
+        Adds a node to the existing oblique tree.
+
+        Parameters
+        ---
+        parent : int
+            The index of the parent node for the new node being added.
+        is_left : bool
+            Determines if this new node being added is a left or right child.
+        impurity : float
+            Impurity of this new node.
+        n_samples : int
+            Number of samples at this new node.
+        is_leaf : bool
+            Determines if this new node is a leaf of the tree or an internal node.
+        feature : int
+            Index of feature on which the split occurs at this node.
+        threshold : float
+            The threshold feature value for this node determining if a sample will go
+            to this node's left of right child. If a sample has a value less than the
+            threshold (for the feature of this node) it will go to the left childe,
+            otherwise it will go the right child.
+        proj_mat : {ndarray, sparse matrix} of shape (n_samples, n_features)
+            Projection matrix for this new node.
+        label : int
+            The label a sample will be given if it is predicted to be at this node.
+        proba : float
+            The probability a predicted sample has of being the node's label.
+
+        Returns
+        ---
+        node_id : int
+            Index of the new node just added.
+        """
+
         node = Node()
         node.node_id = self.node_count
         node.impurity = impurity
@@ -371,6 +494,17 @@ class ObliqueTree:
         return node.node_id
 
     def build(self):
+        """
+        Builds the oblique tree.
+
+        Parameters
+        ---
+        None
+
+        Returns
+        ---
+        None
+        """
 
         # Initialize, add root node
         stack = []
@@ -454,6 +588,20 @@ class ObliqueTree:
                 self.depth = cur.depth
 
     def predict(self, X):
+        """
+        Predicts final nodes of samples given.
+
+        Parameters
+        ---
+        X : array of shape [n_samples, n_features]
+            The input array for which predictions are made.
+
+        Returns
+        ---
+        predictions : array of shape [n_samples]
+            Array of the final node index for each input prediction sample.
+        """
+
         predictions = np.zeros(X.shape[0])
         for i in range(X.shape[0]):
             cur = self.nodes[0]
@@ -474,6 +622,41 @@ class ObliqueTree:
 
 """ Class for Oblique Tree """
 class ObliqueTreeClassifier(BaseEstimator):
+    """
+    A class used to represent a classifier that uses an oblique decision tree.
+
+    Parameters:
+    ---
+    max_depth : int
+        Maximum depth allowed for oblique tree.
+    min_samples_split : int
+        Minimum number of samples possible at a node.
+    min_samples_leaf : int
+        Minimum number of samples possible at a leaf.
+    random_state : int
+        Maximum depth allowed for the tree.
+    min_impurity_decrease : float
+        Minimum amount Gini impurity value must decrease by for a split to be valid.
+    min_impurity_split : float
+        Minimum Gini impurity value that must be achieved for a split to occur on the node.
+    feature_combinations : float
+        The feature combinations to use for the oblique split.
+    density : float
+        Density estimate.
+
+    Methods
+    ---
+    fit(X,y)
+        Fits the oblique tree to the training samples.
+    apply(X)
+        Calls on the predict function from the oblique tree for the test samples.
+    predict(X)
+        Gets the prediction labels for the test samples.
+    predict_proba(X)
+        Gets the probability of the prediction labels for the test samples.
+    predict_log_proba(X)
+        Gets the log of the probability of the prediction labels for the test samples.
+    """
 
     def __init__(self, *,
 
@@ -514,6 +697,21 @@ class ObliqueTreeClassifier(BaseEstimator):
         self.density=density
 
     def fit(self, X, y):
+        """
+        Predicts final nodes of samples given.
+
+        Parameters
+        ---
+        X : array of shape [n_samples, n_features]
+            The training samples.
+        y : array of shape [n_samples]
+            Labels for the training samples.
+
+        Returns
+        ---
+        ObliqueTreeClassifier
+            The fit classifier.
+        """
 
         self.proj_dims = int(np.ceil(X.shape[1]) / self.feature_combinations)
         splitter = ObliqueSplitter(X, y, 
@@ -531,10 +729,38 @@ class ObliqueTreeClassifier(BaseEstimator):
         return self
 
     def apply(self, X):
+        """
+        Gets predictions form the oblique tree for the test samples.
+
+        Parameters
+        ---
+        X : array of shape [n_samples, n_features]
+            The testing samples.
+
+        Returns
+        ---
+        pred_nodes : array of shape[n_samples]
+            The indices for each test sample's final node in the oblique tree.
+        """
+
         pred_nodes = self.tree.predict(X).astype(int)
         return pred_nodes
     
     def predict(self, X):
+        """
+        Determines final label predictions for each sample in the test data.
+
+        Parameters
+        ---
+        X : array of shape [n_samples, n_features]
+            The testing samples.
+
+        Returns
+        ---
+        preds : array of shape[n_samples]
+            The predictions (labels) for each testing sample.
+        """
+
         preds = np.zeros(X.shape[0])
         pred_nodes = self.tree.predict(X).astype(int)
         for k in range(len(pred_nodes)):
@@ -545,6 +771,20 @@ class ObliqueTreeClassifier(BaseEstimator):
 
 
     def predict_proba(self, X):
+        """
+        Determines probabilities of the final label predictions for each sample in the test data.
+
+        Parameters
+        ---
+        X : array of shape [n_samples, n_features]
+            The testing samples.
+
+        Returns
+        ---
+        preds : array of shape[n_samples]
+            The probabilities of the predictions (labels) for each testing sample.
+        """
+
         preds = np.zeros(X.shape[0])
         pred_nodes = self.tree.predict(X).astype(int)
         for k in range(len(preds)):
@@ -554,6 +794,20 @@ class ObliqueTreeClassifier(BaseEstimator):
         return preds
 
     def predict_log_proba(self, X):
+        """
+        Determines log of the probabilities of the final label predictions for each sample in the test data.
+
+        Parameters
+        ---
+        X : array of shape [n_samples, n_features]
+            The testing samples.
+
+        Returns
+        ---
+        preds : array of shape[n_samples]
+            The log of the probabilities of the predictions (labels) for each testing sample.
+        """
+
         proba = self.predict_proba(X)
 
         for k in range(len(preds)):
