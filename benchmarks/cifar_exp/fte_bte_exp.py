@@ -130,7 +130,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         single_learner.add_task(
             X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
             y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
-            num_transformers = 1 if model == "dnn" else (task_ii+1)*ntrees,
+            num_transformers = 1 if model == "dnn" else ntrees,
             transformer_voter_decider_split = [0.67, 0.33, 0],
             decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
             )
@@ -179,7 +179,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
 
     print(df)
     summary = (df,df_single_task)
-    file_to_save = 'result/result/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
+    file_to_save = 'result/result/fixed_'+model+str(ntrees)+'withrep_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(summary, f)
 
