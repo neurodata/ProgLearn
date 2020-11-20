@@ -1,16 +1,11 @@
 """
-Parth Vora
+Authors: Parth Vora and Jay Mandavilli
 
 Oblique Decision Tree (SPORF)
 """
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.random_projection import SparseRandomProjection
-
-# debugging
-import sys
-# Parallelize things later
-from joblib import Parallel, delayed
 
 #--------------------------------------------------------------------------
 class SplitInfo:
