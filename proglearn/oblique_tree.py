@@ -762,7 +762,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         """
 
         preds = np.zeros(X.shape[0])
-        pred_nodes = self.tree.predict(X).astype(int)
+        pred_nodes = self.apply(X)
         for k in range(len(pred_nodes)):
             id = pred_nodes[k]
             preds[k] = self.tree.nodes[id].label
@@ -786,7 +786,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         """
 
         preds = np.zeros(X.shape[0])
-        pred_nodes = self.tree.predict(X).astype(int)
+        pred_nodes = self.apply(X)
         for k in range(len(preds)):
             id = pred_nodes[k]
             preds[k] = self.tree.nodes[id].proba
@@ -809,8 +809,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         """
 
         proba = self.predict_proba(X)
-
-        for k in range(len(preds)):
+        for k in range(len(proba)):
             proba[k] = np.log(proba[k])
 
         return proba

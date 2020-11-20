@@ -153,6 +153,15 @@ class TestObliqueTree:
         Xtest = np.random.rand(3, 5)
         preds = tree.predict(Xtest)
 
-        # Tried testing on Xtrain but didn't get 100% accuracy
+        assert len(preds) == len(Xtest)
 
-        assert len(preds) == 3
+        preds_proba = tree.predict_proba(Xtest)
+        preds_log_proba = tree.predict_log_proba(Xtest)
+
+        assert len(preds_proba) == len(Xtest)
+        assert len(preds_log_proba) == len(Xtest)
+
+        bool_inc = np.all(np.log(preds_proba) == preds_log_proba)
+
+        assert bool_inc
+
