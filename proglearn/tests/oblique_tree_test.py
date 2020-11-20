@@ -4,9 +4,7 @@ from numpy import random as rng
 from numpy.testing import assert_almost_equal, assert_warns, assert_raises
 from sklearn.datasets import load_iris
 
-import sys
-sys.path.append("../")
-from oblique_tree import *
+from proglearn.oblique_tree import *
 
 
 class TestObliqueSplitter:
