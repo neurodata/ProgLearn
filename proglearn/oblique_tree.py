@@ -147,21 +147,21 @@ class ObliqueSplitter:
 
     def leaf_label_proba(self, idx):
         """
-         Finds the most common label and probability of this label from the samples at
-         the leaf node for which this is used on.
+        Finds the most common label and probability of this label from the samples at
+        the leaf node for which this is used on.
 
-         Parameters
-         ---
-         idx : array of shape [n_samples]
-             The indices of the samples that are at the leaf node for which the label
-             and probability need to be found.
+        Parameters
+        ---
+        idx : array of shape [n_samples]
+            The indices of the samples that are at the leaf node for which the label
+            and probability need to be found.
 
-         Returns
-         ---
+        Returns
+        ---
         label : int
-             The label for any sample that is predicted to be at this node.
-         proba : float
-             The probability of the predicted sample to have this node's label.
+            The label for any sample that is predicted to be at this node.
+        proba : float
+            The probability of the predicted sample to have this node's label.
         """
 
         samples = self.y[idx]
