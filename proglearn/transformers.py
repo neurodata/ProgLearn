@@ -196,6 +196,7 @@ class TreeClassificationTransformer(BaseTransformer):
         X = check_array(X)
         return self.transformer_.apply(X)
 
+
 class ObliqueTreeClassificationTransformer(BaseTransformer):
     """
     A class used to transform data from a category to a specialized representation.

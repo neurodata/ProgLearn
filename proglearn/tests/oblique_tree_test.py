@@ -8,9 +8,8 @@ from proglearn.oblique_tree import *
 
 
 class TestObliqueSplitter:
-
     def test_sample_projmat(self):
-        
+
         random_state = 0
         rng.seed(random_state)
 
@@ -19,11 +18,13 @@ class TestObliqueSplitter:
 
         density = 0.5
         proj_dims = [10, 20, 40, 60, 80]
-        sample_inds = [np.linspace(0, 9, 10, dtype=int),
-                       np.linspace(0, 19, 20, dtype=int), 
-                       np.linspace(0, 39, 40, dtype=int), 
-                       np.linspace(0, 59, 60, dtype=int), 
-                       np.linspace(0, 79, 80, dtype=int)]
+        sample_inds = [
+            np.linspace(0, 9, 10, dtype=int),
+            np.linspace(0, 19, 20, dtype=int),
+            np.linspace(0, 39, 40, dtype=int),
+            np.linspace(0, 59, 60, dtype=int),
+            np.linspace(0, 79, 80, dtype=int),
+        ]
 
         n_sample_inds = [10, 20, 40, 60, 80]
 
@@ -55,10 +56,10 @@ class TestObliqueSplitter:
         assert 0 == score
 
         score = splitter.score(y, 1)
-        assert_almost_equal(5/11, score)
+        assert_almost_equal(5 / 11, score)
 
     def test_impurity(self):
-       
+
         random_state = 0
         rng.seed(random_state)
 
@@ -70,14 +71,14 @@ class TestObliqueSplitter:
         y = np.zeros(100)
         for i in range(10):
             for j in range(10):
-                y[10*i + j] = i
-        
+                y[10 * i + j] = i
+
         splitter = ObliqueSplitter(X, y, proj_dims, density, random_state)
-        
+
         # Impurity of one thing should be 0
         impurity = splitter.impurity([0])
         assert 0 == impurity
-        
+
         # Impurity of one class should be 0
         impurity = splitter.impurity(np.linspace(0, 9, 10, dtype=int))
         assert 0 == impurity
@@ -89,7 +90,7 @@ class TestObliqueSplitter:
         # Impurity of all classes should be 10 * (1/10)(9/10) = 9/10
         impurity = splitter.impurity(np.linspace(0, 99, 100, dtype=int))
         assert_almost_equal(0.9, impurity)
-    
+
     def test_split(self):
 
         random_state = 0
@@ -103,43 +104,33 @@ class TestObliqueSplitter:
         y = np.zeros(100)
         for i in range(10):
             for j in range(10):
-                y[10*i + j] = i
-        
+                y[10 * i + j] = i
+
         splitter = ObliqueSplitter(X, y, proj_dims, density, random_state)
-        
+
         split_info = splitter.split(np.array([i for i in range(100)]))
 
-class TestObliqueTree:
 
+class TestObliqueTree:
     def test_add_node(self):
-        
+
         # Add a root node
         tree = ObliqueTree(None, 0, 0, 0, 0, 0)
 
-        tree.add_node(0, False,
-                      0, 0, False,
-                      0, 0, None,
-                      0, 0)
+        tree.add_node(0, False, 0, 0, False, 0, 0, None, 0, 0)
 
         # Add a regular node
-        tree.add_node(0, False,
-                      0, 0, False,
-                      0, 0, None,
-                      0, 0)
+        tree.add_node(0, False, 0, 0, False, 0, 0, None, 0, 0)
 
         # Add a leaf node
-        tree.add_node(1, False,
-                      0, 0, True,
-                      0, 0, None,
-                      0, 0)
+        tree.add_node(1, False, 0, 0, True, 0, 0, None, 0, 0)
 
         assert 3 == len(tree.nodes)
         assert 3 == tree.node_count
 
-
     def test_fit(self):
 
-        data = load_iris() 
+        data = load_iris()
         clf = ObliqueTreeClassifier()
         clf.fit(data.data, data.target)
 
@@ -162,4 +153,3 @@ class TestObliqueTree:
         bool_inc = np.all(np.log(preds_proba) == preds_log_proba)
 
         assert bool_inc
-
