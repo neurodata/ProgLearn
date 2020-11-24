@@ -224,12 +224,12 @@ class ProgressiveLearner(BaseProgressiveLearner):
             ]
             if np.sum(split) > 1:
                 return [
-                    np.random.choice(ra, int(len(ra) * p), replace=False) for p in split
+                    np.random.choice(ra, int(len(ra) * p), replace=True) for p in split
                 ]
             else:
-                first_idx = np.random.choice(ra, int(len(ra) * split[0]), replace=False)
+                first_idx = np.random.choice(ra, int(len(ra) * split[0]), replace=True)
                 second_idx = np.random.choice(
-                    np.delete(ra, first_idx), int(len(ra) * split[1]), replace=False
+                    np.delete(ra, first_idx), int(len(ra) * split[1]), replace=True
                 )
                 return first_idx, second_idx
 
