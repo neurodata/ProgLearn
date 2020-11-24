@@ -70,7 +70,7 @@ ax.set_title("Gaussian R-XOR", fontsize=30)
 ax.axis("off")
 
 ######################
-mean_error = unpickle("plots/mean_xor_nxor.pickle")
+mean_error = unpickle("data/mean_xor_nxor.pickle")
 
 n_xor = (100 * np.arange(0.5, 7.25, step=0.25)).astype(int)
 n_nxor = (100 * np.arange(0.5, 7.50, step=0.25)).astype(int)
@@ -84,7 +84,7 @@ algorithms = ["XOR Forest", "N-XOR Forest", "Progressive Learning Forest (PLF)",
 
 
 TASK1 = "XOR"
-TASK2 = "N-XOR"
+TASK2 = "XNOR"
 
 fontsize = 30
 labelsize = 28
@@ -130,12 +130,12 @@ ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 
 #######################
-mean_error = unpickle("plots/mean_xor_nxor.pickle")
+mean_error = unpickle("data/mean_xor_nxor.pickle")
 
 algorithms = ["XOR Forest", "N-XOR Forest", "Progressive Learning Forest (PLF)", "Random Forest (RF)"]
 
 TASK1 = "XOR"
-TASK2 = "N-XOR"
+TASK2 = "XNOR"
 
 ax1 = fig.add_subplot(gs[7:13, 10:16])
 
@@ -162,7 +162,7 @@ ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.1, 0.5, 0.9])
 # ax1.set_yticks([0.15, 0.2])
 ax1.set_xticks([50, 750, 1500])
-# ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
 # ax1.set_ylim(0.11, 0.21)
 
@@ -175,14 +175,14 @@ top_side.set_visible(False)
 ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 
-ax1.set_title("N-XOR", fontsize=30)
+ax1.set_title("XNOR", fontsize=30)
 
 ##################
-mean_te = unpickle("plots/mean_te_xor_nxor.pickle")
+mean_te = unpickle("data/mean_te_xor_nxor.pickle")
 algorithms = ["PLF BTE", "PLF FTE", "RF BTE", "RF FTE"]
 
 TASK1 = "XOR"
-TASK2 = "N-XOR"
+TASK2 = "XNOR"
 
 ax1 = fig.add_subplot(gs[7:13, 18:24])
 
@@ -209,7 +209,7 @@ ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.05, 1, 2.5])
 ax1.set_xticks([50, 750, 1500])
-# ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 right_side = ax1.spines["right"]
 right_side.set_visible(False)
 top_side = ax1.spines["top"]
@@ -220,7 +220,7 @@ ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 
 ######################
-mean_te = unpickle("plots/mean_te_xor_rxor.pickle")
+mean_te = unpickle("data/mean_te_xor_rxor.pickle")
 algorithms = ["Lifelong BTE", "Lifelong FTE", "Naive BTE", "Naive FTE"]
 
 TASK1 = "XOR"
@@ -236,11 +236,12 @@ ax1.plot(
     label=algorithms[1],
     c=colors[0],
     lw=3,
+    ls=ls[1]
 )
 
 ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
 ax1.plot(
-    ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", lw=3
+    ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
 )
 
 ax1.set_ylabel("Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
@@ -250,7 +251,7 @@ ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
 ax1.set_yticks([0.2, 0.6, 1, 1.2])
 ax1.set_xticks([50, 750, 1500])
-# ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 right_side = ax1.spines["right"]
 right_side.set_visible(False)
 top_side = ax1.spines["top"]
@@ -262,7 +263,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 
 ########################################################
 ax = fig.add_subplot(gs[15:21, 10:16])
-with open("plots/mean_angle_te.pickle", "rb") as f:
+with open("data/mean_angle_te.pickle", "rb") as f:
     te = pickle.load(f)
 angle_sweep = range(0, 90, 1)
 
@@ -283,7 +284,7 @@ top_side.set_visible(False)
 #####################################
 ax = fig.add_subplot(gs[15:21, 18:24])
 
-with open("plots/mean_sample_te.pickle", "rb") as f:
+with open("data/mean_sample_te.pickle", "rb") as f:
     te = pickle.load(f)
 task2_sample_sweep = (2 ** np.arange(np.log2(60), np.log2(5010) + 1, 0.25)).astype(
     "int"
@@ -293,16 +294,16 @@ ax.plot(task2_sample_sweep, te, c="r", linewidth=3)
 ax.hlines(1, 60, 5200, colors="gray", linestyles="dashed", linewidth=1.5)
 ax.set_xscale("log")
 ax.set_xticks([])
-ax.set_yticks([0.98, 1, 1.02, 1.04])
+ax.set_yticks([0.94, 0.96, 0.98, 1, 1.02])
 ax.tick_params(labelsize=26)
 ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-ax.text(50, np.mean(ax.get_ylim()) - 0.042, "50", fontsize=labelsize)
-ax.text(500, np.mean(ax.get_ylim()) - 0.042, "500", fontsize=labelsize)
-ax.text(5000, np.mean(ax.get_ylim()) - 0.042, "5000", fontsize=labelsize)
+ax.text(50, np.mean(ax.get_ylim()) - 0.054, "50", fontsize=labelsize)
+ax.text(500, np.mean(ax.get_ylim()) - 0.054, "500", fontsize=labelsize)
+ax.text(5000, np.mean(ax.get_ylim()) - 0.054, "5000", fontsize=labelsize)
 
 ax.text(
     50,
-    np.mean(ax.get_ylim()) - 0.047,
+    np.mean(ax.get_ylim()) - 0.06,
     "Number of $25^\circ$-RXOR Training Samples",
     fontsize=fontsize - 4,
 )
