@@ -177,9 +177,9 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     df_single_task['single_task_inference_times'] = single_task_inference_times_across_tasks
     df_single_task['train_times'] = train_times_across_tasks
 
-    print(df)
+    #print(df)
     summary = (df,df_single_task)
-    file_to_save = 'result/result/fixed_'+model+str(ntrees)+'withrep_'+str(shift)+'_'+str(slot)+'.pickle'
+    file_to_save = 'result/result/fixed_'+model+str(ntrees)+'withrep_'+str(shift)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(summary, f)
 
@@ -226,8 +226,8 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
-num_points_per_task = 500
+model = "dnn"
+num_points_per_task = 5000
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
@@ -239,8 +239,8 @@ data_y = data_y[:, 0]
 
 
 #%%
-if model == "uf":
-    slot_fold = range(10)
+'''if model == "uf":
+    slot_fold = range(1)
     shift_fold = range(1,7,1)
     n_trees=[10]
     iterable = product(n_trees,shift_fold,slot_fold)
@@ -266,9 +266,9 @@ elif model == "dnn":
     stage_2_shifts = range(5, 7)
     stage_2_iterable = product(stage_2_shifts,slot_fold)
     with Pool(4) as p:
-        p.map(perform_shift, stage_2_iterable)
+        p.map(perform_shift, stage_2_iterable)'''
 
-'''slot_fold = range(1)
+slot_fold = range(1)
 shift_fold = [2,3,5,6]
 n_trees=[0]
 iterable = product(n_trees,shift_fold,slot_fold)
@@ -276,4 +276,4 @@ iterable = product(n_trees,shift_fold,slot_fold)
 for ntree,shift,slot in iterable:
     run_parallel_exp(
                 data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
-                )'''
+                )
