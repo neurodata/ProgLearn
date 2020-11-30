@@ -15,13 +15,12 @@ from joblib import Parallel, delayed
 from proglearn.forest import UncertaintyForest
 from proglearn.sims import generate_gaussian_parity
 
-from scipy.stats import entropy, norm
-from scipy.integrate import quad
+from scipy.stats import entropy, norm, multivariate_normal
+from scipy.integrate import quad, nquad
 
 import scipy.spatial as ss
 from scipy.special import digamma
 from math import log
-import numpy.random as nr
 import copy
 
 def generate_data(n, mean, var):
@@ -299,12 +298,7 @@ def get_cond_entropy_vs_mu(n, d, num_trials, mus, algos):
         # results = np.array(results)
         # for j in range(len(algos)):
         #     output[j, i, :] = results[:, j]
-        
-    
-    # pickle.dump(mus, open('output/mus.pkl', 'wb'))
-    # for j, algo in enumerate(algos):
-    #     pickle.dump(output[j], open('output/%s_by_mu_d_%d.pkl' % (algo['label'], d), 'wb'))
-        
+               
     return output
 
 def plot_cond_entropy_by_n(ax, num_plotted_trials, d, mu, algos, panel, num_trials, sample_sizes):
@@ -504,64 +498,6 @@ def estimate_mi(X, y, label, est_H_Y, norm_factor):
     else:
         raise ValueError("Unrecognized Label!")
 
-# def get_mutual_info_vs_pi(n, d, pis, num_trials, algos, setting):
-    
-    def worker(t):
-        X, y = generate_data_fig3(n, d, pi = elem, **setting['kwargs'])
-        
-        I_XY, H_X, H_Y = compute_mutual_info(d, pi = elem, **setting['kwargs'])
-        norm_factor = min(H_X, H_Y)
-        
-        _, counts = np.unique(y, return_counts=True)
-        est_H_Y = entropy(counts, base=np.exp(1))
-        
-        ret = []
-        for algo in algos:
-            ret.append(estimate_mi(X, y, algo['label'], est_H_Y, norm_factor))
-
-        return tuple(ret)
-    
-    output = np.zeros((len(algos), len(pis), num_trials))
-    for i, elem in enumerate(pis):
-        results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
-        for j in range(len(algos)):
-            output[j, i, :] = results[:, j]
-    
-    pickle.dump(pis, open('output/pis.pkl', 'wb'))
-    for j, algo in enumerate(algos):
-        pickle.dump(output[j], open('output/%s_%s_by_pi_d_%d.pkl' % (setting['filename'], algo['label'], d), 'wb'))
-        
-    return output
-
-# def get_mutual_info_vs_d(n, ds, num_trials, mu, algos, setting):
-    
-    def worker(t):
-        X, y = generate_data_fig3(n, elem, mu = mu, **setting['kwargs'])
-        
-        I_XY, H_X, H_Y = compute_mutual_info(elem, mu = mu, **setting['kwargs'])
-        norm_factor = min(H_X, H_Y)
-        
-        _, counts = np.unique(y, return_counts=True)
-        est_H_Y = entropy(counts, base=np.exp(1))
-        
-        ret = []
-        for algo in algos:
-            ret.append(estimate_mi(X, y, algo['label'], est_H_Y, norm_factor))
-
-        return tuple(ret)
-    
-    output = np.zeros((len(algos), len(ds), num_trials))
-    for i, elem in enumerate(ds):
-        results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
-        for j in range(len(algos)):
-            output[j, i, :] = results[:, j]
-    
-    # pickle.dump(ds, open('output/ds.pkl', 'wb'))
-    # for j, algo in enumerate(algos):
-    #     pickle.dump(output[j], open('output/%s_%s_by_d.pkl' % (setting['filename'], algo['label']), 'wb'))
-        
-    return output
-
 def get_plot_mutual_info_by_pi(setting, algos, d, ax, n, pis, num_trials):
     def worker(t):
         X, y = generate_data_fig3(n, d, pi = elem, **setting['kwargs'])
@@ -577,15 +513,24 @@ def get_plot_mutual_info_by_pi(setting, algos, d, ax, n, pis, num_trials):
             ret.append(estimate_mi(X, y, algo['label'], est_H_Y, norm_factor))
 
         return tuple(ret)
-    
-    # output = np.zeros((len(algos), len(pis), num_trials))
+
+    output = np.zeros((len(algos), len(pis), num_trials))
     for i, elem in enumerate(pis):
         results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        for j in range(len(algos)):
+            output[j, i, :] = results[:, j]
+        
+        # results = []
+        # for t in range(num_trials):
+        #     # print(t)
+        #     results.append(worker(t))
+        # results = np.array(results)
         # for j in range(len(algos)):
         #     output[j, i, :] = results[:, j]
 
-    for j in range(len(algos)):
-        result = results[:,j]
+
+    for j, algo in enumerate(algos):
+        result = output[j,:,:]
         # Plot the mean over trials as a solid line.
         ax.plot(pis,
                 np.mean(result, axis = 1).flatten(), 
@@ -595,7 +540,6 @@ def get_plot_mutual_info_by_pi(setting, algos, d, ax, n, pis, num_trials):
         
     # ax.set_yscale('log')
 
-    # truth = pickle.load(open('output/truth_pi_d_%d_%s.pkl' % (d, setting['filename']), 'rb'))
     truth = np.zeros(len(pis))
     for i, pi in enumerate(pis):
         I_XY, H_X, H_Y = compute_mutual_info(d, pi = pi, **setting['kwargs'])
@@ -625,16 +569,22 @@ def get_plot_mutual_info_by_d(setting, algos, mu, ax, n, ds, num_trials):
 
         return tuple(ret)
     
-    # output = np.zeros((len(algos), len(ds), num_trials))
+    output = np.zeros((len(algos), len(ds), num_trials))
     for i, elem in enumerate(ds):
         results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        for j in range(len(algos)):
+            output[j, i, :] = results[:, j]
+
+        # results = []
+        # for t in range(num_trials):
+        #     # print(t)
+        #     results.append(worker(t))
+        # results = np.array(results)
         # for j in range(len(algos)):
         #     output[j, i, :] = results[:, j]
 
-    # ds = pickle.load(open('output/ds.pkl', 'rb'))
-    for j in range(len(algos)):
-        # result = pickle.load(open('output/%s_%s_by_d.pkl' % (setting['filename'], algo['label']), 'rb'))
-        result = results[:,j]
+    for j, algo in enumerate(algos):
+        result = output[j,:,:]
         # Plot the mean over trials as a solid line.
         ax.plot(ds,
                 np.mean(result, axis = 1).flatten(), 
@@ -715,83 +665,6 @@ def mixed_ksg(x, y, k=5):
             ny = len(tree_y.query_ball_point(y[i], knn_dis[i] - 1e-15, p=float("inf")))
         ans += (digamma(kp) + log(N) - digamma(nx) - digamma(ny)) / N
     return ans
-
-
-"""
-Below are other estimators used in the paper for comparison
-"""
-
-
-def Partitioning(x, y, numb=8):
-    assert len(x) == len(y), "Lists should have same length"
-    N = len(x)
-    if x.ndim == 1:
-        x = x.reshape((N, 1))
-    dx = len(x[0])
-    if y.ndim == 1:
-        y = y.reshape((N, 1))
-    dy = len(y[0])
-
-    minx = np.zeros(dx)
-    miny = np.zeros(dy)
-    maxx = np.zeros(dx)
-    maxy = np.zeros(dy)
-    for d in range(dx):
-        minx[d], maxx[d] = x[:, d].min() - 1e-15, x[:, d].max() + 1e-15
-    for d in range(dy):
-        miny[d], maxy[d] = y[:, d].min() - 1e-15, y[:, d].max() + 1e-15
-
-    freq = np.zeros((numb ** dx + 1, numb ** dy + 1))
-    for i in range(N):
-        index_x = 0
-        for d in range(dx):
-            index_x *= dx
-            index_x += int((x[i][d] - minx[d]) * numb / (maxx[d] - minx[d]))
-        index_y = 0
-        for d in range(dy):
-            index_y *= dy
-            index_y += int((y[i][d] - miny[d]) * numb / (maxy[d] - miny[d]))
-        freq[index_x][index_y] += 1.0 / N
-    freqx = [sum(t) for t in freq]
-    freqy = [sum(t) for t in freq.transpose()]
-
-    ans = 0
-    for i in range(numb ** dx):
-        for j in range(numb ** dy):
-            if freq[i][j] > 0:
-                ans += freq[i][j] * log(freq[i][j] / (freqx[i] * freqy[j]))
-    return ans
-
-
-# Noisy KSG Algorithm (Green Line)
-def noisy_ksg(x, y, k=5, noise=0.01):
-    assert len(x) == len(y), "Lists should have same length"
-    assert k <= len(x) - 1, "Set k smaller than num. samples - 1"
-    N = len(x)
-    if x.ndim == 1:
-        x = x.reshape((N, 1))
-    dx = len(x[0])
-    if y.ndim == 1:
-        y = y.reshape((N, 1))
-    dy = len(y[0])
-    data = np.concatenate((x, y), axis=1)
-
-    if noise > 0:
-        data += nr.normal(0, noise, (N, dx + dy))
-
-    tree_xy = ss.cKDTree(data)
-    tree_x = ss.cKDTree(x)
-    tree_y = ss.cKDTree(y)
-
-    knn_dis = [tree_xy.query(point, k + 1, p=float("inf"))[0][k] for point in data]
-    ans = 0
-
-    for i in range(N):
-        nx = len(tree_x.query_ball_point(x[i], knn_dis[i] - 1e-15, p=float("inf")))
-        ny = len(tree_y.query_ball_point(y[i], knn_dis[i] - 1e-15, p=float("inf")))
-        ans += (digamma(k) + log(N) - digamma(nx) - digamma(ny)) / N
-    return ans
-
 
 # Original KSG estimator (Blue line)
 def ksg(x, y, k=5):
