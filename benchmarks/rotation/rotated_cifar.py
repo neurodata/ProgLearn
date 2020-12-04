@@ -1,33 +1,33 @@
-import matplotlib.pyplot as plt
+#%%
 import random
-import pickle
-from skimage.transform import rotate
-from scipy import ndimage
-from skimage.util import img_as_ubyte
-from joblib import Parallel, delayed
-from sklearn.ensemble.forest import _generate_unsampled_indices
-from sklearn.ensemble.forest import _generate_sample_indices
-import numpy as np
-from sklearn.ensemble import BaggingClassifier
-from sklearn.tree import DecisionTreeClassifier
-from itertools import product
+import tensorflow as tf
 import keras
-
 from keras import layers
+from itertools import product
+import pandas as pd
+
+import numpy as np
+import pickle
+
+from sklearn.model_selection import StratifiedKFold
+from math import log2, ceil
 
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
+from keras.optimizers import Adam
+from keras.callbacks import EarlyStopping
+from proglearn.progressive_learner import ProgressiveLearner
+from proglearn.deciders import SimpleArgmaxAverage
+from proglearn.transformers import NeuralClassificationTransformer, TreeClassificationTransformer
+from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
+
 import tensorflow as tf
+from skimage.transform import rotate
+from scipy import ndimage
+from skimage.util import img_as_ubyte
 
-from numba import cuda
-
-import sys
-sys.path.append("../../proglearn/")
-from progressive_learner import ProgressiveLearner
-from deciders import SimpleArgmaxAverage
-from transformers import TreeClassificationTransformer, NeuralClassificationTransformer
-from voters import TreeClassificationVoter, KNNClassificationVoter
+#%%
 
 def cross_val_data(data_x, data_y, total_cls=10):
     x = data_x.copy()
@@ -59,9 +59,58 @@ def cross_val_data(data_x, data_y, total_cls=10):
 
     return train_x1, train_y1, train_x2, train_y2, test_x, test_y
 
-def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, acorn=None):
+def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=10, acorn=None):
     if acorn is not None:
         np.random.seed(acorn)
+
+    if model == "dnn":
+        default_transformer_class = NeuralClassificationTransformer
+
+        network = keras.Sequential()
+        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(data_x)[1:]))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+
+        network.add(layers.Flatten())
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(units=10, activation = 'softmax'))
+
+        default_transformer_kwargs = {
+            "network": network,
+            "euclidean_layer_idx": -2,
+            "loss": "categorical_crossentropy",
+            "optimizer": Adam(3e-4),
+            "fit_kwargs": {
+                "epochs": 100,
+                "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
+                "verbose": False,
+                "validation_split": 0.33,
+                "batch_size": 32,
+            },
+        }
+        default_voter_class = KNNClassificationVoter
+        default_voter_kwargs = {"k" : int(np.log2(2500))}
+
+        default_decider_class = SimpleArgmaxAverage
+    elif model == "uf":
+        default_transformer_class = TreeClassificationTransformer
+        default_transformer_kwargs = {"kwargs" : {"max_depth" : 30, "max_features" : "auto"}}
+
+        default_voter_class = TreeClassificationVoter
+        default_voter_kwargs = {}
+
+        default_decider_class = SimpleArgmaxAverage
+
 
     errors = np.zeros(2)
 
@@ -84,69 +133,38 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=29, 
             tmp_data = tmp_data.reshape((tmp_data.shape[0], tmp_data.shape[1] * tmp_data.shape[2] * tmp_data.shape[3]))
             test_x = test_x.reshape((test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3]))
 
-        with tf.device('/gpu:'+str(int(angle //  granularity) % 4)):
-            default_transformer_class = NeuralClassificationTransformer
+        
 
-            network = keras.Sequential()
-            network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x1)[1:]))
-            network.add(layers.BatchNormalization())
-            network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-            network.add(layers.BatchNormalization())
-            network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-            network.add(layers.BatchNormalization())
-            network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
-            network.add(layers.BatchNormalization())
-            network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
+                                     default_transformer_kwargs = default_transformer_kwargs,
+                                     default_voter_class = default_voter_class,
+                                     default_voter_kwargs = default_voter_kwargs,
+                                     default_decider_class = default_decider_class)
 
-            network.add(layers.Flatten())
-            network.add(layers.BatchNormalization())
-            network.add(layers.Dense(2000, activation='relu'))
-            network.add(layers.BatchNormalization())
-            network.add(layers.Dense(2000, activation='relu'))
-            network.add(layers.BatchNormalization())
-            network.add(layers.Dense(units=10, activation = 'softmax'))
+        progressive_learner.add_task(
+            X = train_x1,
+            y = train_y1,
+            transformer_voter_decider_split = [0.67, 0.33, 0],
+            decider_kwargs = {"classes" : np.unique(train_y1)}
+        )
 
-            default_transformer_kwargs = {"network" : network,
-                                          "euclidean_layer_idx" : -2,
-                                          "num_classes" : 10,
-                                          "optimizer" : keras.optimizers.Adam(3e-4)
-                                         }
+        llf_single_task=progressive_learner.predict(test_x, task_id=0)
 
-            default_voter_class = KNNClassificationVoter
-            default_voter_kwargs = {"k" : int(np.log2(len(train_x1)))}
+        progressive_learner.add_task(
+            X = tmp_data,
+            y = train_y2,
+            transformer_voter_decider_split = [0.67, 0.33, 0],
+            decider_kwargs = {"classes" : np.unique(train_y2)}
+        )
 
-            default_decider_class = SimpleArgmaxAverage
+        llf_task1=progressive_learner.predict(test_x, task_id=0)
 
-            progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
-                                         default_transformer_kwargs = default_transformer_kwargs,
-                                         default_voter_class = default_voter_class,
-                                         default_voter_kwargs = default_voter_kwargs,
-                                         default_decider_class = default_decider_class)
-
-            progressive_learner.add_task(
-                X = train_x1,
-                y = train_y1,
-                transformer_voter_decider_split = [0.67, 0.33, 0],
-                decider_kwargs = {"classes" : np.unique(train_y1)}
-            )
-
-            progressive_learner.add_transformer(
-                X = tmp_data,
-                y = train_y2,
-                transformer_data_proportion = 1,
-                backward_task_ids = [0]
-            )
-
-
-            llf_task1=progressive_learner.predict(test_x, task_id=0)
-            llf_single_task=progressive_learner.predict(test_x, task_id=0, transformer_ids=[0])
-
-            errors[1] = errors[1]+(1 - np.mean(llf_task1 == test_y))
-            errors[0] = errors[0]+(1 - np.mean(llf_single_task == test_y))
+        errors[1] = errors[1]+(1 - np.mean(llf_task1 == test_y))
+        errors[0] = errors[0]+(1 - np.mean(llf_single_task == test_y))
 
     errors = errors/reps
     print("Errors For Angle {}: {}".format(angle, errors))
-    with open('rotation_results/angle_'+str(angle)+'_'+model+'.pickle', 'wb') as f:
+    with open('/home/ubuntu/ProgLearn/benchmarks/rotation/rotation_result/'+model+'-'+str(angle)+'.pickle', 'wb') as f:
         pickle.dump(errors, f, protocol = 2)
 
 def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
@@ -164,26 +182,20 @@ def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
 
     return img_as_ubyte(image_aug_)
 
+#%%
 ### MAIN HYPERPARAMS ###
 model = "dnn"
-granularity = 2
-reps = 4
+granularity = 4
+reps = 10
+angles = range(0,184,granularity)
 ########################
-
-
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
 data_x = np.concatenate([X_train, X_test])
 data_y = np.concatenate([y_train, y_test])
 data_y = data_y[:, 0]
 
-def perform_angle(angle):
-    LF_experiment(data_x, data_y, angle, model, granularity, reps=reps, ntrees=16, acorn=1)
-
 if model == "dnn":
-    for angle_adder in range(30, 180, granularity * 4):
-        angles = angle_adder + np.arange(0, granularity * 4, granularity)
-        with Pool(4) as p:
-            p.map(perform_angle, angles)
+    for angle in angles:
+        LF_experiment(data_x, data_y, angle, model, granularity, reps=reps, ntrees=0, acorn=1)
 elif model == "uf":
-    angles = np.arange(30,180,2)
-    Parallel(n_jobs=-1)(delayed(LF_experiment)(data_x, data_y, angle, model, granularity, reps=20, ntrees=16, acorn=1) for angle in angles)
+    Parallel(n_jobs=-1)(delayed(LF_experiment)(data_x, data_y, angle, model, granularity, reps=reps, ntrees=10, acorn=1) for angle in angles)
