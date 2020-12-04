@@ -10,6 +10,9 @@ import time
 
 from sklearn.model_selection import train_test_split
 
+import keras
+from keras import layers
+
 from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import (
@@ -28,8 +31,6 @@ def load_spoken_digit(path_recordings):
     Y_number = []      # label of number
     Y_speaker = []     # label of speaker
 
-    #Label_speaker = ['g', 'j', 'l', 'n', 't', 'y'] # first letter of speaker's name
-
     for i in file:
         x , sr = librosa.load('D:/Python Exploration/free-spoken-digit-dataset/recordings/'+i, sr = 8000) # path of the audio files
         X = librosa.stft(x,n_fft = 128) # STFT
@@ -43,7 +44,7 @@ def load_spoken_digit(path_recordings):
         X_spec_mini.append(Xdb_28)
         Y_number.append(y_n)
         Y_speaker.append(y_s)
-    #AudioData   = np.array(AudioData)
+
     X_spec_mini = np.array(X_spec_mini)
     Y_number    = np.array(Y_number).astype(int)
     Y_speaker   = np.array(Y_speaker)
@@ -75,18 +76,54 @@ def display_spectrogram(X_spec_mini, Y_number, Y_speaker, num):
     plt.suptitle("Short-Time Fourier Transform Spectrograms of Number "+str(num), fontsize=18)
 
 
-def run_experiment(X_all, Y_all, Y_all_speaker, ntrees=19, num_repetition = 10):
+def run_experiment(X_all, Y_all, Y_all_speaker, ntrees=19, model = 'uf', num_repetition = 1):
     num_tasks = 6
     speakers = ['g', 'j', 'l', 'n', 't', 'y']
     accuracies_across_tasks = []
-    default_transformer_class = TreeClassificationTransformer
-    default_transformer_kwargs = {"kwargs": {"max_depth": 30}}
-    default_voter_class = TreeClassificationVoter
-    default_voter_kwargs = {}
-    default_decider_class = SimpleArgmaxAverage
+
+    if model == 'uf':
+        default_transformer_class = TreeClassificationTransformer
+        default_transformer_kwargs = {"kwargs": {"max_depth": 30}}
+        default_voter_class = TreeClassificationVoter
+        default_voter_kwargs = {}
+        default_decider_class = SimpleArgmaxAverage
+    elif model == 'dnn':
+        default_transformer_class = NeuralClassificationTransformer
+
+        network = keras.Sequential()
+        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(X_all)[1:])) ##############################################
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
+
+        network.add(layers.Flatten())
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.BatchNormalization())
+        network.add(layers.Dense(units=10, activation = 'softmax'))
+
+        default_transformer_kwargs = {"network" : network,
+                                      "euclidean_layer_idx" : -2,
+                                      "num_classes" : 10,
+                                      "optimizer" : keras.optimizers.Adam(3e-4)
+                                     }
+
+        default_voter_class = KNNClassificationVoter
+        #default_voter_kwargs = {"k" : int(np.log2(num_points_per_task))}####################################################################################
+        default_voter_kwargs = {"k" : int(np.log2(500))}
+
+        default_decider_class = SimpleArgmaxAverage
 
     for i in range(num_repetition):
         np.random.shuffle(speakers)
+        print(i+1,'time repetition')##########
         for j , speaker in enumerate(speakers):
             # initialization
             progressive_learner = ProgressiveLearner(
@@ -96,7 +133,7 @@ def run_experiment(X_all, Y_all, Y_all_speaker, ntrees=19, num_repetition = 10):
                 default_voter_kwargs=default_voter_kwargs,
                 default_decider_class=default_decider_class,
             )
-            print('task 0 speaker is ',speaker)############
+            #print('task 0 speaker is ',speaker)############
             index = np.where(Y_all_speaker==speaker)
             X = X_all[index]
             Y = Y_all[index]
@@ -105,7 +142,7 @@ def run_experiment(X_all, Y_all, Y_all_speaker, ntrees=19, num_repetition = 10):
                 X=train_x_task0,
                 y=train_y_task0,
                 task_id = 0,
-                num_transformers= ntrees,
+                num_transformers= 1 if model == "dnn" else ntrees,
                 transformer_voter_decider_split=[0.67, 0.33, 0],
                 decider_kwargs={"classes": np.unique(train_y_task0)},
             )
@@ -161,7 +198,7 @@ def calculate_results(accuracy_all_task):
         for j in range(num_tasks - i):
             err_taskt_only  = 1-accuracy_all_task[7*i]
             err_all_seen    = 1-accuracy_all_task[7*i+i+1+j]
-        te[i].append(err_taskt_only / err_all_seen)
+            te[i].append(err_taskt_only / err_all_seen)
 
     return acc, bte, fte, te
 
