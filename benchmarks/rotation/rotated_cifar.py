@@ -144,6 +144,7 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=10, 
         progressive_learner.add_task(
             X = train_x1,
             y = train_y1,
+            num_transformers=1 if model == "dnn" else ntrees,
             transformer_voter_decider_split = [0.67, 0.33, 0],
             decider_kwargs = {"classes" : np.unique(train_y1)}
         )
@@ -153,6 +154,7 @@ def LF_experiment(data_x, data_y, angle, model, granularity, reps=1, ntrees=10, 
         progressive_learner.add_task(
             X = tmp_data,
             y = train_y2,
+            num_transformers=1 if model == "dnn" else ntrees,
             transformer_voter_decider_split = [0.67, 0.33, 0],
             decider_kwargs = {"classes" : np.unique(train_y2)}
         )
