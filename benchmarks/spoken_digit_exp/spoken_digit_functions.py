@@ -10,15 +10,15 @@ import time
 
 from sklearn.model_selection import train_test_split
 
+import tensorflow as tf #
 import keras
 from keras import layers
+from keras.optimizers import Adam
+from keras.callbacks import EarlyStopping
 
 from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
-from proglearn.transformers import (
-    TreeClassificationTransformer,
-    NeuralClassificationTransformer,
-)
+from proglearn.transformers import NeuralClassificationTransformer, TreeClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
 
@@ -33,11 +33,11 @@ def load_spoken_digit(path_recordings):
 
     for i in file:
         x , sr = librosa.load('D:/Python Exploration/free-spoken-digit-dataset/recordings/'+i, sr = 8000) # path of the audio files
-        X = librosa.stft(x,n_fft = 128) # STFT
-        Xdb = librosa.amplitude_to_db(abs(X)) # Convert an amplitude spectrogram to dB-scaled spectrogram
-        Xdb_28 = cv2.resize(Xdb, (28, 28)) # resize into 28 by 28
-        y_n = i[0] # number
-        y_s = i[2] # first letter of speaker's name
+        X = librosa.stft(x,n_fft = 128)        # STFT
+        Xdb = librosa.amplitude_to_db(abs(X))  # Convert an amplitude spectrogram to dB-scaled spectrogram
+        Xdb_28 = cv2.resize(Xdb, (28, 28))     # Resize into 28 by 28
+        y_n = i[0]                             # number
+        y_s = i[2]                             # first letter of speaker's name
 
         AudioData.append(x)
         X_spec.append(Xdb)
@@ -58,7 +58,6 @@ def play_audio(num, AudioData, Y_number, Y_speaker):
 
 
 def display_spectrogram(X_spec_mini, Y_number, Y_speaker, num):
-
     Label_speaker = ['g', 'j', 'l', 'n', 't', 'y'] # first letter of speaker's name
     fig, axes = plt.subplots(nrows=6, ncols=8, sharex=True, sharey=True, figsize=(12, 9))
     for j, speaker in enumerate(Label_speaker):
@@ -76,22 +75,20 @@ def display_spectrogram(X_spec_mini, Y_number, Y_speaker, num):
     plt.suptitle("Short-Time Fourier Transform Spectrograms of Number "+str(num), fontsize=18)
 
 
-def run_experiment(X_all, Y_all, Y_all_speaker, ntrees=19, model = 'uf', num_repetition = 1):
+def run_experiment(X_all, Y_all, Y_all_speaker, ntrees=19, model = 'uf', num_repetition = 1, shuffle = False):
     num_tasks = 6
+    num_points_per_task = 3000/num_tasks
     speakers = ['g', 'j', 'l', 'n', 't', 'y']
     accuracies_across_tasks = []
 
-    if model == 'uf':
-        default_transformer_class = TreeClassificationTransformer
-        default_transformer_kwargs = {"kwargs": {"max_depth": 30}}
-        default_voter_class = TreeClassificationVoter
-        default_voter_kwargs = {}
-        default_decider_class = SimpleArgmaxAverage
-    elif model == 'dnn':
+    if model == 'dnn':
+        X = X_all
+        y = Y_all
+
         default_transformer_class = NeuralClassificationTransformer
 
         network = keras.Sequential()
-        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(X_all)[1:])) ##############################################
+        network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(X)[1:]))
         network.add(layers.BatchNormalization())
         network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
         network.add(layers.BatchNormalization())
@@ -109,35 +106,61 @@ def run_experiment(X_all, Y_all, Y_all_speaker, ntrees=19, model = 'uf', num_rep
         network.add(layers.BatchNormalization())
         network.add(layers.Dense(units=10, activation = 'softmax'))
 
-        default_transformer_kwargs = {"network" : network,
-                                      "euclidean_layer_idx" : -2,
-                                      "num_classes" : 10,
-                                      "optimizer" : keras.optimizers.Adam(3e-4)
-                                     }
-
+        default_transformer_kwargs = {
+            "network": network,
+            "euclidean_layer_idx": -2,
+            "loss": "categorical_crossentropy",
+            "optimizer": Adam(3e-4),
+            "fit_kwargs": {
+                "epochs": 100,
+                "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
+                "verbose": False,
+                "validation_split": 0.33,
+                "batch_size": 32,
+            },
+        }
         default_voter_class = KNNClassificationVoter
-        #default_voter_kwargs = {"k" : int(np.log2(num_points_per_task))}####################################################################################
-        default_voter_kwargs = {"k" : int(np.log2(500))}
+        default_voter_kwargs = {"k" : int(np.log2(num_points_per_task))}
 
         default_decider_class = SimpleArgmaxAverage
 
+    elif model == 'uf':
+        X = X_all.reshape(3000,-1)
+        y = Y_all
+
+        default_transformer_class = TreeClassificationTransformer
+        default_transformer_kwargs = {"kwargs": {"max_depth": 30}}
+        default_voter_class = TreeClassificationVoter
+        default_voter_kwargs = {}
+        default_decider_class = SimpleArgmaxAverage
+
+    print('Start Progressive Learning.\n','Model: ',model)##########
+
     for i in range(num_repetition):
-        np.random.shuffle(speakers)
-        print(i+1,'time repetition')##########
+
+        if shuffle == True:
+            np.random.shuffle(speakers)
+        else: pass
+
+        print('Epoch ',i+1)##########
+
         for j , speaker in enumerate(speakers):
+
+            tf.keras.backend.clear_session() # Out of memory
+
             # initialization
-            progressive_learner = ProgressiveLearner(
-                default_transformer_class=default_transformer_class,
-                default_transformer_kwargs=default_transformer_kwargs,
-                default_voter_class=default_voter_class,
-                default_voter_kwargs=default_voter_kwargs,
-                default_decider_class=default_decider_class,
-            )
-            #print('task 0 speaker is ',speaker)############
+            progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
+                                                 default_transformer_kwargs = default_transformer_kwargs,
+                                                 default_voter_class = default_voter_class,
+                                                 default_voter_kwargs = default_voter_kwargs,
+                                                 default_decider_class = default_decider_class)
+
+            print('Take ',speaker,' as task0')############
+
             index = np.where(Y_all_speaker==speaker)
-            X = X_all[index]
-            Y = Y_all[index]
-            train_x_task0, test_x_task0, train_y_task0, test_y_task0 = train_test_split(X, Y, test_size=0.25)
+            X_task0 = X[index]
+            y_task0 = y[index]
+            train_x_task0, test_x_task0, train_y_task0, test_y_task0 = train_test_split(X_task0, y_task0, test_size=0.25)
             progressive_learner.add_task(
                 X=train_x_task0,
                 y=train_y_task0,
@@ -150,17 +173,18 @@ def run_experiment(X_all, Y_all, Y_all_speaker, ntrees=19, model = 'uf', num_rep
             accuracies_across_tasks.append(np.mean(task_0_predictions == test_y_task0))
 
             for k , speaker in enumerate(speakers):
+                print('Transformer added based on data of speaker ', speaker)
                 if k == j:
                     pass
                 else:
                     index = np.where(Y_all_speaker==speaker)
-                    X_train = X_all[index]
-                    Y_train = Y_all[index]
+                    X_train = X[index]
+                    y_train = y[index]
                     progressive_learner.add_transformer(
                         X=X_train,
-                        y=Y_train,
+                        y=y_train,
                         transformer_data_proportion=1,
-                        num_transformers= ntrees,
+                        num_transformers= 1 if model == "dnn" else ntrees,
                         backward_task_ids=[0],
                     )
                 task_0_predictions = progressive_learner.predict(test_x_task0, task_id=0)
@@ -169,6 +193,7 @@ def run_experiment(X_all, Y_all, Y_all_speaker, ntrees=19, model = 'uf', num_rep
     # Average the results
     accuracy_all_task = np.array(accuracies_across_tasks).reshape((num_repetition,num_tasks*(num_tasks+1)))
     accuracy_all_task = np.average(accuracy_all_task, axis = 0)
+    print('Finished!')
 
     return accuracy_all_task
 
