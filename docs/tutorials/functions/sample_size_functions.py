@@ -319,7 +319,10 @@ def plot_sample_size_experiment(
         label="RF",
     )
 
-    plt.xticks(range(0, 25000, 5000), fontsize=20)
+    plt.xticks(
+        range(0, training_sample_sizes[-1] + 1, int(training_sample_sizes[-1] / 4)),
+        fontsize=20,
+    )
     plt.yticks(fontsize=20)
 
     plt.title("sparse parity: p={}, p*={}".format(p, p_star), fontsize=24)
