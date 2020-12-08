@@ -89,7 +89,7 @@ class KNNRegressionDecider(BaseDecider):
         yhats = self.ensemble_represetations(X)
         self.knn = []
 
-        for bag_id in range(num_trees)
+        for bag_id in range(num_trees):
             self.knn.append(KNeighborsRegressor(self.k, weights="distance", p=1))
             self.knn[bag_id].fit(yhats[:,:,bag_id], y)
 
