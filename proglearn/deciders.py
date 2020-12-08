@@ -83,10 +83,15 @@ class KNNRegressionDecider(BaseDecider):
         self.transformer_id_to_transformers = transformer_id_to_transformers
         self.transformer_id_to_voters = transformer_id_to_voters
 
-        yhats = self.ensemble_represetations(X)
+        num_samples = len(X)
+        num_trees = len(self.transformer_id_to_transformers[0])
 
-        self.knn = KNeighborsRegressor(self.k, weights="distance", p=1)
-        self.knn.fit(yhats, y)
+        yhats = self.ensemble_represetations(X)
+        self.knn = []
+
+        for bag_id in range(num_trees)
+            self.knn.append(KNeighborsRegressor(self.k, weights="distance", p=1))
+            self.knn[bag_id].fit(yhats[:,:,bag_id], y)
 
         self._is_fitted = True
         return self
@@ -101,9 +106,16 @@ class KNNRegressionDecider(BaseDecider):
 
         X = check_array(X)
 
-        yhats = self.ensemble_represetations(X)
+        num_samples = len(X)
+        num_trees = len(self.transformer_id_to_transformers[0])
 
-        return self.knn.predict(yhats)
+        yhats = self.ensemble_represetations(X)
+        knn_out = np.empty((num_samples, num_trees))
+        
+        for bag_id in range(num_trees):
+            knn_out[:,bag_id] = self.knn[bag_id].predict(yhats[:,:,bag_id])
+        
+        return np.mean(knn_out, axis=1)
 
     def is_fitted(self):
         """
@@ -114,22 +126,22 @@ class KNNRegressionDecider(BaseDecider):
 
     def ensemble_represetations(self, X):
         n = len(X)
+        num_transformers = len(self.transformer_ids)
+        num_trees = len(self.transformer_id_to_transformers[0])
 
-        # transformer_ids input is ignored - you can only use
-        # the transformers you are trained on.
-        yhats = np.zeros((n, len(self.transformer_ids)))
+        yhats = np.zeros((n, num_transformers, num_trees))
 
         # Transformer IDs may not necessarily be {0, ..., num_transformers - 1}.
-        for i in range(len(self.transformer_ids)):
-
-            transformer_id = self.transformer_ids[i]
-
-            # The zero index is for the 'bag_id' as in random forest,
-            # where multiple transformers are bagged together in each hypothesis.
-            transformer = self.transformer_id_to_transformers[transformer_id][0]
-            X_transformed = transformer.transform(X)
-            voter = self.transformer_id_to_voters[transformer_id][0]
-            yhats[:, i] = voter.vote(X_transformed).reshape(n)
+        for transformer_id in (
+            self.transformer_ids
+            if self.transformer_ids is not None
+            else self.transformer_id_to_voters.keys()
+        ):
+            for bag_id in range(num_trees):
+                transformer = self.transformer_id_to_transformers[transformer_id][bag_id]
+                X_transformed = transformer.transform(X)
+                voter = self.transformer_id_to_voters[transformer_id][bag_id]
+                yhats[:, transformer_id, bag_id] = voter.vote(X_transformed).reshape(n)
 
         return yhats
 
