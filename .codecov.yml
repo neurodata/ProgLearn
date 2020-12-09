@@ -1,0 +1,24 @@
+codecov:
+  token: d73047ad-2322-4be0-962c-7de537deff4a
+  branch: main
+
+coverage:
+  status:
+    project:
+      default:
+        # Commits pushed to main should not make the overall
+        # project coverage decrease by more than 1%:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        # Be tolerant on slight code coverage diff on PRs to limit
+        # noisy red coverage status on github PRs.
+        # Note: The coverage stats are still uploaded
+        # to codecov so that PR reviewers can see uncovered lines
+        target: auto
+        threshold: 1%
+
+ignore:
+- "proglearn/sims"
+- "proglearn/tests"

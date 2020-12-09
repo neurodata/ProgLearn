@@ -176,10 +176,44 @@ code should be formatted and indented. Please read it and follow it.
 Docstring Guidelines
 --------------------
 
-Properly formatted docstrings is required for documentation generation
-by Sphinx. The pygraphstats package closely follows the numpydoc
+Properly formatted docstrings are required for documentation generation
+by Sphinx. ``ProgLearn`` package closely follows the numpydoc
 guidelines. Please read and follow the
 `numpydoc <https://numpydoc.readthedocs.io/en/latest/format.html#overview>`__
 guidelines. Refer to the
 `example.py <https://numpydoc.readthedocs.io/en/latest/example.html#example>`__
 provided by numpydoc.
+
+Tutorial Guidelines
+--------------------
+
+Properly formatted Jupyter notebooks are required for Netlify deployment.
+It is recommended to check that your tutorial completes the following
+steps before submitting:
+
+- Add your notebook name to `docs/tutorials.rst
+  </docs/tutorials.rst>`_ if applicable.
+
+- Organize local functions into a separate file and put it in
+  `docs/tutorials/functions </docs/tutorials/functions>`_.
+  This function file and the notebook should have the same name.
+
+- Make your tutorial self-contained if possible. It should neither
+  output any file nor read from any file.
+
+- Format the first markdown line with "#" at front and make it the
+  **one and only** informative title instead of using "overview"
+  or other general terms. This line will show up under the
+  `tutorials <https://proglearn.neurodata.io/tutorials.html>`_ menu.
+
+- Format the subtitles with "##" at front so that
+  they will show up as submenus on website.
+
+- Minimize cell outputs and avoid unnecessary prints.
+
+- Remove all empty cells.
+
+- Check the Netlify deployment preview for your PR, which is
+  included as one of the required checks. Be aware that what
+  you see on GitHub or local machine might be different from
+  Netlify deployment, especially math formulas.
