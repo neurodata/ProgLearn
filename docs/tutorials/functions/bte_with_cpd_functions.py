@@ -13,7 +13,7 @@ from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
-from functions.pycpd.affine_registration import AffineRegistration
+from pycpd import AffineRegistration
 
 def get_colors(colors, inds):
     c = [colors[i] for i in inds]
