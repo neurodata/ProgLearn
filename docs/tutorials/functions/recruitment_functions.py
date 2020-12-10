@@ -624,8 +624,8 @@ def recruitment_plot_mnist(mean_acc_dict, std_acc_dict, ns):
             interpolate=False,
         )
     ax.set_title("MNIST Recruitment",fontsize=30)
-    ax.set_ylabel("Generalization Error (Task 10)", fontsize=28)
-    ax.set_xlabel("Number of Task 10 Samples", fontsize=30)
+    ax.set_ylabel("Generalization Error (Task 5)", fontsize=28)
+    ax.set_xlabel("Number of Task 5 Samples", fontsize=30)
     ax.tick_params(labelsize=28)
     ax.set_xscale("log")
     ax.set_xticks([100, 500, 10000])
@@ -664,8 +664,8 @@ def recruitment_plot_mnist_between(mean_acc_dict, std_acc_dict, ns):
             interpolate=False,
         )
     ax.set_title("MNIST -> Fashion-MNIST Recruitment",fontsize=30)
-    ax.set_ylabel("Generalization Error (Task 10)", fontsize=28)
-    ax.set_xlabel("Number of Task 10 Samples", fontsize=30)
+    ax.set_ylabel("Generalization Error (Task 2)", fontsize=28)
+    ax.set_xlabel("Number of Task 2 Samples", fontsize=30)
     ax.tick_params(labelsize=28)
     ax.set_xscale("log")
     ax.set_xticks([100, 500, 5000, 50000])
