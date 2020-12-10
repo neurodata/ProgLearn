@@ -392,17 +392,8 @@ def recruitment_plot(mean_acc_dict, std_acc_dict, ns):
     top_side.set_visible(False)
     plt.tight_layout()
 
-
-def sort_data_mnist(
-    x_train,
-    y_train,
-    x_test,
-    y_test,
-    num_points_per_task,
-    test_points_per_task,
-    n_tasks=10,
-    shift=1,
-):
+    
+def sort_data_mnist(x_train, y_train, x_test, y_test, num_points_per_task, test_points_per_task, n_tasks=10, shift=1):
     """
     Sorts data into training and testing data sets for each task.
     Generalized for MNIST datasets and different task numbers.
@@ -413,7 +404,7 @@ def sort_data_mnist(
     x_test = x_test.reshape((x_test.shape[0], -1))
 
     # get data and indices
-    unique_labels = np.unique(np.concatenate([y_train, y_test]))
+    unique_labels = np.unique(np.concatenate([y_train,y_test]))
     idx_train = [np.where(y_train == u)[0] for u in unique_labels]
     idx_test = [np.where(y_test == u)[0] for u in unique_labels]
     idx_len = [len(i) for i in idx_train]
@@ -425,97 +416,69 @@ def sort_data_mnist(
     test_y_across_task = []
 
     # calculate amount of samples per task
-    labels_per_task = len(unique_labels) // n_tasks
-    # print(labels_per_task)
-    train_per_class = num_points_per_task // labels_per_task
-    # print(train_per_class)
+    labels_per_task = len(unique_labels)//n_tasks
+    #print(labels_per_task)
+    train_per_class = num_points_per_task//labels_per_task
+    #print(train_per_class)
     test_per_class = test_points_per_task
-    # print(test_per_class)
+    #print(test_per_class)
 
     # sort data into batches per class
     for task in range(n_tasks):
-        for class_no in range(task * labels_per_task, (task + 1) * labels_per_task, 1):
-            indx_train = np.roll(
-                idx_train[class_no], (shift - 1) * n_tasks * labels_per_task
-            )
-            indx_test = np.roll(
-                idx_test[class_no], (shift - 1) * n_tasks * labels_per_task
-            )
+        for class_no in range(task*labels_per_task,(task+1)*labels_per_task,1):
+            indx_train = np.roll(idx_train[class_no],(shift-1)*n_tasks*labels_per_task)
+            indx_test = np.roll(idx_test[class_no],(shift-1)*n_tasks*labels_per_task)
             # if first batch, reset arrays with new data ; otherwise, concatenate arrays
-            if class_no == (task * labels_per_task):
-                xtr = x_train[indx_train[0:train_per_class], :]
+            if class_no == (task*labels_per_task):
+                xtr = x_train[indx_train[0:train_per_class],:]
                 ytr = y_train[indx_train[0:train_per_class]].flatten()
-                xte = x_test[indx_test[0:test_per_class], :]
+                xte = x_test[indx_test[0:test_per_class],:]
                 yte = y_test[indx_test[0:test_per_class]].flatten()
             else:
-                xtr = np.concatenate(
-                    (xtr, x_train[indx_train[0:train_per_class], :]), axis=0
-                )
-                ytr = np.concatenate(
-                    (ytr, y_train[indx_train[0:train_per_class]].flatten()), axis=0
-                )
-                xte = np.concatenate(
-                    (xte, x_test[indx_test[0:test_per_class], :]), axis=0
-                )
-                yte = np.concatenate(
-                    (yte, y_test[indx_test[0:test_per_class]].flatten()), axis=0
-                )
+                xtr = np.concatenate((xtr, x_train[indx_train[0:train_per_class],:]), axis=0)
+                ytr = np.concatenate((ytr, y_train[indx_train[0:train_per_class]].flatten()), axis=0)
+                xte = np.concatenate((xte, x_test[indx_test[0:test_per_class],:]), axis=0)
+                yte = np.concatenate((yte, y_test[indx_test[0:test_per_class]].flatten()), axis=0)
 
         # append data to lists
         train_x_across_task.append(xtr)
         train_y_across_task.append(ytr)
         test_x_across_task.append(xte)
         test_y_across_task.append(yte)
-
-    return (
-        train_x_across_task,
-        train_y_across_task,
-        test_x_across_task,
-        test_y_across_task,
-    )
+        
+    return train_x_across_task, train_y_across_task, test_x_across_task, test_y_across_task
 
 
-def experiment_mnist(
-    train_x_across_task,
-    train_y_across_task,
-    test_x_across_task,
-    test_y_across_task,
-    ntrees,
-    n_tasks,
-    reps,
-    estimation_set,
-    num_points_per_task,
-    num_points_per_forest,
-    task_10_sample,
-):
+def experiment_mnist(train_x_across_task, train_y_across_task, test_x_across_task, test_y_across_task, 
+               ntrees, n_tasks, reps, estimation_set, num_points_per_task, num_points_per_forest, task_10_sample):
     """
     Run the recruitment experiment.
     Generalized for MNIST datasets and different task numbers.
     """
-
+    
     # create matrices for storing values
-    hybrid = np.zeros(reps, dtype=float)
-    building = np.zeros(reps, dtype=float)
-    recruiting = np.zeros(reps, dtype=float)
-    uf = np.zeros(reps, dtype=float)
-    mean_accuracy_dict = {"building": [], "UF": [], "recruiting": [], "hybrid": []}
-    std_accuracy_dict = {"building": [], "UF": [], "recruiting": [], "hybrid": []}
-
+    hybrid = np.zeros(reps,dtype=float)
+    building = np.zeros(reps,dtype=float)
+    recruiting= np.zeros(reps,dtype=float)
+    uf = np.zeros(reps,dtype=float)
+    mean_accuracy_dict = {'building':[],'UF':[],'recruiting':[],'hybrid':[]}
+    std_accuracy_dict = {'building':[],'UF':[],'recruiting':[],'hybrid':[]}
+    
     # calculate other params
     unique_labels = np.unique(train_y_across_task)
-    labels_per_task = len(unique_labels) // n_tasks
-    # print(labels_per_task)
+    labels_per_task = len(unique_labels)//n_tasks
+    #print(labels_per_task)
 
     # iterate over all sample sizes ns
-    for ns in task_10_sample:
+    for ns in task_10_sample: 
 
         # size of estimation and validation sample sets
-        estimation_sample_no = ceil(estimation_set * ns)
+        estimation_sample_no = ceil(estimation_set*ns)
         validation_sample_no = ns - estimation_sample_no
 
         # repeat `rep` times
         for rep in range(reps):
-            # print("doing {} samples for {} th rep".format(ns,rep))
+            #print("doing {} samples for {} th rep".format(ns,rep))
 
             # initiate lifelong learner
             l2f = PosteriorsByTreeLearner(
@@ -528,147 +491,112 @@ def experiment_mnist(
             )
 
             # train l2f on first 9 tasks
-            for task in range(n_tasks - 1):
-                indx = np.random.choice(
-                    num_points_per_task, num_points_per_forest, replace=False
-                )
+            for task in range(n_tasks-1):
+                indx = np.random.choice(num_points_per_task, num_points_per_forest, replace=False)
                 cur_X = train_x_across_task[task][indx]
                 cur_y = train_y_across_task[task][indx]
 
                 l2f.add_task(
-                    cur_X,
+                    cur_X, 
                     cur_y,
-                    num_transformers=ntrees,
-                    # transformer_kwargs={"kwargs":{"max_depth": ceil(log2(num_points_per_forest))}},
+                    num_transformers = ntrees,
+                    #transformer_kwargs={"kwargs":{"max_depth": ceil(log2(num_points_per_forest))}},
                     voter_kwargs={"classes": np.unique(cur_y)},
-                    decider_kwargs={"classes": np.unique(cur_y)},
+                    decider_kwargs={"classes": np.unique(cur_y)}
                 )
 
             # train l2f on 10th task
-            task_10_train_indx = np.random.choice(
-                num_points_per_task, ns, replace=False
-            )
-            cur_X = train_x_across_task[n_tasks - 1][
-                task_10_train_indx[:estimation_sample_no]
-            ]
-            cur_y = train_y_across_task[n_tasks - 1][
-                task_10_train_indx[:estimation_sample_no]
-            ]
+            task_10_train_indx = np.random.choice(num_points_per_task, ns, replace=False)
+            cur_X = train_x_across_task[n_tasks-1][task_10_train_indx[:estimation_sample_no]]
+            cur_y = train_y_across_task[n_tasks-1][task_10_train_indx[:estimation_sample_no]]
 
             l2f.add_task(
-                cur_X,
+                cur_X, 
                 cur_y,
-                num_transformers=ntrees,
-                # transformer_kwargs={"kwargs":{"max_depth": ceil(log2(estimation_sample_no))}},
+                num_transformers = ntrees,
+                #transformer_kwargs={"kwargs":{"max_depth": ceil(log2(estimation_sample_no))}},
                 voter_kwargs={"classes": np.unique(cur_y)},
-                decider_kwargs={"classes": np.unique(cur_y)},
+                decider_kwargs={"classes": np.unique(cur_y)}
             )
 
             ## L2F validation ####################################
             # get posteriors for l2f on first 9 tasks
             # want posteriors_across_trees to have shape ((n_tasks-1)*ntrees, validation_sample_no, 10)
             posteriors_across_trees = l2f.predict_proba(
-                train_x_across_task[n_tasks - 1][
-                    task_10_train_indx[estimation_sample_no:]
-                ],
-                task_id=n_tasks - 1,
-                transformer_ids=list(range(n_tasks - 1)),
-            )
+                train_x_across_task[n_tasks-1][task_10_train_indx[estimation_sample_no:]],
+                task_id=n_tasks-1,
+                transformer_ids=list(range(n_tasks-1))
+                )
             # compare error in each tree and choose best 25/50 trees
-            error_across_trees = np.zeros((n_tasks - 1) * ntrees)
-            validation_target = train_y_across_task[n_tasks - 1][
-                task_10_train_indx[estimation_sample_no:]
-            ]
+            error_across_trees = np.zeros((n_tasks-1)*ntrees)
+            validation_target = train_y_across_task[n_tasks-1][task_10_train_indx[estimation_sample_no:]]
             for tree in range(len(posteriors_across_trees)):
-                res = np.argmax(
-                    posteriors_across_trees[tree], axis=1
-                ) + labels_per_task * (n_tasks - 1)
-                error_across_trees[tree] = 1 - np.mean(validation_target == res)
+                res = np.argmax(posteriors_across_trees[tree],axis=1) + labels_per_task*(n_tasks-1)
+                error_across_trees[tree] = 1-np.mean(validation_target==res)
             best_50_tree = np.argsort(error_across_trees)[:50]
             best_25_tree = best_50_tree[:25]
 
             ## uf trees validation ###############################
             # get posteriors for l2f on only the 10th task
             posteriors_across_trees = l2f.predict_proba(
-                train_x_across_task[n_tasks - 1][
-                    task_10_train_indx[estimation_sample_no:]
-                ],
-                task_id=n_tasks - 1,
-                transformer_ids=[n_tasks - 1],
-            )
+                train_x_across_task[n_tasks-1][task_10_train_indx[estimation_sample_no:]],
+                task_id=n_tasks-1,
+                transformer_ids=[n_tasks-1]
+                )
             # compare error in each tree and choose best 25 trees
             error_across_trees = np.zeros(ntrees)
-            validation_target = train_y_across_task[n_tasks - 1][
-                task_10_train_indx[estimation_sample_no:]
-            ]
+            validation_target = train_y_across_task[n_tasks-1][task_10_train_indx[estimation_sample_no:]]
             for tree in range(ntrees):
-                res = np.argmax(
-                    posteriors_across_trees[tree], axis=1
-                ) + labels_per_task * (n_tasks - 1)
-                error_across_trees[tree] = 1 - np.mean(validation_target == res)
+                res = np.argmax(posteriors_across_trees[tree],axis=1) + labels_per_task*(n_tasks-1)
+                error_across_trees[tree] = 1-np.mean(validation_target==res)
             best_25_uf_tree = np.argsort(error_across_trees)[:25]
 
             ## evaluation ########################################
             # train 10th tree under each scenario: building, recruiting, hybrid, UF
             # BUILDING
-            building_res = l2f.predict(
-                test_x_across_task[n_tasks - 1], task_id=n_tasks - 1
-            )
-            building[rep] = 1 - np.mean(test_y_across_task[n_tasks - 1] == building_res)
+            building_res = l2f.predict(test_x_across_task[n_tasks-1],task_id=n_tasks-1) 
+            building[rep] = 1 - np.mean(test_y_across_task[n_tasks-1]==building_res)
             # UF
-            uf_res = l2f.predict(
-                test_x_across_task[n_tasks - 1],
-                task_id=n_tasks - 1,
-                transformer_ids=[n_tasks - 1],
-            )
-            uf[rep] = 1 - np.mean(test_y_across_task[n_tasks - 1] == uf_res)
+            uf_res = l2f.predict(test_x_across_task[n_tasks-1],task_id=n_tasks-1,transformer_ids=[n_tasks-1]) 
+            uf[rep] = 1 - np.mean(test_y_across_task[n_tasks-1]==uf_res)
             # RECRUITING
             posteriors_across_trees = l2f.predict_proba(
-                test_x_across_task[n_tasks - 1],
-                task_id=n_tasks - 1,
-                transformer_ids=list(range(n_tasks - 1)),
+                test_x_across_task[n_tasks-1],
+                task_id=n_tasks-1,
+                transformer_ids=list(range(n_tasks-1))
             )
-            recruiting_posterior = np.mean(
-                np.array(posteriors_across_trees)[best_50_tree], axis=0
-            )
-            res = np.argmax(recruiting_posterior, axis=1) + labels_per_task * (
-                n_tasks - 1
-            )
-            recruiting[rep] = 1 - np.mean(test_y_across_task[n_tasks - 1] == res)
+            recruiting_posterior = np.mean(np.array(posteriors_across_trees)[best_50_tree],axis=0)
+            res = np.argmax(recruiting_posterior,axis=1) + labels_per_task*(n_tasks-1)
+            recruiting[rep] = 1 - np.mean(test_y_across_task[n_tasks-1]==res)
             # HYBRID
             posteriors_across_trees_hybrid_uf = l2f.predict_proba(
-                test_x_across_task[n_tasks - 1],
-                task_id=n_tasks - 1,
-                transformer_ids=[n_tasks - 1],
+                test_x_across_task[n_tasks-1],
+                task_id=n_tasks-1,
+                transformer_ids=[n_tasks-1]
             )
             hybrid_posterior_all = np.concatenate(
-                (
-                    np.array(posteriors_across_trees)[best_25_tree],
-                    np.array(posteriors_across_trees_hybrid_uf)[best_25_uf_tree],
-                ),
-                axis=0,
+                (np.array(posteriors_across_trees)[best_25_tree],np.array(posteriors_across_trees_hybrid_uf)[best_25_uf_tree]),
+                axis=0
             )
-            hybrid_posterior = np.mean(hybrid_posterior_all, axis=0)
-            hybrid_res = np.argmax(hybrid_posterior, axis=1) + labels_per_task * (
-                n_tasks - 1
-            )
-            hybrid[rep] = 1 - np.mean(test_y_across_task[n_tasks - 1] == hybrid_res)
+            hybrid_posterior = np.mean(hybrid_posterior_all,axis=0)
+            hybrid_res = np.argmax(hybrid_posterior,axis=1) + labels_per_task*(n_tasks-1)
+            hybrid[rep] = 1 - np.mean(test_y_across_task[n_tasks-1]==hybrid_res)
 
-        # print(np.mean(building))
-        # print(np.mean(uf))
-        # print(np.mean(recruiting))
-        # print(np.mean(hybrid))
+        #print(np.mean(building))
+        #print(np.mean(uf))
+        #print(np.mean(recruiting))
+        #print(np.mean(hybrid))
 
         # calculate mean and stdev for each
-        mean_accuracy_dict["building"].append(np.mean(building))
-        std_accuracy_dict["building"].append(np.std(building, ddof=1))
-        mean_accuracy_dict["UF"].append(np.mean(uf))
-        std_accuracy_dict["UF"].append(np.std(uf, ddof=1))
-        mean_accuracy_dict["recruiting"].append(np.mean(recruiting))
-        std_accuracy_dict["recruiting"].append(np.std(recruiting, ddof=1))
-        mean_accuracy_dict["hybrid"].append(np.mean(hybrid))
-        std_accuracy_dict["hybrid"].append(np.std(hybrid, ddof=1))
-
+        mean_accuracy_dict['building'].append(np.mean(building))
+        std_accuracy_dict['building'].append(np.std(building,ddof=1))
+        mean_accuracy_dict['UF'].append(np.mean(uf))
+        std_accuracy_dict['UF'].append(np.std(uf,ddof=1))
+        mean_accuracy_dict['recruiting'].append(np.mean(recruiting))
+        std_accuracy_dict['recruiting'].append(np.std(recruiting,ddof=1))
+        mean_accuracy_dict['hybrid'].append(np.mean(hybrid))
+        std_accuracy_dict['hybrid'].append(np.std(hybrid,ddof=1))
+        
     return mean_accuracy_dict, std_accuracy_dict
 
 
@@ -695,7 +623,7 @@ def recruitment_plot_mnist(mean_acc_dict, std_acc_dict, ns):
             alpha=0.15,
             interpolate=False,
         )
-    ax.set_title("MNIST Recruitment", fontsize=30)
+    ax.set_title("MNIST Recruitment",fontsize=30)
     ax.set_ylabel("Generalization Error (Task 5)", fontsize=28)
     ax.set_xlabel("Number of Task 5 Samples", fontsize=30)
     ax.tick_params(labelsize=28)
@@ -711,7 +639,7 @@ def recruitment_plot_mnist(mean_acc_dict, std_acc_dict, ns):
     top_side.set_visible(False)
     plt.tight_layout()
 
-
+    
 def recruitment_plot_mnist_between(mean_acc_dict, std_acc_dict, ns):
     """
     Plot the results from the recruitment experiment for MNIST -> fashion-MNIST.
@@ -735,7 +663,7 @@ def recruitment_plot_mnist_between(mean_acc_dict, std_acc_dict, ns):
             alpha=0.15,
             interpolate=False,
         )
-    ax.set_title("MNIST -> Fashion-MNIST Recruitment", fontsize=30)
+    ax.set_title("MNIST -> Fashion-MNIST Recruitment",fontsize=30)
     ax.set_ylabel("Generalization Error (Task 2)", fontsize=28)
     ax.set_xlabel("Number of Task 2 Samples", fontsize=30)
     ax.tick_params(labelsize=28)
