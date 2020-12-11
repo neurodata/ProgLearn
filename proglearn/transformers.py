@@ -989,8 +989,8 @@ class ObliqueTreeClassifier(BaseEstimator):
         # class_weight=None,
         # ccp_alpha=0.0,
         # New args
-        feature_combinations=1.2,
-        density=0.7
+        feature_combinations=1.5,
+        density=0.5
     ):
 
         # self.criterion=criterion
