@@ -3,7 +3,10 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 from .progressive_learner import ClassificationProgressiveLearner
-from .transformers import TreeClassificationTransformer
+from .transformers import (
+    TreeClassificationTransformer,
+    ObliqueTreeClassificationTransformer,
+)
 from .voters import TreeClassificationVoter
 from .deciders import SimpleArgmaxAverage
 
