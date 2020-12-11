@@ -7,7 +7,6 @@ The following tutorials highlight what one can do with the ``ProgLearn`` package
 .. toctree::
     :maxdepth: 1
 
-    tutorials/bte_with_cpd_exp
     tutorials/installation_guide
     tutorials/label_shuffle_exp
     tutorials/random_class_exp
@@ -19,3 +18,4 @@ The following tutorials highlight what one can do with the ``ProgLearn`` package
     tutorials/uncertaintyforest_mutualinformationestimates
     tutorials/xor_nxor_exp
     tutorials/xor_rxor_exp
+    tutorials/xor_rxor_with_cpd_exp
