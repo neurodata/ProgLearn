@@ -18,4 +18,4 @@ The following tutorials highlight what one can do with the ``ProgLearn`` package
     tutorials/uncertaintyforest_mutualinformationestimates
     tutorials/xor_nxor_exp
     tutorials/xor_rxor_exp
-    tutorials/xor_rxor_with_cpd_exp
+    tutorials/xor_rxor_with_cpd
