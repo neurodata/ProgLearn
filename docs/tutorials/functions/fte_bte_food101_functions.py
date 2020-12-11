@@ -8,7 +8,7 @@ import sys
 from proglearn.forest import LifelongClassificationForest
 
 
-def run_bte_exp(data_x, data_y, which_task, ntrees=30, shift=0):
+def run_fte_bte_exp(data_x, data_y, which_task, ntrees=30, shift=0):
 
     df_total = []
 
@@ -25,7 +25,7 @@ def run_bte_exp(data_x, data_y, which_task, ntrees=30, shift=0):
             test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3]
         )
 
-        df = bte_experiment(
+        df = fte_bte_experiment(
             train_x,
             train_y,
             test_x,
@@ -99,7 +99,7 @@ def cross_val_data(data_x, data_y, shift, slot, total_cls=100):
     return train_x, train_y, test_x, test_y
 
 
-def bte_experiment(
+def fte_bte_experiment(
     train_x,
     train_y,
     test_x,
@@ -120,11 +120,11 @@ def bte_experiment(
 
     for task_num in range((which_task - 1), 10):
         accuracy_per_task = []
-        print("Starting Task {} For Shift {} For Slot {}".format(task_num, shift, slot))
+        #print("Starting Task {} For Shift {} For Slot {}".format(task_num, shift, slot))
         if acorn is not None:
             np.random.seed(acorn)
 
-        # If task number is 0, add task. Else, add a transformer for the task
+        # If first task, add task. Else, add a transformer for the task
         if task_num == (which_task - 1):
             learner.add_task(
                 X=train_x[(task_num * 900) : ((task_num + 1) * 900)],
@@ -133,11 +133,23 @@ def bte_experiment(
             )
 
             t_num = 0
+            # Add transformers for all task up to current task (task t)
             while t_num < task_num:
+                # Make a prediction on task t using the trained learner on test data
+                llf_task = learner.predict(
+                    test_x[((which_task - 1) * 1000) : (which_task * 1000), :], task_id=0
+                )
+                acc = np.mean(
+                    llf_task == test_y[((which_task - 1) * 1000) : (which_task * 1000)]
+                )
+                accuracies_across_tasks.append(acc)
+                
                 learner.add_transformer(
                     X=train_x[(t_num * 900) : ((t_num + 1) * 900)],
                     y=train_y[(t_num * 900) : ((t_num + 1) * 900)],
                 )
+                
+                # Add transformer for next task
                 t_num = t_num + 1
 
         else:
@@ -146,7 +158,7 @@ def bte_experiment(
                 y=train_y[(task_num * 900) : ((task_num + 1) * 900)],
             )
 
-        # Make a prediction on task 0 using the trained learner on test data
+        # Make a prediction on task t using the trained learner on test data
         llf_task = learner.predict(
             test_x[((which_task - 1) * 1000) : (which_task * 1000), :], task_id=0
         )
@@ -154,37 +166,9 @@ def bte_experiment(
             llf_task == test_y[((which_task - 1) * 1000) : (which_task * 1000)]
         )
         accuracies_across_tasks.append(acc)
-        print("Accuracy Across Tasks: {}".format(accuracies_across_tasks))
+        #print("Accuracy Across Tasks: {}".format(accuracies_across_tasks))
 
-    df["task"] = range(which_task, 11)
+    df["task"] = range(1, 11)
     df["task_accuracy"] = accuracies_across_tasks
 
     return df
-
-
-def plot_bte(btes, which_task):
-    # Initialize the plot and color
-    clr = ["#00008B"]
-    c = sns.color_palette(clr, n_colors=len(clr))
-    fig, ax = plt.subplots(1, 1, figsize=(10, 8))
-
-    # Plot the results
-    ax.plot(np.arange(which_task, 11), btes, c=c[0], label="L2F", linewidth=3)
-    # Format the plot, and show result
-    plt.ylim(0.92, 1.16)
-    plt.xlim(1, 10)
-    ax.set_yticks([0.92, 0.96, 1, 1.04, 1.08, 1.12, 1.16])
-    ax.yaxis.set_ticks([0.92, 0.96, 1, 1.04, 1.08, 1.12, 1.16])
-    ax.set_xticks(np.arange(1, 11))
-    ax.tick_params(labelsize=20)
-    ax.set_xlabel("Number of tasks seen", fontsize=24)
-    ax.set_ylabel("Backward Transfer Efficiency", fontsize=24)
-    ax.set_title("BTE for food-101", fontsize=24)
-    ax.hlines(1, 1, 10, colors="grey", linestyles="dashed", linewidth=1.5)
-    right_side = ax.spines["right"]
-    right_side.set_visible(False)
-    top_side = ax.spines["top"]
-    top_side.set_visible(False)
-    plt.tight_layout()
-    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5), fontsize=22)
-    plt.show()
