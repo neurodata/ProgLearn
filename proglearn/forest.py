@@ -48,13 +48,26 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         default_tree_construction_proportion=0.67,
         default_kappa=np.inf,
         default_max_depth=30,
+        oblique=False,
+        default_feature_combinations=1.5,
+        default_density=0.5,
     ):
         self.default_n_estimators = default_n_estimators
         self.default_tree_construction_proportion = default_tree_construction_proportion
         self.default_kappa = default_kappa
         self.default_max_depth = default_max_depth
+        self.oblique = oblique
+
+        if oblique:
+            default_transformer_class = ObliqueTreeClassificationTransformer
+            self.default_feature_combinations = default_feature_combinations
+            self.default_density = default_density
+
+        else:
+            default_transformer_class = TreeClassificationTransformer
+
         self.pl_ = ClassificationProgressiveLearner(
-            default_transformer_class=TreeClassificationTransformer,
+            default_transformer_class=default_transformer_class,
             default_transformer_kwargs={},
             default_voter_class=TreeClassificationVoter,
             default_voter_kwargs={"kappa": default_kappa},
@@ -71,6 +84,8 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         tree_construction_proportion="default",
         kappa="default",
         max_depth="default",
+        feature_combinations="default",
+        density="default",
     ):
         """
         adds a task with id task_id, max tree depth max_depth, given input data matrix X
@@ -120,6 +135,23 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         if max_depth == "default":
             max_depth = self.default_max_depth
 
+        if self.oblique:
+            if feature_combinations == "default":
+                feature_combinations = self.default_feature_combinations
+            if density == "default":
+                density = self.default_density
+
+            transformer_kwargs = {
+                "kwargs": {
+                    "max_depth": max_depth,
+                    "feature_combinations": feature_combinations,
+                    "density": density,
+                }
+            }
+
+        else:
+            transformer_kwargs = ({"kwargs": {"max_depth": max_depth}},)
+
         X, y = check_X_y(X, y)
         return self.pl_.add_task(
             X,
@@ -131,7 +163,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
                 0,
             ],
             num_transformers=n_estimators,
-            transformer_kwargs={"kwargs": {"max_depth": max_depth}},
+            transformer_kwargs=transformer_kwargs,
             voter_kwargs={
                 "classes": np.unique(y),
                 "kappa": kappa,
