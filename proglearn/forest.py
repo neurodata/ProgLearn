@@ -38,6 +38,15 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         The maximum depth of a tree in the Lifelong Classification Forest.
         This is used if 'max_depth' is not fed to add_task.
 
+    oblique : bool, default=False
+        Specifies if an oblique tree should used for the classifier or not.
+
+    feature_combinations : float, default=1.5
+        The feature combinations to use for the oblique split.
+
+    density : float, default=0.5
+        Density estimate.
+
     Attributes
     ----------
     pl_ : ClassificationProgressiveLearner
@@ -123,6 +132,12 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         max_depth : int or str, default='default'
             The maximum depth of a tree in the Lifelong Classification Forest.
             The default is used if 'default' is provided.
+
+        feature_combinations : float, default='default'
+            The feature combinations to use for the oblique split.
+
+        density : float, default='default'
+            Density estimate.
 
         Returns
         -------

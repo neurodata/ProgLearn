@@ -271,8 +271,8 @@ class SplitInfo:
     """
     A class used to store information about a certain split.
 
-    Parameters:
-    ---
+    Parameters
+    ----------
     feature : int
         The feature which is used for the particular split.
     threshold : float
@@ -334,8 +334,8 @@ class ObliqueSplitter:
     A class used to represent an oblique splitter, where splits are done on
     the linear combination of the features.
 
-    Parameters:
-    ---
+    Parameters
+    ----------
     X : array of shape [n_samples, n_features]
         The input data X is a matrix of the examples and their respective feature
         values for each of the features.
@@ -349,7 +349,7 @@ class ObliqueSplitter:
         Controls the pseudo random number generator used to generate the projection matrix.
 
     Methods
-    ---
+    -------
     sample_proj_mat(sample_inds)
         This gets the projection matrix and it fits the transform to the samples of interest.
     leaf_label_proba(idx)
@@ -383,12 +383,12 @@ class ObliqueSplitter:
         Gets the projection matrix and it fits the transform to the samples of interest.
 
         Parameters
-        ---
+        ----------
         sample_inds : array of shape [n_samples]
             The data we are transforming.
 
         Returns
-        ---
+        -------
         proj_mat : {ndarray, sparse matrix} of shape (n_samples, n_features)
             The generated sparse random matrix.
         proj_mat : {ndarray, sparse matrix} of shape (n_samples, n_features)
@@ -410,13 +410,13 @@ class ObliqueSplitter:
          the leaf node for which this is used on.
 
          Parameters
-         ---
+         ----------
          idx : array of shape [n_samples]
              The indices of the samples that are at the leaf node for which the label
              and probability need to be found.
 
          Returns
-         ---
+         -------
         label : int
              The label for any sample that is predicted to be at this node.
          proba : float
@@ -440,7 +440,7 @@ class ObliqueSplitter:
         Finds the Gini impurity for the split of interest
 
         Parameters
-        ---
+        ----------
         y_sort : array of shape [n_samples]
             A sorted array of labels for the examples for which the Gini impurity
             is being calculated.
@@ -448,7 +448,7 @@ class ObliqueSplitter:
             The threshold determining where to split y_sort.
 
         Returns
-        ---
+        -------
         gini : float
             The Gini impurity of the split.
         """
@@ -480,12 +480,12 @@ class ObliqueSplitter:
         Finds the actual impurity for a set of samples
 
         Parameters
-        ---
+        ----------
         idx : array of shape [n_samples]
             The indices of the nodes in the set for which the impurity is being calculated.
 
         Returns
-        ---
+        -------
         impurity : float
             Actual impurity of split.
         """
@@ -511,12 +511,12 @@ class ObliqueSplitter:
         bottleneck in integration with scikit-learn.
 
         Parameters
-        ---
+        ----------
         sample_inds : array of shape [n_samples]
             The indices of the nodes in the set for which the best split is found.
 
         Returns
-        ---
+        -------
         split_info : SplitInfo
             Class holding information about the split.
         """
@@ -599,12 +599,12 @@ class Node:
     """
     A class used to represent an oblique node.
 
-    Parameters:
-    ---
+    Parameters
+    ----------
     None
 
     Methods
-    ---
+    -------
     None
     """
 
@@ -629,8 +629,8 @@ class StackRecord:
     """
     A class used to keep track of a node's parent and other information about the node and its split.
 
-    Parameters:
-    ---
+    Parameters
+    ----------
     parent : int
         The index of the parent node.
     depth : int
@@ -645,7 +645,7 @@ class StackRecord:
         The number of samples in this node.
 
     Methods
-    ---
+    -------
     None
     """
 
@@ -663,8 +663,8 @@ class ObliqueTree:
     """
     A class used to represent a tree with oblique splits.
 
-    Parameters:
-    ---
+    Parameters
+    ----------
     splitter : class
         The type of splitter for this tree, should be an ObliqueSplitter.
     min_samples_split : int
@@ -679,7 +679,7 @@ class ObliqueTree:
         Minimum amount Gini impurity value must decrease by for a split to be valid.
 
     Methods
-    ---
+    -------
     add_node(parent, is_left, impurity, n_samples, is_leaf, feature, threshold, proj_mat, label, proba)
         Adds a node to the existing tree
     build()
@@ -731,7 +731,7 @@ class ObliqueTree:
         Adds a node to the existing oblique tree.
 
         Parameters
-        ---
+        ----------
         parent : int
             The index of the parent node for the new node being added.
         is_left : bool
@@ -757,7 +757,7 @@ class ObliqueTree:
             The probability a predicted sample has of being the node's label.
 
         Returns
-        ---
+        -------
         node_id : int
             Index of the new node just added.
         """
@@ -796,11 +796,11 @@ class ObliqueTree:
         Builds the oblique tree.
 
         Parameters
-        ---
+        ----------
         None
 
         Returns
-        ---
+        -------
         None
         """
 
@@ -903,12 +903,12 @@ class ObliqueTree:
         Predicts final nodes of samples given.
 
         Parameters
-        ---
+        ----------
         X : array of shape [n_samples, n_features]
             The input array for which predictions are made.
 
         Returns
-        ---
+        -------
         predictions : array of shape [n_samples]
             Array of the final node index for each input prediction sample.
         """
@@ -939,8 +939,8 @@ class ObliqueTreeClassifier(BaseEstimator):
     """
     A class used to represent a classifier that uses an oblique decision tree.
 
-    Parameters:
-    ---
+    Parameters
+    ----------
     max_depth : int
         Maximum depth allowed for oblique tree.
     min_samples_split : int
@@ -959,7 +959,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         Density estimate.
 
     Methods
-    ---
+    -------
     fit(X,y)
         Fits the oblique tree to the training samples.
     apply(X)
@@ -1014,14 +1014,14 @@ class ObliqueTreeClassifier(BaseEstimator):
         Predicts final nodes of samples given.
 
         Parameters
-        ---
+        ----------
         X : array of shape [n_samples, n_features]
             The training samples.
         y : array of shape [n_samples]
             Labels for the training samples.
 
         Returns
-        ---
+        -------
         ObliqueTreeClassifier
             The fit classifier.
         """
@@ -1047,12 +1047,12 @@ class ObliqueTreeClassifier(BaseEstimator):
         Gets predictions form the oblique tree for the test samples.
 
         Parameters
-        ---
+        ----------
         X : array of shape [n_samples, n_features]
             The testing samples.
 
         Returns
-        ---
+        -------
         pred_nodes : array of shape[n_samples]
             The indices for each test sample's final node in the oblique tree.
         """
@@ -1065,12 +1065,12 @@ class ObliqueTreeClassifier(BaseEstimator):
         Determines final label predictions for each sample in the test data.
 
         Parameters
-        ---
+        ----------
         X : array of shape [n_samples, n_features]
             The testing samples.
 
         Returns
-        ---
+        -------
         preds : array of shape[n_samples]
             The predictions (labels) for each testing sample.
         """
@@ -1088,12 +1088,12 @@ class ObliqueTreeClassifier(BaseEstimator):
         Determines probabilities of the final label predictions for each sample in the test data.
 
         Parameters
-        ---
+        ----------
         X : array of shape [n_samples, n_features]
             The testing samples.
 
         Returns
-        ---
+        -------
         preds : array of shape[n_samples]
             The probabilities of the predictions (labels) for each testing sample.
         """
@@ -1111,12 +1111,12 @@ class ObliqueTreeClassifier(BaseEstimator):
         Determines log of the probabilities of the final label predictions for each sample in the test data.
 
         Parameters
-        ---
+        ----------
         X : array of shape [n_samples, n_features]
             The testing samples.
 
         Returns
-        ---
+        -------
         preds : array of shape[n_samples]
             The log of the probabilities of the predictions (labels) for each testing sample.
         """
