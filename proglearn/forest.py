@@ -317,6 +317,12 @@ class UncertaintyForest:
         self.kappa = kappa
         self.max_depth = max_depth
         self.tree_construction_proportion = tree_construction_proportion
+        self.lf_ = LifelongClassificationForest(
+            default_n_estimators=self.n_estimators,
+            default_kappa=self.kappa,
+            default_max_depth=self.max_depth,
+            default_tree_construction_proportion=self.tree_construction_proportion,
+        )
 
     def fit(self, X, y):
         """
@@ -336,12 +342,7 @@ class UncertaintyForest:
             The object itself.
         """
         X, y = check_X_y(X, y)
-        return LifelongClassificationForest(
-            default_n_estimators=self.n_estimators,
-            default_kappa=self.kappa,
-            default_max_depth=self.max_depth,
-            default_tree_construction_proportion=self.tree_construction_proportion,
-        ).add_task(X, y, task_id=0)
+        return self.lf_.add_task(X, y, task_id=0)
 
     def predict_proba(self, X):
         """

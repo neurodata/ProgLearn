@@ -5,9 +5,7 @@ from scipy import stats
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.optimizers import Adam
+import keras
 
 __all__ = [
     "rf_classifier",
@@ -82,13 +80,13 @@ def binary_dn(
             A trained binary neural network.
     """
 
-    dn_model = Sequential()
+    dn_model = keras.Sequential()
 
-    dn_model.add(Dense(X_train.shape[1], activation="relu"))
-    dn_model.add(Dense(hidden_nodes, activation="relu"))
-    dn_model.add(Dense(units=1, activation="sigmoid"))
+    dn_model.add(keras.layers.Dense(X_train.shape[1], activation="relu"))
+    dn_model.add(keras.layers.Dense(hidden_nodes, activation="relu"))
+    dn_model.add(keras.layers.Dense(units=1, activation="sigmoid"))
 
-    adam_optimizer = Adam(learning_rate=learning_rate)
+    adam_optimizer = keras.optimizers.Adam(learning_rate=learning_rate)
     dn_model.compile(
         optimizer=adam_optimizer, loss="binary_crossentropy", metrics=["accuracy"]
     )
@@ -321,7 +319,10 @@ def plot_sample_size_experiment(
         label="RF",
     )
 
-    plt.xticks(range(0, 25000, 5000), fontsize=20)
+    plt.xticks(
+        range(0, training_sample_sizes[-1] + 1, int(training_sample_sizes[-1] / 4)),
+        fontsize=20,
+    )
     plt.yticks(fontsize=20)
 
     plt.title("sparse parity: p={}, p*={}".format(p, p_star), fontsize=24)
