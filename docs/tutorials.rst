@@ -8,6 +8,7 @@ The following tutorials highlight what one can do with the ``ProgLearn`` package
     :maxdepth: 1
 
     tutorials/installation_guide
+    tutorials/fte_bte_food101
     tutorials/label_shuffle_exp
     tutorials/random_class_exp
     tutorials/rotation_cifar
