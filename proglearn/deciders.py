@@ -91,7 +91,7 @@ class KNNRegressionDecider(BaseDecider):
 
         for bag_id in range(num_trees):
             self.knn.append(KNeighborsRegressor(self.k, weights="distance", p=1))
-            self.knn[bag_id].fit(yhats[:,:,bag_id], y)
+            self.knn[bag_id].fit(yhats[:, :, bag_id], y)
 
         self._is_fitted = True
         return self
@@ -111,10 +111,10 @@ class KNNRegressionDecider(BaseDecider):
 
         yhats = self.ensemble_represetations(X)
         knn_out = np.empty((num_samples, num_trees))
-        
+
         for bag_id in range(num_trees):
-            knn_out[:,bag_id] = self.knn[bag_id].predict(yhats[:,:,bag_id])
-        
+            knn_out[:, bag_id] = self.knn[bag_id].predict(yhats[:, :, bag_id])
+
         return np.mean(knn_out, axis=1)
 
     def is_fitted(self):
@@ -138,7 +138,9 @@ class KNNRegressionDecider(BaseDecider):
             else self.transformer_id_to_voters.keys()
         ):
             for bag_id in range(num_trees):
-                transformer = self.transformer_id_to_transformers[transformer_id][bag_id]
+                transformer = self.transformer_id_to_transformers[transformer_id][
+                    bag_id
+                ]
                 X_transformed = transformer.transform(X)
                 voter = self.transformer_id_to_voters[transformer_id][bag_id]
                 yhats[:, transformer_id, bag_id] = voter.vote(X_transformed).reshape(n)
