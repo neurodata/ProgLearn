@@ -255,28 +255,3 @@ class ConvRFClassifier(BaseEstimator):
         im = im.reshape(len(images), -1)
         # predict the probability of labels
         return self.random_forest.predict_proba(im)
-
-
-
-
-
-
-def run_rf(model, train_images, train_labels, test_images, test_labels, fraction_of_train_samples):
-    num_train_samples_class_1 = int(np.sum(train_labels==class1) * fraction_of_train_samples)
-    num_train_samples_class_2 = int(np.sum(train_labels==class2) * fraction_of_train_samples)
-    
-    # get only train images and labels for class 1 and class 2
-    train_images = np.concatenate([train_images[train_labels==class1][:num_train_samples_class_1], train_images[train_labels==class2][:num_train_samples_class_2]])
-    train_labels = np.concatenate([np.repeat(0, num_train_samples_class_1), np.repeat(1, num_train_samples_class_2)])
-
-    # get only test images and labels for class 1 and class 2
-    test_images = np.concatenate([test_images[test_labels==class1], test_images[test_labels==class2]])
-    test_labels = np.concatenate([np.repeat(0, np.sum(test_labels==class1)), np.repeat(1, np.sum(test_labels==class2))])
-
-    if isinstance(model, sklearn.ensemble.RandomForestClassifier):
-        train_images = train_images.reshape(-1, 32*32*3)
-        test_images = test_images.reshape(-1, 32*32*3)
-    model.fit(train_images, train_labels)
-    # Test
-    test_preds = model.predict(test_images)
-    return accuracy_score(test_labels, test_preds)
