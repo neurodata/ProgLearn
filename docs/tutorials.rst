@@ -14,7 +14,7 @@ The following tutorials highlight what one can do with the ``ProgLearn`` package
     tutorials/rotation_cifar
     tutorials/spiral_exp
     tutorials/sporf_datasets
-    tutorials/oblique_decision_boundaries
+    tutorials/sporf_decision_boundaries
     tutorials/uncertaintyforest_running_example
     tutorials/uncertaintyforest_posteriorestimates
     tutorials/uncertaintyforest_conditionalentropyestimates
