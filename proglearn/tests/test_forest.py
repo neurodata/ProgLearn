@@ -4,7 +4,10 @@ import numpy as np
 import random
 
 from proglearn.forest import LifelongClassificationForest
-from proglearn.transformers import TreeClassificationTransformer
+from proglearn.transformers import (
+    TreeClassificationTransformer,
+    ObliqueTreeClassificationTransformer,
+)
 from proglearn.voters import TreeClassificationVoter
 from proglearn.deciders import SimpleArgmaxAverage
 
@@ -47,3 +50,10 @@ class TestLifelongClassificationForest:
     def test_correct_true_initilization_finite_sample_correction(self):
         l2f = LifelongClassificationForest(default_kappa=np.inf)
         assert l2f.pl_.default_voter_kwargs == {"kappa": np.inf}
+
+    def test_oblique_transformer(self):
+        l2f = LifelongClassificationForest(oblique=True)
+        assert l2f.pl_.default_transformer_class == ObliqueTreeClassificationTransformer
+        assert l2f.default_feature_combinations == 1.5
+        assert l2f.default_density == 0.5
+        assert l2f.pl_.default_transformer_kwargs == {}
