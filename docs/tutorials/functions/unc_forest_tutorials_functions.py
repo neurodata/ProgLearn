@@ -104,9 +104,9 @@ def plot_posterior(ax, algo, num_plotted_trials, X_eval, n, mean, var):
                 color = algo['color'], 
                 alpha = opacity)
 
-    plot_truth(n, mean, var)
+    plot_truth(ax, n, mean, var)
 
-def plot_truth(n, mean, var):
+def plot_truth(ax, n, mean, var):
     '''
     Parameters
     ---
