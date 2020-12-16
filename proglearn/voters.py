@@ -141,7 +141,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         NotFittedError
             When the model is not fitted.
         """
-        return self.classes[np.argmax(self.predict_proba(X), axis=1)]
+        return np.asarray(self.classes)[np.argmax(self.predict_proba(X), axis=1)]
 
     def _finite_sample_correction(self, posteriors, num_points_in_partition, kappa):
         """
@@ -288,4 +288,4 @@ class KNNClassificationVoter(BaseClassificationVoter):
         NotFittedError
             When the model is not fitted.
         """
-        return self.classes[np.argmax(self.predict_proba(X), axis=1)]
+        return np.asarray(self.classes)[np.argmax(self.predict_proba(X), axis=1)]
