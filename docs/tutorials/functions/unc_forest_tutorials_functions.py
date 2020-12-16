@@ -120,9 +120,9 @@ def plot_truth(n, mean, var):
     # generate ground truth data
     y_1 = np.random.normal(0, 1, int(n/2)) + 1 # classes are -1 and 1.
     y_negative1 = np.random.normal(0, 1, int(n/2)) - 1
-    X_given_y_1 = np.random.multivariate_normal(mean * y_1, var * np.eye(n), 1).T # creating the X values using 
+    X_given_y_1 = np.random.multivariate_normal(mean * y_1, var * np.eye(int(n/2)), 1).T # creating the X values using 
     # the randomly distributed y that were generated in the line above
-    X_given_y_negative1 = np.random.multivariate_normal(mean * y_negative1, var * np.eye(n), 1).T # creating the X values using 
+    X_given_y_negative1 = np.random.multivariate_normal(mean * y_negative1, var * np.eye(int(n/2)), 1).T # creating the X values using 
     # the randomly distributed y that were generated in the line above
 
     # By Bayes' rule: (0.5 * X_given_y_1)/((0.5 * X_given_y_1)+(0.5 * X_given_y_negative1))
