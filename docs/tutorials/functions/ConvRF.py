@@ -261,26 +261,46 @@ class ConvRFClassifier(BaseEstimator):
         return self.random_forest.predict_proba(im)
 
 
-
-def cnn_train_test(cnn_model, y_train, y_test, fraction_of_train_samples, class1, class2, trainset, testset):
+def cnn_train_test(
+    cnn_model,
+    y_train,
+    y_test,
+    fraction_of_train_samples,
+    class1,
+    class2,
+    trainset,
+    testset,
+):
     # set params
     num_epochs = 5
     learning_rate = 0.001
 
-    class1_indices = np.argwhere(y_train==class1).flatten()
-    class1_indices = class1_indices[:int(len(class1_indices) * fraction_of_train_samples)]
-    class2_indices = np.argwhere(y_train==class2).flatten()
-    class2_indices = class2_indices[:int(len(class2_indices) * fraction_of_train_samples)]
+    class1_indices = np.argwhere(y_train == class1).flatten()
+    class1_indices = class1_indices[
+        : int(len(class1_indices) * fraction_of_train_samples)
+    ]
+    class2_indices = np.argwhere(y_train == class2).flatten()
+    class2_indices = class2_indices[
+        : int(len(class2_indices) * fraction_of_train_samples)
+    ]
     train_indices = np.concatenate([class1_indices, class2_indices])
 
     train_sampler = torch.utils.data.sampler.SubsetRandomSampler(train_indices)
-    train_loader = torch.utils.data.DataLoader(trainset, batch_size=16, num_workers=2, sampler=train_sampler)
+    train_loader = torch.utils.data.DataLoader(
+        trainset, batch_size=16, num_workers=2, sampler=train_sampler
+    )
 
-    test_indices = np.concatenate([np.argwhere(y_test==class1).flatten(), np.argwhere(y_test==class2).flatten()])
+    test_indices = np.concatenate(
+        [
+            np.argwhere(y_test == class1).flatten(),
+            np.argwhere(y_test == class2).flatten(),
+        ]
+    )
     test_sampler = torch.utils.data.sampler.SubsetRandomSampler(test_indices)
 
-    test_loader = torch.utils.data.DataLoader(testset, batch_size=16,
-                                             shuffle=False, num_workers=2, sampler=test_sampler)
+    test_loader = torch.utils.data.DataLoader(
+        testset, batch_size=16, shuffle=False, num_workers=2, sampler=test_sampler
+    )
 
     # define model
     net = cnn_model()
@@ -321,26 +341,77 @@ def cnn_train_test(cnn_model, y_train, y_test, fraction_of_train_samples, class1
     accuracy = float(correct) / float(total)
     return accuracy
 
-def run_rf(model, train_images, train_labels, test_images, test_labels, fraction_of_train_samples, class1, class2):
-    num_train_samples_class_1 = int(np.sum(train_labels==class1) * fraction_of_train_samples)
-    num_train_samples_class_2 = int(np.sum(train_labels==class2) * fraction_of_train_samples)
-    
+
+def run_rf(
+    model,
+    train_images,
+    train_labels,
+    test_images,
+    test_labels,
+    fraction_of_train_samples,
+    class1,
+    class2,
+):
+    num_train_samples_class_1 = int(
+        np.sum(train_labels == class1) * fraction_of_train_samples
+    )
+    num_train_samples_class_2 = int(
+        np.sum(train_labels == class2) * fraction_of_train_samples
+    )
+
     # get only train images and labels for class 1 and class 2
-    train_images = np.concatenate([train_images[train_labels==class1][:num_train_samples_class_1], train_images[train_labels==class2][:num_train_samples_class_2]])
-    train_labels = np.concatenate([np.repeat(0, num_train_samples_class_1), np.repeat(1, num_train_samples_class_2)])
+    train_images = np.concatenate(
+        [
+            train_images[train_labels == class1][:num_train_samples_class_1],
+            train_images[train_labels == class2][:num_train_samples_class_2],
+        ]
+    )
+    train_labels = np.concatenate(
+        [
+            np.repeat(0, num_train_samples_class_1),
+            np.repeat(1, num_train_samples_class_2),
+        ]
+    )
 
     # get only test images and labels for class 1 and class 2
-    test_images = np.concatenate([test_images[test_labels==class1], test_images[test_labels==class2]])
-    test_labels = np.concatenate([np.repeat(0, np.sum(test_labels==class1)), np.repeat(1, np.sum(test_labels==class2))])
+    test_images = np.concatenate(
+        [test_images[test_labels == class1], test_images[test_labels == class2]]
+    )
+    test_labels = np.concatenate(
+        [
+            np.repeat(0, np.sum(test_labels == class1)),
+            np.repeat(1, np.sum(test_labels == class2)),
+        ]
+    )
 
     if isinstance(model, sklearn.ensemble.RandomForestClassifier):
-        train_images = train_images.reshape(-1, 32*32*3)
-        test_images = test_images.reshape(-1, 32*32*3)
+        train_images = train_images.reshape(-1, 32 * 32 * 3)
+        test_images = test_images.reshape(-1, 32 * 32 * 3)
     model.fit(train_images, train_labels)
     # Test
     test_preds = model.predict(test_images)
     return accuracy_score(test_labels, test_preds)
 
 
-def run_cnn(cnn_model, train_images, train_labels, test_images, test_labels, fraction_of_train_samples, class1, class2, trainset, testset):
-    return cnn_train_test(cnn_model, train_labels, test_labels, fraction_of_train_samples, class1, class2, trainset, testset)
+def run_cnn(
+    cnn_model,
+    train_images,
+    train_labels,
+    test_images,
+    test_labels,
+    fraction_of_train_samples,
+    class1,
+    class2,
+    trainset,
+    testset,
+):
+    return cnn_train_test(
+        cnn_model,
+        train_labels,
+        test_labels,
+        fraction_of_train_samples,
+        class1,
+        class2,
+        trainset,
+        testset,
+    )
