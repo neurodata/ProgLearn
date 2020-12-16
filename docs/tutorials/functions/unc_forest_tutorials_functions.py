@@ -74,7 +74,7 @@ def estimate_posterior(algo, n, mean, var, num_trials, X_eval, parallel = False)
 
     return predicted_posterior
 
-def plot_posterior(ax, algo, num_plotted_trials, X_eval):
+def plot_posterior(ax, algo, num_plotted_trials, X_eval, n, mean, var):
     """
     Will be used for CART, Honest, or Uncertainty Forest to plot P(Y = 1 | X = x). 
     This is the left three plots in figure 1.
@@ -104,6 +104,19 @@ def plot_posterior(ax, algo, num_plotted_trials, X_eval):
                 color = algo['color'], 
                 alpha = opacity)
 
+    plot_truth(n, mean, var)
+
+def plot_truth(n, mean, var):
+    '''
+    Parameters
+    ---
+    n : int
+        The number of data to be generated
+    mean : double
+        The mean of the data to be generated
+    var : double
+        The variance in the data to be generated
+    '''
     # generate ground truth data
     y_1 = np.random.normal(0, 1, int(n/2)) + 1 # classes are -1 and 1.
     y_negative1 = np.random.normal(0, 1, int(n/2)) - 1
@@ -148,7 +161,7 @@ def plot_variance(ax, algos, X_eval):
                 linewidth = 8, 
                 color = algo['color']) # plotting
 
-def plot_fig1(algos, num_plotted_trials, X_eval):
+def plot_fig1(algos, num_plotted_trials, X_eval, n, mean, var):
     """
     Sets the communal plotting parameters and creates figure 1
 
@@ -174,7 +187,7 @@ def plot_fig1(algos, num_plotted_trials, X_eval):
         plot_posterior(axes[i], 
                        algos[i],
                        num_plotted_trials, 
-                       X_eval)
+                       X_eval, n, mean, var)
 
     # Create the 1 variance plot. (Rightmost plot in figure 1)
     plot_variance(axes[3], algos, X_eval)
