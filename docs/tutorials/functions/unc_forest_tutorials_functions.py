@@ -104,18 +104,22 @@ def plot_posterior(ax, algo, num_plotted_trials, X_eval, n, mean, var):
                 color = algo['color'], 
                 alpha = opacity)
 
-    plot_truth(ax, n, mean, var)
+    plot_truth(ax, n, mean, var, X_eval)
 
-def plot_truth(ax, n, mean, var):
+def plot_truth(ax, n, mean, var, X_eval):
     '''
     Parameters
     ---
+    ax : list
+        Holds the axes of the subplots
     n : int
         The number of data to be generated
     mean : double
         The mean of the data to be generated
     var : double
         The variance in the data to be generated
+    X_eval : list
+        The range over which to evaluate X values for
     '''
     # generate ground truth data
     y_1 = np.random.normal(0, 1, int(n/2)) + 1 # classes are -1 and 1.
