@@ -23,4 +23,3 @@ The following tutorials highlight what one can do with the ``ProgLearn`` package
     tutorials/xor_rxor_exp
     tutorials/xor_rxor_with_cpd
     tutorials/xor_rxor_with_icp
-    tutorials/recruitment_exp
