@@ -121,13 +121,13 @@ def plot_truth(ax, n, mean, var, X_eval):
     X_eval : list
         The range over which to evaluate X values for
     '''
-    # generate ground truth data
-    y_1 = np.random.normal(1, 1, len(X_eval.flatten().ravel())) # classes are -1 and 1.
-    y_negative1 = np.random.normal(1, 1, len(X_eval.flatten().ravel()))
-    X_given_y_1 = np.random.multivariate_normal(mean * y_1, var * np.eye(len(X_eval.flatten().ravel())), 1).T # creating the X values using 
-    # the randomly distributed y that were generated in the line above
-    X_given_y_negative1 = np.random.multivariate_normal(mean * y_negative1, var * np.eye(len(X_eval.flatten().ravel())), 1).T # creating the X values using 
-    # the randomly distributed y that were generated in the line above
+    # # generate ground truth data
+    # y_1 = np.random.normal(1, 1, len(X_eval.flatten().ravel())) # classes are -1 and 1.
+    # y_negative1 = np.random.normal(-1, 1, len(X_eval.flatten().ravel()))
+    # X_given_y_1 = np.random.multivariate_normal(mean * y_1, var * np.eye(len(X_eval.flatten().ravel())), 1).T # creating the X values using 
+    # # the randomly distributed y that were generated in the line above
+    # X_given_y_negative1 = np.random.multivariate_normal(mean * y_negative1, var * np.eye(len(X_eval.flatten().ravel())), 1).T # creating the X values using 
+    # # the randomly distributed y that were generated in the line above
 
     # By Bayes' rule: (0.5 * X_given_y_1)/((0.5 * X_given_y_1)+(0.5 * X_given_y_negative1))
     #  = (X_given_y_1)/(X_given_y_1+X_given_y_negative1)
@@ -135,12 +135,19 @@ def plot_truth(ax, n, mean, var, X_eval):
     # plot ground truth
     opacity = 1
     linewidth = 8
-    ax.set_title("Truth")
-    ax.plot(X_eval.flatten().ravel(), ((X_given_y_1)/(X_given_y_1+X_given_y_negative1)).flatten().ravel(), 
+    f_X_given_ypositive = np.random.normal(mean, var, len(X_eval.flatten().ravel()))
+    f_X_given_ynegative = np.random.normal(-mean, var, len(X_eval.flatten().ravel()))
+    ax.plot(X_eval.flatten().ravel(), 
+            (f_X_given_ypositive/(f_X_given_ypositive+f_X_given_ynegative)).flatten().ravel(), 
             label = "Truth",
             linewidth = linewidth, 
             color = "black", 
             alpha = opacity)
+    # ax.plot(X_eval.flatten().ravel(), ((X_given_y_1)/(X_given_y_1+X_given_y_negative1)).flatten().ravel(), 
+    #         label = "Truth",
+    #         linewidth = linewidth, 
+    #         color = "black", 
+    #         alpha = opacity)
 
 
 def plot_variance(ax, algos, X_eval):
