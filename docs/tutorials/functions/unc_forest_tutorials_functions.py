@@ -121,15 +121,7 @@ def plot_truth(ax, n, mean, var, X_eval):
     X_eval : list
         The range over which to evaluate X values for
     '''
-    # # generate ground truth data
-    # y_1 = np.random.normal(1, 1, len(X_eval.flatten().ravel())) # classes are -1 and 1.
-    # y_negative1 = np.random.normal(-1, 1, len(X_eval.flatten().ravel()))
-    # X_given_y_1 = np.random.multivariate_normal(mean * y_1, var * np.eye(len(X_eval.flatten().ravel())), 1).T # creating the X values using 
-    # # the randomly distributed y that were generated in the line above
-    # X_given_y_negative1 = np.random.multivariate_normal(mean * y_negative1, var * np.eye(len(X_eval.flatten().ravel())), 1).T # creating the X values using 
-    # # the randomly distributed y that were generated in the line above
-
-    # By Bayes' rule: (0.5 * X_given_y_1)/((0.5 * X_given_y_1)+(0.5 * X_given_y_negative1))
+        # By Bayes' rule: (0.5 * X_given_y_1)/((0.5 * X_given_y_1)+(0.5 * X_given_y_negative1))
     #  = (X_given_y_1)/(X_given_y_1+X_given_y_negative1)
     
     # plot ground truth
@@ -143,12 +135,6 @@ def plot_truth(ax, n, mean, var, X_eval):
             linewidth = linewidth, 
             color = "black", 
             alpha = opacity)
-    # ax.plot(X_eval.flatten().ravel(), ((X_given_y_1)/(X_given_y_1+X_given_y_negative1)).flatten().ravel(), 
-    #         label = "Truth",
-    #         linewidth = linewidth, 
-    #         color = "black", 
-    #         alpha = opacity)
-
 
 def plot_variance(ax, algos, X_eval):
     """
@@ -184,6 +170,12 @@ def plot_fig1(algos, num_plotted_trials, X_eval, n, mean, var):
         The number of trials that will be overlayed. This is shown as the lighter lines figure 1.
     X_eval : list
         The range over which to evaluate X values for
+    n : int
+        The number of data to be generated
+    mean : double
+        The mean of the data to be generated
+    var : double
+        The variance in the data to be generated
     """
     sns.set(font_scale = 6) # setting font size
     sns.set_style("ticks") # setting plot style
@@ -207,6 +199,10 @@ def plot_fig1(algos, num_plotted_trials, X_eval, n, mean, var):
     axes[0].set_ylabel(r"$\hat P(Y = 1|X = x)$") # labeling the axes
     axes[0].set_xlabel(" ")
     axes[3].set_ylabel(r"Var($\hat P(Y = 1|X = x)$)")
+
+    axes[0].legend(loc = "lower right")
+    axes[1].legend(loc = "lower right")
+    axes[2].legend(loc = "lower right")
     
     fig.tight_layout()
     # plt.savefig("fig1.pdf")
