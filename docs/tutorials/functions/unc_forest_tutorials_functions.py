@@ -122,11 +122,11 @@ def plot_truth(ax, n, mean, var, X_eval):
         The range over which to evaluate X values for
     '''
     # generate ground truth data
-    y_1 = np.random.normal(0, 1, int(n/2)) + 1 # classes are -1 and 1.
-    y_negative1 = np.random.normal(0, 1, int(n/2)) - 1
-    X_given_y_1 = np.random.multivariate_normal(mean * y_1, var * np.eye(int(n/2)), 1).T # creating the X values using 
+    y_1 = np.random.normal(1, 1, len(X_eval.flatten().ravel())) # classes are -1 and 1.
+    y_negative1 = np.random.normal(1, 1, len(X_eval.flatten().ravel()))
+    X_given_y_1 = np.random.multivariate_normal(mean * y_1, var * np.eye(len(X_eval.flatten().ravel())), 1).T # creating the X values using 
     # the randomly distributed y that were generated in the line above
-    X_given_y_negative1 = np.random.multivariate_normal(mean * y_negative1, var * np.eye(int(n/2)), 1).T # creating the X values using 
+    X_given_y_negative1 = np.random.multivariate_normal(mean * y_negative1, var * np.eye(len(X_eval.flatten().ravel())), 1).T # creating the X values using 
     # the randomly distributed y that were generated in the line above
 
     # By Bayes' rule: (0.5 * X_given_y_1)/((0.5 * X_given_y_1)+(0.5 * X_given_y_negative1))
@@ -136,7 +136,7 @@ def plot_truth(ax, n, mean, var, X_eval):
     opacity = 1
     linewidth = 8
     ax.set_title("Truth")
-    ax.plot(X_eval.flatten().ravel(), (X_given_y_1)/(X_given_y_1+X_given_y_negative1), 
+    ax.plot(X_eval.flatten().ravel(), ((X_given_y_1)/(X_given_y_1+X_given_y_negative1)).flatten().ravel(), 
             label = "Truth",
             linewidth = linewidth, 
             color = "black", 
