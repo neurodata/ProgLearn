@@ -135,8 +135,8 @@ def plot_truth(ax, n, mean, var, X_eval):
     # plot ground truth
     opacity = 1
     linewidth = 8
-    f_X_given_ypositive = np.random.normal(mean, var, len(X_eval.flatten().ravel()))
-    f_X_given_ynegative = np.random.normal(-mean, var, len(X_eval.flatten().ravel()))
+    f_X_given_ypositive = norm.pdf(X_eval.flatten().ravel(), mean, var)
+    f_X_given_ynegative = norm.pdf(X_eval.flatten().ravel(), -mean, var)
     ax.plot(X_eval.flatten().ravel(), 
             (f_X_given_ypositive/(f_X_given_ypositive+f_X_given_ynegative)).flatten().ravel(), 
             label = "Truth",
