@@ -91,6 +91,8 @@ def plot_posterior(ax, algo, num_plotted_trials, X_eval, n, mean, var):
     X_eval : list
         The range over which to evaluate X values for
     """
+    plot_truth(ax, n, mean, var, X_eval)
+
     for i in range(num_plotted_trials):
         linewidth = 1
         opacity = .3
@@ -104,7 +106,6 @@ def plot_posterior(ax, algo, num_plotted_trials, X_eval, n, mean, var):
                 color = algo['color'], 
                 alpha = opacity)
 
-    plot_truth(ax, n, mean, var, X_eval)
 
 def plot_truth(ax, n, mean, var, X_eval):
     '''
@@ -199,10 +200,6 @@ def plot_fig1(algos, num_plotted_trials, X_eval, n, mean, var):
     axes[0].set_ylabel(r"$\hat P(Y = 1|X = x)$") # labeling the axes
     axes[0].set_xlabel(" ")
     axes[3].set_ylabel(r"Var($\hat P(Y = 1|X = x)$)")
-
-    axes[0].legend(loc = "lower right")
-    axes[1].legend(loc = "lower right")
-    axes[2].legend(loc = "lower right")
     
     fig.tight_layout()
     # plt.savefig("fig1.pdf")
