@@ -1,11 +1,10 @@
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import sklearn
-from sklearn.metrics import accuracy_score
 
 
 # problem with pickling
@@ -384,7 +383,7 @@ def run_rf(
         ]
     )
 
-    if isinstance(model, sklearn.ensemble.RandomForestClassifier):
+    if isinstance(model, RandomForestClassifier):
         train_images = train_images.reshape(-1, 32 * 32 * 3)
         test_images = test_images.reshape(-1, 32 * 32 * 3)
     model.fit(train_images, train_labels)
