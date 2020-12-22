@@ -25,12 +25,32 @@ from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 import tensorflow as tf
 
 import time
-
+import sys
 #%%
 def unpickle(file):
     with open(file, 'rb') as fo:
         dict = pickle.load(fo, encoding='bytes')
     return dict
+
+def get_size(obj, seen=None):
+    """Recursively finds size of objects"""
+    size = sys.getsizeof(obj)
+    if seen is None:
+        seen = set()
+    obj_id = id(obj)
+    if obj_id in seen:
+        return 0
+    # Important mark as seen *before* entering recursion to gracefully handle
+    # self-referential objects
+    seen.add(obj_id)
+    if isinstance(obj, dict):
+        size += sum([get_size(v, seen) for v in obj.values()])
+        size += sum([get_size(k, seen) for k in obj.keys()])
+    elif hasattr(obj, '__dict__'):
+        size += get_size(obj.__dict__, seen)
+    elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+        size += sum([get_size(i, seen) for i in obj])
+    return size
 
 #%%
 def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, num_points_per_task, acorn=None):
@@ -44,6 +64,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     train_times_across_tasks = []
     single_task_inference_times_across_tasks = []
     multitask_inference_times_across_tasks = []
+    time_info = []
+    mem_info = []
 
     if model == "dnn":
         default_transformer_class = NeuralClassificationTransformer
@@ -135,6 +157,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
             )
 
+        time_info.append(train_end_time - train_start_time)
+        mem_info.append(get_size(progressive_learner))
         train_times_across_tasks.append(train_end_time - train_start_time)
 
         single_task_inference_start_time = time.time()
@@ -179,9 +203,17 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
 
     #print(df)
     summary = (df,df_single_task)
-    file_to_save = 'result/result/fixed_'+model+str(ntrees)+'withrep_'+str(shift)+'.pickle'
+    file_to_save = 'result/result/fixed_'+model+str(ntrees)+str(shift)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(summary, f)
+
+    file_to_save = 'result/time_res/'+model+str(ntrees)+str(shift)+'.pickle'
+    with open(file_to_save, 'wb') as f:
+        pickle.dump(time_info, f)
+
+    file_to_save = 'result/mem_res/'+model+str(ntrees)+str(shift)+'.pickle'
+    with open(file_to_save, 'wb') as f:
+        pickle.dump(mem_info, f)
 
 #%%
 def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
@@ -269,8 +301,8 @@ elif model == "dnn":
         p.map(perform_shift, stage_2_iterable)'''
 
 slot_fold = range(1)
-shift_fold = [2,3,5,6]
-n_trees=[0]
+shift_fold = [1,2,3,4,5,6]
+n_trees=[10]
 iterable = product(n_trees,shift_fold,slot_fold)
 
 for ntree,shift,slot in iterable:
