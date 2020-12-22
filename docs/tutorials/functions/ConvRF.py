@@ -414,3 +414,177 @@ def run_cnn(
         trainset,
         testset,
     )
+
+def cnn_train_test_3_class(
+    cnn_model,
+    y_train,
+    y_test,
+    fraction_of_train_samples,
+    class1,
+    class2,
+    class3,
+    trainset,
+    testset,
+):
+    # set params
+    num_epochs = 2
+    learning_rate = 0.001
+
+    class1_indices = np.argwhere(y_train == class1).flatten()
+    class1_indices = class1_indices[
+        : int(len(class1_indices) * fraction_of_train_samples)
+    ]
+    class2_indices = np.argwhere(y_train == class2).flatten()
+    class2_indices = class2_indices[
+        : int(len(class2_indices) * fraction_of_train_samples)
+    ]
+    class3_indices = np.argwhere(y_train == class3).flatten()
+    class3_indices = class3_indices[
+        : int(len(class3_indices) * fraction_of_train_samples)
+    ]
+    train_indices = np.concatenate([class1_indices, class2_indices, class3_indices])
+
+    train_sampler = torch.utils.data.sampler.SubsetRandomSampler(train_indices)
+    train_loader = torch.utils.data.DataLoader(
+        trainset, batch_size=16, num_workers=2, sampler=train_sampler
+    )
+
+    test_indices = np.concatenate(
+        [
+            np.argwhere(y_test == class1).flatten(),
+            np.argwhere(y_test == class2).flatten(),
+            np.argwhere(y_test == class3).flatten(),
+        ]
+    )
+    test_sampler = torch.utils.data.sampler.SubsetRandomSampler(test_indices)
+
+    test_loader = torch.utils.data.DataLoader(
+        testset, batch_size=16, shuffle=False, num_workers=2, sampler=test_sampler
+    )
+
+    # define model
+    net = cnn_model()
+    dev = torch.device("cuda:0")
+    net.to(dev)
+    # loss and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
+
+    for epoch in range(num_epochs):  # loop over the dataset multiple times
+
+        for i, data in enumerate(train_loader, 0):
+            # get the inputs
+            inputs, labels = data
+            inputs = torch.tensor(inputs).to(dev)
+            labels = torch.tensor(labels).to(dev)
+            # zero the parameter gradients
+            optimizer.zero_grad()
+
+            # forward + backward + optimize
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+    # test the model
+    correct = torch.tensor(0).to(dev)
+    total = torch.tensor(0).to(dev)
+    with torch.no_grad():
+        for data in test_loader:
+            images, labels = data
+            labels = torch.tensor(labels).to(dev)
+            images = torch.tensor(images).to(dev)
+            outputs = net(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels.view(-1)).sum().item()
+    accuracy = float(correct) / float(total)
+    return accuracy
+
+
+def run_rf_3_class(
+    model,
+    train_images,
+    train_labels,
+    test_images,
+    test_labels,
+    fraction_of_train_samples,
+    class1,
+    class2,
+    class3
+):
+    num_train_samples_class_1 = int(
+        np.sum(train_labels == class1) * fraction_of_train_samples
+    )
+    num_train_samples_class_2 = int(
+        np.sum(train_labels == class2) * fraction_of_train_samples
+    )
+    num_train_samples_class_3 = int(
+        np.sum(train_labels == class3) * fraction_of_train_samples
+    )
+
+    # get only train images and labels for class 1, class 2 and class 3
+    train_images = np.concatenate(
+        [
+            train_images[train_labels == class1][:num_train_samples_class_1],
+            train_images[train_labels == class2][:num_train_samples_class_2],
+            train_images[train_labels == class3][:num_train_samples_class_3]
+        ]
+    )
+    train_labels = np.concatenate(
+        [
+            np.repeat(0, num_train_samples_class_1),
+            np.repeat(1, num_train_samples_class_2),
+            np.repeat(2, num_train_samples_class_3)
+        ]
+    )
+
+    # get only test images and labels for class 1, class 2 and class 3
+    test_images = np.concatenate(
+        [
+         test_images[test_labels == class1],
+         test_images[test_labels == class2],
+         test_images[test_labels == class3]
+        ]
+    )
+    test_labels = np.concatenate(
+        [
+            np.repeat(0, np.sum(test_labels == class1)),
+            np.repeat(1, np.sum(test_labels == class2)),
+            np.repeat(2, np.sum(test_labels == class3))
+        ]
+    )
+
+    if isinstance(model, RandomForestClassifier):
+        train_images = train_images.reshape(-1, 32 * 32 * 3)
+        test_images = test_images.reshape(-1, 32 * 32 * 3)
+    model.fit(train_images, train_labels)
+    # Test
+    test_preds = model.predict(test_images)
+    return accuracy_score(test_labels, test_preds)
+
+
+def run_cnn_3_class(
+    cnn_model,
+    train_images,
+    train_labels,
+    test_images,
+    test_labels,
+    fraction_of_train_samples,
+    class1,
+    class2,
+    class3,
+    trainset,
+    testset
+):
+    return cnn_train_test_3_class(
+        cnn_model,
+        train_labels,
+        test_labels,
+        fraction_of_train_samples,
+        class1,
+        class2,
+        class3,
+        trainset,
+        testset
+    )
