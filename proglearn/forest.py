@@ -168,7 +168,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             }
 
         else:
-            transformer_kwargs = ({"kwargs": {"max_depth": max_depth}},)
+            transformer_kwargs = {"kwargs": {"max_depth": max_depth}}
 
         X, y = check_X_y(X, y)
         return self.pl_.add_task(
