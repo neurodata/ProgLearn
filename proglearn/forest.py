@@ -218,7 +218,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             The number of trees used for the given task.
 
         max_depth : int or str, default='default'
-            The maximum depth of a tree in the UncertaintyForest.
+            The maximum depth of a tree in the Lifelong Classification Forest.
             The default is used if 'default' is provided.
 
         Returns
