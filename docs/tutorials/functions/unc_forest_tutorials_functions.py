@@ -69,8 +69,10 @@ def estimate_posterior(algo, n, mean, var, num_trials, X_eval, parallel = False)
         predicted_posterior = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
     else:
         predicted_posterior = np.zeros((num_trials, X_eval.shape[0]))
-        for t in tqdm(range(num_trials)):
+        for t in range(num_trials):
             predicted_posterior[t, :] = worker(t)
+        # for t in tqdm(range(num_trials)):
+        #     predicted_posterior[t, :] = worker(t)
 
     return predicted_posterior
 
@@ -298,17 +300,17 @@ def get_cond_entropy_vs_n(mean, d, num_trials, sample_sizes, algos):
     
     output = np.zeros((len(algos), len(sample_sizes), num_trials))
     for i, elem in enumerate(sample_sizes):
-        results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
-        for j in range(len(algos)):
-            output[j, i, :] = results[:, j]
-
-        # results = []
-        # for t in range(num_trials):
-        #     # print(t)
-        #     results.append(worker(t))
-        # results = np.array(results)
+        # results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
         # for j in range(len(algos)):
         #     output[j, i, :] = results[:, j]
+
+        results = []
+        for t in range(num_trials):
+            # print(t)
+            results.append(worker(t))
+        results = np.array(results)
+        for j in range(len(algos)):
+            output[j, i, :] = results[:, j]
                 
     return output
 
@@ -325,17 +327,17 @@ def get_cond_entropy_vs_mu(n, d, num_trials, mus, algos):
     
     output = np.zeros((len(algos), len(mus), num_trials))
     for i, elem in enumerate(mus):
-        results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
-        for j in range(len(algos)):
-            output[j, i, :] = results[:, j]
-
-        # results = []
-        # for t in range(num_trials):
-        #     # print(t)
-        #     results.append(worker(t))
-        # results = np.array(results)
+        # results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
         # for j in range(len(algos)):
         #     output[j, i, :] = results[:, j]
+
+        results = []
+        for t in range(num_trials):
+            # print(t)
+            results.append(worker(t))
+        results = np.array(results)
+        for j in range(len(algos)):
+            output[j, i, :] = results[:, j]
                
     return output
 
