@@ -48,8 +48,8 @@ def get_size(obj, seen=None):
         size += sum([get_size(k, seen) for k in obj.keys()])
     elif hasattr(obj, '__dict__'):
         size += get_size(obj.__dict__, seen)
-    elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
-        size += sum([get_size(i, seen) for i in obj])
+    '''elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+        size += sum([get_size(i, seen) for i in obj])'''
     return size
 
 #%%
@@ -202,16 +202,16 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     df_single_task['train_times'] = train_times_across_tasks
 
     #print(df)
-    summary = (df,df_single_task)
+    '''summary = (df,df_single_task)
     file_to_save = 'result/result/fixed_'+model+str(ntrees)+str(shift)+'.pickle'
     with open(file_to_save, 'wb') as f:
-        pickle.dump(summary, f)
+        pickle.dump(summary, f)'''
 
-    file_to_save = 'result/time_res/'+model+str(ntrees)+str(shift)+'.pickle'
+    file_to_save = 'result/time_res/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(time_info, f)
 
-    file_to_save = 'result/mem_res/'+model+str(ntrees)+str(shift)+'.pickle'
+    file_to_save = 'result/mem_res/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(mem_info, f)
 
@@ -259,7 +259,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 #%%
 ### MAIN HYPERPARAMS ###
 model = "dnn"
-num_points_per_task = 5000
+num_points_per_task = 500
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
@@ -300,9 +300,9 @@ elif model == "dnn":
     with Pool(4) as p:
         p.map(perform_shift, stage_2_iterable)'''
 
-slot_fold = range(1)
+slot_fold = range(10)
 shift_fold = [1,2,3,4,5,6]
-n_trees=[10]
+n_trees=[0]
 iterable = product(n_trees,shift_fold,slot_fold)
 
 for ntree,shift,slot in iterable:
