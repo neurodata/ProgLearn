@@ -45,7 +45,7 @@ ax.scatter(X[:, 0], X[:, 1], c=get_colors(colors, Y), s=50)
 
 ax.set_xticks([])
 ax.set_yticks([])
-ax.set_title("Gaussian XOR", fontsize=30)
+ax.set_title("Ai. Gaussian XOR", fontsize=30)
 
 plt.tight_layout()
 ax.axis("off")
@@ -57,7 +57,7 @@ ax.scatter(Z[:, 0], Z[:, 1], c=get_colors(colors, W), s=50)
 
 ax.set_xticks([])
 ax.set_yticks([])
-ax.set_title("Gaussian N-XOR", fontsize=30)
+ax.set_title("Aii. Gaussian XNOR", fontsize=30)
 ax.axis("off")
 
 #####################
@@ -66,7 +66,7 @@ ax.scatter(P[:, 0], P[:, 1], c=get_colors(colors, Q), s=50)
 
 ax.set_xticks([])
 ax.set_yticks([])
-ax.set_title("Gaussian R-XOR", fontsize=30)
+ax.set_title("Aiii. Gaussian R-XOR", fontsize=30)
 ax.axis("off")
 
 ######################
@@ -120,7 +120,7 @@ ax1.set_yticks([0.1, 0.3, 0.5])
 ax1.set_xticks([50, 750, 1500])
 # ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
-ax1.set_title("XOR", fontsize=30)
+ax1.set_title("Bi. XOR", fontsize=30)
 
 right_side = ax1.spines["right"]
 right_side.set_visible(False)
@@ -176,7 +176,7 @@ top_side.set_visible(False)
 ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 
-ax1.set_title("XNOR", fontsize=30)
+ax1.set_title("Bii. XNOR", fontsize=30)
 
 ##################
 mean_te = unpickle("data/mean_te_xor_nxor.pickle")
@@ -219,7 +219,7 @@ ax1.hlines(1, 50, 1500, colors="gray", linestyles="dashed", linewidth=1.5)
 
 ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
-
+ax1.set_title("Biii.", fontsize=30)
 ######################
 mean_te = unpickle("data/mean_te_xor_rxor_with_rep.pickle")
 algorithms = ["Lifelong BTE", "Lifelong FTE", "Naive BTE", "Naive FTE"]
@@ -261,7 +261,7 @@ ax1.hlines(1, 50, 1500, colors="gray", linestyles="dashed", linewidth=1.5)
 
 ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
-
+ax1.set_title("Ci.", fontsize=30)
 ########################################################
 ax = fig.add_subplot(gs[15:21, 10:16])
 with open("data/mean_angle_te_with_rep.pickle", "rb") as f:
@@ -281,7 +281,7 @@ right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
-
+ax.set_title("Cii.", fontsize=30)
 #####################################
 ax = fig.add_subplot(gs[15:21, 18:24])
 
@@ -314,7 +314,7 @@ right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
-
+ax.set_title("Ciii.", fontsize=30)
 
 plt.savefig("./plots/parity_exp.pdf")
 # %%
