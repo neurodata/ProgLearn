@@ -341,7 +341,7 @@ class UncertaintyForest:
             default_max_depth=self.max_depth,
             default_tree_construction_proportion=self.tree_construction_proportion,
         )
-        
+
         X, y = check_X_y(X, y)
         return self.lf_.add_task(X, y, task_id=0)
 
