@@ -47,14 +47,41 @@ def get_size(obj, seen=None):
         size += sum([get_size(k, seen) for k in obj.keys()])
     elif hasattr(obj, '__dict__'):
         size += get_size(obj.__dict__, seen)
-    elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
-        size += sum([get_size(i, seen) for i in obj])
+    '''elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+        size += sum([get_size(i, seen) for i in obj])'''
     return size
 
+def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
+    x = data_x.copy()
+    y = data_y.copy()
+    idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
+
+    batch_per_task=5000//num_points_per_task
+    sample_per_class = num_points_per_task//total_task
+    test_data_slot=100//batch_per_task
+
+    for task in range(total_task):
+        for batch in range(batch_per_task):
+            for class_no in range(task*10,(task+1)*10,1):
+                indx = np.roll(idx[class_no],(shift-1)*100)
+
+                if batch==0 and class_no==0 and task==0:
+                    train_x = x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]
+                    train_y = y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]
+                    test_x = x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]
+                    test_y = y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]
+                else:
+                    train_x = np.concatenate((train_x, x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]), axis=0)
+                    train_y = np.concatenate((train_y, y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]), axis=0)
+                    test_x = np.concatenate((test_x, x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]), axis=0)
+                    test_y = np.concatenate((test_y, y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]), axis=0)
+
+    return train_x, train_y, test_x, test_y
 # %%
 if __name__ == "__main__":
     ## main hyperparameters ##
-    model = "uf"
+    model = "dnn"
+    ntrees = 10
     num_points_per_task = 500
     mem_info = []
     time_info = []
@@ -68,6 +95,8 @@ if __name__ == "__main__":
         data_x = data_x.reshape((data_x.shape[0], data_x.shape[1] * data_x.shape[2] * data_x.shape[3]))
     data_y = np.concatenate([y_train, y_test])
     data_y = data_y[:, 0]
+
+    train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, 500, shift=1)
 
     if model == "dnn":
         default_transformer_class = NeuralClassificationTransformer
@@ -125,4 +154,24 @@ if __name__ == "__main__":
                                          default_decider_class = default_decider_class)
 
 # %%
+train_start_time = time.time()
+for n_sample in task_sample:
+    progressive_learner.add_task(
+            X = train_x[0:n_sample],
+            y = train_y[0:n_sample],
+            num_transformers = 1 if model == "dnn" else ntrees,
+            transformer_voter_decider_split = [0.63, 0.37, 0],
+            decider_kwargs = {"classes" : [np.unique(train_y[0:n_sample])]}
+            )
 
+    train_end_time = time.time()
+
+    time_info.append(train_end_time-train_start_time)
+    mem_info.append(get_size(progressive_learner))
+
+with open('./result/mem_res/'+model+'.pickle','wb') as f:
+    pickle.dump(mem_info,f)
+
+with open('./result/time_res/'+model+'.pickle','wb') as f:
+    pickle.dump(time_info,f)
+# %%

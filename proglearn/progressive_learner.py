@@ -656,34 +656,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 backward_task_ids=backward_task_ids,
             )
 
-       ''' # train voters and decider from previous (and current) transformers to new task
-        for transformer_id in (
-            forward_transformer_ids
-            if forward_transformer_ids
-            else self.get_transformer_ids()
-        ):
-            self.set_voter(
-                transformer_id=transformer_id,
-                task_id=task_id,
-                voter_class=voter_class,
-                voter_kwargs=voter_kwargs,
-            )
-
-        # train decider of new task
-        if forward_transformer_ids:
-            if num_transformers == 0:
-                transformer_ids = forward_transformer_ids
-            else:
-                transformer_ids = np.concatenate([forward_transformer_ids, task_id])
-        else:
-            transformer_ids = self.get_transformer_ids()
-        self.set_decider(
-            task_id=task_id,
-            transformer_ids=transformer_ids,
-            decider_class=decider_class,
-            decider_kwargs=decider_kwargs,
-        )'''
-
         return self
 
     def predict(self, X, task_id, transformer_ids=None):
