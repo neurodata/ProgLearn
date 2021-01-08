@@ -656,7 +656,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 backward_task_ids=backward_task_ids,
             )
 
-        # train voters and decider from previous (and current) transformers to new task
+       ''' # train voters and decider from previous (and current) transformers to new task
         for transformer_id in (
             forward_transformer_ids
             if forward_transformer_ids
@@ -682,7 +682,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
             transformer_ids=transformer_ids,
             decider_class=decider_class,
             decider_kwargs=decider_kwargs,
-        )
+        )'''
 
         return self
 
