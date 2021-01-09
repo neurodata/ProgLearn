@@ -206,7 +206,7 @@ class KNNClassificationVoter(BaseClassificationVoter):
     def __init__(self, k=None, kwargs={}, classes=[]):
         self.k = k
         self.kwargs = kwargs
-        self.classes = classes
+        self.classes = np.asarray(classes)
 
     def fit(self, X, y):
         """
