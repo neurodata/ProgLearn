@@ -181,10 +181,11 @@ for i, mem in enumerate(mem_info):
     plt.savefig('./result/figs/mem_fitting.pdf')
 # %% change fitting function according to jovo
 from scipy.optimize import curve_fit 
-from math import fmod, log
+from math import fmod
+from numpy import log 
 
 def test(x, a0, a1, a2, a3, a4, a_log): 
-    return a0 + a1*x + a2*x*x + a3*x*x*x + a4*x*x*x*x + a_log*x*log(x)
+    return (a0 + a1*x + a2*x*x + a3*x*x*x + a4*x*x*x*x + a_log*x*log(x))
 
 sample_no = np.asarray(
     [5000, 9500, 13500, 17000, 20000, 22500, 24500, 26000, 27000, 27500]
@@ -197,22 +198,105 @@ sns.set_context("talk")
 
 for i, times in enumerate(time_info):
     param, param_cov = curve_fit(test, sample_no_normalized, times)
-    times_hat = test(
-        sample_no_normalized, 
-        param[0], 
-        param[1], 
-        param[2], 
-        param[3], 
-        param[4], 
-        param[5]
-        )
+    times_hat = test(sample_no_normalized, param[0], param[1], param[2], param[3], param[4], param[5])
 
     col, row = i//3, int(fmod(i,3))
     #print(row, col, i)
     ax[row][col].scatter(sample_no, times, c='r', label = 'true val')
     ax[row][col].plot(sample_no, times_hat, label = 'fitted val')
     ax[row][col].legend()
-    ax[row][col].set_title(alg_name[i] + ' ' + fit+ ' a=' + str(np.round(param[0],2)) + ' b=' + str(np.round(param[1],2)))
+    #ax[row][col].set_title(alg_name[i] + ' ' + fit+ ' a=' + str(np.round(param[0],2)) + ' b=' + str(np.round(param[1],2)))
 
 plt.savefig('./result/figs/time_fitting_jovo.pdf')
+# %% change fitting function according to jovo
+from scipy.optimize import curve_fit 
+from math import fmod
+from numpy import log 
+
+def test1(x, a0, a1): 
+    return a0 + a1*x
+
+def test2(X, a0, a1, a2): 
+    x, T = X
+    return a0 + a1*x + a2*x*T
+
+sample_no = np.asarray(
+    [5000, 9500, 13500, 17000, 20000, 22500, 24500, 26000, 27000, 27500]
+    )
+sample_no_normalized = sample_no/1e4
+T = list(range(1,11))
+
+fig, ax = plt.subplots(3,4, figsize=(24,20))
+sns.set_context("talk")
+
+for i, times in enumerate(time_info):
+    param1, param_cov1 = curve_fit(test1, sample_no_normalized, times)
+    times_hat1 = test1(sample_no_normalized, param1[0], param1[1])
+
+    param2, param_cov2 = curve_fit(test2, (sample_no_normalized, T), times)
+    times_hat2 = test2((sample_no_normalized, T), param2[0], param2[1], param2[2])
+
+    col, row = i//3, int(fmod(i,3))
+    a00, a01 = np.round(param1[0],2), np.round(param1[1],2)
+    a10, a11, a12 = np.round(param2[0],2), np.round(param2[1],2), np.round(param2[2],2)
+    label1 = str(a00) + ' + ' + str(a01) + '*x'
+    label2 = str(a10) + ' + ' + str(a11) + '*x' + ' + ' + str(a12) + '*x*T'
+    #print(row, col, i)
+    ax[row][col].scatter(sample_no, times, c='r', label = 'true val')
+    ax[row][col].plot(sample_no, times_hat1, label = label1)
+    ax[row][col].plot(sample_no, times_hat2, label = label2)
+    ax[row][col].legend()
+    #ax[row][col].set_title(alg_name[i] + ' ' + fit+ ' a=' + str(np.round(param[0],2)) + ' b=' + str(np.round(param[1],2)))
+
+plt.savefig('./result/figs/time_fitting_jovo.pdf')
+
+# %% change fitting function according to jovo
+from scipy.optimize import curve_fit 
+from math import fmod
+from numpy import log 
+
+def test1(x, a0, a1): 
+    return a0 + a1*x
+
+def test2(x, a0, a1): 
+    return a0 + a2*x*log(x)
+
+def test3(X, a0, a1, a2): 
+    x, T = X
+    return a0 + a1*x + a2*T^2
+
+sample_no = np.asarray(
+    [5000, 9500, 13500, 17000, 20000, 22500, 24500, 26000, 27000, 27500]
+    )
+sample_no_normalized = sample_no/1e4
+T = list(range(1,11))
+
+fig, ax = plt.subplots(3,4, figsize=(24,20))
+sns.set_context("talk")
+
+for i, mem in enumerate(mem_info):
+    param1, param_cov1 = curve_fit(test1, sample_no_normalized, mem)
+    times_hat1 = test1(sample_no_normalized, param1[0], param1[1])
+
+    param2, param_cov2 = curve_fit(test2, (sample_no_normalized, T), mem)
+    times_hat2 = test2((sample_no_normalized, T), param2[0], param2[1])
+
+    param3, param_cov3 = curve_fit(test3, (sample_no_normalized, T), mem)
+    times_hat3 = test2((sample_no_normalized, T), param3[0], param3[1], param3[2])
+
+    col, row = i//3, int(fmod(i,3))
+    a00, a01 = np.round(param1[0],2), np.round(param1[1],2)
+    a10, a11 = np.round(param2[0],2), np.round(param2[1],2)
+    a20, a21, a22 = np.round(param3[0],2), np.round(param3[1],2), np.round(param3[2],2)
+
+    label1 = str(a00) + ' + ' + str(a01) + '*x'
+    label2 = str(a10) + ' + ' + str(a11) + '*x' + ' + ' + str(a12) + '*x*T'
+    #print(row, col, i)
+    ax[row][col].scatter(sample_no, times, c='r', label = 'true val')
+    ax[row][col].plot(sample_no, times_hat1, label = label1)
+    ax[row][col].plot(sample_no, times_hat2, label = label2)
+    ax[row][col].legend()
+    #ax[row][col].set_title(alg_name[i] + ' ' + fit+ ' a=' + str(np.round(param[0],2)) + ' b=' + str(np.round(param[1],2)))
+
+plt.savefig('./result/figs/mem_fitting_jovo.pdf')
 
