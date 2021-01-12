@@ -80,7 +80,7 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
 # %%
 if __name__ == "__main__":
     ## main hyperparameters ##
-    model = "dnn"
+    model = "uf"
     ntrees = 10
     num_points_per_task = 500
     mem_info = []
@@ -169,9 +169,9 @@ for n_sample in task_sample:
     time_info.append(train_end_time-train_start_time)
     mem_info.append(get_size(progressive_learner))
 
-with open('./result/mem_res/'+model+'.pickle','wb') as f:
+with open('./result/mem_res/'+model+'_same_machine.pickle','wb') as f:
     pickle.dump(mem_info,f)
 
-with open('./result/time_res/'+model+'.pickle','wb') as f:
+with open('./result/time_res/'+model+'_same_machine.pickle','wb') as f:
     pickle.dump(time_info,f)
 # %%
