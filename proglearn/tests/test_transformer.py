@@ -46,6 +46,8 @@ class TestObliqueSplitter:
         random_state = 0
         rng.seed(random_state)
 
+        workers = -1
+
         X = rng.rand(100, 100)
         y = np.zeros(100)
 
@@ -62,7 +64,7 @@ class TestObliqueSplitter:
         n_sample_inds = [10, 20, 40, 60, 80]
 
         for pd in proj_dims:
-            splitter = ObliqueSplitter(X, y, pd, density, random_state)
+            splitter = ObliqueSplitter(X, y, pd, density, random_state, workers)
 
             for i in range(len(n_sample_inds)):
                 si = sample_inds[i]
@@ -77,13 +79,15 @@ class TestObliqueSplitter:
         random_state = 0
         rng.seed(random_state)
 
+        workers = -1
+
         X = rng.rand(11, 11)
 
         density = 0.5
         proj_dims = 5
 
         y = np.array([0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
-        splitter = ObliqueSplitter(X, y, proj_dims, density, random_state)
+        splitter = ObliqueSplitter(X, y, proj_dims, density, random_state, workers)
 
         score = splitter.score(y, 6)
         assert 0 == score
@@ -96,6 +100,8 @@ class TestObliqueSplitter:
         random_state = 0
         rng.seed(random_state)
 
+        workers = -1
+
         X = rng.rand(100, 100)
 
         density = 0.5
@@ -106,7 +112,7 @@ class TestObliqueSplitter:
             for j in range(10):
                 y[10 * i + j] = i
 
-        splitter = ObliqueSplitter(X, y, proj_dims, density, random_state)
+        splitter = ObliqueSplitter(X, y, proj_dims, density, random_state, workers)
 
         # Impurity of one thing should be 0
         impurity = splitter.impurity([0])
@@ -129,6 +135,8 @@ class TestObliqueSplitter:
         random_state = 0
         rng.seed(random_state)
 
+        workers = -1
+
         X = rng.rand(100, 100)
 
         density = 0.5
@@ -139,7 +147,7 @@ class TestObliqueSplitter:
             for j in range(10):
                 y[10 * i + j] = i
 
-        splitter = ObliqueSplitter(X, y, proj_dims, density, random_state)
+        splitter = ObliqueSplitter(X, y, proj_dims, density, random_state, workers)
 
         split_info = splitter.split(np.array([i for i in range(100)]))
 
