@@ -15,7 +15,7 @@ mem_info = [[] for i in range(total_alg)]
 
 for alg in range(total_alg): 
     if alg < 2:
-        filename = './result/time_res/'+model_file[alg]+'.pickle'
+        filename = './result/time_res/'+model_file[alg]+'_same_machine.pickle'
     elif alg == 2 or alg == 3:
         filename = './result/time_res/'+model_file[alg]+str(1)+'_'+str(1)+'.pickle'
     else:
@@ -24,11 +24,11 @@ for alg in range(total_alg):
     with open(filename,'rb') as f:
             data = pickle.load(f)
 
-    time_info[alg].extend(np.asarray(data)/data[0])
+    time_info[alg].extend(np.asarray(data))
 # %%
 for alg in range(total_alg): 
     if alg < 2:
-        filename = './result/mem_res/'+model_file[alg]+'.pickle'
+        filename = './result/mem_res/'+model_file[alg]+'_same_machine.pickle'
     elif alg == 2 or alg == 3:
         filename = './result/mem_res/'+model_file[alg]+str(1)+'_'+str(1)+'.pickle'
     else:
@@ -37,7 +37,7 @@ for alg in range(total_alg):
     with open(filename,'rb') as f:
             data = pickle.load(f)
 
-    mem_info[alg].extend(np.asarray(data)/data[0])
+    mem_info[alg].extend(np.asarray(data)/1024)
 # %%
 fontsize=20
 ticksize=18
@@ -57,12 +57,13 @@ for alg_no,alg in enumerate(alg_name):
     else:
         ax.plot(task_sample,time_info[alg_no], c=c[alg_no], label=alg_name[alg_no], marker=marker_style[alg_no])
 
-ax.set_yticks([1,10,20,30,40])
-ax.set_ylim([.9,45])
+#ax.set_yticks([1,10,20,30,40])
+#ax.set_ylim([.9,45])
+ax.set_yscale('log')
 ax.set_xticks([5000, 13500, 20000, 27000])
 ax.tick_params(labelsize=ticksize)
 ax.set_xlabel('Number of training samples', fontsize=fontsize)
-ax.set_ylabel('Time', fontsize=fontsize)
+ax.set_ylabel('Time (s)', fontsize=fontsize)
 #ax[0].set_title("Label Shuffled CIFAR", fontsize = fontsize)
 #ax.hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 right_side = ax.spines["right"]
@@ -78,13 +79,14 @@ for alg_no,alg in enumerate(alg_name):
     else:
         ax.plot(task_sample,mem_info[alg_no], c=c[alg_no], label=alg_name[alg_no], marker=marker_style[alg_no])
 
-ax.set_yticks([1,6,12,16])
-ax.set_ylim([.9,16])
+#ax.set_yticks([1,6,12,16])
+#ax.set_ylim([.9,16])
 #ax.set_xticks([5000, 9500, 13500, 17000, 20000, 22500, 24500, 26000, 27000, 27500])
+ax.set_yscale('log')
 ax.set_xticks([5000, 13500, 20000, 27000])
 ax.tick_params(labelsize=ticksize)
 ax.set_xlabel('Number of training samples', fontsize=fontsize)
-ax.set_ylabel('Memory', fontsize=fontsize)
+ax.set_ylabel('Memory (kB)', fontsize=fontsize)
 #ax[1].set_title("Label Shuffled CIFAR", fontsize = fontsize)
 #ax.hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 right_side = ax.spines["right"]
@@ -95,7 +97,7 @@ handles, labels_ = ax.get_legend_handles_labels()
 ax.legend(handles, labels_, bbox_to_anchor=(1, 1), fontsize=14, frameon=False)
 plt.tight_layout()
 
-plt.savefig('./result/figs/scaling.pdf')
+plt.savefig('./result/figs/scaling_unnormalized.pdf')
 # %% fit the time and memory curves
 from scipy.optimize import curve_fit 
 from math import fmod
@@ -300,3 +302,4 @@ for i, mem in enumerate(mem_info):
 
 plt.savefig('./result/figs/mem_fitting_jovo.pdf')
 
+# %%
