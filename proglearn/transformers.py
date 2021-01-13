@@ -2,20 +2,15 @@
 Main Author: Will LeVine 
 Corresponding Email: levinewill@icloud.com
 """
-import numpy as np
-
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.base import BaseEstimator
-from sklearn.random_projection import SparseRandomProjection
-
-
-from sklearn.utils.validation import (
-    check_X_y,
-    check_array,
-    check_is_fitted,
-)
+from itertools import product
 
 import keras as keras
+import numpy as np
+from joblib import Parallel, delayed
+from sklearn.base import BaseEstimator
+from sklearn.random_projection import SparseRandomProjection
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 from .base import BaseTransformer
 
@@ -347,6 +342,9 @@ class ObliqueSplitter:
         Ratio of non-zero component in the random projection matrix in the range '(0, 1]'.
     random_state : int
         Controls the pseudo random number generator used to generate the projection matrix.
+    workers : int
+        The number of cores to parallelize the p-value computation over.
+        Supply -1 to use all cores available to the Process.
 
     Methods
     -------
@@ -365,7 +363,7 @@ class ObliqueSplitter:
         Determines the best possible split for the given set of samples.
     """
 
-    def __init__(self, X, y, proj_dims, density, random_state):
+    def __init__(self, X, y, proj_dims, density, random_state, workers):
 
         self.X = X
         self.y = y
@@ -379,6 +377,7 @@ class ObliqueSplitter:
         self.proj_dims = proj_dims
         self.density = density
         self.random_state = random_state
+        self.workers = workers
 
     def sample_proj_mat(self, sample_inds):
         """
@@ -537,12 +536,9 @@ class ObliqueSplitter:
         return 1 - gini
 
     # Finds the best split
-    # This needs to be parallelized; its a major bottleneck
     def split(self, sample_inds):
         """
         Finds the optimal split for a set of samples.
-        Note that the code for this method needs to be parallelized. This is a major
-        bottleneck in integration with scikit-learn.
 
         Parameters
         ----------
@@ -567,17 +563,13 @@ class ObliqueSplitter:
         Q[0, :] = node_impurity
         Q[-1, :] = node_impurity
 
-        # Loop through projected features and examples to find best split
-        # This can be parallelized for sure
-        for j in range(self.proj_dims):
-
-            # Sort labels by the jth feature
-            idx = np.argsort(proj_X[:, j])
-            y_sort = y_sample[idx]
-
-            Q[1:-1, j] = np.array(
-                [self.score(y_sort, i) for i in range(1, n_samples - 1)]
-            )
+        # Loop through examples and projected features to calculate split scores
+        split_iterator = product(range(1, n_samples - 1), range(self.proj_dims))
+        scores = Parallel(n_jobs=-1)(
+            delayed(self._score)(proj_X, y_sample, i, j) for i, j in split_iterator
+        )
+        for gini, i, j in scores:
+            Q[i, j] = gini
 
         # Identify best split feature, minimum gini impurity
         best_split_ind = np.argmin(Q)
@@ -950,7 +942,7 @@ class ObliqueTree:
         predictions = np.zeros(X.shape[0])
         for i in range(X.shape[0]):
             cur = self.nodes[0]
-            while not cur is None and not cur.is_leaf:
+            while cur is not None and not cur.is_leaf:
                 proj_X = cur.proj_mat.transform(X)
                 if proj_X[i, cur.feature] < cur.threshold:
                     id = cur.left_child
@@ -991,6 +983,9 @@ class ObliqueTreeClassifier(BaseEstimator):
         The feature combinations to use for the oblique split.
     density : float
         Density estimate.
+    workers : int, optional (default: -1)
+        The number of cores to parallelize the p-value computation over.
+        Supply -1 to use all cores available to the Process.
 
     Methods
     -------
@@ -1024,7 +1019,8 @@ class ObliqueTreeClassifier(BaseEstimator):
         # ccp_alpha=0.0,
         # New args
         feature_combinations=1.5,
-        density=0.5
+        density=0.5,
+        workers=-1,
     ):
 
         # self.criterion=criterion
@@ -1042,6 +1038,7 @@ class ObliqueTreeClassifier(BaseEstimator):
 
         self.feature_combinations = feature_combinations
         self.density = density
+        self.workers = workers
 
     def fit(self, X, y):
         """
@@ -1062,7 +1059,7 @@ class ObliqueTreeClassifier(BaseEstimator):
 
         self.proj_dims = int(np.ceil(X.shape[1]) / self.feature_combinations)
         splitter = ObliqueSplitter(
-            X, y, self.proj_dims, self.density, self.random_state
+            X, y, self.proj_dims, self.density, self.random_state, self.workers
         )
 
         self.tree = ObliqueTree(
