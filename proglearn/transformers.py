@@ -211,7 +211,7 @@ class ObliqueTreeClassificationTransformer(BaseTransformer):
     Attributes
     ----------
     transformer : ObliqueTreeClassifier
-        an sklearn compliant oblique decisiotn tree (SPORF)
+        an sklearn compliant oblique decision tree (SPORF)
     """
 
     def __init__(self, kwargs={}):
