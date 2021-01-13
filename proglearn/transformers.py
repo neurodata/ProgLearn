@@ -357,6 +357,8 @@ class ObliqueSplitter:
         node.
     score(y_sort, t)
         Finds the Gini impurity for a split.
+    _score(self, proj_X, y_sample, i, j)
+        Handles array indexing before calculating Gini impurity.
     impurity(idx)
         Finds the impurity for a certain set of samples.
     split(sample_inds)
@@ -472,6 +474,38 @@ class ObliqueSplitter:
             n_right / self.n_samples
         ) * right_gini
         return gini
+
+    def _score(self, proj_X, y_sample, i, j):
+        """
+        Handles array indexing before calculating Gini impurity
+
+        Parameters
+        ----------
+        proj_X : {ndarray, sparse matrix} of shape (n_samples, self.proj_dims)
+            Projected input data matrix.
+        y_sample : array of shape [n_samples]
+            Labels for sample of data.
+        i : float
+            The threshold determining where to split y_sort.
+        j : float
+            The projection dimension to consider.
+
+        Returns
+        -------
+        gini : float
+            The Gini impurity of the split.
+        i : float
+            The threshold determining where to split y_sort.
+        j : float
+            The projection dimension to consider.
+        """
+        # Sort labels by the jth feature
+        idx = np.argsort(proj_X[:, j])
+        y_sort = y_sample[idx]
+
+        gini = self.score(y_sort, i)
+
+        return gini, i, j
 
     # Returns impurity for a group of examples
     # expects idx not None
