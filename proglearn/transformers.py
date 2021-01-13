@@ -343,7 +343,7 @@ class ObliqueSplitter:
     random_state : int
         Controls the pseudo random number generator used to generate the projection matrix.
     workers : int
-        The number of cores to parallelize the p-value computation over.
+        The number of cores to parallelize the calculation of Gini impurity.
         Supply -1 to use all cores available to the Process.
 
     Methods
@@ -984,7 +984,7 @@ class ObliqueTreeClassifier(BaseEstimator):
     density : float
         Density estimate.
     workers : int, optional (default: -1)
-        The number of cores to parallelize the p-value computation over.
+        The number of cores to parallelize the calculation of Gini impurity.
         Supply -1 to use all cores available to the Process.
 
     Methods
