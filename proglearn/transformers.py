@@ -2,10 +2,9 @@
 Main Author: Will LeVine 
 Corresponding Email: levinewill@icloud.com
 """
-from itertools import product
-
-import keras as keras
+import keras
 import numpy as np
+from itertools import product
 from joblib import Parallel, delayed
 from sklearn.base import BaseEstimator
 from sklearn.random_projection import SparseRandomProjection
@@ -565,7 +564,7 @@ class ObliqueSplitter:
 
         # Loop through examples and projected features to calculate split scores
         split_iterator = product(range(1, n_samples - 1), range(self.proj_dims))
-        scores = Parallel(n_jobs=-1)(
+        scores = Parallel(n_jobs=self.workers)(
             delayed(self._score)(proj_X, y_sample, i, j) for i, j in split_iterator
         )
         for gini, i, j in scores:
