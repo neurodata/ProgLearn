@@ -22,6 +22,7 @@ from proglearn.transformers import NeuralClassificationTransformer, TreeClassifi
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
 import tensorflow as tf
+from tensorflow.python.keras import backend as k
 
 import time
 import sys
@@ -99,9 +100,9 @@ if __name__ == "__main__":
     train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, 500, shift=1)
 
     if model == "dnn":
-        config = tf.compat.v1.ConfigProto( device_count = {'GPU': 1 , 'CPU': 0} ) 
+        config = tf.compat.v1.ConfigProto( device_count = {'GPU': 1 , 'CPU': 1} ) 
         sess = tf.compat.v1.Session(config=config) 
-        keras.backend.set_session(sess)
+        k.set_session(sess)
 
         default_transformer_class = NeuralClassificationTransformer
 
