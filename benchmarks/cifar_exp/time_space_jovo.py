@@ -99,6 +99,10 @@ if __name__ == "__main__":
     train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, 500, shift=1)
 
     if model == "dnn":
+        config = tf.compat.v1.ConfigProto( device_count = {'GPU': 1 , 'CPU': 0} ) 
+        sess = tf.compat.v1.Session(config=config) 
+        keras.backend.set_session(sess)
+
         default_transformer_class = NeuralClassificationTransformer
 
         network = keras.Sequential()

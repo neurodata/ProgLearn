@@ -12,7 +12,7 @@ from sklearn.datasets import make_blobs
 
 from sklearn.model_selection import StratifiedKFold
 from math import log2, ceil
-
+from matplotlib.ticker import ScalarFormatter
 
 #%%
 def unpickle(file):
@@ -197,7 +197,6 @@ ax1.legend(loc="upper left", fontsize=20, frameon=False)
 # ax1.set_ylim(0.09, 0.21)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
-ax1.set_yticks([0.1, 0.3, 0.5])
 ax1.set_xticks([50, 750, 1500])
 # ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
@@ -209,6 +208,8 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
 ax1.set_yscale('log')
+ax1.yaxis.set_major_formatter(ScalarFormatter())
+ax1.set_yticks([0.1, 0.3, 0.5])
 ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 
@@ -242,7 +243,6 @@ ax1.set_ylabel("Generalization Error (%s)" % (TASK2), fontsize=fontsize)
 #         ax1.set_ylim(-0.01, 0.22)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 ax1.tick_params(labelsize=labelsize)
-ax1.set_yticks([0.1, 0.5, 0.9])
 # ax1.set_yticks([0.15, 0.2])
 ax1.set_xticks([50, 750, 1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
@@ -256,6 +256,8 @@ top_side.set_visible(False)
 
 # ax1.set_ylim(0.14, 0.36)
 ax1.set_yscale('log')
+ax1.yaxis.set_major_formatter(ScalarFormatter())
+ax1.set_yticks([0.1, 0.5, 0.9])
 ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 
@@ -300,7 +302,6 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 ax1.hlines(1, 50, 1500, colors="gray", linestyles="dashed", linewidth=1.5)
 
-ax1.set_yscale('log')
 ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 ax1.set_title("Biii.", fontsize=30)
