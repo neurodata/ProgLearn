@@ -247,6 +247,7 @@ for i, times in enumerate(time_info):
     ax[row][col].scatter(sample_no, times, c='r', label = 'true val')
     ax[row][col].plot(sample_no, times_hat1, label = label1)
     ax[row][col].plot(sample_no, times_hat2, label = label2)
+    ax[row][col].set_title(alg_name[i])
     ax[row][col].legend()
     #ax[row][col].set_title(alg_name[i] + ' ' + fit+ ' a=' + str(np.round(param[0],2)) + ' b=' + str(np.round(param[1],2)))
 
@@ -261,11 +262,11 @@ def test1(x, a0, a1):
     return a0 + a1*x
 
 def test2(x, a0, a1): 
-    return a0 + a2*x*log(x)
+    return a0 + a1*x*log(x)
 
 def test3(X, a0, a1, a2): 
     x, T = X
-    return a0 + a1*x + a2*T^2
+    return a0 + a1*x + a2*T*T
 
 sample_no = np.asarray(
     [5000, 9500, 13500, 17000, 20000, 22500, 24500, 26000, 27000, 27500]
@@ -284,7 +285,7 @@ for i, mem in enumerate(mem_info):
     times_hat2 = test2((sample_no_normalized, T), param2[0], param2[1])
 
     param3, param_cov3 = curve_fit(test3, (sample_no_normalized, T), mem)
-    times_hat3 = test2((sample_no_normalized, T), param3[0], param3[1], param3[2])
+    times_hat3 = test3((sample_no_normalized, T), param3[0], param3[1], param3[2])
 
     col, row = i//3, int(fmod(i,3))
     a00, a01 = np.round(param1[0],2), np.round(param1[1],2)
