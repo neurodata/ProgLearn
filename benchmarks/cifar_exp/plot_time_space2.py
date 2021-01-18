@@ -272,20 +272,20 @@ sample_no = np.asarray(
     [5000, 9500, 13500, 17000, 20000, 22500, 24500, 26000, 27000, 27500]
     )
 sample_no_normalized = sample_no/1e4
-T = list(range(1,11))
+T = np.asarray(range(1,11))
 
 fig, ax = plt.subplots(3,4, figsize=(24,20))
 sns.set_context("talk")
 
 for i, mem in enumerate(mem_info):
     param1, param_cov1 = curve_fit(test1, sample_no_normalized, mem)
-    times_hat1 = test1(sample_no_normalized, param1[0], param1[1])
+    mem_hat1 = test1(sample_no_normalized, param1[0], param1[1])
 
-    param2, param_cov2 = curve_fit(test2, (sample_no_normalized, T), mem)
-    times_hat2 = test2((sample_no_normalized, T), param2[0], param2[1])
+    param2, param_cov2 = curve_fit(test2, sample_no_normalized, mem)
+    mem_hat2 = test2(sample_no_normalized, param2[0], param2[1])
 
     param3, param_cov3 = curve_fit(test3, (sample_no_normalized, T), mem)
-    times_hat3 = test3((sample_no_normalized, T), param3[0], param3[1], param3[2])
+    mem_hat3 = test3((sample_no_normalized, T), param3[0], param3[1], param3[2])
 
     col, row = i//3, int(fmod(i,3))
     a00, a01 = np.round(param1[0],2), np.round(param1[1],2)
@@ -293,11 +293,14 @@ for i, mem in enumerate(mem_info):
     a20, a21, a22 = np.round(param3[0],2), np.round(param3[1],2), np.round(param3[2],2)
 
     label1 = str(a00) + ' + ' + str(a01) + '*x'
-    label2 = str(a10) + ' + ' + str(a11) + '*x' + ' + ' + str(a12) + '*x*T'
+    label2 = str(a10) + ' + ' + str(a11) + '*x*log(x)'
+    label3 = str(a20) + ' + ' + str(a21) + '*x + ' + str(a22) + 'T^2'
     #print(row, col, i)
-    ax[row][col].scatter(sample_no, times, c='r', label = 'true val')
-    ax[row][col].plot(sample_no, times_hat1, label = label1)
-    ax[row][col].plot(sample_no, times_hat2, label = label2)
+    ax[row][col].scatter(sample_no, mem, c='r', label = 'true val')
+    ax[row][col].plot(sample_no, mem_hat1, label = label1)
+    ax[row][col].plot(sample_no, mem_hat2, label = label2)
+    ax[row][col].plot(sample_no, mem_hat3, label = label3)
+    ax[row][col].set_title(alg_name[i])
     ax[row][col].legend()
     #ax[row][col].set_title(alg_name[i] + ' ' + fit+ ' a=' + str(np.round(param[0],2)) + ' b=' + str(np.round(param[1],2)))
 
