@@ -152,7 +152,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         single_learner.add_task(
             X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
             y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
-            num_transformers = 1 if model == "dnn" else ntrees,
+            num_transformers = 1 if model == "dnn" else (task_ii+1)*ntrees,
             transformer_voter_decider_split = [0.67, 0.33, 0],
             decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
             )
@@ -202,18 +202,18 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
     df_single_task['train_times'] = train_times_across_tasks
 
     #print(df)
-    '''summary = (df,df_single_task)
-    file_to_save = 'result/result/fixed_'+model+str(ntrees)+str(shift)+'.pickle'
+    summary = (df,df_single_task)
+    file_to_save = 'result/result/'+model+str(ntrees)+'_'+str(shift)+'.pickle'
     with open(file_to_save, 'wb') as f:
-        pickle.dump(summary, f)'''
+        pickle.dump(summary, f)
 
-    file_to_save = 'result/time_res/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
+    '''file_to_save = 'result/time_res/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(time_info, f)
 
     file_to_save = 'result/mem_res/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
     with open(file_to_save, 'wb') as f:
-        pickle.dump(mem_info, f)
+        pickle.dump(mem_info, f)'''
 
 #%%
 def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
@@ -258,8 +258,8 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, slot=0
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "dnn"
-num_points_per_task = 500
+model = "uf"
+num_points_per_task = 5000
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
@@ -271,7 +271,7 @@ data_y = data_y[:, 0]
 
 
 #%%
-'''if model == "uf":
+if model == "uf":
     slot_fold = range(1)
     shift_fold = range(1,7,1)
     n_trees=[10]
@@ -298,9 +298,9 @@ elif model == "dnn":
     stage_2_shifts = range(5, 7)
     stage_2_iterable = product(stage_2_shifts,slot_fold)
     with Pool(4) as p:
-        p.map(perform_shift, stage_2_iterable)'''
+        p.map(perform_shift, stage_2_iterable)
 
-slot_fold = range(10)
+'''slot_fold = range(1)
 shift_fold = [1,2,3,4,5,6]
 n_trees=[0]
 iterable = product(n_trees,shift_fold,slot_fold)
@@ -308,4 +308,4 @@ iterable = product(n_trees,shift_fold,slot_fold)
 for ntree,shift,slot in iterable:
     run_parallel_exp(
                 data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
-                )
+                )'''
