@@ -50,17 +50,14 @@ Python package dependencies
 ``proglearn`` requires the following packages:
 
 - keras>=2.3.1
-- tensorflow>=1.19.0
 - scikit-learn>=0.22.0
-- scipy==1.4.1
-- numpy<1.19
 - joblib>=0.14.1
 
 Hardware requirements
 ---------------------
 ``ProgLearn`` package requires only a standard computer with enough RAM to support
-the in-memory operations. GPU's can speed up the networks which are powered by 
-tensorflow's backend. 
+the in-memory operations. GPU's can speed up the networks which are powered by
+tensorflow's backend.
 
 OS Requirements
 ---------------

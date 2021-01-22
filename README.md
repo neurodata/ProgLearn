@@ -22,4 +22,4 @@
 Some system/package requirements:
 - **Python**: 3.6+
 - **OS**: All major platforms (Linux, macOS, Windows)
-- **Dependencies**: keras, scikit-learn, scipy, numpy, joblib
+- **Dependencies**: keras, scikit-learn, joblib
