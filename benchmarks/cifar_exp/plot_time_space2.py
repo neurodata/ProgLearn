@@ -264,9 +264,9 @@ def test1(x, a0, a1):
 def test2(x, a0, a1): 
     return a0 + a1*x*log(x)
 
-def test3(X, a0, a1, a2): 
+def test3(X, a0, a1, a2, a3): 
     x, T = X
-    return a0 + a1*x + a2*T*T
+    return a0 + a1*x + a2*T + a3*T*T
 
 sample_no = np.asarray(
     [5000, 9500, 13500, 17000, 20000, 22500, 24500, 26000, 27000, 27500]
@@ -296,14 +296,14 @@ for i, mem in enumerate(mem_info):
     label2 = str(a10) + ' + ' + str(a11) + '*x*log(x)'
     label3 = str(a20) + ' + ' + str(a21) + '*x + ' + str(a22) + 'T^2'
     #print(row, col, i)
-    ax[row][col].scatter(sample_no, mem, c='r', label = 'true val')
-    ax[row][col].plot(sample_no, mem_hat1, label = label1)
-    ax[row][col].plot(sample_no, mem_hat2, label = label2)
-    ax[row][col].plot(sample_no, mem_hat3, label = label3)
+    ax[row][col].scatter(T, mem, c='r', label = 'true val')
+    ax[row][col].plot(T, mem_hat1, label = label1)
+    ax[row][col].plot(T, mem_hat2, label = label2)
+    ax[row][col].plot(T, mem_hat3, label = label3)
     ax[row][col].set_title(alg_name[i])
     ax[row][col].legend()
     #ax[row][col].set_title(alg_name[i] + ' ' + fit+ ' a=' + str(np.round(param[0],2)) + ' b=' + str(np.round(param[1],2)))
 
-plt.savefig('./result/figs/mem_fitting_jovo.pdf')
+plt.savefig('./result/figs/mem_fitting_jovo_with_T.pdf')
 
 # %%
