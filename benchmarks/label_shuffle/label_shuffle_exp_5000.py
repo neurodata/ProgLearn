@@ -114,6 +114,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, num_po
         if task_ii != 0:
             np.random.shuffle(tmp_y)
 
+        print(np.unique(train_y[task_ii*5000:task_ii*5000+num_points_per_task]),'dfwerfrf')
         progressive_learner.add_task(
             X = train_x[task_ii*5000:task_ii*5000+num_points_per_task],
             y = tmp_y,
@@ -144,7 +145,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, num_po
 
         single_task_inference_start_time = time.time()
         single_task=single_learner.predict(
-            X = test_x[task_ii*1000:(task_ii+1)*1000,:], transformer_ids=[0], task_id=0
+            X = test_x[task_ii*1000:(task_ii+1)*1000,:], task_id=0, transformer_ids=[0]
             )
         single_task_inference_end_time = time.time()
         single_task_accuracies[task_ii] = np.mean(
@@ -244,15 +245,14 @@ data_y = data_y[:, 0]
 
 
 #%%
-if model == "uf":
-    slot_fold = range(10)
+'''if model == "uf":
     shift_fold = range(1,7,1)
     n_trees=[10]
-    iterable = product(n_trees,shift_fold,slot_fold)
+    iterable = product(n_trees,shift_fold)
     Parallel(n_jobs=-2,verbose=1)(
         delayed(run_parallel_exp)(
-                data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
-                ) for ntree,shift,slot in iterable
+                data_x, data_y, ntree, model, num_points_per_task, shift=shift
+                ) for ntree,shift in iterable
                 )
 elif model == "dnn":
     slot_fold = range(10)
@@ -271,9 +271,9 @@ elif model == "dnn":
     stage_2_shifts = range(5, 7)
     stage_2_iterable = product(stage_2_shifts,slot_fold)
     with Pool(4) as p:
-        p.map(perform_shift, stage_2_iterable)
+        p.map(perform_shift, stage_2_iterable)'''
 
-'''slot_fold = range(10)
+slot_fold = range(10)
 shift_fold = [1,2,3,4,5,6]
 n_trees=[0]
 iterable = product(n_trees,shift_fold,slot_fold)
@@ -281,6 +281,6 @@ iterable = product(n_trees,shift_fold,slot_fold)
 for ntree,shift,slot in iterable:
     run_parallel_exp(
                 data_x, data_y, ntree, model, num_points_per_task, shift=shift
-                )'''
+                )
 
 # %%
