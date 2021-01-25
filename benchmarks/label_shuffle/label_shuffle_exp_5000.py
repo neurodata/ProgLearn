@@ -141,6 +141,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, num_po
             decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000:task_ii*5000+num_points_per_task])}
             )
 
+        print(single_learner.get_task_ids(), 'bggufb')
         train_times_across_tasks.append(train_end_time - train_start_time)
 
         single_task_inference_start_time = time.time()
