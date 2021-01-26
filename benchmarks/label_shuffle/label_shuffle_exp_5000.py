@@ -114,7 +114,6 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, num_po
         if task_ii != 0:
             np.random.shuffle(tmp_y)
 
-        print(np.unique(train_y[task_ii*5000:task_ii*5000+num_points_per_task]),'dfwerfrf')
         progressive_learner.add_task(
             X = train_x[task_ii*5000:task_ii*5000+num_points_per_task],
             y = tmp_y,
@@ -141,12 +140,12 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, num_po
             decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000:task_ii*5000+num_points_per_task])}
             )
 
-        print(single_learner.get_task_ids(), 'bggufb')
+        print(single_learner.get_transformer_ids(), 'bggufb')
         train_times_across_tasks.append(train_end_time - train_start_time)
 
         single_task_inference_start_time = time.time()
         single_task=single_learner.predict(
-            X = test_x[task_ii*1000:(task_ii+1)*1000,:], task_id=0, transformer_ids=[0]
+            X = test_x[task_ii*1000:(task_ii+1)*1000,:], task_id=0
             )
         single_task_inference_end_time = time.time()
         single_task_accuracies[task_ii] = np.mean(
@@ -276,7 +275,7 @@ elif model == "dnn":
 
 slot_fold = range(10)
 shift_fold = [1,2,3,4,5,6]
-n_trees=[0]
+n_trees=[10]
 iterable = product(n_trees,shift_fold,slot_fold)
 
 for ntree,shift,slot in iterable:
