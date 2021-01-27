@@ -140,7 +140,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, model, num_po
             decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000:task_ii*5000+num_points_per_task])}
             )
 
-        print(single_learner.get_transformer_ids(), 'bggufb')
+        #print(single_learner.get_transformer_ids(), 'bggufb')
         train_times_across_tasks.append(train_end_time - train_start_time)
 
         single_task_inference_start_time = time.time()
@@ -232,7 +232,7 @@ def run_parallel_exp(data_x, data_y, n_trees, model, num_points_per_task, shift=
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 5000
 ########################
 
@@ -245,7 +245,7 @@ data_y = data_y[:, 0]
 
 
 #%%
-'''if model == "uf":
+if model == "uf":
     shift_fold = range(1,7,1)
     n_trees=[10]
     iterable = product(n_trees,shift_fold)
@@ -259,7 +259,7 @@ elif model == "dnn":
 
     def perform_shift(shift_slot_tuple):
         shift, slot = shift_slot_tuple
-        return run_parallel_exp(data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift)
+        return run_parallel_exp(data_x, data_y, 0, model, num_points_per_task, shift=shift)
 
     print("Performing Stage 1 Shifts")
     stage_1_shifts = range(1, 5)
@@ -271,16 +271,16 @@ elif model == "dnn":
     stage_2_shifts = range(5, 7)
     stage_2_iterable = product(stage_2_shifts,slot_fold)
     with Pool(4) as p:
-        p.map(perform_shift, stage_2_iterable)'''
+        p.map(perform_shift, stage_2_iterable)
 
-slot_fold = range(10)
+'''slot_fold = range(10)
 shift_fold = [1,2,3,4,5,6]
-n_trees=[10]
-iterable = product(n_trees,shift_fold,slot_fold)
+n_trees=[0]
+iterable = product(n_trees,shift_fold)
 
-for ntree,shift,slot in iterable:
+for ntree,shift in iterable:
     run_parallel_exp(
                 data_x, data_y, ntree, model, num_points_per_task, shift=shift
-                )
+                )'''
 
 # %%
