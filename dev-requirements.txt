@@ -1,0 +1,7 @@
+-r requirements.txt
+python_version < '3.7'
+pytest
+coverage
+pytest-cov
+codecov
+black
