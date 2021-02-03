@@ -55,7 +55,7 @@ jobs:
           name: run code linting
           command: |
             . venv/bin/activate
-            black --check --diff ./proglearn/<< parameters.module >>
+            black --check --diff ./<< parameters.module >>
       - run:
           name: run tests and coverage
           command: |
