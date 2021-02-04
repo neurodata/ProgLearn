@@ -1,6 +1,7 @@
 # ProgLearn
 
-[![Build Status](https://travis-ci.org/neurodata/ProgLearn.svg?branch=main)](https://travis-ci.org/neurodata/ProgLearn)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4276573.svg)](https://doi.org/10.5281/zenodo.4276573)
+[![Build Status](https://circleci.com/gh/neurodata/ProgLearn/tree/main.svg?style=shield&circle-token=:circle-token)](https://app.circleci.com/pipelines/github/neurodata/ProgLearn)
 [![Codecov](https://codecov.io/gh/neurodata/ProgLearn/branches/main/graph/badge.svg)](https://codecov.io/gh/neurodata/ProgLearn)
 [![PyPI version](https://img.shields.io/pypi/v/proglearn.svg)](https://pypi.org/project/proglearn/)
 [![arXiv](https://img.shields.io/badge/arXiv-2004.12908-red.svg?style=flat)](https://arxiv.org/abs/2004.12908)
