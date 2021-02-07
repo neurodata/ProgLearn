@@ -1,4 +1,5 @@
 import os
+import time
 
 import IPython.display as ipd
 import cv2
@@ -8,6 +9,7 @@ import librosa.display
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from numpy import save, load
 from keras import layers
 from keras.callbacks import EarlyStopping
 from keras.optimizers import Adam
@@ -17,6 +19,7 @@ from proglearn.transformers import NeuralClassificationTransformer, TreeClassifi
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 from sklearn.model_selection import train_test_split
 
+from tensorflow.keras.backend import clear_session # To avoid OOM error when using dnn
 
 def load_spoken_digit(path_recordings):
     file = os.listdir(path_recordings)
@@ -74,7 +77,7 @@ def display_spectrogram(x_spec_mini, y_number, y_speaker, num):
     plt.suptitle("Short-Time Fourier Transform Spectrogram of Number " + str(num), fontsize=18)
 
 
-def single_experiment(x, y, y_speaker, ntrees=19, model='uf', shuffle=False):
+def single_experiment(x, y, y_speaker, ntrees=20, model='uf', shuffle=False):
     num_tasks = 6
     num_points_per_task = 3000 / num_tasks
     speakers = ['g', 'j', 'l', 'n', 't', 'y']
@@ -83,7 +86,9 @@ def single_experiment(x, y, y_speaker, ntrees=19, model='uf', shuffle=False):
     if model == 'dnn':
         x_all = x
         y_all = y
-
+        
+        clear_session() # clear GPU memory before each run, to avoid OOM error
+        
         default_transformer_class = NeuralClassificationTransformer
 
         network = keras.Sequential()
@@ -176,11 +181,15 @@ def single_experiment(x, y, y_speaker, ntrees=19, model='uf', shuffle=False):
                 )
             task_0_predictions = progressive_learner.predict(test_x_task0, task_id=0)
             accuracies_across_tasks.append(np.mean(task_0_predictions == test_y_task0))
+    
+    current_time = time.strftime("%H%M%S",time.localtime())
+    filename = 'result/cache/accuracies_ntree'+str(ntrees)+'_'+model+current_time+'.npy'
+    save(filename, accuracies_across_tasks)
 
     return accuracies_across_tasks
 
-
-def calculate_results(accuracy_all):
+    
+def calculate_results(accuracy_list):
     """
     We have 6 tasks, each task generates 7 accuracies (among which 1 is redundant) in order to compute bte,
     fte at each points, so there are 42 points in total.
@@ -196,6 +205,9 @@ def calculate_results(accuracy_all):
     - - - - = = -
     - - - - - = =
     """
+    accuracy_all = np.array([i for i in accuracy_list])
+    accuracy_all = np.average(accuracy_all, axis = 0)
+    
     num_tasks = 6
     acc = [[] for _ in range(num_tasks)]
     for i in range(num_tasks):
@@ -225,7 +237,7 @@ def calculate_results(accuracy_all):
     return acc, bte, fte, te
 
 
-def plot_results(acc, bte, fte, te):
+def plot_results(acc, bte, fte, te, filename):
     num_tasks = 6
     sns.set()
     clr = ["#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
@@ -268,3 +280,5 @@ def plot_results(acc, bte, fte, te):
     ax[1][1].set_xlabel('Number of tasks seen', fontsize=fontsize)
     ax[1][1].set_ylabel('Accuracy', fontsize=fontsize)
     ax[1][1].tick_params(labelsize=ticksize)
+    
+    plt.savefig(filename, dpi=300)
