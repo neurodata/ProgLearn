@@ -161,7 +161,7 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls = ["-", "--"]
-algorithms = ["XOR Forest", "N-XOR Forest", "Progressive Learning Forest (PLF)", "Random Forest (RF)"]
+algorithms = ["XOR Forest", "N-XOR Forest", "Omnidirectional Forest (Odif)", "Random Forest (RF)"]
 
 
 TASK1 = "XOR"
@@ -216,7 +216,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 #######################
 mean_error = unpickle("data/mean_xor_nxor_with_rep.pickle")
 
-algorithms = ["XOR Forest", "N-XOR Forest", "Progressive Learning Forest (PLF)", "Random Forest (RF)"]
+algorithms = ["XOR Forest", "N-XOR Forest", "Omnidirectional Forest (Odif)", "Random Forest (RF)"]
 
 TASK1 = "XOR"
 TASK2 = "XNOR"
@@ -265,7 +265,7 @@ ax1.set_title("Bii. XNOR", fontsize=30)
 
 ##################
 mean_te = unpickle("data/mean_te_xor_nxor.pickle")
-algorithms = ["PLF BTE", "PLF FTE", "RF BTE", "RF FTE"]
+algorithms = ["Odif BTE", "Odif FTE", "RF BTE", "RF FTE"]
 
 TASK1 = "XOR"
 TASK2 = "XNOR"
@@ -288,12 +288,23 @@ ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
 )
 
-ax1.set_ylabel("Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
+ax1.set_ylabel("log Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
 ax1.legend(loc="upper left", fontsize=20, frameon=False)
+ax1.set_yticks([0.05, 1, 2.5])
 ax1.set_ylim(0.05, 2.52)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
+log_lbl = np.round(
+    np.log([.05,1,2.5]),
+    2
+)
+labels = [item.get_text() for item in ax1.get_yticklabels()]
+
+for ii,_ in enumerate(labels):
+    labels[ii] = str(log_lbl[ii])
+
+ax1.set_yticklabels(labels)
+
 ax1.tick_params(labelsize=labelsize)
-ax1.set_yticks([0.05, 1, 2.5])
 ax1.set_xticks([50, 750, 1500])
 ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 right_side = ax1.spines["right"]
@@ -330,7 +341,7 @@ ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
 )
 
-ax1.set_ylabel("Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
+ax1.set_ylabel("log Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
 # ax1.legend(loc='upper left', fontsize=20, frameon=False)
 ax1.set_ylim(0.2, 1.2)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
@@ -343,6 +354,18 @@ right_side.set_visible(False)
 top_side = ax1.spines["top"]
 top_side.set_visible(False)
 ax1.hlines(1, 50, 1500, colors="gray", linestyles="dashed", linewidth=1.5)
+
+ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
+log_lbl = np.round(
+    np.log([.2,.6,1,1.2]),
+    2
+)
+labels = [item.get_text() for item in ax1.get_yticklabels()]
+
+for ii,_ in enumerate(labels):
+    labels[ii] = str(log_lbl[ii])
+
+ax1.set_yticklabels(labels)
 
 ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
@@ -357,8 +380,22 @@ ax.plot(angle_sweep, te, c="r", linewidth=3)
 ax.set_xticks(range(0, 91, 45))
 ax.tick_params(labelsize=labelsize)
 ax.set_xlabel("Angle of Rotation (Degrees)", fontsize=fontsize)
-ax.set_ylabel("Backward Transfer Efficiency (XOR)", fontsize=fontsize)
+ax.set_ylabel("log Backward TE (XOR)", fontsize=fontsize)
+ax.set_ylim(0.89, 1.32)
 ax.set_yticks([0.9, 1, 1.1, 1.2, 1.3])
+
+ax.set_xlabel("Total Sample Size", fontsize=fontsize)
+log_lbl = np.round(
+    np.log([0.9, 1, 1.1, 1.2, 1.3]),
+    2
+)
+labels = [item.get_text() for item in ax.get_yticklabels()]
+
+for ii,_ in enumerate(labels):
+    labels[ii] = str(log_lbl[ii])
+
+ax.set_yticklabels(labels)
+
 # ax.set_title("XOR vs. Rotated-XOR", fontsize = fontsize)
 ax.hlines(1, 0, 90, colors="grey", linestyles="dashed", linewidth=1.5)
 
@@ -381,6 +418,18 @@ ax.hlines(1, 60, 5500, colors="gray", linestyles="dashed", linewidth=1.5)
 ax.set_xscale("log")
 ax.set_xticks([])
 ax.set_yticks([1, 1.04, 1.08])
+
+log_lbl = np.round(
+    np.log([1,1.04,1.08]),
+    2
+)
+labels = [item.get_text() for item in ax.get_yticklabels()]
+
+for ii,_ in enumerate(labels):
+    labels[ii] = str(log_lbl[ii])
+
+ax.set_yticklabels(labels)
+
 ax.tick_params(labelsize=26)
 ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 ax.text(50, np.mean(ax.get_ylim()) - 0.054, "50", fontsize=labelsize)
@@ -388,12 +437,12 @@ ax.text(500, np.mean(ax.get_ylim()) - 0.054, "500", fontsize=labelsize)
 ax.text(5000, np.mean(ax.get_ylim()) - 0.054, "5000", fontsize=labelsize)
 
 ax.text(
-    50,
-    np.mean(ax.get_ylim()) - 0.06,
+    30,
+    np.mean(ax.get_ylim()) - 0.061,
     "Number of $25^\circ$-RXOR Training Samples",
     fontsize=fontsize - 4,
 )
-ax.set_ylabel("Backward Transfer Efficiency (XOR)", fontsize=fontsize)
+ax.set_ylabel("log Backward TE (XOR)", fontsize=fontsize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
