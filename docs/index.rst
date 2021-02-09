@@ -2,7 +2,7 @@
 
 .. _contents:
 
-Overview of ProgLearn_
+ProgLearn_
 ======================
 
 .. _proglearn: https://proglearn.neurodata.io/
@@ -62,6 +62,7 @@ Documentation
    :maxdepth: 1
    :caption: Using ProgLearn
 
+   overview
    install
    tutorials/
    reference/index
