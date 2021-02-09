@@ -180,8 +180,8 @@ def experiment(n_task1, n_task2, n_test=1000,
 mc_rep = 1000
 n_test = 1000
 n_trees = 10
-n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
-n_nxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_xor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_nxor = (100*np.arange(0.25, 7.50, step=0.25)).astype(int)
 
 mean_error = np.zeros((6, len(n_xor)+len(n_nxor)))
 std_error = np.zeros((6, len(n_xor)+len(n_nxor)))
@@ -240,8 +240,8 @@ with open('./data/mean_te_xor_nxor.pickle','wb') as f:
 mc_rep = 1000
 n_test = 1000
 n_trees = 10
-n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
-n_rxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_xor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_rxor = (100*np.arange(0.25, 7.50, step=0.25)).astype(int)
 
 mean_error = np.zeros((6, len(n_xor)+len(n_rxor)))
 std_error = np.zeros((6, len(n_xor)+len(n_rxor)))
