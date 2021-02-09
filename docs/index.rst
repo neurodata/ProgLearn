@@ -2,7 +2,7 @@
 
 .. _contents:
 
-Overview of ProgLearn_
+ProgLearn_
 ======================
 
 .. _proglearn: https://proglearn.neurodata.io/
