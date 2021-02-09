@@ -26,34 +26,43 @@ Overview of ProgLearn_
 
 ``ProgLearn`` (**Prog**\ ressive **Learn**\ ing) is a package for exploring and using progressive learning algorithms.
 
-Motivation
+``ProgLearn`` provides classes and functions for biological machine learning. Notably, it improves in performance on all tasks (including past and future) with any new data. This sets it apart from classical machine learning algorithms and many other recent approaches to biological learning.
+
+The Library
 ----------
 
-In biological learning, data are used to improve performance simultaneously on the current task, as well as previously encountered and as yet unencountered tasks.  In contrast, classical machine learning starts from a blank slate, or tabula rasa, using data only for the single task at hand. While typical transfer learning algorithms can improve performance on future tasks, their performance on prior tasks degrades upon learning new tasks (called "catastrophic forgetting").  Many recent approaches have attempted to maintain performance given new tasks.  But striving to avoid forgetting sets the goal unnecessarily low: the goal of ``ProgLearn`` is to improve performance on all tasks (including past and future) with any new data.
+All classes and functions are available through the ``ProgLearn`` package and can also be imported separately.
 
-Python
+``import ProgLearn as PL``
+
+``from proglearn.forest import UncertaintyForest``
+
+The Learners
 ------
 
-Python is a powerful programming language that allows concise expressions of
-network algorithms.  Python has a vibrant and growing ecosystem of packages
-that ProgLearn uses to provide more features such as numerical linear algebra and
-plotting.  In order to make the most out of ``ProgLearn`` you will want to know how
-to write basic programs in Python.  Among the many guides to Python, we
-recommend the `Python documentation <https://docs.python.org/3/>`_.
+There are three main parts to the ``ProgLearn`` package: Lifelong Classification Network, Lifelong Classification Forest, and the Uncertainty Forest. All three have very similar syntax and usage. A general overview is provided below with more specific and complete examples in the tutorial section. This overview example will use ``ProgLearn.forest.UncertaintyForest`` but is generalizable to the Lifelong Classification Network and Lifelong Classification Forest.
 
-Free software
+First, we'll create our forest:
+
+``UF = UncertaintyForest(n_estimators = n_estimators)``
+
+Then, we fit to data:
+
+``UF.fit(X_train, y_train)``
+
+Finally we can predict the classes of the data:
+
+``predictions = UF.predict(X_test)``
+
+Another advantage of the ProgLearn package is the ``predict_proba(X)`` method. It can be used to estimate the class posteriors for each example in the input data, X.
+
+``predicted_posteriors = UF.predict_proba(X_test)``
+
+
+Wrap Up
 -------------
 
-``ProgLearn`` is free software; you can redistribute it and/or modify it under the
-terms of the :doc:`MIT </license>`.  We welcome contributions. Join us on
-`GitHub <https://github.com/neurodata/proglearn>`_.
-
-History
--------
-
-``ProgLearn`` was founded in February 2020. The source code was designed and written by
-Will LeVine and Hayden Helm. The experiment code was designed and written by Jayanta Dey
-and Will LeVine. The repository is maintained by Will LeVine and Jayanta Dey.
+This covers the basics of using ProgLearn. Most use cases will use the methods presented above. Further examples are available in the tutorials section (see links below).
 
 Documentation
 =============
