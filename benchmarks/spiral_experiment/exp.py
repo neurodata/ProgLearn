@@ -150,8 +150,8 @@ def experiment(n_task1, n_task2, n_test=1000,
 mc_rep = 100
 n_test = 1000
 n_trees = 10
-n_spiral3 = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
-n_spiral5 = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_spiral3 = (100*np.arange(0.5, 7.75, step=0.25)).astype(int)
+n_spiral5 = (100*np.arange(0.25, 7.75, step=0.25)).astype(int)
 
 mean_error = np.zeros((6, len(n_spiral3)+len(n_spiral5)))
 std_error = np.zeros((6, len(n_spiral3)+len(n_spiral5)))
