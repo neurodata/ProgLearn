@@ -1,5 +1,5 @@
 """
-Main Author: Will LeVine 
+Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 import keras
@@ -335,10 +335,10 @@ class ObliqueSplitter:
         values for each of the features.
     y : array of shape [n_samples]
         The labels for each of the examples in X.
-    proj_dims : int
-        The dimensionality of the target projection space.
-    density : float
-        Ratio of non-zero component in the random projection matrix in the range '(0, 1]'.
+    sample_projection_matrix : function
+        Function for sampling projection matrix.
+    projection_kwargs : dict
+        Parameters for the sampling the projection matrix.
     random_state : int
         Controls the pseudo random number generator used to generate the projection matrix.
     workers : int
@@ -347,8 +347,6 @@ class ObliqueSplitter:
 
     Methods
     -------
-    sample_proj_mat(sample_inds)
-        This gets the projection matrix and it fits the transform to the samples of interest.
     leaf_label_proba(idx)
         This calculates the label and the probability for that label for a particular leaf
         node.
@@ -362,7 +360,9 @@ class ObliqueSplitter:
         Determines the best possible split for the given set of samples.
     """
 
-    def __init__(self, X, y, proj_dims, density, random_state, workers):
+    def __init__(
+        self, X, y, sample_projection_matrix, projection_kwargs, random_state, workers,
+    ):
 
         self.X = X
         self.y = y
@@ -373,8 +373,9 @@ class ObliqueSplitter:
 
         self.n_samples = X.shape[0]
 
-        self.proj_dims = proj_dims
-        self.density = density
+        self.sample_projection_matrix = sample_projection_matrix
+        self.projection_kwargs = projection_kwargs
+
         self.random_state = random_state
         self.workers = workers
 
@@ -525,7 +526,9 @@ class ObliqueSplitter:
         """
 
         # Project the data
-        proj_X, proj_mat = self.sample_proj_mat(sample_inds)
+        proj_X, proj_mat = self.sample_projection_matrix(
+            self.X, sample_inds, **self.projection_kwargs
+        )
         y_sample = self.y[sample_inds]
         n_samples = len(sample_inds)
 
@@ -952,17 +955,25 @@ class ObliqueTreeClassifier(BaseEstimator):
         Minimum amount Gini impurity value must decrease by for a split to be valid.
     min_impurity_split : float
         Minimum Gini impurity value that must be achieved for a split to occur on the node.
-    feature_combinations : float
-        The feature combinations to use for the oblique split.
-    density : float
-        Density estimate.
     workers : int, optional (default: -1)
         The number of cores to parallelize the calculation of Gini impurity.
         Supply -1 to use all cores available to the Process.
 
+    projection_matrix : str or function
+        Either string in ["SPORF", "MORF"] or custom-defined projection function.
+    projection_kwargs : dict (default: {})
+        Parameters for custom-defined projection functions.
+
+    # SPORF Parameters
+    density : float
+        Ratio of non-zero component in the random projection matrix in the range '(0, 1]'.
+    feature_combinations : float
+        The feature combinations to use for the oblique split.
+
+
     Methods
     -------
-    fit(X,y)
+    fit(X, y)
         Fits the oblique tree to the training samples.
     apply(X)
         Calls on the predict function from the oblique tree for the test samples.
@@ -991,9 +1002,11 @@ class ObliqueTreeClassifier(BaseEstimator):
         # class_weight=None,
         # ccp_alpha=0.0,
         # New args
-        feature_combinations=1.5,
-        density=0.5,
         workers=-1,
+        projection_matrix="SPORF",
+        projection_kwargs={},
+        density=0.5,
+        feature_combinations=1.5,
     ):
 
         # self.criterion=criterion
@@ -1008,10 +1021,26 @@ class ObliqueTreeClassifier(BaseEstimator):
         self.min_impurity_split = min_impurity_split
         # self.class_weight=class_weight
         # self.ccp_alpha=ccp_alpha
-
-        self.feature_combinations = feature_combinations
-        self.density = density
         self.workers = workers
+
+        if isinstance(projection_matrix, str):
+            if projection_matrix == "SPORF":
+                self.sample_projection_matrix = random_matrix_binary
+                self.projection_kwargs = {
+                    "feature_combinations": feature_combinations,
+                    "density": density,
+                }
+            else:
+                raise ValueError(
+                    f"{projection_matrix} is not a valid matrix. Please choose from ['SPORF', 'MORF'] or define your own projection function."
+                )
+        elif hasattr(projection_matrix, "__call__"):
+            self.sample_projection_matrix = projection_matrix
+            self.projection_kwargs = projection_kwargs
+        else:
+            raise ValueError(
+                f"projection_matrix must be either a str or function, not {type(projection_matrix)}"
+            )
 
     def fit(self, X, y):
         """
@@ -1030,9 +1059,13 @@ class ObliqueTreeClassifier(BaseEstimator):
             The fit classifier.
         """
 
-        self.proj_dims = int(np.ceil(X.shape[1]) / self.feature_combinations)
         splitter = ObliqueSplitter(
-            X, y, self.proj_dims, self.density, self.random_state, self.workers
+            X,
+            y,
+            self.sample_projection_matrix,
+            self.projection_kwargs,
+            self.random_state,
+            self.workers,
         )
 
         self.tree = ObliqueTree(
