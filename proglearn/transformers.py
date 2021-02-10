@@ -7,11 +7,11 @@ import numpy as np
 from itertools import product
 from joblib import Parallel, delayed
 from sklearn.base import BaseEstimator
-from sklearn.random_projection import SparseRandomProjection
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 from .base import BaseTransformer
+from .projections import random_matrix_binary
 
 
 class NeuralClassificationTransformer(BaseTransformer):
@@ -377,32 +377,6 @@ class ObliqueSplitter:
         self.density = density
         self.random_state = random_state
         self.workers = workers
-
-    def sample_proj_mat(self, sample_inds):
-        """
-        Gets the projection matrix and it fits the transform to the samples of interest.
-
-        Parameters
-        ----------
-        sample_inds : array of shape [n_samples]
-            The data we are transforming.
-
-        Returns
-        -------
-        proj_mat : {ndarray, sparse matrix} of shape (self.proj_dims, n_features)
-            The generated sparse random matrix.
-        proj_X : {ndarray, sparse matrix} of shape (n_samples, self.proj_dims)
-            Projected input data matrix.
-        """
-
-        proj_mat = SparseRandomProjection(
-            density=self.density,
-            n_components=self.proj_dims,
-            random_state=self.random_state,
-        )
-
-        proj_X = proj_mat.fit_transform(self.X[sample_inds, :])
-        return proj_X, proj_mat
 
     def leaf_label_proba(self, idx):
         """
