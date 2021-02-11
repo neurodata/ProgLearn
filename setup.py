@@ -1,4 +1,5 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
+from Cython.Build import cythonize
 import os
 
 # Find mgc version.
@@ -12,6 +13,18 @@ with open("README.md", mode="r", encoding = "utf8") as f:
 
 with open("requirements.txt", mode="r", encoding = "utf8") as f:
     REQUIREMENTS = f.read()
+
+# Cythonize splitter
+ext_modules = [
+        Extension(
+            "split",
+            ["proglearn/split.pyx"],
+            extra_compile_args=["-fopenmp"],
+            extra_link_args=["-fopenmp"],
+            language="c++"
+        )
+]
+
 
 setup(
     name="proglearn",
@@ -35,5 +48,6 @@ setup(
     ],
     install_requires=REQUIREMENTS,
     packages=find_packages(exclude=["tests", "tests.*", "tests/*"]),
-    include_package_data=True
+    include_package_data=True,
+    ext_modules=cythonize(ext_modules)
 )
