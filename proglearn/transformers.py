@@ -13,6 +13,7 @@ from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 from .base import BaseTransformer
 
+from split import BaseObliqueSplitter
 
 class NeuralClassificationTransformer(BaseTransformer):
     """
@@ -364,8 +365,8 @@ class ObliqueSplitter:
 
     def __init__(self, X, y, proj_dims, density, random_state, workers):
 
-        self.X = X
-        self.y = y
+        self.X = np.array(X, dtype=np.float64)
+        self.y = np.array(y, dtype=np.float64)
 
         self.classes = np.array(np.unique(y), dtype=int)
         self.n_classes = len(self.classes)
@@ -377,6 +378,14 @@ class ObliqueSplitter:
         self.density = density
         self.random_state = random_state
         self.workers = workers
+
+        # Compute root impurity
+        unique, count = np.unique(y, return_counts=True)
+        count = count / len(y)
+        self.root_impurity = 1 - np.sum(np.power(count, 2))
+
+        # Base oblique splitter in cython
+        self.BOS = BaseObliqueSplitter()
 
     def sample_proj_mat(self, sample_inds):
         """
@@ -433,108 +442,6 @@ class ObliqueSplitter:
 
         return label, proba
 
-    # Returns gini impurity for split
-    # Expects 0 < t < n
-    def score(self, y_sort, t):
-        """
-        Finds the Gini impurity for the split of interest
-
-        Parameters
-        ----------
-        y_sort : array of shape [n_samples]
-            A sorted array of labels for the examples for which the Gini impurity
-            is being calculated.
-        t : float
-            The threshold determining where to split y_sort.
-
-        Returns
-        -------
-        gini : float
-            The Gini impurity of the split.
-        """
-
-        left = y_sort[:t]
-        right = y_sort[t:]
-
-        n_left = len(left)
-        n_right = len(right)
-        n_samples = len(y_sort)
-
-        left_unique, left_counts = np.unique(left, return_counts=True)
-        right_unique, right_counts = np.unique(right, return_counts=True)
-
-        left_counts = left_counts / n_left
-        right_counts = right_counts / n_right
-
-        left_gini = 1 - np.sum(np.power(left_counts, 2))
-        right_gini = 1 - np.sum(np.power(right_counts, 2))
-
-        gini = (n_left / n_samples) * left_gini + (
-            n_right / n_samples
-        ) * right_gini
-        return gini
-
-    def _score(self, proj_X, y_sample, i, j):
-        """
-        Handles array indexing before calculating Gini impurity
-
-        Parameters
-        ----------
-        proj_X : {ndarray, sparse matrix} of shape (n_samples, self.proj_dims)
-            Projected input data matrix.
-        y_sample : array of shape [n_samples]
-            Labels for sample of data.
-        i : float
-            The threshold determining where to split y_sort.
-        j : float
-            The projection dimension to consider.
-
-        Returns
-        -------
-        gini : float
-            The Gini impurity of the split.
-        i : float
-            The threshold determining where to split y_sort.
-        j : float
-            The projection dimension to consider.
-        """
-        # Sort labels by the jth feature
-        idx = np.argsort(proj_X[:, j])
-        y_sort = y_sample[idx]
-
-        gini = self.score(y_sort, i)
-
-        return gini, i, j
-
-    # Returns impurity for a group of examples
-    # expects idx not None
-    def impurity(self, idx):
-        """
-        Finds the actual impurity for a set of samples
-
-        Parameters
-        ----------
-        idx : array of shape [n_samples]
-            The indices of the nodes in the set for which the impurity is being calculated.
-
-        Returns
-        -------
-        impurity : float
-            Actual impurity of split.
-        """
-
-        samples = self.y[idx]
-        n = len(samples)
-
-        if n == 0:
-            return 0
-
-        unique, count = np.unique(samples, return_counts=True)
-        count = count / n
-        gini = np.sum(np.power(count, 2))
-
-        return 1 - gini
-
     # Finds the best split
     def split(self, sample_inds):
         """
@@ -556,6 +463,7 @@ class ObliqueSplitter:
         y_sample = self.y[sample_inds]
         n_samples = len(sample_inds)
 
+        """
         # Score matrix
         # No split score is just node impurity
         Q = np.zeros((n_samples, self.proj_dims))
@@ -570,6 +478,7 @@ class ObliqueSplitter:
         )
         for gini, i, j in scores:
             Q[i, j] = gini
+
 
         # Identify best split feature, minimum gini impurity
         best_split_ind = np.argmin(Q)
@@ -600,6 +509,21 @@ class ObliqueSplitter:
         # Evaluate impurities for left and right children
         left_impurity = self.impurity(left_idx)
         right_impurity = self.impurity(right_idx)
+        """
+
+        sample_inds = np.array(sample_inds, dtype=np.intc)
+        (feature, 
+        threshold, 
+        left_impurity, 
+        left_idx, 
+        right_impurity, 
+        right_idx, 
+        improvement) = self.BOS.best_split(proj_X, y_sample, sample_inds)
+
+        left_n_samples = len(left_idx)
+        right_n_samples = len(right_idx)
+
+        no_split = left_n_samples == 0 or right_n_samples == 0
 
         split_info = SplitInfo(
             feature,
@@ -836,7 +760,7 @@ class ObliqueTree:
             0,
             1,
             False,
-            self.splitter.impurity(self.splitter.indices),
+            self.splitter.root_impurity,
             self.splitter.indices,
             self.splitter.n_samples,
         )
