@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.random_projection import SparseRandomProjection
 
 
-def random_matrix_binary(X, sample_inds, density, feature_combinations, random_state):
+def random_matrix_binary(X, sample_inds, random_state, density, feature_combinations):
     """
     Gets the projection matrix and it fits the transform to the samples of interest.
 
@@ -35,3 +35,17 @@ def random_matrix_binary(X, sample_inds, density, feature_combinations, random_s
     proj_X = proj_mat.fit_transform(X[sample_inds, :])
 
     return proj_X, proj_mat
+
+
+def random_image_patch(
+    X,
+    sample_indices,
+    random_state,
+    image_height,
+    image_width,
+    patch_height_max,
+    patch_height_min,
+    patch_width_max,
+    patch_width_min,
+):
+    pass

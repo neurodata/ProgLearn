@@ -11,7 +11,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 from .base import BaseTransformer
-from .projections import random_matrix_binary
+from .projections import random_matrix_binary, random_image_patch
 
 
 class NeuralClassificationTransformer(BaseTransformer):
@@ -527,7 +527,7 @@ class ObliqueSplitter:
 
         # Project the data
         proj_X, proj_mat = self.sample_projection_matrix(
-            self.X, sample_inds, **self.projection_kwargs
+            self.X, sample_inds, self.random_state, **self.projection_kwargs
         )
         y_sample = self.y[sample_inds]
         n_samples = len(sample_inds)
@@ -964,11 +964,19 @@ class ObliqueTreeClassifier(BaseEstimator):
     projection_kwargs : dict (default: {})
         Parameters for custom-defined projection functions.
 
-    # SPORF Parameters
+    # SPORF required parameters
     density : float
         Ratio of non-zero component in the random projection matrix in the range '(0, 1]'.
     feature_combinations : float
         The feature combinations to use for the oblique split.
+
+    # MORF required parameters
+    image_height=None,
+    image_width=None,
+    patch_height_max=None,
+    patch_height_min=1,
+    patch_width_max=None,
+    patch_width_min=1,
 
 
     Methods
@@ -1007,6 +1015,12 @@ class ObliqueTreeClassifier(BaseEstimator):
         projection_kwargs={},
         density=0.5,
         feature_combinations=1.5,
+        image_height=None,
+        image_width=None,
+        patch_height_max=None,
+        patch_height_min=1,
+        patch_width_max=None,
+        patch_width_min=1,
     ):
 
         # self.criterion=criterion
@@ -1029,6 +1043,16 @@ class ObliqueTreeClassifier(BaseEstimator):
                 self.projection_kwargs = {
                     "feature_combinations": feature_combinations,
                     "density": density,
+                }
+            elif projection_matrix == "MORF":
+                self.sample_projection_matrix = random_image_patch
+                self.projection_kwargs = {
+                    "image_height": image_height,
+                    "image_width": image_width,
+                    "patch_height_max": patch_height_max,
+                    "patch_height_min": patch_height_min,
+                    "patch_width_max": patch_width_max,
+                    "patch_width_min": patch_width_min,
                 }
             else:
                 raise ValueError(
