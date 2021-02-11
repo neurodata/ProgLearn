@@ -458,6 +458,7 @@ class ObliqueSplitter:
 
         n_left = len(left)
         n_right = len(right)
+        n_samples = len(y_sort)
 
         left_unique, left_counts = np.unique(left, return_counts=True)
         right_unique, right_counts = np.unique(right, return_counts=True)
@@ -468,8 +469,8 @@ class ObliqueSplitter:
         left_gini = 1 - np.sum(np.power(left_counts, 2))
         right_gini = 1 - np.sum(np.power(right_counts, 2))
 
-        gini = (n_left / self.n_samples) * left_gini + (
-            n_right / self.n_samples
+        gini = (n_left / n_samples) * left_gini + (
+            n_right / n_samples
         ) * right_gini
         return gini
 
