@@ -1,18 +1,11 @@
 """
-Main Author: Will LeVine 
+Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
+import keras
 import numpy as np
-
 from sklearn.tree import DecisionTreeClassifier
-
-from sklearn.utils.validation import (
-    check_X_y,
-    check_array,
-    check_is_fitted,
-)
-
-import keras as keras
+from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 from .base import BaseTransformer
 

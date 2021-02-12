@@ -41,7 +41,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
     def __init__(self, kappa=np.inf, classes=[]):
         self.kappa = kappa
-        self.classes = classes
+        self.classes = np.asarray(classes)
 
     def fit(self, X, y):
         """
@@ -64,7 +64,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         num_fit_classes = len(np.unique(y))
         self.missing_label_indices_ = []
 
-        if np.asarray(self.classes).size != 0 and num_fit_classes < len(self.classes):
+        if self.classes.size != 0 and num_fit_classes < len(self.classes):
             for idx, label in enumerate(self.classes):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(idx)
@@ -206,7 +206,7 @@ class KNNClassificationVoter(BaseClassificationVoter):
     def __init__(self, k=None, kwargs={}, classes=[]):
         self.k = k
         self.kwargs = kwargs
-        self.classes = classes
+        self.classes = np.asarray(classes)
 
     def fit(self, X, y):
         """
@@ -232,7 +232,7 @@ class KNNClassificationVoter(BaseClassificationVoter):
         num_classes = len(np.unique(y))
         self.missing_label_indices_ = []
 
-        if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
+        if self.classes.size != 0 and num_classes < len(self.classes):
             for idx, label in enumerate(self.classes):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(idx)

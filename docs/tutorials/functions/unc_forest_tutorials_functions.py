@@ -74,7 +74,7 @@ def estimate_posterior(algo, n, mean, var, num_trials, X_eval, parallel = False)
 
     return predicted_posterior
 
-def plot_posterior(ax, algo, num_plotted_trials, X_eval):
+def plot_posterior(ax, algo, num_plotted_trials, X_eval, n, mean, var):
     """
     Will be used for CART, Honest, or Uncertainty Forest to plot P(Y = 1 | X = x). 
     This is the left three plots in figure 1.
@@ -91,6 +91,8 @@ def plot_posterior(ax, algo, num_plotted_trials, X_eval):
     X_eval : list
         The range over which to evaluate X values for
     """
+    plot_truth(ax, n, mean, var, X_eval)
+
     for i in range(num_plotted_trials):
         linewidth = 1
         opacity = .3
@@ -104,6 +106,36 @@ def plot_posterior(ax, algo, num_plotted_trials, X_eval):
                 color = algo['color'], 
                 alpha = opacity)
 
+
+def plot_truth(ax, n, mean, var, X_eval):
+    '''
+    Parameters
+    ---
+    ax : list
+        Holds the axes of the subplots
+    n : int
+        The number of data to be generated
+    mean : double
+        The mean of the data to be generated
+    var : double
+        The variance in the data to be generated
+    X_eval : list
+        The range over which to evaluate X values for
+    '''
+        # By Bayes' rule: (0.5 * X_given_y_1)/((0.5 * X_given_y_1)+(0.5 * X_given_y_negative1))
+    #  = (X_given_y_1)/(X_given_y_1+X_given_y_negative1)
+    
+    # plot ground truth
+    opacity = 1
+    linewidth = 8
+    f_X_given_ypositive = norm.pdf(X_eval.flatten().ravel(), mean, var)
+    f_X_given_ynegative = norm.pdf(X_eval.flatten().ravel(), -mean, var)
+    ax.plot(X_eval.flatten().ravel(), 
+            (f_X_given_ypositive/(f_X_given_ypositive+f_X_given_ynegative)).flatten().ravel(), 
+            label = "Truth",
+            linewidth = linewidth, 
+            color = "black", 
+            alpha = opacity)
 
 def plot_variance(ax, algos, X_eval):
     """
@@ -127,7 +159,7 @@ def plot_variance(ax, algos, X_eval):
                 linewidth = 8, 
                 color = algo['color']) # plotting
 
-def plot_fig1(algos, num_plotted_trials, X_eval):
+def plot_fig1(algos, num_plotted_trials, X_eval, n, mean, var):
     """
     Sets the communal plotting parameters and creates figure 1
 
@@ -139,6 +171,12 @@ def plot_fig1(algos, num_plotted_trials, X_eval):
         The number of trials that will be overlayed. This is shown as the lighter lines figure 1.
     X_eval : list
         The range over which to evaluate X values for
+    n : int
+        The number of data to be generated
+    mean : double
+        The mean of the data to be generated
+    var : double
+        The variance in the data to be generated
     """
     sns.set(font_scale = 6) # setting font size
     sns.set_style("ticks") # setting plot style
@@ -153,7 +191,7 @@ def plot_fig1(algos, num_plotted_trials, X_eval):
         plot_posterior(axes[i], 
                        algos[i],
                        num_plotted_trials, 
-                       X_eval)
+                       X_eval, n, mean, var)
 
     # Create the 1 variance plot. (Rightmost plot in figure 1)
     plot_variance(axes[3], algos, X_eval)
@@ -247,7 +285,7 @@ def estimate_ce(X, y, label):
     else:
         raise ValueError("Unrecognized Label!")
 
-def get_cond_entropy_vs_n(mean, d, num_trials, sample_sizes, algos):
+def get_cond_entropy_vs_n(mean, d, num_trials, sample_sizes, algos, parallel=False):
     
     def worker(t):
         X, y = generate_data_fig2(elem, d, mu = mean)
@@ -260,21 +298,21 @@ def get_cond_entropy_vs_n(mean, d, num_trials, sample_sizes, algos):
     
     output = np.zeros((len(algos), len(sample_sizes), num_trials))
     for i, elem in enumerate(sample_sizes):
-        results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        if parallel:
+            results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        else:
+            results = []
+            for t in range(num_trials):
+                # print(t)
+                results.append(worker(t))
+            results = np.array(results)
+
         for j in range(len(algos)):
             output[j, i, :] = results[:, j]
-
-        # results = []
-        # for t in range(num_trials):
-        #     # print(t)
-        #     results.append(worker(t))
-        # results = np.array(results)
-        # for j in range(len(algos)):
-        #     output[j, i, :] = results[:, j]
                 
     return output
 
-def get_cond_entropy_vs_mu(n, d, num_trials, mus, algos):
+def get_cond_entropy_vs_mu(n, d, num_trials, mus, algos, parallel=False):
     
     def worker(t):
         X, y = generate_data_fig2(n, d, mu = elem)
@@ -287,23 +325,23 @@ def get_cond_entropy_vs_mu(n, d, num_trials, mus, algos):
     
     output = np.zeros((len(algos), len(mus), num_trials))
     for i, elem in enumerate(mus):
-        results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        if parallel:
+            results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        else:
+            results = []
+            for t in range(num_trials):
+                # print(t)
+                results.append(worker(t))
+            results = np.array(results)
+
         for j in range(len(algos)):
             output[j, i, :] = results[:, j]
-
-        # results = []
-        # for t in range(num_trials):
-        #     # print(t)
-        #     results.append(worker(t))
-        # results = np.array(results)
-        # for j in range(len(algos)):
-        #     output[j, i, :] = results[:, j]
                
     return output
 
-def plot_cond_entropy_by_n(ax, num_plotted_trials, d, mu, algos, panel, num_trials, sample_sizes):
+def plot_cond_entropy_by_n(ax, num_plotted_trials, d, mu, algos, panel, num_trials, sample_sizes, parallel=False):
         
-    results = get_cond_entropy_vs_n(mu, d, num_trials, sample_sizes, algos)
+    results = get_cond_entropy_vs_n(mu, d, num_trials, sample_sizes, algos, parallel)
     for j, algo in enumerate(algos):
         result = results[j,:,:]
 
@@ -330,9 +368,9 @@ def plot_cond_entropy_by_n(ax, num_plotted_trials, d, mu, algos, panel, num_tria
     ax.set_title("%s) Effect Size = %.1f" % (panel, mu))
     ax.set_ylim(ymin = -0.05, ymax = 1.05)
 
-def plot_cond_entropy_by_mu(ax, d, n, algos, panel, num_trials, mus):
+def plot_cond_entropy_by_mu(ax, d, n, algos, panel, num_trials, mus, parallel=False):
     
-    results = get_cond_entropy_vs_mu(n, d, num_trials, mus, algos)
+    results = get_cond_entropy_vs_mu(n, d, num_trials, mus, algos, parallel)
     for j, algo in enumerate(algos):
         result = results[j,:,:]
 
@@ -353,18 +391,18 @@ def plot_cond_entropy_by_mu(ax, d, n, algos, panel, num_trials, mus):
     ax.set_ylabel("Estimated Conditional Entropy")
 
 
-def plot_fig2(num_plotted_trials, d1, d2, n1, n2, effect_size, algos, num_trials, sample_sizes_d1, sample_sizes_d2, mus):
+def plot_fig2(num_plotted_trials, d1, d2, n1, n2, effect_size, algos, num_trials, sample_sizes_d1, sample_sizes_d2, mus, parallel=False):
     sns.set(font_scale = 3)
     sns.set_style("ticks")
     plt.rcParams["font.family"] = "sans-serif"
     plt.rcParams['figure.figsize'] = [30, 20]
     fig, axes = plt.subplots(2, 2)
     
-    plot_cond_entropy_by_n(axes[0, 0], num_plotted_trials, d1, effect_size, algos, "A", num_trials, sample_sizes_d1)
-    plot_cond_entropy_by_mu(axes[0, 1], d1, n1, algos, "B", num_trials, mus)
+    plot_cond_entropy_by_n(axes[0, 0], num_plotted_trials, d1, effect_size, algos, "A", num_trials, sample_sizes_d1, parallel)
+    plot_cond_entropy_by_mu(axes[0, 1], d1, n1, algos, "B", num_trials, mus, parallel)
     
-    plot_cond_entropy_by_n(axes[1, 0], num_plotted_trials, d2, effect_size, algos, "C", num_trials, sample_sizes_d2) 
-    plot_cond_entropy_by_mu(axes[1, 1], d2, n2, algos, "D", num_trials, mus)
+    plot_cond_entropy_by_n(axes[1, 0], num_plotted_trials, d2, effect_size, algos, "C", num_trials, sample_sizes_d2, parallel) 
+    plot_cond_entropy_by_mu(axes[1, 1], d2, n2, algos, "D", num_trials, mus, parallel)
     
     axes[0,0].legend(loc = "upper left")
     
@@ -498,7 +536,7 @@ def estimate_mi(X, y, label, est_H_Y, norm_factor):
     else:
         raise ValueError("Unrecognized Label!")
 
-def get_plot_mutual_info_by_pi(setting, algos, d, ax, n, pis, num_trials):
+def get_plot_mutual_info_by_pi(setting, algos, d, ax, n, pis, num_trials, parallel=False):
     def worker(t):
         X, y = generate_data_fig3(n, d, pi = elem, **setting['kwargs'])
         
@@ -516,17 +554,18 @@ def get_plot_mutual_info_by_pi(setting, algos, d, ax, n, pis, num_trials):
 
     output = np.zeros((len(algos), len(pis), num_trials))
     for i, elem in enumerate(pis):
-        results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        if parallel:
+            results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+            
+        else:
+            results = []
+            for t in range(num_trials):
+                # print(t)
+                results.append(worker(t))
+            results = np.array(results)
+
         for j in range(len(algos)):
             output[j, i, :] = results[:, j]
-        
-        # results = []
-        # for t in range(num_trials):
-        #     # print(t)
-        #     results.append(worker(t))
-        # results = np.array(results)
-        # for j in range(len(algos)):
-        #     output[j, i, :] = results[:, j]
 
 
     for j, algo in enumerate(algos):
@@ -552,7 +591,7 @@ def get_plot_mutual_info_by_pi(setting, algos, d, ax, n, pis, num_trials):
     ax.set_ylim((-0.05, 0.55))
     ax.set_ylabel("Estimated Normalized MI")
 
-def get_plot_mutual_info_by_d(setting, algos, mu, ax, n, ds, num_trials):
+def get_plot_mutual_info_by_d(setting, algos, mu, ax, n, ds, num_trials, parallel=False):
 
     def worker(t):
         X, y = generate_data_fig3(n, elem, mu = mu, **setting['kwargs'])
@@ -571,17 +610,18 @@ def get_plot_mutual_info_by_d(setting, algos, mu, ax, n, ds, num_trials):
     
     output = np.zeros((len(algos), len(ds), num_trials))
     for i, elem in enumerate(ds):
-        results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+        if parallel:
+            results = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+            
+        else:
+            results = []
+            for t in range(num_trials):
+                # print(t)
+                results.append(worker(t))
+            results = np.array(results)
+        
         for j in range(len(algos)):
             output[j, i, :] = results[:, j]
-
-        # results = []
-        # for t in range(num_trials):
-        #     # print(t)
-        #     results.append(worker(t))
-        # results = np.array(results)
-        # for j in range(len(algos)):
-        #     output[j, i, :] = results[:, j]
 
     for j, algo in enumerate(algos):
         result = output[j,:,:]
@@ -602,7 +642,7 @@ def get_plot_mutual_info_by_d(setting, algos, mu, ax, n, ds, num_trials):
     ax.set_ylim((-0.05, 0.55))
     ax.set_ylabel("Estimated Normalized MI")
 
-def plot_fig3(algos, n, d, mu, settings, pis, ds, num_trials):
+def plot_fig3(algos, n, d, mu, settings, pis, ds, num_trials, parallel=False):
     sns.set(font_scale = 1.5)
     sns.set_style("ticks")
     plt.rcParams["font.family"] = "sans-serif"
@@ -610,8 +650,8 @@ def plot_fig3(algos, n, d, mu, settings, pis, ds, num_trials):
 
     for s, setting in enumerate(settings):
         plot_setting(2000, setting, axes[s, 0])
-        get_plot_mutual_info_by_pi(setting, algos, d, axes[s, 1], n, pis, num_trials)
-        get_plot_mutual_info_by_d(setting, algos, mu, axes[s, 2], n, ds, num_trials)
+        get_plot_mutual_info_by_pi(setting, algos, d, axes[s, 1], n, pis, num_trials, parallel)
+        get_plot_mutual_info_by_d(setting, algos, mu, axes[s, 2], n, ds, num_trials, parallel)
         
     axes[0, 1].set_title('n = %d, d = %d' % (n, d))
     axes[0, 2].set_title('n = %d, Effect Size = %.1f' % (n, mu))

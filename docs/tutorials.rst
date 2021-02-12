@@ -9,6 +9,7 @@ The following tutorials highlight what one can do with the ``ProgLearn`` package
 
     tutorials/installation_guide
     tutorials/fte_bte_food101
+    tutorials/fte_bte_mnist
     tutorials/label_shuffle_exp
     tutorials/random_class_exp
     tutorials/rotation_cifar
