@@ -511,7 +511,10 @@ class ObliqueSplitter:
         right_impurity = self.impurity(right_idx)
         """
 
+        proj_X = np.array(proj_X, dtype=np.float64)
+        y_sample = np.array(y_sample, dtype=np.float64)
         sample_inds = np.array(sample_inds, dtype=np.intc)
+
         (feature, 
         threshold, 
         left_impurity, 

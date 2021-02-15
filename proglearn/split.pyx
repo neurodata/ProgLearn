@@ -74,6 +74,9 @@ cdef class BaseObliqueSplitter:
         cdef unordered_map[double, double] counts
         cdef unordered_map[double, double].iterator it = counts.begin()
 
+        if length == 0:
+            return 0
+
         # Count all unique elements
         for i in range(0, length):
             temp = y[i]
@@ -138,9 +141,6 @@ cdef class BaseObliqueSplitter:
         feat_sort = np.zeros(n_samples, dtype=np.float64)
         cdef double[:] feat_sort_view = feat_sort
 
-        feat_idx = np.zeros(n_samples, dtype=np.intc) 
-        cdef int[:] feat_idx_view = feat_idx
-
         si_return = np.zeros(n_samples, dtype=np.intc)
         cdef int[:] si_return_view = si_return
         
@@ -148,7 +148,7 @@ cdef class BaseObliqueSplitter:
         node_impurity = self.impurity(y)
         Q_view[0, :] = node_impurity
         Q_view[n_samples - 1, :] = node_impurity
-
+        
         for j in range(0, proj_dims):
        
             self.argsort(X[:, j], idx_view)
@@ -161,12 +161,12 @@ cdef class BaseObliqueSplitter:
 
         # Identify best split
         (thresh_i, feature) = self.argmin(Q_view)
+        
         best_gini = Q_view[thresh_i, feature]
-
         # Sort samples by split feature
-        self.argsort(X[:, feature], feat_idx_view)
+        self.argsort(X[:, feature], idx_view)
         for i in range(0, n_samples):
-            temp_int = feat_idx_view[i]
+            temp_int = idx_view[i]
 
             # Sort X so we can get threshold
             feat_sort_view[i] = X[temp_int, feature]
@@ -176,12 +176,10 @@ cdef class BaseObliqueSplitter:
             
             # Sort true sample inds
             si_return_view[i] = sample_inds[temp_int]
-
         # Get threshold, split samples into left and right
         threshold = feat_sort[thresh_i]
         left_idx = si_return[:thresh_i]
         right_idx = si_return[thresh_i:]
-
         # Evaluate improvement
         improvement = node_impurity - best_gini
 
