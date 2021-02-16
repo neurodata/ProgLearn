@@ -65,6 +65,7 @@ Documentation
    overview
    install
    tutorials/
+   experiments/
    reference/index
    contributing
    license
