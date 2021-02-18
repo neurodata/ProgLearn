@@ -4,13 +4,15 @@ Corresponding Email: levinewill@icloud.com
 """
 import numpy as np
 
-from .base import BaseClassificationDecider
+from .base import BaseClassificationDecider, BaseDecider
 
 from sklearn.utils.validation import (
     check_X_y,
     check_array,
     check_is_fitted,
 )
+
+from sklearn.neighbors import KNeighborsClassifier
 
 
 class SimpleArgmaxAverage(BaseClassificationDecider):
