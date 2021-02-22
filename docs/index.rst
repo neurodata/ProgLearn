@@ -7,8 +7,8 @@ ProgLearn_
 
 .. _proglearn: https://proglearn.neurodata.io/
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4276573.svg
-   :target: https://doi.org/10.5281/zenodo.4276573
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4060264.svg
+   :target: https://doi.org/10.5281/zenodo.4060264
 .. image:: https://circleci.com/gh/neurodata/ProgLearn/tree/main.svg?style=shield&circle-token=:circle-token
    :target: https://app.circleci.com/pipelines/github/neurodata/ProgLearn
 .. image:: https://codecov.io/gh/neurodata/ProgLearn/branches/main/graph/badge.svg
