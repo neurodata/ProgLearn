@@ -11,6 +11,133 @@ class ProgressiveLearner(BaseProgressiveLearner):
     A (mostly) internal class for progressive learning. Most users who desire to
     utilize ProgLearn should use the classes defined in {network, forest}.py instead
     of this class.
+    
+    Parameters
+    ----------
+    default_transformer_class : BaseTransformer, default=None
+        The class of transformer to which the progressive learner defaults
+        if None is provided in any of the functions which add or set
+        transformers.
+    default_transformer_kwargs : dict, default=None
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of transformer the
+        progressive learner defaults if None is provided in any of the functions
+        which add or set transformers.
+    default_voter_class : BaseVoter, default=None
+        The class of voter to which the progressive learner defaults
+        if None is provided in any of the functions which add or set
+        voters.
+    default_voter_kwargs : dict, default=None
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of voter the
+        progressive learner defaults if None is provided in any of the functions
+        which add or set voters.
+    default_decider_class : BaseDecider, default=None
+        The class of decider to which the progressive learner defaults
+        if None is provided in any of the functions which add or set
+        deciders.
+
+    default_decider_kwargs : dict, default=None
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of decider the
+        progressive learner defaults if None is provided in any of the functions
+        which add or set deciders.
+
+    Attributes
+    ----------
+    task_id_to_X : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type ndarray corresponding to the input data matrix X.
+        This dictionary thus maps input data matrix to the task where posteriors
+        are to be estimated.
+
+    task_id_to_y : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type ndarray corresponding to output data matrix y.
+        This dictionary thus maps output data matrix to the task where posteriors
+        are to be estimated.
+
+    transformer_id_to_X : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type ndarray corresponding to the output data matrix X.
+        This dictionary thus maps input data matrix to a particular transformer.
+
+    transformer_id_to_y : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type ndarray corresponding to the output data matrix y.
+        This dictionary thus maps output data matrix to a particular transformer.
+
+    transformer_id_to_transformers : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type obj corresponding to a transformer. This dictionary thus
+        maps transformer ids to the corresponding transformers.
+
+    task_id_to_trasnformer_id_to_voters : dict
+        A nested dictionary with outer key of type obj, corresponding to task ids
+        inner key of type obj, corresponding to transformer ids,
+        and values of type obj, corresponding to a voter. This dictionary thus maps
+        voters to a corresponding transformer assigned to a particular task.
+
+    task_id_to_decider : dict
+        A dictionary with keys of type obj, corresponding to task ids,
+        and values of type obj corresponding to a decider. This dictionary thus
+        maps deciders to a particular task.
+
+    task_id_to_decider_class : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a decider class. This dictionary
+        thus maps decider classes to a particular task id.
+
+    task_id_to_voter_class : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a voter class. This dictionary thus
+        maps voter classes to a particular task id.
+
+    task_id_to_voter_kwargs : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a voter kwargs. This dictionary thus
+        maps voter kwargs to a particular task id.
+
+    task_id_to_decider_kwargs : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a decider kwargs. This dictionary
+        thus maps decider kwargs to a particular task id.
+
+    task_id_to_bag_id_to_voter_data_idx : dict
+        A nested dictionary with outer keys of type obj corresponding to task ids
+        inner keys of type obj corresponding to bag ids
+        and values of type obj corresponding to voter data indices.
+        This dictionary thus maps voter data indices to particular bags
+        for particular tasks.
+
+    task_id_to_decider_idx : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to decider indices. This dictionary
+        thus maps decider indices to particular tasks.
+
+    default_transformer_class : BaseTransformer
+        Stores the default transformer class as specified by the parameter
+        default_transformer_class.
+
+    default_transformer_kwargs : dict
+        Stores the default transformer kwargs as specified by the parameter
+        default_transformer_kwargs.
+
+    default_voter_class : BaseVoter
+        Stores the default voter class as specified by the parameter
+        default_voter_class.
+
+    default_voter_kwargs : dict
+        Stores the default voter kwargs as specified by the parameter
+        default_voter_kwargs.
+
+    default_decider_class : BaseDecider
+        Stores the default decider class as specified by the parameter
+        default_decider_class.
+
+    default_decider_kwargs : dict
+        Stores the default decider kwargs as specified by the parameter
+        default_decider_kwargs.
     """
 
     def __init__(
