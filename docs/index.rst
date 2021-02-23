@@ -67,6 +67,7 @@ Documentation
    tutorials/
    experiments/
    reference/index
+   api/index
    contributing
    license
 
