@@ -275,8 +275,8 @@ class SplitInfo:
         than this threshold for the feature of this split then it will go to the
         left child, otherwise it wil go the right child where these children are
         the children nodes of the node for which this split defines.
-    proj_mat : array of shape [n_components, n_features]
-        The sparse random projection matrix for this split.
+    proj_vec : array of shape [n_features]
+        The vector of the sparse random projection matrix relevant for the split.
     left_impurity : float
         This is Gini impurity of left side of the split.
     left_idx : array of shape [left_n_samples]
@@ -300,7 +300,7 @@ class SplitInfo:
         self,
         feature,
         threshold,
-        proj_mat,
+        proj_vec,
         left_impurity,
         left_idx,
         left_n_samples,
@@ -313,7 +313,7 @@ class SplitInfo:
 
         self.feature = feature
         self.threshold = threshold
-        self.proj_mat = proj_mat
+        self.proj_vec = proj_vec
         self.left_impurity = left_impurity
         self.left_idx = left_idx
         self.left_n_samples = left_n_samples
@@ -463,58 +463,12 @@ class ObliqueSplitter:
         y_sample = self.y[sample_inds]
         n_samples = len(sample_inds)
 
-        """
-        # Score matrix
-        # No split score is just node impurity
-        Q = np.zeros((n_samples, self.proj_dims))
-        node_impurity = self.impurity(sample_inds)
-        Q[0, :] = node_impurity
-        Q[-1, :] = node_impurity
-
-        # Loop through examples and projected features to calculate split scores
-        split_iterator = product(range(1, n_samples - 1), range(self.proj_dims))
-        scores = Parallel(n_jobs=self.workers)(
-            delayed(self._score)(proj_X, y_sample, i, j) for i, j in split_iterator
-        )
-        for gini, i, j in scores:
-            Q[i, j] = gini
-
-
-        # Identify best split feature, minimum gini impurity
-        best_split_ind = np.argmin(Q)
-        thresh_i, feature = np.unravel_index(best_split_ind, Q.shape)
-        best_gini = Q[thresh_i, feature]
-
-        # Sort samples by the split feature
-        feat_vec = proj_X[:, feature]
-        idx = np.argsort(feat_vec)
-
-        feat_vec = feat_vec[idx]
-        sample_inds = sample_inds[idx]
-
-        # Get the threshold, split samples into left and right
-        threshold = feat_vec[thresh_i]
-        left_idx = sample_inds[:thresh_i]
-        right_idx = sample_inds[thresh_i:]
-
-        left_n_samples = len(left_idx)
-        right_n_samples = len(right_idx)
-
-        # See if we have no split
-        no_split = left_n_samples == 0 or right_n_samples == 0
-
-        # Evaluate improvement
-        improvement = node_impurity - best_gini
-
-        # Evaluate impurities for left and right children
-        left_impurity = self.impurity(left_idx)
-        right_impurity = self.impurity(right_idx)
-        """
-
+        # Assign types to everything
         proj_X = np.array(proj_X, dtype=np.float64)
         y_sample = np.array(y_sample, dtype=np.float64)
         sample_inds = np.array(sample_inds, dtype=np.intc)
 
+        # Call cython splitter 
         (feature, 
         threshold, 
         left_impurity, 
@@ -528,10 +482,14 @@ class ObliqueSplitter:
 
         no_split = left_n_samples == 0 or right_n_samples == 0
 
+        # TODO: Generalize this for other uses
+        components = proj_mat.components_.toarray()
+        proj_vec = components[feature]
+
         split_info = SplitInfo(
             feature,
             threshold,
-            proj_mat,
+            proj_vec,
             left_impurity,
             left_idx,
             left_n_samples,
@@ -573,7 +531,7 @@ class Node:
         self.impurity = None
         self.n_samples = None
 
-        self.proj_mat = None
+        self.proj_vec = None
         self.label = None
         self.proba = None
 
@@ -676,7 +634,7 @@ class ObliqueTree:
         is_leaf,
         feature,
         threshold,
-        proj_mat,
+        proj_vec,
         label,
         proba,
     ):
@@ -702,8 +660,8 @@ class ObliqueTree:
             to this node's left of right child. If a sample has a value less than the
             threshold (for the feature of this node) it will go to the left childe,
             otherwise it will go the right child.
-        proj_mat : {ndarray, sparse matrix} of shape (n_samples, n_features)
-            Projection matrix for this new node.
+        proj_vec : {ndarray, sparse matrix} of shape (n_features)
+            Projection vector for this new node.
         label : int
             The label a sample will be given if it is predicted to be at this node.
         proba : float
@@ -737,7 +695,7 @@ class ObliqueTree:
             node.is_leaf = False
             node.feature = feature
             node.threshold = threshold
-            node.proj_mat = proj_mat
+            node.proj_vec = proj_vec
 
         self.node_count += 1
         self.nodes.append(node)
@@ -820,7 +778,7 @@ class ObliqueTree:
                     is_leaf,
                     split.feature,
                     split.threshold,
-                    split.proj_mat,
+                    split.proj_vec,
                     None,
                     None,
                 )
@@ -870,8 +828,10 @@ class ObliqueTree:
         for i in range(X.shape[0]):
             cur = self.nodes[0]
             while cur is not None and not cur.is_leaf:
-                proj_X = cur.proj_mat.transform(X)
-                if proj_X[i, cur.feature] < cur.threshold:
+               
+                proj_X = np.dot(X[i, :], cur.proj_vec)
+              
+                if proj_X < cur.threshold:
                     id = cur.left_child
                     cur = self.nodes[id]
                 else:
