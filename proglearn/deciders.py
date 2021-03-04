@@ -12,8 +12,54 @@ from sklearn.utils.validation import (
     check_is_fitted,
 )
 
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 
+class SimpleAverage(BaseDecider):
+    """
+    Doc string here.
+    """
+
+    def __init__(self, classes=[]):
+        self.classes = classes
+
+    def fit(
+        self,
+        X,
+        y,
+        transformer_id_to_transformers,
+        transformer_id_to_voters,
+        classes=None,
+    ):
+        self.classes = self.classes if len(self.classes) > 0 else np.unique(y)
+        self.transformer_id_to_transformers = transformer_id_to_transformers
+        self.transformer_id_to_voters = transformer_id_to_voters
+
+        return self
+
+    def predict_proba(self, X, transformer_ids=None):
+        vote_per_transformer_id = []
+        for transformer_id in (
+            transformer_ids
+            if transformer_ids is not None
+            else self.transformer_id_to_voters.keys()
+        ):
+            vote_per_bag_id = []
+            for bag_id in range(
+                len(self.transformer_id_to_transformers[transformer_id])
+            ):
+                transformer = self.transformer_id_to_transformers[transformer_id][
+                    bag_id
+                ]
+                X_transformed = transformer.transform(X)
+                voter = self.transformer_id_to_voters[transformer_id][bag_id]
+                vote = voter.predict(X_transformed)
+                vote_per_bag_id.append(vote)
+            vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0))
+        return np.mean(vote_per_transformer_id, axis=0)
+
+    def predict(self, X, transformer_ids=None):
+        vote_overall = self.predict_proba(X, transformer_ids=transformer_ids)
+        return vote_overall
 
 class SimpleArgmaxAverage(BaseClassificationDecider):
     """
@@ -252,7 +298,7 @@ class KNNRegressionDecider(BaseDecider):
                 ]
                 X_transformed = transformer.transform(X)
                 voter = self.transformer_id_to_voters[transformer_id][bag_id]
-                yhats[:, transformer_id, bag_id] = voter.vote(X_transformed).reshape(n)
+                yhats[:, transformer_id, bag_id] = voter.predict(X_transformed).reshape(n)
 
         return yhats
 
@@ -427,3 +473,4 @@ class KNNClassificationDecider(BaseClassificationDecider):
 
         # Return voter output of probabilities.
         return yhats
+

@@ -135,7 +135,7 @@ def experiment(n_task1, n_task2, n_test=1000,
     default_decider_kwargs = {"classes" : np.arange(2)}
     
     KNN_class = KNNClassificationDecider
-    KNN_decider_kwargs = {"classes" : np.arange(2), "k" : 3}
+    KNN_decider_kwargs = {"classes" : np.arange(2), "k" : 1}
     
     progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
                                             default_transformer_kwargs = default_transformer_kwargs,
@@ -155,7 +155,7 @@ def experiment(n_task1, n_task2, n_test=1000,
                                             default_voter_kwargs = default_voter_kwargs,
                                             default_decider_class = default_decider_class,
                                             default_decider_kwargs = default_decider_kwargs)
-    
+
     #source data
     X_task1, y_task1 = generate_gaussian_parity(n_task1, angle_params=task1_angle)
     test_task1, test_label_task1 = generate_gaussian_parity(n_test, angle_params=task1_angle)

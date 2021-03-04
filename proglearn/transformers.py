@@ -4,7 +4,7 @@ Corresponding Email: levinewill@icloud.com
 """
 import keras
 import numpy as np
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 from .base import BaseTransformer
@@ -187,3 +187,49 @@ class TreeClassificationTransformer(BaseTransformer):
         check_is_fitted(self)
         X = check_array(X)
         return self.transformer_.apply(X)
+
+class TreeRegressionTransformer(BaseTransformer):
+    def __init__(self, kwargs={}):
+        """
+        Doc strings here.
+        """
+
+        self.kwargs = kwargs
+
+        self._is_fitted = False
+
+    def fit(self, X, y):
+        """
+        Doc strings here.
+        """
+
+        X, y = check_X_y(X, y)
+
+        # define the ensemble
+        self.transformer = DecisionTreeRegressor(**self.kwargs).fit(X, y)
+
+        self._is_fitted = True
+
+        return self
+
+    def transform(self, X):
+        """
+        Doc strings here.
+        """
+
+        if not self.is_fitted():
+            msg = (
+                "This %(name)s instance is not fitted yet. Call 'fit' with "
+                "appropriate arguments before using this transformer."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+
+        X = check_array(X)
+        return self.transformer.apply(X)
+
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted
