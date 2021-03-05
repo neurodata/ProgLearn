@@ -336,10 +336,10 @@ class ObliqueSplitter:
         values for each of the features.
     y : array of shape [n_samples]
         The labels for each of the examples in X.
-    proj_dims : int
-        The dimensionality of the target projection space.
-    density : float
-        Ratio of non-zero component in the random projection matrix in the range '(0, 1]'.
+    max_features : float
+        controls the dimensionality of the target projection space.
+    feature_combinations : float
+        controls the density of the projection matrix
     random_state : int
         Controls the pseudo random number generator used to generate the projection matrix.
     workers : int
@@ -363,7 +363,7 @@ class ObliqueSplitter:
         Determines the best possible split for the given set of samples.
     """
 
-    def __init__(self, X, y, proj_dims, density, random_state, workers):
+    def __init__(self, X, y, max_features, feature_combinations, random_state, workers):
 
         self.X = np.array(X, dtype=np.float64)
         self.y = np.array(y, dtype=np.float64)
@@ -374,8 +374,8 @@ class ObliqueSplitter:
 
         self.n_samples = X.shape[0]
 
-        self.proj_dims = proj_dims
-        self.density = density
+        self.proj_dims = int(np.ceil(max_features * X.shape[1]))
+
         self.random_state = random_state
         self.workers = workers
 
@@ -383,6 +383,9 @@ class ObliqueSplitter:
         unique, count = np.unique(y, return_counts=True)
         count = count / len(y)
         self.root_impurity = 1 - np.sum(np.power(count, 2))
+
+        # Density
+        self.density = feature_combinations / X.shape[1]
 
         # Base oblique splitter in cython
         self.BOS = BaseObliqueSplitter()
@@ -610,9 +613,6 @@ class ObliqueTree:
     ):
 
         # Tree parameters
-        # self.n_samples = n_samples
-        # self.n_features = n_features
-        # self.n_classes = n_classes
         self.depth = 0
         self.node_count = 0
         self.nodes = []
@@ -868,8 +868,8 @@ class ObliqueTreeClassifier(BaseEstimator):
         Minimum Gini impurity value that must be achieved for a split to occur on the node.
     feature_combinations : float
         The feature combinations to use for the oblique split.
-    density : float
-        Density estimate.
+    max_features : float
+        Output dimension = max_features * dimension
     workers : int, optional (default: -1)
         The number of cores to parallelize the calculation of Gini impurity.
         Supply -1 to use all cores available to the Process.
@@ -891,40 +891,32 @@ class ObliqueTreeClassifier(BaseEstimator):
     def __init__(
         self,
         *,
-        # criterion="gini",
-        # splitter=None,
         max_depth=np.inf,
         min_samples_split=2,
         min_samples_leaf=1,
-        # min_weight_fraction_leaf=0,
-        # max_features="auto",
-        # max_leaf_nodes=None,
         random_state=None,
         min_impurity_decrease=0,
         min_impurity_split=0,
-        # class_weight=None,
-        # ccp_alpha=0.0,
-        # New args
-        feature_combinations=1.5,
-        density=0.5,
+        
+        feature_combinations=2,
+        max_features=1,
         workers=-1,
     ):
 
-        # self.criterion=criterion
+        # RF parameters
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.min_samples_leaf = min_samples_leaf
-        # self.min_weight_fraction_leaf=min_weight_fraction_leaf
-        # self.max_features=max_features
-        # self.max_leaf_nodes=max_leaf_nodes
         self.random_state = random_state
         self.min_impurity_decrease = min_impurity_decrease
         self.min_impurity_split = min_impurity_split
-        # self.class_weight=class_weight
-        # self.ccp_alpha=ccp_alpha
 
+        # OF parameters
+        # Feature combinations = L
         self.feature_combinations = feature_combinations
-        self.density = density
+
+        # Max features
+        self.max_features = max_features
         self.workers = workers
 
     def fit(self, X, y):
@@ -944,9 +936,8 @@ class ObliqueTreeClassifier(BaseEstimator):
             The fit classifier.
         """
 
-        self.proj_dims = int(np.ceil(X.shape[1]) / self.feature_combinations)
         splitter = ObliqueSplitter(
-            X, y, self.proj_dims, self.density, self.random_state, self.workers
+            X, y, self.max_features, self.feature_combinations, self.random_state, self.workers
         )
 
         self.tree = ObliqueTree(
