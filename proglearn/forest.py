@@ -41,11 +41,13 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
     oblique : bool, default=False
         Specifies if an oblique tree should used for the classifier or not.
 
-    feature_combinations : float, default=1.5
+    feature_combinations : float, default=2
         The feature combinations to use for the oblique split.
+        Equal to the parameter 'L' in the sporf paper.
 
-    density : float, default=0.5
-        Density estimate.
+    max_features : float, default=1.0
+        Controls the max number of features to consider for oblique split.
+        The parameter 'd' in the sporf paper is equal to ceil(max_features * dimensions)
 
     Attributes
     ----------
@@ -61,8 +63,8 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         default_kappa=np.inf,
         default_max_depth=30,
         oblique=False,
-        default_feature_combinations=1.5,
-        default_density=0.5,
+        default_feature_combinations=2,
+        default_max_features=1.0,
     ):
         self.default_n_estimators = default_n_estimators
         self.default_tree_construction_proportion = default_tree_construction_proportion
@@ -73,7 +75,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         if oblique:
             default_transformer_class = ObliqueTreeClassificationTransformer
             self.default_feature_combinations = default_feature_combinations
-            self.default_density = default_density
+            self.default_max_features = default_max_features
 
         else:
             default_transformer_class = TreeClassificationTransformer
@@ -97,7 +99,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         kappa="default",
         max_depth="default",
         feature_combinations="default",
-        density="default",
+        max_features="default",
     ):
         """
         adds a task with id task_id, max tree depth max_depth, given input data matrix X
@@ -133,11 +135,13 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             The maximum depth of a tree in the Lifelong Classification Forest.
             The default is used if 'default' is provided.
 
-        feature_combinations : float, default='default'
+        feature_combinations : float, default=2
             The feature combinations to use for the oblique split.
+            Equal to the parameter 'L' in the sporf paper.
 
-        density : float, default='default'
-            Density estimate.
+        max_features : int, default=None
+            The max number of features to consider for oblique split.
+            Equal to the parameter 'd' in the sporf paper.
 
         Returns
         -------
@@ -156,14 +160,14 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         if self.oblique:
             if feature_combinations == "default":
                 feature_combinations = self.default_feature_combinations
-            if density == "default":
-                density = self.default_density
+            if max_features == "default":
+                max_features = self.default_max_features
 
             transformer_kwargs = {
                 "kwargs": {
                     "max_depth": max_depth,
                     "feature_combinations": feature_combinations,
-                    "density": density,
+                    "max_features": max_features,
                 }
             }
 
