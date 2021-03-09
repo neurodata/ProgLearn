@@ -93,7 +93,7 @@ Transformers
 
 .. automodule:: proglearn.sims
 
-.. currentmodule:: proglearn.sim
+.. currentmodule:: proglearn.sims
 
 Simulations
 -------------
