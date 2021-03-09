@@ -105,6 +105,7 @@ def test_max_samples():
 
     assert all(np.diff(depths) > 0)
 
+
 # @pytest.mark.parametrize("signal_ranks", [None, 2])
 def test_uf_params():
     pass
