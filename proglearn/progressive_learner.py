@@ -3,6 +3,7 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 import numpy as np
+from joblib import Parallel, delayed
 from .base import BaseClassificationProgressiveLearner, BaseProgressiveLearner
 
 
@@ -137,6 +138,10 @@ class ProgressiveLearner(BaseProgressiveLearner):
     default_decider_kwargs : dict
         Stores the default decider kwargs as specified by the parameter
         default_decider_kwargs.
+
+    n_jobs : int, default=1
+        The number of jobs to run in parallel when adding multiple
+        transformers per task. ``-1`` means use all processors.
     """
 
     def __init__(
@@ -147,6 +152,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         default_voter_kwargs=None,
         default_decider_class=None,
         default_decider_kwargs=None,
+        n_jobs=None,
     ):
 
         (
@@ -177,6 +183,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
 
         self.default_decider_class = default_decider_class
         self.default_decider_kwargs = default_decider_kwargs
+
+        self.n_jobs = n_jobs
 
     def get_transformer_ids(self):
         return np.array(list(self.transformer_id_to_transformers.keys()))
@@ -498,14 +506,15 @@ class ProgressiveLearner(BaseProgressiveLearner):
         if transformer_id not in list(self.task_id_to_y.keys()):
             self.transformer_id_to_y[transformer_id] = y
 
-        # train new transformers
-        for transformer_num in range(num_transformers):
-            if X is not None:
-                n = len(X)
-            elif y is not None:
-                n = len(y)
-            else:
-                n = None
+        if X is not None:
+            n = len(X)
+        elif y is not None:
+            n = len(y)
+        else:
+            n = None
+
+        def _train_new_transformer(transformer_num):
+            # train new transformers
             if n is not None:
                 transformer_data_idx = np.random.choice(
                     transformer_voter_data_idx,
@@ -526,6 +535,10 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 bag_id=transformer_num,
                 voter_data_idx=voter_data_idx,
             )
+
+        _ = Parallel(n_jobs=self.n_jobs)(
+            delayed(_train_new_transformer)(num) for num in range(num_transformers)
+        )
 
         # train voters and deciders from new transformer to previous tasks
         for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
