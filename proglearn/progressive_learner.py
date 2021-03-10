@@ -538,30 +538,40 @@ class ProgressiveLearner(BaseProgressiveLearner):
             else:
                 transformer_data_idx = None
 
-            self.set_transformer(
+            transformer = self.set_transformer(
                 transformer_id=transformer_id,
                 transformer_data_idx=transformer_data_idx,
                 transformer_class=transformer_class,
                 transformer_kwargs=transformer_kwargs,
+                parallel=True,
             )
             voter_data_idx = np.setdiff1d(
                 transformer_voter_data_idx, transformer_data_idx)
 
+            return transformer_num, transformer_id, transformer, voter_data_idx
+
+        # Parallel loop over transformer training
+        ensemble = Parallel(n_jobs=self.n_jobs)(
+            delayed(_train_new_transformer)(num) for num in range(num_transformers)
+        )
+
+        for transformer_num, transformer_id, transformer, voter_data_idx in ensemble:
+            self._append_transformer(
+                transformer_id, transformer
+            )
             self._append_voter_data_idx(
                 task_id=transformer_id,
                 bag_id=transformer_num,
                 voter_data_idx=voter_data_idx,
             )
 
-        # Parallel loop over transformer training
-        Parallel(n_jobs=self.n_jobs)(
-            delayed(_train_new_transformer)(num) for num in range(num_transformers)
-        )
+        for num in range(num_transformers):
+            _train_new_transformer(num)
 
         # Voter and decider helper function
         def _train_voters_deciders(existing_task_id):
             self.set_voter(transformer_id=transformer_id,
-                           task_id=existing_task_id)
+                            task_id=existing_task_id)
             self.set_decider(
                 task_id=existing_task_id,
                 transformer_ids=list(
@@ -569,6 +579,9 @@ class ProgressiveLearner(BaseProgressiveLearner):
                     )
                 ),
             )
+        
+        # for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
+        #     _train_voters_deciders(existing_task_id)
         
         # train voters and deciders from new transformer to previous tasks
         Parallel(n_jobs=self.n_jobs)(
