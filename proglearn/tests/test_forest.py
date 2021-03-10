@@ -1,12 +1,15 @@
-import unittest
-import pytest
-import numpy as np
-import random
-
-from proglearn.forest import LifelongClassificationForest, UncertaintyForest
-from proglearn.transformers import TreeClassificationTransformer
-from proglearn.voters import TreeClassificationVoter
 from proglearn.deciders import SimpleArgmaxAverage
+from proglearn.voters import TreeClassificationVoter
+from proglearn.transformers import TreeClassificationTransformer
+from proglearn.forest import LifelongClassificationForest, UncertaintyForest
+import random
+import numpy as np
+import time
+import pytest
+import unittest
+import pprint
+import sys
+pprint.pprint(sys.path)
 
 
 class TestLifelongClassificationForest:
@@ -85,11 +88,22 @@ def test_decision_tree_params(max_depth, max_features, poisson_sampler):
 
 
 def test_parallel_trees():
-    uf = UncertaintyForest(n_jobs=2)
-    X = np.random.normal(0, 1, (100, 2))
-    X[:50] *= -1
-    y = [0] * 50 + [1] * 50
-    uf = uf.fit(X, y)
+    uf = UncertaintyForest(n_estimators=500, n_jobs=1,
+                           max_features=1, tree_construction_proportion=0.99)
+    uf_parallel = UncertaintyForest(
+        n_estimators=500, n_jobs=2, max_features=1, tree_construction_proportion=0.99)
+    X = np.arange(1000)[:, None]
+    y = [0, 1] * (len(X) // 2)
+
+    time_start = time.time()
+    uf.fit(X, y)
+    time_diff = time.time() - time_start
+
+    time_start = time.time()
+    uf_parallel.fit(X, y)
+    time_parallel_diff = time.time() - time_start
+
+    assert time_parallel_diff * 1.25 < time_diff
 
 
 def test_max_samples():

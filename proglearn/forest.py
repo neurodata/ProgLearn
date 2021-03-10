@@ -317,16 +317,16 @@ class UncertaintyForest:
         valid partition of the node samples is found, even if it requires to
         effectively inspect more than ``max_features`` features.
 
-    poisson_sampler : boolean, default=True
+    poisson_sampler : boolean, default=False
         To match the GRF theory [#1grf]_, if True, the number of features
         considered at each tree are drawn from a poisson distribution with
         mean equal to `max_features`.
 
-    n_jobs : int, default=1
+    n_jobs : int, default=None
         The number of jobs to run in parallel. ``-1`` means use all
-        processors.
+        processors. None equates to 1.
 
-    max_samples : int or float, default=0.5
+    max_samples : int or float, default=None
         The number of samples to draw from X (without replacement) to train
         each tree.
         - If None, then draw `X.shape[0]` samples.
@@ -370,8 +370,8 @@ class UncertaintyForest:
         max_depth=None,
         tree_construction_proportion=0.5,
         max_features="auto",
-        poisson_sampler=True,
-        max_samples=0.5,
+        poisson_sampler=False,
+        max_samples=None,
         n_jobs=None,
         tree_kwargs={},
     ):
@@ -409,6 +409,7 @@ class UncertaintyForest:
             default_kappa=self.kappa,
             default_max_depth=self.max_depth,
             default_tree_construction_proportion=self.tree_construction_proportion,
+            n_jobs=self.n_jobs,
         )
 
         self.tree_kwargs_ = {
