@@ -88,11 +88,11 @@ def test_decision_tree_params(max_depth, max_features, poisson_sampler):
 
 
 def test_parallel_trees():
-    uf = UncertaintyForest(n_estimators=200, n_jobs=1,
-                           max_features=1, tree_construction_proportion=0.999)
+    uf = UncertaintyForest(n_estimators=100, n_jobs=1,
+                           max_features=1.0, tree_construction_proportion=0.5)
     uf_parallel = UncertaintyForest(
-        n_estimators=200, n_jobs=2, max_features=1, tree_construction_proportion=0.999)
-    X = np.arange(1000)[:, None]
+        n_estimators=100, n_jobs=10, max_features=1.0, tree_construction_proportion=0.5)
+    X = np.random.normal(0, 1, (1000, 100))
     y = [0, 1] * (len(X) // 2)
 
     time_start = time.time()
