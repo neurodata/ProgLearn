@@ -13,7 +13,6 @@ Progressive_Learner
 .. autosummary::
    :toctree: generated/
 
-   ProgressiveLearner
    ClassificationProgressiveLearner
 
 
@@ -91,28 +90,7 @@ Transformers
    TreeClassificationTransformer
 
 
-.. automodule:: proglearn.sims
 
-.. currentmodule:: proglearn.sims
 
-Simulations
--------------
-
-Gaussian Simulations
-""""""""""""""""""""""""
-
-.. autosummary::
-   :toctree: generated/
-
-   generate_gaussian_parity
-   _generate_2d_rotation 
-
-Spiral Simulations
-""""""""""""""""""""""""
-
-.. autosummary::
-   :toctree: generated/
-
-   generate_spirals 
 
 
