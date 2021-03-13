@@ -112,7 +112,7 @@ cdef class BaseObliqueSplitter:
         return gini
 
     # X = proj_X, y = y_sample
-    def best_split(self, double[:, :] X, double[:] y, int[:] sample_inds):
+    cpdef best_split(self, double[:, :] X, double[:] y, int[:] sample_inds):
 
         cdef int n_samples = X.shape[0]
         cdef int proj_dims = X.shape[1]
@@ -147,7 +147,6 @@ cdef class BaseObliqueSplitter:
         # No split = just impurity of the whole thing
         node_impurity = self.impurity(y)
         Q_view[0, :] = node_impurity
-        Q_view[n_samples - 1, :] = node_impurity
         
         for j in range(0, proj_dims):
        
@@ -156,7 +155,8 @@ cdef class BaseObliqueSplitter:
                 temp_int = idx_view[i]
                 y_sort_view[i] = y[temp_int]
 
-            for i in prange(1, n_samples - 1, nogil=True):
+            # prev n_samples - 1. missing a split 
+            for i in prange(1, n_samples, nogil=True):
                 Q_view[i, j] = self.score(y_sort_view, i)
 
         # Identify best split
@@ -176,10 +176,16 @@ cdef class BaseObliqueSplitter:
             
             # Sort true sample inds
             si_return_view[i] = sample_inds[temp_int]
+        
         # Get threshold, split samples into left and right
-        threshold = feat_sort[thresh_i]
-        left_idx = si_return[:thresh_i]
-        right_idx = si_return[thresh_i:]
+        if (thresh_i == 0):
+            threshold = feat_sort_view[thresh_i]
+        else:
+            threshold = 0.5 * (feat_sort_view[thresh_i] + feat_sort_view[thresh_i - 1])
+
+        left_idx = si_return_view[:thresh_i]
+        right_idx = si_return_view[thresh_i:]
+        
         # Evaluate improvement
         improvement = node_impurity - best_gini
 
