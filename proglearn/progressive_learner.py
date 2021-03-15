@@ -11,7 +11,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
     A (mostly) internal class for progressive learning. Most users who desire to
     utilize ProgLearn should use the classes defined in {network, forest}.py instead
     of this class.
-    
+
     Parameters
     ----------
     default_transformer_class : BaseTransformer, default=None
