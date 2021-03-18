@@ -337,26 +337,6 @@ class TreeRegressionVoter(BaseVoter):
             else:
                 votes_per_example.append(self.global_yhat)
         return np.array(votes_per_example)
-    
-    def predict_proba(self, X):
-        """
-        Doc strings here.
-        """
-
-        if not self.is_fitted():
-            msg = (
-                    "This %(name)s instance is not fitted yet. Call 'fit' with "
-                    "appropriate arguments before using this voter."
-            )
-            raise NotFittedError(msg % {"name": type(self).__name__})
-        
-        votes_per_example = []
-        for x in X:
-            if x in list(self.leaf_to_yhat.keys()):
-                votes_per_example.append(self.leaf_to_yhat[x])
-            else:
-                votes_per_example.append(self.global_yhat)
-        return np.array(votes_per_example)
 
     def is_fitted(self):
         """

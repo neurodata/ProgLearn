@@ -10,7 +10,7 @@ import matplotlib
 from proglearn.forest import LifelongClassificationForest, UncertaintyForest
 from proglearn.sims import *
 from proglearn.progressive_learner import ProgressiveLearner
-from proglearn.deciders import SimpleArgmaxAverage, KNNClassificationDecider
+from proglearn.deciders import SimpleArgmaxAverage, KNNClassificationDecider, KNNSimpleClassificationDecider
 from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
@@ -134,7 +134,7 @@ def experiment(n_task1, n_task2, n_test=1000,
     default_decider_class = SimpleArgmaxAverage
     default_decider_kwargs = {"classes" : np.arange(2)}
     
-    KNN_class = KNNClassificationDecider
+    KNN_class = KNNSimpleClassificationDecider
     KNN_decider_kwargs = {"classes" : np.arange(2), "k" : 1}
     
     progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,

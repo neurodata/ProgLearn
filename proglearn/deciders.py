@@ -302,7 +302,6 @@ class KNNRegressionDecider(BaseDecider):
 
         return yhats
 
-
 class KNNClassificationDecider(BaseClassificationDecider):
     """
     Doc string here.
@@ -474,3 +473,154 @@ class KNNClassificationDecider(BaseClassificationDecider):
         # Return voter output of probabilities.
         return yhats
 
+class KNNSimpleClassificationDecider(BaseClassificationDecider):
+    """
+    Doc string here.
+    """
+
+    def __init__(self, k=None, classes=[]):
+        self.k = k
+        self._is_fitted = False
+        self.classes = classes
+
+    def fit(self, X, y, transformer_id_to_transformers, transformer_id_to_voters):
+        if not isinstance(self.classes, (list, np.ndarray)):
+            if len(y) == 0:
+                raise ValueError(
+                    "Classification Decider classes undefined with no class labels fed to fit"
+                )
+            else:
+                self.classes = np.unique(y)
+        else:
+            self.classes = np.array(self.classes)
+
+        if self.k == None:
+            self.k = int(np.log2(len(X)))
+        X, y = check_X_y(X, y)
+
+        # Because this instantiation relies on using the same transformers at train
+        # and test time, we need to store them.
+        self.transformer_ids = list(transformer_id_to_transformers.keys())
+        self.transformer_id_to_transformers = transformer_id_to_transformers
+        self.transformer_id_to_voters = transformer_id_to_voters
+
+        # Set up the samples, classes, transformer and tree counts.
+        num_samples = len(X)
+        num_classes = len(self.classes)
+        num_transformers = len(self.transformer_ids)
+        num_trees = len(self.transformer_id_to_transformers[0])
+
+        # Get voter predictions of y
+        yhats = self.ensemble_represetations(X)
+
+        self.knn = []
+
+        # Iterate across all representers.
+        for bag_id in range(num_trees):
+            # Make an empty vector.
+            temp_yhats = np.empty((num_samples, num_classes * num_transformers))
+            # Append a new KNN for each transformer with k neighbors.
+            self.knn.append(KNeighborsClassifier(self.k, weights="distance", p=1))
+            for transformer_idx in range(num_transformers):
+                idx = num_classes * transformer_idx
+                # Append all class probabilities from each transformer.
+                temp_yhats[:, idx:(idx + num_classes)] = yhats[:, :, transformer_idx, bag_id]
+            # Fit the representer specific knn with all class probabilities.
+            self.knn[bag_id].fit(np.squeeze(temp_yhats), y)
+
+        self._is_fitted = True
+        return self
+
+    def predict_proba(self, X, transformer_ids=None):
+        if not self.is_fitted():
+            msg = (
+                "This %(name)s instance is not fitted yet. Call 'fit' with "
+                "appropriate arguments before using this transformer."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+
+        X = check_array(X)
+
+        # Set up the samples, classes, transformer and tree counts.
+        num_samples = len(X)
+        num_classes = len(self.classes)
+        num_transformers = len(self.transformer_ids)
+        num_trees = len(self.transformer_id_to_transformers[0])
+
+        yhats = self.ensemble_represetations(X)
+
+        knn_out = np.empty((num_samples, num_classes, num_trees))
+
+        # Iterate across all trees.
+        for bag_id in range(num_trees):
+            temp_yhats = np.empty((num_samples, num_classes * num_transformers))
+            for transformer_idx in range(num_transformers):
+                idx = num_classes * transformer_idx
+                temp_yhats[:, idx:(idx + num_classes)] = yhats[:, :, transformer_idx, bag_id]
+
+            knn_out[:, :, bag_id] = self.knn[bag_id].predict_proba(np.squeeze(temp_yhats))
+
+        # Average the predicted posteriors across all trees and normalize them across all classes.
+        mean_knn_out = np.mean(knn_out, axis=2)
+        normalized = mean_knn_out / np.sum(mean_knn_out, axis=1, keepdims=True)
+
+        return mean_knn_out
+
+    def predict(self, X, transformer_ids=None):
+        if not self.is_fitted():
+            msg = (
+                "This %(name)s instance is not fitted yet. Call 'fit' with "
+                "appropriate arguments before using this transformer."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+
+        X = check_array(X)
+
+        knn_out = self.predict_proba(X)
+        return np.argmax(knn_out, axis=1)
+
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted
+
+    def ensemble_represetations(self, X):
+        # Set up the samples, classes, transformer and tree counts.
+        num_samples = len(X)
+        num_classes = len(self.classes)
+        num_transformers = len(self.transformer_ids)
+        num_trees = len(self.transformer_id_to_transformers[0])
+
+        # Make output array.
+        yhats = np.zeros((num_samples, num_classes, num_transformers, num_trees))
+
+        # Iterate across all transformers.
+        for transformer_id in (
+            self.transformer_ids
+            if self.transformer_ids is not None
+            else self.transformer_id_to_voters.keys()
+        ):
+            # Iterate across all trees.
+            for bag_id in range(num_trees):
+                # Get a transformer from a specific tree.
+                transformer = self.transformer_id_to_transformers[transformer_id][
+                    bag_id
+                ]
+
+                # Transform data with transformer.
+                X_transformed = transformer.transform(X)
+
+                # Get specific voter from transformer and tree indices and predict
+                # on the transformed data.
+                voter = self.transformer_id_to_voters[transformer_id][bag_id]
+                vote = voter.predict_proba(X_transformed).reshape(
+                    num_samples, num_classes
+                )
+
+                # Add the vote to the output.
+                yhats[:, :, transformer_id, bag_id] = vote
+
+        # Return voter output of probabilities.
+        return yhats
