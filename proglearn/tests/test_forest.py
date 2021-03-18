@@ -119,6 +119,17 @@ def test_max_samples():
 
     assert all(np.diff(depths) > 0)
 
+@pytest.mark.parametrize("honest_prior", ["empirical", "uniform", "ignore"])
+def test_honest_prior(honest_prior):
+    X = np.random.normal(0, 1, (60, 2))
+    X[:30] *= -1
+    y = [0, 0, 1] * 20
+    uf = UncertaintyForest(n_estimators=5, honest_prior=honest_prior)
+    uf = uf.fit(X, y)
+    if honest_prior == 'uniform':
+        assert all([len(set(voter.prior_posterior_)) == 1 for voter in uf.voters_])
+    elif honest_prior in ('ignore', 'empirical'):
+        assert all([np.diff(voter.prior_posterior_) < 0 for voter in uf.voters_])
 
 # @pytest.mark.parametrize("signal_ranks", [None, 2])
 def test_uf_params():
