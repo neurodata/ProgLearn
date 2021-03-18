@@ -9,6 +9,7 @@ from .deciders import SimpleArgmaxAverage
 
 import numpy as np
 
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.utils.validation import check_X_y, check_array
 
 

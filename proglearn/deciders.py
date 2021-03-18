@@ -123,6 +123,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         """
         check_is_fitted(self)
         vote_per_transformer_id = []
+        prior_posterior_per_id = []
         for transformer_id in (
             transformer_ids
             if transformer_ids is not None
@@ -130,18 +131,36 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         ):
             check_is_fitted(self)
             vote_per_bag_id = []
+            prior_posterior_per_bag = []
             for bag_id in range(
                 len(self.transformer_id_to_transformers_[transformer_id])
             ):
                 transformer = self.transformer_id_to_transformers_[transformer_id][
                     bag_id
                 ]
+                # X.shape = (n_samples, n_features)
                 X_transformed = transformer.transform(X)
+                # X_transformed.shape = (n_samples,)
                 voter = self.transformer_id_to_voters_[transformer_id][bag_id]
                 vote = voter.predict_proba(X_transformed)
+                # vote.shape = (n_samples, n_classes)
                 vote_per_bag_id.append(vote)
-            vote_per_transformer_id.append(np.mean(vote_per_bag_id, axis=0))
-        return np.mean(vote_per_transformer_id, axis=0)
+
+                prior_posterior_per_bag.append(transformer.prior_posterior_)
+            # Each sample gets the average over transformers. Exclude all zeros in the mean
+            # vote_per_bag_id.shape = (n_transformers, n_samples, n_classes)
+            transformer_vote = np.sum(vote_per_bag_id, axis=0)
+            num_transformers = np.sum(vote_per_bag_id, axis=2).sum(axis=0)[:, None]
+            vote_per_transformer_id.append(transformer_vote / num_transformers)
+            prior_posterior_per_id.append(np.mean(prior_posterior_per_bag))
+        
+        # vote_per_transformer_id.shape = (1, n_samples, n_classes)
+        predicted_posteriors = np.mean(vote_per_transformer_id, axis=0)
+        # Correction for samples not predicted by any tree
+        unknown_sample_indices = np.where(np.sum(predicted_posteriors, axis=1) == 0)[0]
+        predicted_posteriors[unknown_sample_indices] = np.mean(prior_posterior_per_id)
+
+        return predicted_posteriors
 
     def predict(self, X, transformer_ids=None):
         """

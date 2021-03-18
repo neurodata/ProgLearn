@@ -1,10 +1,11 @@
 """
-Main Author: Will LeVine 
+Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 import numpy as np
 from joblib import Parallel, delayed
 from .base import BaseClassificationProgressiveLearner, BaseProgressiveLearner
+from .transformers import TreeClassificationTransformer
 
 
 class ProgressiveLearner(BaseProgressiveLearner):
@@ -256,9 +257,55 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_kwargs=None,
         parallel=False,
     ):
+
+        if transformer_class is None:
+            if self.default_transformer_class is None:
+                raise ValueError(
+                    "transformer_class is None and 'default_transformer_class' is None."
+                )
+            else:
+                transformer_class = self.default_transformer_class
+
+        if transformer_kwargs is None:
+            if self.default_transformer_kwargs is None:
+                raise ValueError(
+                    """transformer_kwargs is None and 
+                    'default_transformer_kwargs' is None."""
+                )
+            else:
+                transformer_kwargs = self.default_transformer_kwargs
+
         if transformer is not None and transformer.is_fitted() and parallel:
             raise ValueError(
                 "Parallelization not implemented for fitted transformers")
+        elif parallel and (
+            transformer_class == TreeClassificationTransformer
+        ):
+            # Possible solution to not recreate memory arrays, See
+            # sklearn/ensemble/_forest.py#L176
+            n_samples = (
+                self.transformer_id_to_X[transformer_id].shape[0]
+                if transformer_id in list(self.transformer_id_to_X.keys())
+                else self.task_id_to_X[transformer_id].shape[0]
+            )
+            sample_weight = np.ones((n_samples,), dtype=np.float64)
+            sample_counts = np.bincount(
+                transformer_data_idx, minlength=n_samples)
+            sample_weight *= sample_counts
+            transformer = transformer_class(
+                sample_weight=sample_weight, **transformer_kwargs).fit(
+                    (
+                        self.transformer_id_to_X[transformer_id]
+                        if transformer_id in list(self.transformer_id_to_X.keys())
+                        else self.task_id_to_X[transformer_id]
+                    ),
+                    (
+                        self.transformer_id_to_y[transformer_id]
+                        if transformer_id in list(self.transformer_id_to_y.keys())
+                        else self.task_id_to_y[transformer_id]
+                    ))
+            return transformer
+
         if transformer_id is None:
             transformer_id = len(self.get_transformer_ids())
 
@@ -285,23 +332,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
             return
 
         # Type check X
-
-        if transformer_class is None:
-            if self.default_transformer_class is None:
-                raise ValueError(
-                    "transformer_class is None and 'default_transformer_class' is None."
-                )
-            else:
-                transformer_class = self.default_transformer_class
-
-        if transformer_kwargs is None:
-            if self.default_transformer_kwargs is None:
-                raise ValueError(
-                    """transformer_kwargs is None and 
-                    'default_transformer_kwargs' is None."""
-                )
-            else:
-                transformer_kwargs = self.default_transformer_kwargs
 
         # Fit transformer and new voter
         if y is None:
@@ -394,7 +424,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
                     transformer_id,
                     task_id,
                     voter_class(**voter_kwargs).fit(
-                        transformer.transform(X[voter_data_idx]), y[voter_data_idx]
+                        transformer.transform(
+                            X[voter_data_idx]), y[voter_data_idx]
                     ),
                 )
 

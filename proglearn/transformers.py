@@ -154,6 +154,10 @@ class TreeClassificationTransformer(BaseTransformer):
         considered at each tree are drawn from a poisson distribution with
         mean equal to `max_features`.
 
+    sample_weight : array-like of shape (n_samples,), default=None
+        If None, all samples weighted equally. Used for efficient parallelization
+        by making non-sampled X,y weighted with 0.
+
     fit_kwargs : dict, default={}
         Named arguments passed to the sklearn.tree.DecisionTreeClassifier tree
         created during `fit`.
@@ -172,9 +176,10 @@ class TreeClassificationTransformer(BaseTransformer):
     "Generalized Random Forests", Annals of Statistics, 2019.
     """
 
-    def __init__(self, max_features=1.0, poisson_sampler=False, fit_kwargs={}):
+    def __init__(self, max_features=1.0, poisson_sampler=False, sample_weight=None, fit_kwargs={}):
         self.max_features = max_features
         self.poisson_sampler = poisson_sampler
+        self.sample_weight = sample_weight
         self.fit_kwargs = fit_kwargs
 
     def fit(self, X, y):
@@ -195,6 +200,7 @@ class TreeClassificationTransformer(BaseTransformer):
         """
         X, y = check_X_y(X, y)
         self.n_features_ = X.shape[1]
+        self.prior_posterior_ = np.bincount(y) / len(y)
         if self.poisson_sampler:
             if self.max_features in ("auto", "sqrt"):
                 max_features = np.sqrt(self.n_features_)
@@ -220,7 +226,7 @@ class TreeClassificationTransformer(BaseTransformer):
 
         self.transformer_ = DecisionTreeClassifier(
             max_features=max_features, **self.fit_kwargs
-        ).fit(X, y)
+        ).fit(X, y, sample_weight=self.sample_weight)
         return self
 
     def transform(self, X):

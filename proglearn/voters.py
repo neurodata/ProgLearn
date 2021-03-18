@@ -49,8 +49,8 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
         Parameters
         ----------
-        X : array of shape [n_samples, n_features]
-            the transformed input data
+        X : array of shape [n_samples,]
+            Leaf indices each sample falls into
         y : array of shape [n_samples]
             the class labels
 
@@ -70,6 +70,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
                     self.missing_label_indices_.append(idx)
 
         self.uniform_posterior_ = np.ones(num_fit_classes) / num_fit_classes
+        # self.prior_posterior_ = np.bincount(y, minlength=len(self.classes)) / len(y)
 
         self.leaf_to_posterior_ = {}
 
@@ -92,8 +93,8 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
         Parameters
         ----------
-        X : array of shape [n_samples, n_features]
-            the transformed input data
+        X : array of shape [n_samples,]
+            Indices of the leaf each sample falls into
 
         Returns
         -------
