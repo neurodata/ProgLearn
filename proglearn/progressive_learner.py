@@ -43,6 +43,14 @@ class ProgressiveLearner(BaseProgressiveLearner):
         to the given string kwarg. This determines to which type of decider the
         progressive learner defaults if None is provided in any of the functions
         which add or set deciders.
+    honest_prior : {"ignore", "uniform", "empirical"}, default="ignore"
+        Method for dealing with empty paritions during evaluation of a test
+        sample. If "ignore", paritions in which the leaf is empty are not used in
+        the prediction. If "uniform", the prior posterior is 1/(number of
+        classes). If "empirical", the prior posterior is the relative
+        class frequency in the voting subsample. If all posteriors are empty,
+        "ignore" will use the empirical prior and the others will use their
+        respective priors.
 
     Attributes
     ----------
@@ -73,7 +81,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         and values of type obj corresponding to a transformer. This dictionary thus
         maps transformer ids to the corresponding transformers.
 
-    task_id_to_trasnformer_id_to_voters : dict
+    task_id_to_transformer_id_to_voters : dict
         A nested dictionary with outer key of type obj, corresponding to task ids
         inner key of type obj, corresponding to transformer ids,
         and values of type obj, corresponding to a voter. This dictionary thus maps

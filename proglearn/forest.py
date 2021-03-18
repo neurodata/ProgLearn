@@ -51,6 +51,15 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         Note: The number of samples used to learn the tree will be further
         reduced per the `tree_construction_proportion` value.
 
+    honest_prior : {"ignore", "uniform", "empirical"}, default="ignore"
+        Method for dealing with empty leaves during evaluation of a test
+        sample. If "ignore", trees in which the leaf is empty are not used in
+        the prediction. If "uniform", the prior tree posterior is 1/(number of
+        classes). If "empirical", the prior tree posterior is the relative
+        class frequency in the voting subsample. If all tree leaves are empty,
+        "ignore" will use the empirical prior and the others will use their
+        respective priors.
+
     Attributes
     ----------
     pl_ : ClassificationProgressiveLearner
@@ -66,6 +75,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         default_max_depth=30,
         max_samples=None,
         n_jobs=None,
+        honest_prior="ignore",
     ):
         self.default_n_estimators = default_n_estimators
         self.default_tree_construction_proportion = default_tree_construction_proportion
@@ -73,6 +83,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self.default_max_depth = default_max_depth
         self.max_samples = max_samples
         self.n_jobs = n_jobs
+        self.honest_prior = honest_prior
 
         self.pl_ = ClassificationProgressiveLearner(
             default_transformer_class=TreeClassificationTransformer,
@@ -94,7 +105,6 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         kappa="default",
         max_depth="default",
         transformer_kwargs={},
-        max_samples=1.0,
     ):
         """
         adds a task with id task_id, max tree depth max_depth, given input data matrix X
@@ -134,21 +144,6 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         transformer_kwargs : dict, default={}
             Additional named arguments to be passed to the transformer.
 
-    n_jobs : int, default=1
-        The number of jobs to run in parallel. ``-1`` means use all
-        processors.
-
-    max_samples : int or float, default=0.5
-        The number of samples to draw from X (without replacement) to train
-        each tree.
-        - If None, then draw `X.shape[0]` samples.
-        - If int, then draw `max_samples` samples.
-        - If float, then draw `max_samples * X.shape[0]` samples. Thus,
-          `max_samples` should be in the interval `(0, 1)`.
-
-        Note: The number of samples used to learn the tree will be further
-        reduced per the `tree_construction_proportion` value.
-
         Returns
         -------
         self : LifelongClassificationForest
@@ -170,11 +165,13 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         transformer_kwargs["fit_kwargs"]["max_depth"] = max_depth
 
         X, y = check_X_y(X, y)
-        if isinstance(max_samples, int):
-            assert max_samples > 1
-            max_samples = min(1, max_samples / X.shape[0])
-        elif max_samples is None:
+        if isinstance(self.max_samples, int):
+            assert self.max_samples > 1
+            max_samples = min(1, self.max_samples / X.shape[0])
+        elif self.max_samples is None:
             max_samples = 1.0
+        else:
+            max_samples = self.max_samples
         return self.pl_.add_task(
             X,
             y,
@@ -187,8 +184,9 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             num_transformers=n_estimators,
             transformer_kwargs=transformer_kwargs,
             voter_kwargs={
-                "classes": np.unique(y),
-                "kappa": kappa,
+                "classes" : np.unique(y),
+                "kappa" : kappa,
+                "honest_prior" : self.honest_prior
             },
             decider_kwargs={"classes": np.unique(y)},
         )
@@ -293,8 +291,8 @@ class UncertaintyForest:
         The number of trees in the UncertaintyForest
 
     kappa : float, default=np.inf
-        The coefficient for finite sample correction.
-        If set to the default value, finite sample correction is not performed.
+        The coefficient for finite sample correction. If set to the default
+        value, finite sample correction is not performed.
 
     max_depth : int, default=None
         The maximum depth of a tree in the UncertaintyForest.
@@ -338,6 +336,15 @@ class UncertaintyForest:
         Note: The number of samples used to learn the tree will be further
         reduced per the `tree_construction_proportion` value.
 
+    honest_prior : {"ignore", "uniform", "empirical"}, default="ignore"
+        Method for dealing with empty leaves during evaluation of a test
+        sample. If "ignore", trees in which the leaf is empty are not used in
+        the prediction. If "uniform", the prior tree posterior is 1/(number of
+        classes). If "empirical", the prior tree posterior is the relative
+        class frequency in the voting subsample. If all tree leaves are empty,
+        "ignore" will use the empirical prior and the others will use their
+        respective priors.
+
     tree_kwargs : dict, default={}
         Named arguments to be passed to each
         sklearn.tree.DecisionTreeClassifier tree used in the construction
@@ -347,6 +354,10 @@ class UncertaintyForest:
     ----------
     estimators_ : list of sklearn.tree.DecisionTreeClassifier
         The collection of fitted trees.
+
+    voters_ : list of proglearn.voter.TreeClassificationVoter
+        The collection of honest voters for leaves in matching trees in
+        `self.estimators_` at the same index.
 
     lf_ : LifelongClassificationForest
         Internal LifelongClassificationForest used to train and make
@@ -374,6 +385,7 @@ class UncertaintyForest:
         poisson_sampler=False,
         max_samples=None,
         n_jobs=None,
+        honest_prior="ignore",
         tree_kwargs={},
     ):
         self.n_estimators = n_estimators
@@ -385,6 +397,7 @@ class UncertaintyForest:
         self.max_samples = max_samples
         self.n_jobs = n_jobs
         self.tree_kwargs = tree_kwargs
+        self.honest_prior = honest_prior
 
     def fit(self, X, y):
         """
@@ -410,7 +423,9 @@ class UncertaintyForest:
             default_kappa=self.kappa,
             default_max_depth=self.max_depth,
             default_tree_construction_proportion=self.tree_construction_proportion,
+            max_samples=self.max_samples,
             n_jobs=self.n_jobs,
+            honest_prior=self.honest_prior,
         )
 
         self.tree_kwargs_ = {
@@ -423,7 +438,6 @@ class UncertaintyForest:
             y,
             task_id=0,
             transformer_kwargs=self.tree_kwargs_,
-            max_samples=self.max_samples,
         )
 
         return self
@@ -433,6 +447,12 @@ class UncertaintyForest:
         if not hasattr(self, "lf_"):
             raise AttributeError("Model has not been fitted. Please fit first.")
         return [t.transformer_ for t in self.lf_.pl_.transformer_id_to_transformers[0]]
+
+    @property
+    def voters_(self):
+        if not hasattr(self, "lf_"):
+            raise AttributeError("Model has not been fitted. Please fit first.")
+        return [t for t in self.lf_.pl_.task_id_to_transformer_id_to_voters[0][0]]
 
     def predict_proba(self, X):
         """

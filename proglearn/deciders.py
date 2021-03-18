@@ -89,6 +89,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             self.classes = np.array(self.classes)
         self.transformer_id_to_transformers_ = transformer_id_to_transformers
         self.transformer_id_to_voters_ = transformer_id_to_voters
+
         return self
 
     def predict_proba(self, X, transformer_ids=None):
@@ -114,7 +115,6 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         -------
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
-
 
         Raises
         ------

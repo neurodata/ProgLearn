@@ -27,21 +27,34 @@ class TreeClassificationVoter(BaseClassificationVoter):
     classes : list, default=[]
         list of all possible output label values
 
+    honest_prior : {"ignore", "uniform", "empirical"}, default="ignore"
+        Method for dealing with empty leaves during evaluation of a test
+        sample. If "ignore", trees in which the leaf is empty are not used in
+        the prediction. If "uniform", the prior tree posterior is 1/(number of
+        classes). If "empirical", the prior tree posterior is the relative
+        class frequency in the voting subsample. If all tree leaves are empty,
+        "ignore" will use the empirical prior and the others will use their
+        respective priors.
+
     Attributes
     ----------
     missing_label_indices_ : list
         a (potentially empty) list of label values
         that exist in the ``classes`` parameter but
         are missing in the latest ``fit`` function
-        call
+        call.
 
-    uniform_posterior_ : ndarray of shape (n_classes,)
-        the uniform posterior associated with the
+    prior_posterior_ : ndarray of shape (n_classes,)
+        The prior posterior associated with zero posteriors.
+
+    num_fit_classes_ : int
+        Number of unique classes in the set of fitted labels.
     """
 
-    def __init__(self, kappa=np.inf, classes=[]):
+    def __init__(self, kappa=np.inf, classes=[], honest_prior="ignore"):
         self.kappa = kappa
         self.classes = np.asarray(classes)
+        self.honest_prior = honest_prior
 
     def fit(self, X, y):
         """
@@ -61,16 +74,22 @@ class TreeClassificationVoter(BaseClassificationVoter):
         """
         check_classification_targets(y)
 
-        num_fit_classes = len(np.unique(y))
+        self.num_fit_classes_ = len(np.unique(y))
         self.missing_label_indices_ = []
 
-        if self.classes.size != 0 and num_fit_classes < len(self.classes):
+        if self.classes.size != 0 and self.num_fit_classes_ < len(self.classes):
             for idx, label in enumerate(self.classes):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(idx)
 
-        self.uniform_posterior_ = np.ones(num_fit_classes) / num_fit_classes
-        # self.prior_posterior_ = np.bincount(y, minlength=len(self.classes)) / len(y)
+        if self.honest_prior == "uniform":
+            self.prior_posterior_ = np.ones(self.num_fit_classes_) / self.num_fit_classes_
+        elif self.honest_prior in ("empirical", "ignore"):
+            self.prior_posterior_ = np.bincount(
+                y, minlength=len(self.classes)) / len(y)
+        else:
+            raise ValueError("honest_prior must be in " + 
+                "{'ignore', 'uniform', 'empirical'}")
 
         self.leaf_to_posterior_ = {}
 
@@ -111,8 +130,10 @@ class TreeClassificationVoter(BaseClassificationVoter):
         for x in X:
             if x in list(self.leaf_to_posterior_.keys()):
                 votes_per_example.append(self.leaf_to_posterior_[x])
+            elif self.honest_prior == "ignore":
+                votes_per_example.append(np.zeros(self.num_fit_classes_))
             else:
-                votes_per_example.append(self.uniform_posterior_)
+                votes_per_example.append(self.prior_posterior_)
 
         votes_per_example = np.array(votes_per_example)
 
