@@ -10,6 +10,12 @@ from libcpp.unordered_map cimport unordered_map
 from libcpp.map cimport map as ordered_map
 from cython.operator import dereference, postincrement
 
+from libcpp.algorithm cimport sort as stdsort
+
+from libcpp.vector cimport vector
+from libcpp.pair cimport pair
+from libcpp cimport bool
+
 from cython.parallel import prange
 
 # Computes the gini score for a split
@@ -18,20 +24,21 @@ from cython.parallel import prange
 cdef class BaseObliqueSplitter:
 
     cdef void argsort(self, double[:] y, int[:] idx) nogil:
+
         cdef int length = y.shape[0]
         cdef int i = 0
-        cdef ordered_map[double, int] sort_map
-        cdef ordered_map[double, int].iterator it = sort_map.begin()
+        cdef pair[double, int] p
+        cdef vector[pair[double, int]] v
+        
+        for i in range(length):
+            p.first = y[i]
+            p.second = i
+            v.push_back(p)
+
+        stdsort(v.begin(), v.end())
 
         for i in range(length):
-            sort_map[y[i]] = i
-
-        it = sort_map.begin()
-        i = 0
-        while it != sort_map.end():
-            idx[i] = dereference(it).second
-            i = i + 1
-            postincrement(it)
+            idx[i] = v[i].second
 
     cdef (int, int) argmin(self, double[:, :] A) nogil:
         cdef int N = A.shape[0]
@@ -194,4 +201,30 @@ cdef class BaseObliqueSplitter:
         right_impurity = self.impurity(y_sort_view[thresh_i:])
 
         return feature, threshold, left_impurity, left_idx, right_impurity, right_idx, improvement 
+
+    def test(self):
+
+        # Test argsort, argmin
+        fy = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], dtype=np.float64)
+        by = fy[::-1].copy()
+        flat = np.array([2, 2, 2, 1, 1, 1, 0, 0, 0, 0], dtype=np.float64)
+        idx = np.zeros(10, dtype=np.intc)
+
+        self.argsort(fy, idx)
+        print(idx)
+
+        self.argsort(by, idx)
+        print(idx)
+
+        self.argsort(flat, idx)
+        print(idx)
+
+
+        
+
+        # Test impurity
+
+        # Test score
+
+        # Test best split
 
