@@ -4,6 +4,7 @@ Corresponding Email: levinewill@icloud.com
 """
 import keras
 import numpy as np
+import numpy.random as rng
 from itertools import product
 from joblib import Parallel, delayed
 from sklearn.base import BaseEstimator
@@ -373,6 +374,7 @@ class ObliqueSplitter:
         self.indices = np.indices(y.shape)[0]
 
         self.n_samples = X.shape[0]
+        self.n_features = X.shape[1]
 
         self.proj_dims = int(np.ceil(max_features * X.shape[1]))
 
@@ -385,10 +387,13 @@ class ObliqueSplitter:
         self.root_impurity = 1 - np.sum(np.power(count, 2))
 
         # Density
-        self.density = feature_combinations / X.shape[1]
+        self.density = 1 - feature_combinations / self.n_features
 
         # Base oblique splitter in cython
         self.BOS = BaseObliqueSplitter()
+
+        # Temporary debugging, turns off oblique splits
+        self.debug = False
 
     def sample_proj_mat(self, sample_inds):
         """
@@ -406,18 +411,29 @@ class ObliqueSplitter:
         proj_X : {ndarray, sparse matrix} of shape (n_samples, self.proj_dims)
             Projected input data matrix.
         """
-
-        proj_mat = SparseRandomProjection(
-            density=self.density,
-            n_components=self.proj_dims,
-            random_state=self.random_state,
-        )
-
-        proj_X = proj_mat.fit_transform(self.X[sample_inds, :])
         
-        # Debugging - makes tree not oblique
-        #proj_mat = np.eye(self.X.shape[1])
-        #proj_X = self.X[sample_inds, :]
+        if self.debug:
+            return self.X[sample_inds, :], np.eye(self.n_features)
+
+        # Edge case for fully dense matrix
+        if self.density == 1:
+            proj_mat = rng.binomial(1, 0.5, (self.n_features, self.proj_dims)) * 2 - 1
+
+        # Sample random matrix and build it on that
+        else:
+
+            proj_mat = rng.rand(self.n_features, self.proj_dims)
+            prob = 0.5 * self.density
+
+            neg_inds = np.where(proj_mat <= prob)
+            pos_inds = np.where(proj_mat >= 1 - prob)
+            mid_inds = np.where((proj_mat > prob) & (proj_mat < 1 - prob))
+
+            proj_mat[neg_inds] = -1
+            proj_mat[pos_inds] = 1
+            proj_mat[mid_inds] = 0
+
+        proj_X = self.X[sample_inds, :] @ proj_mat
 
         return proj_X, proj_mat
 
@@ -490,12 +506,7 @@ class ObliqueSplitter:
 
         no_split = left_n_samples == 0 or right_n_samples == 0
 
-        # TODO: Generalize this for other uses
-        components = proj_mat.components_.toarray()
-        proj_vec = components[feature]
-        
-        # Debugging with regular tree
-        #proj_vec = proj_mat[feature]
+        proj_vec = proj_mat[:, feature]
 
         split_info = SplitInfo(
             feature,
@@ -837,8 +848,8 @@ class ObliqueTree:
             cur = self.nodes[0]
             while cur is not None and not cur.is_leaf:
                
-                proj_X = np.dot(X[i, :], cur.proj_vec)
-              
+                proj_X = X[i] @ cur.proj_vec
+
                 if proj_X < cur.threshold:
                     id = cur.left_child
                     cur = self.nodes[id]
