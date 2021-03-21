@@ -7,14 +7,12 @@ cimport cython
 import numpy as np
 
 from libcpp.unordered_map cimport unordered_map
-from libcpp.map cimport map as ordered_map
 from cython.operator import dereference, postincrement
 
 from libcpp.algorithm cimport sort as stdsort
 
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
-from libcpp cimport bool
 
 from cython.parallel import prange
 
@@ -204,7 +202,7 @@ cdef class BaseObliqueSplitter:
 
     def test(self):
 
-        # Test argsort, argmin
+        # Test argsort
         fy = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], dtype=np.float64)
         by = fy[::-1].copy()
         flat = np.array([2, 2, 2, 1, 1, 1, 0, 0, 0, 0], dtype=np.float64)
@@ -219,12 +217,24 @@ cdef class BaseObliqueSplitter:
         self.argsort(flat, idx)
         print(idx)
 
-
-        
+        # Test argmin
+        X = np.ones((3, 3), dtype=np.float64)
+        X[1, 1] = 0
+        print(self.argmin(X))
 
         # Test impurity
+        y = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1], dtype=np.float64)
+        print(self.impurity(y))
+
+        y = np.array([0, 0, 0, 1, 1, 1, 2, 2, 2], dtype=np.float64)
+        print(self.impurity(y))
+
+        y = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=np.float64)
+        print(self.impurity(y))
 
         # Test score
+        y = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1], dtype=np.float64)
+        s = [self.score(y, i) for i in range(10)]
+        print(s)
 
-        # Test best split
 

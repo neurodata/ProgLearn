@@ -414,6 +414,11 @@ class ObliqueSplitter:
         )
 
         proj_X = proj_mat.fit_transform(self.X[sample_inds, :])
+        
+        # Debugging - makes tree not oblique
+        #proj_mat = np.eye(self.X.shape[1])
+        #proj_X = self.X[sample_inds, :]
+
         return proj_X, proj_mat
 
     def leaf_label_proba(self, idx):
@@ -488,6 +493,9 @@ class ObliqueSplitter:
         # TODO: Generalize this for other uses
         components = proj_mat.components_.toarray()
         proj_vec = components[feature]
+        
+        # Debugging with regular tree
+        #proj_vec = proj_mat[feature]
 
         split_info = SplitInfo(
             feature,
@@ -1035,3 +1043,5 @@ class ObliqueTreeClassifier(BaseEstimator):
             proba[k] = np.log(proba[k])
 
         return proba
+
+
