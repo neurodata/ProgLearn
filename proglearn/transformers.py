@@ -376,7 +376,7 @@ class ObliqueSplitter:
         self.n_samples = X.shape[0]
         self.n_features = X.shape[1]
 
-        self.proj_dims = int(np.ceil(max_features * X.shape[1]))
+        self.proj_dims = int(max_features * self.n_features)
 
         self.random_state = random_state
         self.workers = workers
@@ -387,12 +387,13 @@ class ObliqueSplitter:
         self.root_impurity = 1 - np.sum(np.power(count, 2))
 
         # Density
-        self.density = 1 - feature_combinations / self.n_features
+        # Something is wack with the density
+        self.density = feature_combinations / self.n_features
 
         # Base oblique splitter in cython
         self.BOS = BaseObliqueSplitter()
 
-        # Temporary debugging, turns off oblique splits
+        # Temporary debugging parameter, turns off oblique splits
         self.debug = False
 
     def sample_proj_mat(self, sample_inds):
@@ -432,7 +433,7 @@ class ObliqueSplitter:
             proj_mat[neg_inds] = -1
             proj_mat[pos_inds] = 1
             proj_mat[mid_inds] = 0
-
+            
         proj_X = self.X[sample_inds, :] @ proj_mat
 
         return proj_X, proj_mat
