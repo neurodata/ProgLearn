@@ -153,8 +153,8 @@ ax.axis("off")
 ######################
 mean_error = unpickle("data/mean_xor_nxor_with_rep.pickle")
 
-n_xor = (100 * np.arange(0.5, 7.25, step=0.25)).astype(int)
-n_nxor = (100 * np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_xor = (100 * np.arange(0.5, 7.50, step=0.25)).astype(int)
+n_nxor = (100 * np.arange(0.25, 7.50, step=0.25)).astype(int)
 
 n1s = n_xor
 n2s = n_nxor
