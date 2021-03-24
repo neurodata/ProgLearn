@@ -197,7 +197,7 @@ def experiment(n_task1, n_task2, n_test=1000,
         errors[5] = 0.5
     else:
         progressive_learner.add_task(X_task1, y_task1, num_transformers=n_trees, transformer_voter_decider_split=[0.33, 0.33, 0.33])
-        progressive_learner.add_task(X_task2, y_task2, num_transformers=n_trees, transformer_voter_decider_split=[0.33, 0.33, 0.33])
+        progressive_learner.add_transformer(X_task2, y_task2, num_transformers=n_trees, transformer_voter_decider_split=[0.33, 0.33, 0.33])
 
         uf.add_task(X_task1, y_task1, num_transformers=2*n_trees)
         uf.add_task(X_task2, y_task2, num_transformers=2*n_trees)
@@ -238,6 +238,120 @@ def experiment(n_task1, n_task2, n_test=1000,
             naive_uf_task2 == test_label_task2
         )
 
+    return errors
+
+def experiment_KNN_BTE(n_task1, n_task2, n_test=1000, 
+                   angle_sweep=range(0,90,10), n_trees=10,
+                   max_depth=None, k_neighbors=1, random_state=None):
+
+    # See if the sample sizes for both training sets are given.
+    if n_task1 == 0 and n_task2 == 0:
+        raise ValueError("Wake up and provide samples to train!!!")
+
+    # If acorn is specified, set random seed to it.
+    if random_state != None:
+        np.random.seed(random_state)
+
+    # Initialize array for storing errors, task 1, and task 2.
+    errors = np.zeros(len(angle_sweep), dtype=float)
+
+    # Initialize the transformer type and arguments.
+    default_transformer_class = TreeClassificationTransformer
+    default_transformer_kwargs = {"kwargs": {"max_depth": max_depth}}
+
+    # Initialize the voter type and arguments.
+    default_voter_class = TreeClassificationVoter
+    default_voter_kwargs = {"classes" : np.arange(2)}
+
+    # Initialize the decider type and arguments.
+    default_decider_class = KNNClassificationDecider
+    default_decider_kwargs = {"classes" : np.arange(2), "k" : k_neighbors}
+
+    # Initialize the progressive learner using the transformer, voter and decider classes.
+    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                             default_transformer_kwargs = default_transformer_kwargs,
+                                             default_voter_class = default_voter_class,
+                                             default_voter_kwargs = default_voter_kwargs,
+                                             default_decider_class = default_decider_class,
+                                             default_decider_kwargs = default_decider_kwargs)
+
+    # Create the datasets with the Gaussian mean for task 1.
+    X_task1, y_task1 = generate_gaussian_parity(n_task1, angle_params=angle_sweep[0])
+    test_task1, test_label_task1 = generate_gaussian_parity(n_task1, angle_params=angle_sweep[0])
+
+    # Add a task for the task 1, predict the probabilities and add the MSE to the error array.
+    progressive_learner.add_task(X_task1, y_task1, transformer_voter_decider_split=[0.33, 0.33, 0.33])
+
+    l2f_task1 = progressive_learner.predict(test_task1, task_id=0)
+    errors[0] = np.mean(l2f_task1 == test_label_task1)
+
+    # Then, add the transformer trained on task 2, predict and add the MSE to the error array.
+    for i in range(len(angle_sweep)-1):
+        X2,Z2 = generate_gaussian_parity(n_task2, angle_params=angle_sweep[i+1])
+        progressive_learner.add_transformer(X2, Z2)
+
+        predicted_transformer_Z1 = progressive_learner.predict(test_task1, task_id=0)
+        errors[i+1] = np.mean(predicted_transformer_Z1 == test_label_task1)
+
+#     print(errors / errors[0])
+    
+    return errors
+
+def experiment_KNN_SimpleAverage(n_task1, n_task2, n_test=1000, 
+                   angle_sweep=range(0,90,10), n_trees=10,
+                   max_depth=None, random_state=None):
+
+    # See if the sample sizes for both training sets are given.
+    if n_task1 == 0 and n_task2 == 0:
+        raise ValueError("Wake up and provide samples to train!!!")
+
+    # If acorn is specified, set random seed to it.
+    if random_state != None:
+        np.random.seed(random_state)
+
+    # Initialize array for storing errors, task 1, and task 2.
+    errors = np.zeros(len(angle_sweep), dtype=float)
+
+    # Initialize the transformer type and arguments.
+    default_transformer_class = TreeClassificationTransformer
+    default_transformer_kwargs = {"kwargs": {"max_depth": max_depth}}
+
+    # Initialize the voter type and arguments.
+    default_voter_class = TreeClassificationVoter
+    default_voter_kwargs = {"classes" : np.arange(2)}
+
+    # Initialize the decider type and arguments.
+    default_decider_class = SimpleArgmaxAverage
+    default_decider_kwargs = {"classes" : np.arange(2)}
+
+    # Initialize the progressive learner using the transformer, voter and decider classes.
+    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class, 
+                                             default_transformer_kwargs = default_transformer_kwargs,
+                                             default_voter_class = default_voter_class,
+                                             default_voter_kwargs = default_voter_kwargs,
+                                             default_decider_class = default_decider_class,
+                                             default_decider_kwargs = default_decider_kwargs)
+
+    # Create the datasets with the Gaussian mean for task 1.
+    X_task1, y_task1 = generate_gaussian_parity(n_task1, angle_params=angle_sweep[0])
+    test_task1, test_label_task1 = generate_gaussian_parity(n_task1, angle_params=angle_sweep[0])
+
+    # Add a task for the task 1, predict the probabilities and add the MSE to the error array.
+    progressive_learner.add_task(X_task1, y_task1, transformer_voter_decider_split=[0.33, 0.33, 0.33])
+
+    l2f_task1 = progressive_learner.predict(test_task1, task_id=0)
+    errors[0] = np.mean(l2f_task1 == test_label_task1)
+
+    # Then, add the transformer trained on task 2, predict and add the MSE to the error array.
+    for i in range(len(angle_sweep)-1):
+        X2,Z2 = generate_gaussian_parity(n_task2, angle_params=angle_sweep[i+1])
+        progressive_learner.add_transformer(X2, Z2)
+
+        predicted_transformer_Z1 = progressive_learner.predict(test_task1, task_id=0)
+        errors[i+1] = np.mean(predicted_transformer_Z1 == test_label_task1)
+
+#     print(errors / errors[0])
+    
     return errors
 
 def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
