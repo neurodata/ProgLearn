@@ -146,19 +146,21 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
                 # vote.shape = (n_samples, n_classes)
                 vote_per_bag_id.append(vote)
 
-                prior_posterior_per_bag.append(transformer.prior_posterior_)
+                prior_posterior_per_bag.append(voter.prior_posterior_)
             # Each sample gets the average over transformers. Exclude all zeros in the mean
             # vote_per_bag_id.shape = (n_transformers, n_samples, n_classes)
             transformer_vote = np.sum(vote_per_bag_id, axis=0)
             num_transformers = np.sum(vote_per_bag_id, axis=2).sum(axis=0)[:, None]
-            vote_per_transformer_id.append(transformer_vote / num_transformers)
-            prior_posterior_per_id.append(np.mean(prior_posterior_per_bag))
+            vote_per_transformer_id.append(np.divide(
+                transformer_vote, num_transformers, out=np.zeros_like(transformer_vote), where=num_transformers!=0))
+                
+            prior_posterior_per_id.append(np.mean(prior_posterior_per_bag, axis=0))
         
         # vote_per_transformer_id.shape = (1, n_samples, n_classes)
         predicted_posteriors = np.mean(vote_per_transformer_id, axis=0)
         # Correction for samples not predicted by any tree
         unknown_sample_indices = np.where(np.sum(predicted_posteriors, axis=1) == 0)[0]
-        predicted_posteriors[unknown_sample_indices] = np.mean(prior_posterior_per_id)
+        predicted_posteriors[unknown_sample_indices] = np.mean(prior_posterior_per_id, axis=0)
 
         return predicted_posteriors
 

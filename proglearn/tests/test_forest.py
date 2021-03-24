@@ -131,6 +131,17 @@ def test_honest_prior(honest_prior):
     elif honest_prior in ('ignore', 'empirical'):
         assert all([np.diff(voter.prior_posterior_) < 0 for voter in uf.voters_])
 
-# @pytest.mark.parametrize("signal_ranks", [None, 2])
-def test_uf_params():
-    pass
+
+@pytest.mark.parametrize("honest_prior", ["empirical", "uniform", "ignore"])
+def test_empty_leaves(honest_prior):
+    np.random.seed(0)
+    X = np.random.normal(0, 1, (100, 2))
+    y = [0]*75 + [1]*25
+    uf = UncertaintyForest(n_estimators=1, honest_prior=honest_prior, tree_construction_proportion=0.96, kappa=np.inf)
+    uf = uf.fit(X, y)
+
+    y_proba = uf.predict_proba(X)
+    if honest_prior == 'uniform':
+        assert len(np.where(y_proba[:, 0] == 0.5)[0]) > 50
+    elif honest_prior in ('ignore', 'empirical'):
+        assert len(np.where(y_proba[:, 0] == 0.75)[0]) > 50

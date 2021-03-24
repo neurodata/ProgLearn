@@ -259,7 +259,8 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return self.pl_.predict_proba(check_array(X), task_id)
+        X = check_array(X)
+        return self.pl_.predict_proba(X, task_id)
 
     def predict(self, X, task_id):
         """
@@ -380,7 +381,7 @@ class UncertaintyForest:
         n_estimators=100,
         kappa=np.inf,
         max_depth=None,
-        tree_construction_proportion=0.5,
+        tree_construction_proportion=0.63,
         max_features="auto",
         poisson_sampler=False,
         max_samples=None,
