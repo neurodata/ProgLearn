@@ -386,11 +386,11 @@ class ObliqueSplitter:
         self.root_impurity = 1 - np.sum(np.power(count, 2))
 
         # proj_dims = d = mtry
-        self.proj_dims = int(max_features * self.n_features)
+        self.proj_dims = max(int(max_features * self.n_features), 1)
        
         # feature_combinations = mtry_mult
         # In processingNodeBin.h, mtryDensity = int(mtry * mtry_mult)
-        self.n_non_zeros = int(self.proj_dims * feature_combinations)
+        self.n_non_zeros = max(int(self.proj_dims * feature_combinations), 1)
 
         # Base oblique splitter in cython
         self.BOS = BaseObliqueSplitter()
