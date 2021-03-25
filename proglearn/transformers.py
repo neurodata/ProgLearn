@@ -426,15 +426,11 @@ class ObliqueSplitter:
         proj_mat[rand_feat, rand_dim] = weights
 
         # Need to remove zero vectors from projmat
-        valid_j = []
-        for j in range(self.proj_dims):
-            if np.any(proj_mat[:, j]):
-                valid_j.append(j)
-
-        proj_mat = proj_mat[:, valid_j]
+        proj_mat = proj_mat[:, np.unique(rand_dim)]
+        
+        print(proj_mat.shape)
         
         proj_X = self.X[sample_inds, :] @ proj_mat
-
         return proj_X, proj_mat
 
     def leaf_label_proba(self, idx):
@@ -969,7 +965,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         )
         self.tree.build()
 
-        print(self.tree.depth, self.tree.node_count)
+        #print(self.tree.depth, self.tree.node_count)
 
         return self
 
