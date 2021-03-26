@@ -184,10 +184,12 @@ class TreeClassificationVoter(BaseClassificationVoter):
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        correction_constant = 1 / (kappa * num_points_in_partition)
+        # correction_constant = 1 / (kappa * num_points_in_partition)
 
-        zero_posterior_idxs = np.where(posteriors == 0)[0]
-        posteriors[zero_posterior_idxs] = correction_constant
+        # zero_posterior_idxs = np.where(posteriors == 0)[0]
+        # posteriors[zero_posterior_idxs] = correction_constant
+
+        posteriors += self.prior_posterior_ / (kappa * num_points_in_partition)
 
         posteriors /= sum(posteriors)
 
