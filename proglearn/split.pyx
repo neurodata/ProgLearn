@@ -149,9 +149,9 @@ cdef class BaseObliqueSplitter:
         si_return = np.zeros(n_samples, dtype=np.intc)
         cdef int[:] si_return_view = si_return
         
-        # No split = just impurity of the whole thing
+        # No split or invalid split --> node impurity
         node_impurity = self.impurity(y)
-        Q_view[0, :] = node_impurity
+        Q_view[:, :] = node_impurity
         
         for j in range(0, proj_dims):
        
@@ -159,14 +159,17 @@ cdef class BaseObliqueSplitter:
             for i in range(0, n_samples):
                 temp_int = idx_view[i]
                 y_sort_view[i] = y[temp_int]
+                feat_sort_view[i] = X[temp_int, j]
 
-            # prev n_samples - 1. missing a split 
             for i in prange(1, n_samples, nogil=True):
-                Q_view[i, j] = self.score(y_sort_view, i)
+                
+                # Check if the split is valid!
+                if feat_sort_view[i-1] < feat_sort_view[i]:
+                    Q_view[i, j] = self.score(y_sort_view, i)
 
         # Identify best split
         (thresh_i, feature) = self.argmin(Q_view)
-        
+      
         best_gini = Q_view[thresh_i, feature]
         # Sort samples by split feature
         self.argsort(X[:, feature], idx_view)
@@ -184,7 +187,7 @@ cdef class BaseObliqueSplitter:
         
         # Get threshold, split samples into left and right
         if (thresh_i == 0):
-            threshold = feat_sort_view[thresh_i]
+            threshold = node_impurity #feat_sort_view[thresh_i]
         else:
             threshold = 0.5 * (feat_sort_view[thresh_i] + feat_sort_view[thresh_i - 1])
 
@@ -237,4 +240,14 @@ cdef class BaseObliqueSplitter:
         s = [self.score(y, i) for i in range(10)]
         print(s)
 
+        # Test splitter
+        # This one worked
+        X = np.array([[0, 0, 0, 1, 1, 1, 1],
+                      [1, 1, 1, 1, 1, 1, 1]], dtype=np.float64)
+        y = np.array([0, 0, 0, 1, 1, 1, 1], dtype=np.float64)
+        si = np.array([0, 1, 2, 3, 4, 5, 6], dtype=np.intc)
 
+        (f, t, li, lidx, ri, ridx, imp) = self.best_split(X, y, si)
+        print(f, t)
+
+        

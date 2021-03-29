@@ -376,7 +376,6 @@ class ObliqueSplitter:
         self.n_samples = X.shape[0]
         self.n_features = X.shape[1]
 
-
         self.random_state = random_state
         self.workers = workers
 
@@ -396,7 +395,7 @@ class ObliqueSplitter:
         self.BOS = BaseObliqueSplitter()
 
         # Temporary debugging parameter, turns off oblique splits
-        self.debug = False
+        self.debug = True
 
     def sample_proj_mat(self, sample_inds):
         """
@@ -427,8 +426,6 @@ class ObliqueSplitter:
 
         # Need to remove zero vectors from projmat
         proj_mat = proj_mat[:, np.unique(rand_dim)]
-        
-        print(proj_mat.shape)
         
         proj_X = self.X[sample_inds, :] @ proj_mat
         return proj_X, proj_mat
@@ -484,6 +481,7 @@ class ObliqueSplitter:
         n_samples = len(sample_inds)
 
         # Assign types to everything
+        # TODO: assign types when making the splitter class. This is silly.
         proj_X = np.array(proj_X, dtype=np.float64)
         y_sample = np.array(y_sample, dtype=np.float64)
         sample_inds = np.array(sample_inds, dtype=np.intc)
@@ -496,7 +494,7 @@ class ObliqueSplitter:
         right_impurity, 
         right_idx, 
         improvement) = self.BOS.best_split(proj_X, y_sample, sample_inds)
-
+    
         left_n_samples = len(left_idx)
         right_n_samples = len(right_idx)
 
@@ -964,8 +962,6 @@ class ObliqueTreeClassifier(BaseEstimator):
             self.min_impurity_decrease,
         )
         self.tree.build()
-
-        #print(self.tree.depth, self.tree.node_count)
 
         return self
 
