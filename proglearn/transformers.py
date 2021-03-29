@@ -376,7 +376,6 @@ class ObliqueSplitter:
         self.n_samples = X.shape[0]
         self.n_features = X.shape[1]
 
-        self.proj_dims = int(max_features * self.n_features)
 
         self.random_state = random_state
         self.workers = workers
@@ -386,9 +385,12 @@ class ObliqueSplitter:
         count = count / len(y)
         self.root_impurity = 1 - np.sum(np.power(count, 2))
 
-        # Density
-        # Something is wack with the density
-        self.density = feature_combinations / self.n_features
+        # proj_dims = d = mtry
+        self.proj_dims = max(int(max_features * self.n_features), 1)
+       
+        # feature_combinations = mtry_mult
+        # In processingNodeBin.h, mtryDensity = int(mtry * mtry_mult)
+        self.n_non_zeros = max(int(self.proj_dims * feature_combinations), 1)
 
         # Base oblique splitter in cython
         self.BOS = BaseObliqueSplitter()
@@ -416,26 +418,19 @@ class ObliqueSplitter:
         if self.debug:
             return self.X[sample_inds, :], np.eye(self.n_features)
 
-        # Edge case for fully dense matrix
-        if self.density == 1:
-            proj_mat = rng.binomial(1, 0.5, (self.n_features, self.proj_dims)) * 2 - 1
+        # This is the way its done in the C++
+        proj_mat = np.zeros((self.n_features, self.proj_dims))
+        rand_feat = rng.randint(self.n_features, size=self.n_non_zeros)
+        rand_dim = rng.randint(self.proj_dims, size=self.n_non_zeros)
+        weights = [1 if rng.rand() > 0.5 else -1 for i in range(self.n_non_zeros)]
+        proj_mat[rand_feat, rand_dim] = weights
 
-        # Sample random matrix and build it on that
-        else:
-
-            proj_mat = rng.rand(self.n_features, self.proj_dims)
-            prob = 0.5 * self.density
-
-            neg_inds = np.where(proj_mat <= prob)
-            pos_inds = np.where(proj_mat >= 1 - prob)
-            mid_inds = np.where((proj_mat > prob) & (proj_mat < 1 - prob))
-
-            proj_mat[neg_inds] = -1
-            proj_mat[pos_inds] = 1
-            proj_mat[mid_inds] = 0
-            
+        # Need to remove zero vectors from projmat
+        proj_mat = proj_mat[:, np.unique(rand_dim)]
+        
+        print(proj_mat.shape)
+        
         proj_X = self.X[sample_inds, :] @ proj_mat
-
         return proj_X, proj_mat
 
     def leaf_label_proba(self, idx):
@@ -969,6 +964,9 @@ class ObliqueTreeClassifier(BaseEstimator):
             self.min_impurity_decrease,
         )
         self.tree.build()
+
+        #print(self.tree.depth, self.tree.node_count)
+
         return self
 
     def apply(self, X):
