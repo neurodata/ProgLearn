@@ -395,7 +395,7 @@ class ObliqueSplitter:
         self.BOS = BaseObliqueSplitter()
 
         # Temporary debugging parameter, turns off oblique splits
-        self.debug = True
+        self.debug = False
 
     def sample_proj_mat(self, sample_inds):
         """
