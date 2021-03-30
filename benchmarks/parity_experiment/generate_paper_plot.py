@@ -151,7 +151,8 @@ ax.set_title("Aiii. Gaussian R-XOR", fontsize=30)
 ax.axis("off")
 
 ######################
-mean_error = unpickle("data/mean_xor_nxor_with_rep.pickle")
+#mean_error = unpickle("data/mean_xor_nxor_with_rep.pickle")
+mean_error = unpickle("data/mean_xor_nxor_nn.pickle")
 
 n_xor = (100 * np.arange(0.5, 7.50, step=0.25)).astype(int)
 n_nxor = (100 * np.arange(0.25, 7.50, step=0.25)).astype(int)
@@ -161,7 +162,7 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls = ["-", "--"]
-algorithms = ["XOR Forest", "N-XOR Forest", "Omnidirectional Forest (Odif)", "Random Forest (RF)"]
+algorithms = ["XOR NN", "N-XOR NN", "Omnidirectional Network (Odin)", "Neural Network (NN)"]
 
 
 TASK1 = "XOR"
@@ -209,14 +210,14 @@ top_side.set_visible(False)
 
 ax1.set_yscale('log')
 ax1.yaxis.set_major_formatter(ScalarFormatter())
-ax1.set_yticks([0.1, 0.3, 0.5])
+ax1.set_yticks([0.1,.2, 0.3, 0.4, 0.5])
 ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 
 #######################
-mean_error = unpickle("data/mean_xor_nxor_with_rep.pickle")
+mean_error = unpickle("data/mean_xor_nxor_nn.pickle")
 
-algorithms = ["XOR Forest", "N-XOR Forest", "Omnidirectional Forest (Odif)", "Random Forest (RF)"]
+algorithms = ["XOR NN", "N-XOR NN", "Omnidirectional Network (Odin)", "Neural Network (NN)"]
 
 TASK1 = "XOR"
 TASK2 = "XNOR"
@@ -264,7 +265,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 ax1.set_title("Bii. XNOR", fontsize=30)
 
 ##################
-mean_te = unpickle("data/mean_te_xor_nxor.pickle")
+mean_te = unpickle("data/mean_te_xor_nxor_nn.pickle")
 algorithms = ["Odif BTE", "Odif FTE", "RF BTE", "RF FTE"]
 
 TASK1 = "XOR"
@@ -317,7 +318,7 @@ ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
 ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 ax1.set_title("Biii.", fontsize=30)
 ######################
-mean_te = unpickle("data/mean_te_xor_rxor_with_rep.pickle")
+mean_te = unpickle("data/mean_te_xor_rxor_nn.pickle")
 algorithms = ["Lifelong BTE", "Lifelong FTE", "Naive BTE", "Naive FTE"]
 
 TASK1 = "XOR"
@@ -372,9 +373,9 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 ax1.set_title("Ci.", fontsize=30)
 ########################################################
 ax = fig.add_subplot(gs[15:21, 10:16])
-with open("data/mean_angle_te_with_rep.pickle", "rb") as f:
+with open("data/mean_angle_te_nn.pickle", "rb") as f:
     te = pickle.load(f)
-angle_sweep = range(0, 90, 1)
+angle_sweep = range(0, 91, 1)
 
 ax.plot(angle_sweep, te, c="r", linewidth=3)
 ax.set_xticks(range(0, 91, 45))
@@ -384,7 +385,7 @@ ax.set_ylabel("log Backward TE (XOR)", fontsize=fontsize)
 ax.set_ylim(0.89, 1.32)
 ax.set_yticks([0.9, 1, 1.1, 1.2, 1.3])
 
-ax.set_xlabel("Total Sample Size", fontsize=fontsize)
+ax.set_xlabel("Angle of rotation (degree)", fontsize=fontsize)
 log_lbl = np.round(
     np.log([0.9, 1, 1.1, 1.2, 1.3]),
     2
@@ -405,9 +406,9 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.set_title("Cii.", fontsize=30)
 #####################################
-ax = fig.add_subplot(gs[15:21, 18:24])
+'''ax = fig.add_subplot(gs[15:21, 18:24])
 
-with open("data/mean_sample_te_with_rep.pickle", "rb") as f:
+with open("data/mean_sample_te_nn.pickle", "rb") as f:
     te = pickle.load(f)
 task2_sample_sweep = (2 ** np.arange(np.log2(60), np.log2(5010) + 1, 0.25)).astype(
     "int"
@@ -448,7 +449,7 @@ right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
-ax.set_title("Ciii.", fontsize=30)
+ax.set_title("Ciii.", fontsize=30)'''
 
-plt.savefig("./plots/parity_exp.pdf")
+plt.savefig("./plots/parity_exp_nn.pdf")
 # %%
