@@ -1,6 +1,43 @@
 from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 import os
+import sys
+import platform
+
+if platform.python_implementation() == 'PyPy':
+    SCIPY_MIN_VERSION = '1.1.0'
+    NUMPY_MIN_VERSION = '1.14.0'
+else:
+    SCIPY_MIN_VERSION = '0.17.0'
+    NUMPY_MIN_VERSION = '1.11.0'
+
+# Optional setuptools features
+# We need to import setuptools early, if we want setuptools features,
+# as it monkey-patches the 'setup' function
+# For some commands, use setuptools
+SETUPTOOLS_COMMANDS = {
+    'develop', 'release', 'bdist_egg', 'bdist_rpm',
+    'bdist_wininst', 'install_egg_info', 'build_sphinx',
+    'egg_info', 'easy_install', 'upload', 'bdist_wheel',
+    '--single-version-externally-managed',
+}
+if SETUPTOOLS_COMMANDS.intersection(sys.argv):
+    import setuptools
+
+    extra_setuptools_args = dict(
+        zip_safe=False,  # the package can run out of an .egg file
+        include_package_data=True,
+        extras_require={
+            'alldeps': (
+                'numpy >= {}'.format(NUMPY_MIN_VERSION),
+                'scipy >= {}'.format(SCIPY_MIN_VERSION),
+            ),
+        },
+    )
+else:
+    extra_setuptools_args = dict()
+
+
 
 # Find mgc version.
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -17,10 +54,10 @@ with open("requirements.txt", mode="r", encoding = "utf8") as f:
 # Cythonize splitter
 ext_modules = [
         Extension(
-            "split",
+            "proglearn/split",
             ["proglearn/split.pyx"],
-            extra_compile_args=["-fopenmp"],
-            extra_link_args=["-fopenmp"],
+            extra_compile_args=["-Xpreprocessor", "-fopenmp",],
+            extra_link_args=["-Xpreprocessor", "-fopenmp"],
             language="c++"
         )
 ]

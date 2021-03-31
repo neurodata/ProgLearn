@@ -14,7 +14,7 @@ from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 from .base import BaseTransformer
 
-from split import BaseObliqueSplitter
+from .split import BaseObliqueSplitter
 
 class NeuralClassificationTransformer(BaseTransformer):
     """
@@ -364,7 +364,7 @@ class ObliqueSplitter:
         Determines the best possible split for the given set of samples.
     """
 
-    def __init__(self, X, y, max_features, feature_combinations, random_state, workers):
+    def __init__(self, X, y, max_features, feature_combinations, random_state):
 
         self.X = np.array(X, dtype=np.float64)
         self.y = np.array(y, dtype=np.float64)
@@ -377,7 +377,6 @@ class ObliqueSplitter:
         self.n_features = X.shape[1]
 
         self.random_state = random_state
-        self.workers = workers
 
         # Compute root impurity
         unique, count = np.unique(y, return_counts=True)
