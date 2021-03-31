@@ -1,8 +1,19 @@
 import numpy as np
-from sklearn.utils import check_random_state
-from proglearn.transformers import ObliqueTreeClassifier, ObliqueSplitter
-from proglearn.split import BaseObliqueSplitter
 import numpy.random as rng
+from scipy.sparse import issparse
+from sklearn.base import is_classifier
+from sklearn.tree import _tree
+from sklearn.utils import check_random_state
+
+from proglearn.split import BaseObliqueSplitter
+from proglearn.transformers import ObliqueSplitter, ObliqueTreeClassifier, ObliqueTree
+
+# =============================================================================
+# Types and constants
+# =============================================================================
+
+DTYPE = _tree.DTYPE
+DOUBLE = _tree.DOUBLE
 
 
 def _check_symmetric(a, rtol=1e-05, atol=1e-08):
@@ -31,22 +42,24 @@ class Conv2DSplitter(ObliqueSplitter):
         controls the density of the projection matrix
     random_state : int
         Controls the pseudo random number generator used to generate the projection matrix.
-    image_height : [type], optional
-        [description], by default None
-    image_width : [type], optional
-        [description], by default None
-    patch_height_max : [type], optional
-        [description], by default None
-    patch_height_min : int, optional
-        [description], by default 1
-    patch_width_max : [type], optional
-        [description], by default None
-    patch_width_min : int, optional
-        [description], by default 1
-    discontiguous_height : bool, optional
-        [description], by default False
-    discontiguous_width : bool, optional
-        [description], by default False
+    image_height : int, optional (default=None)
+        MORF required parameter. Image height of each observation.
+    image_width : int, optional (default=None)
+        MORF required parameter. Width of each observation.
+    patch_height_max : int, optional (default=max(2, floor(sqrt(image_height))))
+        MORF parameter. Maximum image patch height to randomly select from.
+        If None, set to ``max(2, floor(sqrt(image_height)))``.
+    patch_height_min : int, optional (default=1)
+        MORF parameter. Minimum image patch height to randomly select from.
+    patch_width_max : int, optional (default=max(2, floor(sqrt(image_width))))
+        MORF parameter. Maximum image patch width to randomly select from.
+        If None, set to ``max(2, floor(sqrt(image_width)))``.
+    patch_width_min : int (default=1)
+        MORF parameter. Minimum image patch height to randomly select from.
+    discontiguous_height : bool, optional (defaul=False)
+        Whether or not the rows of the patch are taken discontiguously or not.
+    discontiguous_width : bool, optional (default=False)
+        Whether or not the columns of the patch are taken discontiguously or not.
 
     Methods
     -------
@@ -84,65 +97,38 @@ class Conv2DSplitter(ObliqueSplitter):
             feature_combinations=feature_combinations,
             random_state=random_state,
         )
-
-        # Check that image_height and image_width are divisors of
-        # the num_features.  This is the most we can do to
-        # prevent an invalid value being passed in.
-        if (self.n_features % image_height) != 0:
-            raise ValueError("Incorrect image_height given:")
-        else:
-            self.image_height = image_height
-        if (self.n_features % image_width) != 0:
-            raise ValueError("Incorrect image_width given:")
-        else:
-            self.image_width = image_width
-
-        # If patch_height_{min, max} and patch_width_{min, max} are
-        # not set by the user, set them to defaults.
-        if patch_height_max is None:
-            self.patch_height_max_ = max(2, np.floor(np.sqrt(self.image_height)))
-        else:
-            self.patch_height_max = patch_height_max
-        if patch_width_max is None:
-            self.patch_width_max = max(2, np.floor(np.sqrt(self.image_width)))
-        else:
-            self.patch_width_max = patch_width_max
-        if 1 <= patch_height_min <= self.patch_height_max:
-            self.patch_height_min = patch_height_min
-        else:
-            raise ValueError("Incorrect patch_height_min")
-        if 1 <= patch_width_min <= self.patch_width_max:
-            self.patch_width_min = patch_width_min
-        else:
-            raise ValueError("Incorrect patch_width_min")
-
         # set sample dimensions
+        self.image_height = image_height
+        self.image_width = image_width
+        self.patch_height_max = patch_height_max
+        self.patch_width_max = patch_width_max
+        self.patch_height_min = patch_height_min
+        self.patch_width_min = patch_width_min
         self.axis_sample_dims = [
             (patch_height_min, patch_height_max),
             (patch_width_min, patch_width_max),
         ]
         self.structured_data_shape = [image_height, image_width]
+        self.discontiguous_height = discontiguous_height
+        self.disontiguous_width = discontiguous_width
         self.debug = debug
 
-    def _get_rand_patch_idx(self):
+    def _get_rand_patch_idx(self, rand_height, rand_width):
         """Generates a random patch on the original data to consider as feature combination.
 
         This function assumes that data samples were vectorized. Thus contiguous convolutional
-        patches are defined based on the top left corner.
+        patches are defined based on the top left corner. If the convolutional patch
+        is "discontiguous", then any random point can be chosen.
+
+        TODO:
+        - refactor to optimize for discontiguous and contiguous case
+        - currently pretty slow because being constructed and called many times
 
         Returns
         -------
         height_width_top : tuple of (height, width, topleft point)
             [description]
         """
-        # A vector of vectors that specifies the parameters
-        # for each patch: <Height>, <Width>, <TopLeft>
-        # height_width_top = []
-
-        # generate a random height and width of the patch
-        rand_height = rng.randint(self.patch_height_min, self.patch_height_max)
-        rand_width = rng.randint(self.patch_width_min, self.patch_width_max)
-
         # XXX: results in edge effect on the RHS of the structured data...
         # compute the difference between the image dimension and current random
         # patch dimension
@@ -158,7 +144,34 @@ class Conv2DSplitter(ObliqueSplitter):
             + (self.image_width * np.floor(top_left_point / delta_width))
         )
 
-        return (rand_height, rand_width, vectorized_start_idx)
+        # get the (x_1, x_2) coordinate in 2D array of sample
+        multi_idx = self._compute_vectorized_index_in_data(vectorized_start_idx)
+
+        if self.debug:
+            print(vec_idx, multi_idx, rand_height, rand_width)
+
+        # get random row and column indices
+        if self.discontiguous_height:
+            row_idx = np.random.choice(
+                self.image_height, size=rand_height, replace=False
+            )
+        else:
+            row_idx = np.arange(multi_idx[0], multi_idx[0] + rand_height)
+        if self.disontiguous_width:
+            col_idx = np.random.choice(self.image_width, size=rand_width, replace=False)
+        else:
+            col_idx = np.arange(multi_idx[1], multi_idx[1] + rand_width)
+
+        # create index arrays in the 2D image
+        structured_patch_idxs = np.ix_(
+            row_idx,
+            col_idx,
+        )
+
+        # get the patch vectorized indices
+        patch_idxs = self._compute_index_in_vectorized_data(structured_patch_idxs)
+
+        return patch_idxs
 
     def _compute_index_in_vectorized_data(self, idx):
         return np.ravel_multi_index(
@@ -194,32 +207,232 @@ class Conv2DSplitter(ObliqueSplitter):
         # combinations
         proj_mat = np.zeros((self.n_features, self.proj_dims))
 
+        # generate random heights and widths of the patch. Note add 1 because numpy
+        # needs is exclusive of the high end of interval
+        rand_heights = rng.randint(
+            self.patch_height_min, self.patch_height_max + 1, size=self.proj_dims
+        )
+        rand_widths = rng.randint(
+            self.patch_width_min, self.patch_width_max + 1, size=self.proj_dims
+        )
+
         # loop over mtry to load random patch dimensions and the
         # top left position
         # Note: max_features is aka mtry
         for idx in range(self.proj_dims):
+            rand_height = rand_heights[idx]
+            rand_width = rand_widths[idx]
             # get patch positions
-            height_width_top = self._get_rand_patch_idx()
-            rand_height, rand_width, vectorized_start_idx = height_width_top
-
-            # get the (x_1, x_2) coordinate in 2D array of sample
-            multi_idx = self._compute_vectorized_index_in_data(vectorized_start_idx)
-
-            if self.debug:
-                print(idx, vectorized_start_idx, multi_idx, rand_height, rand_width)
-            structured_patch_idxs = np.ix_(
-                np.arange(multi_idx[0], multi_idx[0] + rand_height),
-                np.arange(multi_idx[1], multi_idx[1] + rand_width),
+            patch_idxs = self._get_rand_patch_idx(
+                rand_height=rand_height, rand_width=rand_width
             )
-
-            # get the patch vectorized indices
-            patch_idxs = self._compute_index_in_vectorized_data(structured_patch_idxs)
 
             # get indices for this patch
             proj_mat[patch_idxs, idx] = 1
 
         proj_X = self.X[sample_inds, :] @ proj_mat
         return proj_X, proj_mat
+
+
+class Conv2DObliqueTreeClassifier(ObliqueTreeClassifier):
+    """[summary]
+
+    Parameters
+    ----------
+    n_estimators : int, optional
+        [description], by default 500
+    max_depth : [type], optional
+        [description], by default None
+    min_samples_split : int, optional
+        [description], by default 1
+    min_samples_leaf : int, optional
+        [description], by default 1
+    min_impurity_decrease : int, optional
+        [description], by default 0
+    min_impurity_split : int, optional
+        [description], by default 0
+    feature_combinations : float, optional
+        [description], by default 1.5
+    max_features : int, optional
+        [description], by default 1
+    image_height : int, optional (default=None)
+        MORF required parameter. Image height of each observation.
+    image_width : int, optional (default=None)
+        MORF required parameter. Width of each observation.
+    patch_height_max : int, optional (default=max(2, floor(sqrt(image_height))))
+        MORF parameter. Maximum image patch height to randomly select from.
+        If None, set to ``max(2, floor(sqrt(image_height)))``.
+    patch_height_min : int, optional (default=1)
+        MORF parameter. Minimum image patch height to randomly select from.
+    patch_width_max : int, optional (default=max(2, floor(sqrt(image_width))))
+        MORF parameter. Maximum image patch width to randomly select from.
+        If None, set to ``max(2, floor(sqrt(image_width)))``.
+    patch_width_min : int (default=1)
+        MORF parameter. Minimum image patch height to randomly select from.
+    discontiguous_height : bool, optional (defaul=False)
+        Whether or not the rows of the patch are taken discontiguously or not.
+    discontiguous_width : bool, optional (default=False)
+        Whether or not the columns of the patch are taken discontiguously or not.
+    bootstrap : bool, optional
+        [description], by default True
+    n_jobs : [type], optional
+        [description], by default None
+    random_state : [type], optional
+        [description], by default None
+    warm_start : bool, optional
+        [description], by default False
+    verbose : int, optional
+        [description], by default 0
+    """
+
+    def __init__(
+        self,
+        *,
+        n_estimators=500,
+        max_depth=np.inf,
+        min_samples_split=1,
+        min_samples_leaf=1,
+        min_impurity_decrease=0,
+        min_impurity_split=0,
+        feature_combinations=1.5,
+        max_features=1,
+        image_height=None,
+        image_width=None,
+        patch_height_max=None,
+        patch_height_min=1,
+        patch_width_max=None,
+        patch_width_min=1,
+        discontiguous_height=False,
+        discontiguous_width=False,
+        bootstrap=True,
+        n_jobs=None,
+        random_state=None,
+        warm_start=False,
+        verbose=0,
+    ):
+        super(Conv2DObliqueTreeClassifier, self).__init__(
+            max_depth=max_depth,
+            min_samples_split=min_samples_split,
+            min_samples_leaf=min_samples_leaf,
+            min_impurity_decrease=min_impurity_decrease,
+            feature_combinations=feature_combinations,
+            max_features=max_features,
+            random_state=random_state,
+            n_jobs=n_jobs,
+        )
+
+        # refactor these to go inside ObliqueTreeClassifier
+        self.bootstrap = bootstrap
+        self.warm_start = warm_start
+        self.verbose = verbose
+
+        # s-rerf params
+        self.discontiguous_height = discontiguous_height
+        self.discontiguous_width = discontiguous_width
+        self.image_height = image_height
+        self.image_width = image_width
+        self.patch_height_max = patch_height_max
+        self.patch_height_min = patch_height_min
+        self.patch_width_max = patch_width_max
+        self.patch_width_min = patch_width_min
+
+    def _check_patch_params(self):
+        # Check that image_height and image_width are divisors of
+        # the num_features.  This is the most we can do to
+        # prevent an invalid value being passed in.
+        if (self.n_features_ % self.image_height) != 0:
+            raise ValueError("Incorrect image_height given:")
+        else:
+            self.image_height_ = self.image_height
+        if (self.n_features_ % self.image_width) != 0:
+            raise ValueError("Incorrect image_width given:")
+        else:
+            self.image_width_ = self.image_width
+
+        # If patch_height_{min, max} and patch_width_{min, max} are
+        # not set by the user, set them to defaults.
+        if self.patch_height_max is None:
+            self.patch_height_max_ = max(2, np.floor(np.sqrt(self.image_height_)))
+        else:
+            self.patch_height_max_ = self.patch_height_max
+        if self.patch_width_max is None:
+            self.patch_width_max_ = max(2, np.floor(np.sqrt(self.image_width_)))
+        else:
+            self.patch_width_max_ = self.patch_width_max
+        if 1 <= self.patch_height_min <= self.patch_height_max_:
+            self.patch_height_min_ = self.patch_height_min
+        else:
+            raise ValueError("Incorrect patch_height_min")
+        if 1 <= self.patch_width_min <= self.patch_width_max_:
+            self.patch_width_min_ = self.patch_width_min
+        else:
+            raise ValueError("Incorrect patch_width_min")
+
+    def fit(self, X, y, sample_weight=None):
+        # check random state - sklearn
+        random_state = check_random_state(self.random_state)
+
+        # check_X_params = dict(dtype=DTYPE, accept_sparse="csc")
+        # check_y_params = dict(ensure_2d=False, dtype=None)
+        # X, y = self._validate_data(
+        #     X, y, validate_separately=(check_X_params, check_y_params)
+        # )
+        # if issparse(X):
+        #     X.sort_indices()
+
+        #     if X.indices.dtype != np.intc or X.indptr.dtype != np.intc:
+        #         raise ValueError(
+        #             "No support for np.int64 index based " "sparse matrices"
+        #         )
+
+        # Determine output settings
+        n_samples, self.n_features_ = X.shape
+        self.n_features_in_ = self.n_features_
+
+        # check patch parameters
+        self._check_patch_params()
+
+        # mark if tree is used for classification
+        is_classification = is_classifier(self)
+
+        y = np.atleast_1d(y)
+        expanded_class_weight = None
+
+        if y.ndim == 1:
+            # reshape is necessary to preserve the data contiguity against vs
+            # [:, np.newaxis] that does not.
+            y = np.reshape(y, (-1, 1))
+
+        self.n_outputs_ = y.shape[1]
+
+        # create the splitter
+        splitter = Conv2DSplitter(
+            X,
+            y,
+            self.max_features,
+            self.feature_combinations,
+            self.random_state,
+            self.image_height_,
+            self.image_width_,
+            self.patch_height_max_,
+            self.patch_height_min_,
+            self.patch_width_max_,
+            self.patch_width_min_,
+            self.discontiguous_height,
+            self.discontiguous_width,
+        )
+
+        # create the Oblique tree
+        self.tree = ObliqueTree(
+            splitter,
+            self.min_samples_split,
+            self.min_samples_leaf,
+            self.max_depth,
+            self.min_impurity_split,
+            self.min_impurity_decrease,
+        )
+        self.tree.build()
+        return self
 
 
 # XXX: refactor to: convolutional splitter, graph splitter
@@ -284,7 +497,7 @@ class MorfObliqueSplitter(ObliqueSplitter):
             max_features=max_features,
             feature_combinations=feature_combinations,
             random_state=random_state,
-            workers=n_jobs,
+            n_jobs=n_jobs,
         )
 
         if axis_sample_graphs is None and axis_data_dims is None:
@@ -439,94 +652,3 @@ class MorfObliqueSplitter(ObliqueSplitter):
         proj_X = self.X[sample_inds, :] @ proj_mat
 
         return proj_X, proj_mat
-
-
-class ManifoldObliqueTreeClassifier(ObliqueTreeClassifier):
-    """"""
-
-    def __init__(
-        self,
-        *,
-        n_estimators=500,
-        max_depth=None,
-        min_samples_split=1,
-        min_samples_leaf=1,
-        min_impurity_decrease=0,
-        min_impurity_split=0,
-        bootstrap=True,
-        feature_combinations=1.5,
-        max_features=1,
-        n_jobs=None,
-        random_state=None,
-        warm_start=False,
-        verbose=0,
-    ):
-
-        super(ManifoldObliqueTreeClassifier, self).__init__(
-            max_depth=max_depth,
-            min_samples_split=min_samples_split,
-            min_samples_leaf=min_samples_leaf,
-            min_impurity_decrease=min_impurity_decrease,
-            feature_combinations=feature_combinations,
-            max_features=max_features,
-            random_state=random_state,
-        )
-        self.bootstrap = bootstrap
-        self.n_jobs = n_jobs
-        self.warm_start = warm_start
-        self.verbose = verbose
-
-    def fit(self, X, y, sample_weight=None):
-
-        # check random state - sklearn
-        random_state = check_random_state(self.random_state)
-
-        check_X_params = dict(dtype=DTYPE, accept_sparse="csc")
-        check_y_params = dict(ensure_2d=False, dtype=None)
-        X, y = self._validate_data(
-            X, y, validate_separately=(check_X_params, check_y_params)
-        )
-        if issparse(X):
-            X.sort_indices()
-
-            if X.indices.dtype != np.intc or X.indptr.dtype != np.intc:
-                raise ValueError(
-                    "No support for np.int64 index based " "sparse matrices"
-                )
-
-        # Determine output settings
-        n_samples, self.n_features_ = X.shape
-        self.n_features_in_ = self.n_features_
-        is_classification = is_classifier(self)
-
-        y = np.atleast_1d(y)
-        expanded_class_weight = None
-
-        if y.ndim == 1:
-            # reshape is necessary to preserve the data contiguity against vs
-            # [:, np.newaxis] that does not.
-            y = np.reshape(y, (-1, 1))
-
-        self.n_outputs_ = y.shape[1]
-
-        # create the splitter
-        splitter = MorfSplitter(
-            X,
-            y,
-            self.max_features,
-            self.feature_combinations,
-            self.random_state,
-            self.workers,
-        )
-
-        # create the Oblique tree
-        self.tree = ObliqueTree(
-            splitter,
-            self.min_samples_split,
-            self.min_samples_leaf,
-            self.max_depth,
-            self.min_impurity_split,
-            self.min_impurity_decrease,
-        )
-        self.tree.build()
-        return self

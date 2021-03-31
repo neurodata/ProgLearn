@@ -343,7 +343,7 @@ class ObliqueSplitter:
         controls the density of the projection matrix
     random_state : int
         Controls the pseudo random number generator used to generate the projection matrix.
-    workers : int
+    n_jobs : int
         The number of cores to parallelize the calculation of Gini impurity.
         Supply -1 to use all cores available to the Process.
 
@@ -882,7 +882,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         The feature combinations to use for the oblique split.
     max_features : float
         Output dimension = max_features * dimension
-    workers : int, optional (default: -1)
+    n_jobs : int, optional (default: -1)
         The number of cores to parallelize the calculation of Gini impurity.
         Supply -1 to use all cores available to the Process.
 
@@ -909,10 +909,9 @@ class ObliqueTreeClassifier(BaseEstimator):
         random_state=None,
         min_impurity_decrease=0,
         min_impurity_split=0,
-        
         feature_combinations=2,
         max_features=1,
-        workers=-1,
+        n_jobs=-1,
     ):
 
         # RF parameters
@@ -929,7 +928,7 @@ class ObliqueTreeClassifier(BaseEstimator):
 
         # Max features
         self.max_features = max_features
-        self.workers = workers
+        self.n_jobs = n_jobs
 
     def fit(self, X, y):
         """
@@ -949,7 +948,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         """
 
         splitter = ObliqueSplitter(
-            X, y, self.max_features, self.feature_combinations, self.random_state, self.workers
+            X, y, self.max_features, self.feature_combinations, self.random_state, self.n_jobs
         )
 
         self.tree = ObliqueTree(
