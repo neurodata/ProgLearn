@@ -203,37 +203,29 @@ cdef class BaseObliqueSplitter:
 
         return feature, threshold, left_impurity, left_idx, right_impurity, right_idx, improvement 
 
+    """
+    Python wrappers for cdef functions.
+    Only to be used for testing purposes.
+    """
+
+    def test_argsort(self, y):
+        idx = np.zeros(len(y), dtype=np.intc)
+        self.argsort(y, idx)
+        return idx
+
+    def test_argmin(self, M):
+        return self.argmin(M)
+
+    def test_impurity(self, y):
+        return self.impurity(y)
+
+    def test_score(self, y, t):
+        return self.score(y, t)
+
+    def test_best_split(self, X, y, idx):
+        return self.best_split(X, y, idx)
+
     def test(self):
-
-        # Test argsort
-        fy = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], dtype=np.float64)
-        by = fy[::-1].copy()
-        flat = np.array([2, 2, 2, 1, 1, 1, 0, 0, 0, 0], dtype=np.float64)
-        idx = np.zeros(10, dtype=np.intc)
-
-        self.argsort(fy, idx)
-        print(idx)
-
-        self.argsort(by, idx)
-        print(idx)
-
-        self.argsort(flat, idx)
-        print(idx)
-
-        # Test argmin
-        X = np.ones((3, 3), dtype=np.float64)
-        X[1, 1] = 0
-        print(self.argmin(X))
-
-        # Test impurity
-        y = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1], dtype=np.float64)
-        print(self.impurity(y))
-
-        y = np.array([0, 0, 0, 1, 1, 1, 2, 2, 2], dtype=np.float64)
-        print(self.impurity(y))
-
-        y = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=np.float64)
-        print(self.impurity(y))
 
         # Test score
         y = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1], dtype=np.float64)

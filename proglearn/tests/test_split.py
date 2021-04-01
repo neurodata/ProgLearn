@@ -135,9 +135,63 @@ class TestBaseSplitter:
 
     def test_secondFeature(self):
 
-        pass
+        b = BOS()
 
+        y = np.ones(6, dtype=np.float64) * 4
+        y[:3] = 2
+        X = np.array([[10, 5, 10, 5, 10, 5]], dtype=np.float64).T
+        idx = np.array([i for i in range(6)], dtype=np.intc)
 
+        (feat, 
+         thresh, 
+         left_imp, 
+         left_idx, 
+         right_imp, 
+         right_idx,
+         improvement) = b.best_split(X, y, idx)
+  
+        assert 7.5 == thresh
+        assert 0 < left_imp
+        assert_almost_equal(left_imp, right_imp)
+
+        X[:] = 8
+        X[:3] = 4
+
+        (feat, 
+         thresh, 
+         left_imp, 
+         left_idx, 
+         right_imp, 
+         right_idx,
+         improvement) = b.best_split(X, y, idx)
+  
+        assert 6 == thresh
+        assert 0 == left_imp
+        assert 0 == right_imp
+
+    def test_largeSplit(self):
+
+        b = BOS()
+
+        y = np.ones(100, dtype=np.float64) * 4
+        y[:50] = 2
+        y[20:25] = 4
+
+        X = np.array([[i for i in range(100)]], dtype=np.float64).T
+        idx = np.array([i for i in range(100)], dtype=np.intc)
+
+        (feat, 
+         thresh, 
+         left_imp, 
+         left_idx, 
+         right_imp, 
+         right_idx,
+         improvement) = b.best_split(X, y, idx)
+
+        # Expect a split down the middle
+        assert 49.5 == thresh
+        assert 0 == right_imp 
+        assert_almost_equal(0.18, left_imp)
     
 
 
