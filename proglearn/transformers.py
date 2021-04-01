@@ -14,7 +14,7 @@ from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 from .base import BaseTransformer
 
-from split import BaseObliqueSplitter
+from .split import BaseObliqueSplitter
 
 class NeuralClassificationTransformer(BaseTransformer):
     """
@@ -343,7 +343,7 @@ class ObliqueSplitter:
         controls the density of the projection matrix
     random_state : int
         Controls the pseudo random number generator used to generate the projection matrix.
-    workers : int
+    n_jobs : int
         The number of cores to parallelize the calculation of Gini impurity.
         Supply -1 to use all cores available to the Process.
 
@@ -364,7 +364,7 @@ class ObliqueSplitter:
         Determines the best possible split for the given set of samples.
     """
 
-    def __init__(self, X, y, max_features, feature_combinations, random_state, workers):
+    def __init__(self, X, y, max_features, feature_combinations, random_state):
 
         self.X = np.array(X, dtype=np.float64)
         self.y = np.array(y, dtype=np.float64)
@@ -377,7 +377,6 @@ class ObliqueSplitter:
         self.n_features = X.shape[1]
 
         self.random_state = random_state
-        self.workers = workers
 
         # Compute root impurity
         unique, count = np.unique(y, return_counts=True)
@@ -883,7 +882,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         The feature combinations to use for the oblique split.
     max_features : float
         Output dimension = max_features * dimension
-    workers : int, optional (default: -1)
+    n_jobs : int, optional (default: -1)
         The number of cores to parallelize the calculation of Gini impurity.
         Supply -1 to use all cores available to the Process.
 
@@ -910,10 +909,9 @@ class ObliqueTreeClassifier(BaseEstimator):
         random_state=None,
         min_impurity_decrease=0,
         min_impurity_split=0,
-        
         feature_combinations=2,
         max_features=1,
-        workers=-1,
+        n_jobs=-1,
     ):
 
         # RF parameters
@@ -930,7 +928,7 @@ class ObliqueTreeClassifier(BaseEstimator):
 
         # Max features
         self.max_features = max_features
-        self.workers = workers
+        self.n_jobs = n_jobs
 
     def fit(self, X, y):
         """
@@ -950,7 +948,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         """
 
         splitter = ObliqueSplitter(
-            X, y, self.max_features, self.feature_combinations, self.random_state, self.workers
+            X, y, self.max_features, self.feature_combinations, self.random_state, self.n_jobs
         )
 
         self.tree = ObliqueTree(
