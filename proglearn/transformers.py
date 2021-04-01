@@ -14,7 +14,7 @@ from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 from .base import BaseTransformer
 
-from .split import BaseObliqueSplitter
+from split import BaseObliqueSplitter
 
 class NeuralClassificationTransformer(BaseTransformer):
     """
@@ -367,7 +367,9 @@ class ObliqueSplitter:
     def __init__(self, X, y, max_features, feature_combinations, random_state):
 
         self.X = np.array(X, dtype=np.float64)
-        self.y = np.array(y, dtype=np.float64)
+
+        # y must be 1D
+        self.y = np.array(y, dtype=np.float64).squeeze()
 
         self.classes = np.array(np.unique(y), dtype=int)
         self.n_classes = len(self.classes)
@@ -473,6 +475,11 @@ class ObliqueSplitter:
         split_info : SplitInfo
             Class holding information about the split.
         """
+        # ensure that sample indices are 1D
+        sample_inds = sample_inds.squeeze()
+
+        if not self.y.squeeze().ndim == 1:
+            raise RuntimeError('Does not support multivariate output yet.')
 
         # Project the data
         proj_X, proj_mat = self.sample_proj_mat(sample_inds)
@@ -484,6 +491,7 @@ class ObliqueSplitter:
         proj_X = np.array(proj_X, dtype=np.float64)
         y_sample = np.array(y_sample, dtype=np.float64)
         sample_inds = np.array(sample_inds, dtype=np.intc)
+        # print(proj_X.shape, y_sample.shape, sample_inds.shape)
 
         # Call cython splitter 
         (feature, 
@@ -911,7 +919,6 @@ class ObliqueTreeClassifier(BaseEstimator):
         min_impurity_split=0,
         feature_combinations=2,
         max_features=1,
-        n_jobs=-1,
     ):
 
         # RF parameters
@@ -928,7 +935,6 @@ class ObliqueTreeClassifier(BaseEstimator):
 
         # Max features
         self.max_features = max_features
-        self.n_jobs = n_jobs
 
     def fit(self, X, y):
         """

@@ -66,7 +66,10 @@ ext_modules = [
             "-Xpreprocessor",
             "-fopenmp",
         ],
-        extra_link_args=["-Xpreprocessor", "-fopenmp"],
+        extra_link_args=[
+            "-Xpreprocessor", 
+            "-fopenmp"
+        ],
         language="c++",
     )
 ]
