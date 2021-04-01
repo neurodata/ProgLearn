@@ -364,19 +364,21 @@ class ObliqueSplitter:
         Determines the best possible split for the given set of samples.
     """
 
-    def __init__(self, X, y, max_features, feature_combinations, random_state):
+    def __init__(self, X, y, max_features, feature_combinations, random_state, n_jobs):
 
         self.X = np.array(X, dtype=np.float64)
 
         # y must be 1D
         self.y = np.array(y, dtype=np.float64).squeeze()
 
-        self.classes = np.array(np.unique(y), dtype=int)
-        self.n_classes = len(self.classes)
-        self.indices = np.indices(y.shape)[0]
+        classes = np.array(np.unique(y), dtype=int)
+        self.n_classes = len(classes)
+        self.class_indices = {j:i for i, j in enumerate(classes)}
 
-        self.n_samples = X.shape[0]
-        self.n_features = X.shape[1]
+        self.indices = np.indices(self.y.shape)[0]
+
+        self.n_samples = self.X.shape[0]
+        self.n_features = self.X.shape[1]
 
         self.random_state = random_state
 
@@ -397,6 +399,8 @@ class ObliqueSplitter:
 
         # Temporary debugging parameter, turns off oblique splits
         self.debug = False
+
+        self.n_jobs = n_jobs
 
     def sample_proj_mat(self, sample_inds):
         """
@@ -453,10 +457,15 @@ class ObliqueSplitter:
         samples = self.y[idx]
         n = len(samples)
         labels, count = np.unique(samples, return_counts=True)
-        most = np.argmax(count)
+       
+        proba = np.zeros(self.n_classes)
+        for i, l in enumerate(labels):
+            class_idx = self.class_indices[l]
+            proba[class_idx] = count[i] / n
 
+        most = np.argmax(count)
         label = labels[most]
-        proba = count[most] / n
+        #max_proba = count[most] / n
 
         return label, proba
 
@@ -501,6 +510,10 @@ class ObliqueSplitter:
         right_impurity, 
         right_idx, 
         improvement) = self.BOS.best_split(proj_X, y_sample, sample_inds)
+
+        # TODO: These are coming out as memory views. Fix this.
+        left_idx = np.asarray(left_idx)
+        right_idx = np.asarray(right_idx)
     
         left_n_samples = len(left_idx)
         right_n_samples = len(right_idx)
@@ -919,6 +932,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         min_impurity_split=0,
         feature_combinations=2,
         max_features=1,
+        n_jobs=1
     ):
 
         # RF parameters
@@ -935,6 +949,10 @@ class ObliqueTreeClassifier(BaseEstimator):
 
         # Max features
         self.max_features = max_features
+
+        self.n_jobs=n_jobs
+
+        self.n_classes=None
 
     def fit(self, X, y):
         """
@@ -956,6 +974,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         splitter = ObliqueSplitter(
             X, y, self.max_features, self.feature_combinations, self.random_state, self.n_jobs
         )
+        self.n_classes = splitter.n_classes
 
         self.tree = ObliqueTree(
             splitter,
@@ -1002,6 +1021,8 @@ class ObliqueTreeClassifier(BaseEstimator):
             The predictions (labels) for each testing sample.
         """
 
+        X = np.array(X, dtype=np.float64)
+
         preds = np.zeros(X.shape[0])
         pred_nodes = self.apply(X)
         for k in range(len(pred_nodes)):
@@ -1025,7 +1046,9 @@ class ObliqueTreeClassifier(BaseEstimator):
             The probabilities of the predictions (labels) for each testing sample.
         """
 
-        preds = np.zeros(X.shape[0])
+        X = np.array(X, dtype=np.float64)
+
+        preds = np.zeros((X.shape[0], self.n_classes))
         pred_nodes = self.apply(X)
         for k in range(len(preds)):
             id = pred_nodes[k]
