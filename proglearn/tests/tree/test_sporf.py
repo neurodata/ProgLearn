@@ -11,6 +11,7 @@ import pytest
 from proglearn.transformers import ObliqueTreeClassifier as OTC
 
 from sklearn import datasets
+from sklearn.metrics import accuracy_score
 
 """
 Sklearn test_tree.py stuff
@@ -80,14 +81,9 @@ def test_classification_toy():
     clf.fit(X, y)
     assert_array_equal(clf.predict(T), true_result)
     """
- 
 
 def test_xor():
-    """
-    2d input, is this test even relevant?
-    it fails, so skipping for now.
-    """
-    return
+    
     # Check on a XOR problem
     y = np.zeros((10, 10))
     y[:5, :5] = 1
@@ -98,14 +94,34 @@ def test_xor():
     X = np.vstack([gridx.ravel(), gridy.ravel()]).T
     y = y.ravel()
 
-    clf = OTC(random_state=0)
+    # Changing feature parameters from default 1.5 to 2 makes this test pass.
+    clf = OTC(random_state=0, feature_combinations=2)
     clf.fit(X, y)
 
-    # No clf.score function
-    y_hat = clf.predict(X)
-    acc = np.sum(y_hat == y) / len(y)
-    assert acc == 1.0
+    assert accuracy_score(clf.predict(X), y) == 1
 
+def test_iris():
+
+    clf = OTC(random_state=0)
+
+    clf.fit(iris.data, iris.target)
+    score = accuracy_score(clf.predict(iris.data), iris.target)
+    assert score > 0.9
+    
+def test_diabetes():
+    
+    """
+    Diabetes should overfit with MSE = 0 for normal trees.
+    idk if this applies to sporf, so this is just a placeholder
+    to check consistency like iris.
+    """
+
+    clf = OTC(random_state=0)
+
+    clf.fit(diabetes.data, diabetes.target)
+    score = accuracy_score(clf.predict(diabetes.data), diabetes.target)
+    assert score > 0.9
+ 
 def test_probability():
 
     clf = OTC(random_state=0)
@@ -121,3 +137,16 @@ def test_probability():
     
     assert_almost_equal(clf.predict_proba(iris.data),
                         np.exp(clf.predict_log_proba(iris.data)))
+
+def test_pure_set():
+
+    clf = OTC(random_state=0)
+
+    X = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1]]
+    y = [1, 1, 1, 1, 1, 1]
+
+    clf.fit(X, y)
+    assert_array_equal(clf.predict(X), y)
+
+
+

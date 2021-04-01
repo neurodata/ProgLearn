@@ -381,6 +381,7 @@ class ObliqueSplitter:
         self.n_features = self.X.shape[1]
 
         self.random_state = random_state
+        rng.seed(random_state)
 
         # Compute root impurity
         unique, count = np.unique(y, return_counts=True)
@@ -930,7 +931,7 @@ class ObliqueTreeClassifier(BaseEstimator):
         random_state=None,
         min_impurity_decrease=0,
         min_impurity_split=0,
-        feature_combinations=2,
+        feature_combinations=1.5,
         max_features=1,
         n_jobs=1
     ):
