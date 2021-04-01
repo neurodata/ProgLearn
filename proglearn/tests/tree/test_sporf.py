@@ -112,7 +112,12 @@ def test_probability():
 
     clf.fit(iris.data, iris.target)
     p = clf.predict_proba(iris.data)
-    print(p)
 
     assert_array_almost_equal(np.sum(p, 1),
                               np.ones(iris.data.shape[0]))
+
+    assert_array_equal(np.argmax(p, 1),
+                       clf.predict(iris.data))
+    
+    assert_almost_equal(clf.predict_proba(iris.data),
+                        np.exp(clf.predict_log_proba(iris.data)))

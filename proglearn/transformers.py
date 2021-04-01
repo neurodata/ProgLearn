@@ -1072,9 +1072,6 @@ class ObliqueTreeClassifier(BaseEstimator):
         """
 
         proba = self.predict_proba(X)
-        for k in range(len(proba)):
-            proba[k] = np.log(proba[k])
-
-        return proba
+        return np.log(proba)
 
 
