@@ -20,6 +20,8 @@ from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import NeuralClassificationTransformer, TreeClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
+from keras.callbacks import EarlyStopping
+from keras.optimizers import Adam
 
 import tensorflow as tf
 
@@ -55,7 +57,7 @@ np.random.seed(12345)
 default_transformer_class = NeuralClassificationTransformer
 
 network = keras.Sequential()
-network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=(28,28,1)))
+network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(X_train)[1:]))
 network.add(layers.BatchNormalization())
 network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
 network.add(layers.BatchNormalization())
@@ -73,15 +75,24 @@ network.add(layers.Dense(2000, activation='relu'))
 network.add(layers.BatchNormalization())
 network.add(layers.Dense(units=10, activation = 'softmax'))
 
-default_transformer_kwargs = {"network" : network,
-                              "euclidean_layer_idx" : -2,
-                              "optimizer" : keras.optimizers.Adam(3e-4)
-                             }
-
+default_transformer_kwargs = {
+    "network": network,
+    "euclidean_layer_idx": -2,
+    "loss": "categorical_crossentropy",
+    "optimizer": Adam(3e-4),
+    "fit_kwargs": {
+        "epochs": 100,
+        "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
+        "verbose": False,
+        "validation_split": 0.33,
+        "batch_size": 32,
+        },
+    }
 default_voter_class = KNNClassificationVoter
 default_voter_kwargs = {"k" : int(np.log2(17416))}
 
 default_decider_class = SimpleArgmaxAverage
+
 
 
 df = pd.DataFrame()
