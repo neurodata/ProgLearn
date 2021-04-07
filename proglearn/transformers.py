@@ -91,7 +91,7 @@ class NeuralClassificationTransformer(BaseTransformer):
         self : NeuralClassificationTransformer
             The object itself.
         """
-        check_X_y(X, y)
+        #check_X_y(X, y)
         _, y = np.unique(y, return_inverse=True)
 
         # more typechecking
