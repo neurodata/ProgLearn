@@ -123,7 +123,7 @@ class NeuralClassificationTransformer(BaseTransformer):
             When the model is not fitted.
         """
         check_is_fitted(self)
-        check_array(X)
+        #check_array(X)
         return self.encoder_.predict(X)
 
 
@@ -161,7 +161,7 @@ class TreeClassificationTransformer(BaseTransformer):
         self : TreeClassificationTransformer
             The object itself.
         """
-        X, y = check_X_y(X, y)
+        #X, y = check_X_y(X, y)
         self.transformer_ = DecisionTreeClassifier(**self.kwargs).fit(X, y)
         return self
 
@@ -185,5 +185,5 @@ class TreeClassificationTransformer(BaseTransformer):
             When the model is not fitted.
         """
         check_is_fitted(self)
-        X = check_array(X)
+        #X = check_array(X)
         return self.transformer_.apply(X)
