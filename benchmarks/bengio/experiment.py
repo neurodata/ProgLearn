@@ -169,7 +169,7 @@ for (train_indxA1, test_indxA1), (train_indxA2, test_indxA2), (train_indxB, test
         np.mean(predicted_label==task_B[1][test_indxB])
     )
 
-    predicted_label = progressive_learner.predict(task_A1[0][test_indxA2], task_id=0)
+    predicted_label = progressive_learner.predict(task_A1[0][test_indxA1], task_id=0)
     llf_taskA1.append(
         np.mean(predicted_label==task_A1[1][test_indxA1])
     )
@@ -200,4 +200,10 @@ df['fold'] = folding
 
 with open('./res.pickle','wb') as f:
     pickle.dump(df, f)
+# %%
+import pickle 
+import matplotlib.pyplot as plt
+
+with open('res.pickle','rb') as f:
+    res = pickle.load(f)
 # %%
