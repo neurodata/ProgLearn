@@ -57,7 +57,7 @@ np.random.seed(12345)
 default_transformer_class = NeuralClassificationTransformer
 
 network = keras.Sequential()
-network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(X_train)))
+network.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(data_x)[1:]))
 network.add(layers.BatchNormalization())
 network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides = 2, padding = "same", activation='relu'))
 network.add(layers.BatchNormalization())
@@ -73,7 +73,7 @@ network.add(layers.Dense(2000, activation='relu'))
 network.add(layers.BatchNormalization())
 network.add(layers.Dense(2000, activation='relu'))
 network.add(layers.BatchNormalization())
-network.add(layers.Dense(units=10, activation = 'softmax'))
+network.add(layers.Dense(units=3, activation = 'softmax'))
 
 default_transformer_kwargs = {
     "network": network,
