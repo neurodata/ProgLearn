@@ -175,7 +175,7 @@ def cross_val_data(data_x, data_y, shift, slot, total_cls=40):
         if i == 0:
             # 90 training data points per class
             # Rotates which set of 90 samples from each class is chosen for training each task
-            # With 10 classes per task, total of 900 training samples per task
+            # With 4 classes per task, total of 360 training samples per task
             train_x = tmp_x[(slot * 90) : ((slot + 1) * 90)]
             train_y = tmp_y[(slot * 90) : ((slot + 1) * 90)]
 
@@ -186,7 +186,7 @@ def cross_val_data(data_x, data_y, shift, slot, total_cls=40):
         else:
             # 90 training data points per class
             # Rotates which set of 90 samples from each class is chosen for training each task
-            # With 10 classes per task, total of 900 training samples per task
+            # With 4 classes per task, total of 360 training samples per task
             train_x = np.concatenate(
                 (train_x, tmp_x[(slot * 90) : ((slot + 1) * 90)]), axis=0
             )
