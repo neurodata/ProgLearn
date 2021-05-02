@@ -17,24 +17,25 @@ from sklearn.model_selection import train_test_split
 
 ### DATA IMPORT & PREPROCESSING ###########################################
 
+
 def shift_data(x, y, shift):
     """
     Shifts the order of datasets by moving the first dataset to the back.
-    
+
     Arguments:
         x - the data features to be shifted.
         y - the labels to be shifted.
-        shift - number of times to shift 
-    
+        shift - number of times to shift
+
     Returns:
         x_shifted - the shifted data features.
         y_shifted - the shifted labels.
     """
-    
+
     # shift x labels
     x_shifted = x[shift:] + x[:shift]
     y_shifted = y[shift:] + y[:shift]
-    
+
     # modify labels based on shift
     new_y = []
     for idx, lbl_set in enumerate(y_shifted):
@@ -46,115 +47,150 @@ def shift_data(x, y, shift):
                 counter += len(np.unique(y_shifted[i]))
             new_y.append(y_shifted[idx] + counter)
     y_shifted = new_y
-    
+
     return x_shifted, y_shifted
 
 
 def check_normalize(imgs, norm_indicator):
     """
     Checks the value of `normalize`. If not false, performs normalization as indicated.
-    
+
     Arguments:
         imgs - the image data
         norm_indicator - False, "dataset", or "image"
-    
+
     Returns:
         imgs - the normalized images.
     """
-    
+
     # no normalization
-    if norm_indicator==False:
+    if norm_indicator == False:
         return imgs
-    
+
     # normalization per image
-    elif norm_indicator=="image":
+    elif norm_indicator == "image":
         for img in imgs:
             # normalize each channel in each image
             for channel in range(3):
-                channel_max = np.amax(img[:,:,channel])
-                channel_min = np.amin(img[:,:,channel])
-                img[:,:,channel] = 255 * ((img[:,:,channel]-channel_min) / (channel_max-channel_min))
+                channel_max = np.amax(img[:, :, channel])
+                channel_min = np.amin(img[:, :, channel])
+                img[:, :, channel] = 255 * (
+                    (img[:, :, channel] - channel_min) / (channel_max - channel_min)
+                )
         # check that all images are on scale of 0-255
         for idx, img in enumerate(imgs):
-            maxes = np.array([np.amax(img[:,:,0]), np.amax(img[:,:,1]), np.amax(img[:,:,2])])
-            mins = np.array([np.amin(img[:,:,0]), np.amin(img[:,:,1]), np.amin(img[:,:,2])])
-            if np.logical_and(maxes != np.array([255,255,255]), mins != np.array([0,0,0])).any():
+            maxes = np.array(
+                [np.amax(img[:, :, 0]), np.amax(img[:, :, 1]), np.amax(img[:, :, 2])]
+            )
+            mins = np.array(
+                [np.amin(img[:, :, 0]), np.amin(img[:, :, 1]), np.amin(img[:, :, 2])]
+            )
+            if np.logical_and(
+                maxes != np.array([255, 255, 255]), mins != np.array([0, 0, 0])
+            ).any():
                 print("CAUTION: error in normalization of image %d." % idx)
         return imgs
-    
+
     # normalization per dataset
-    elif norm_indicator=="dataset":
+    elif norm_indicator == "dataset":
         # normalize each channel over dataset
         for channel in range(3):
-            channel_max = np.amax(imgs[:,:,:,channel])
-            channel_min = np.amin(imgs[:,:,:,channel])
-            imgs[:,:,:,channel] = 255 * ((imgs[:,:,:,channel]-channel_min) / (channel_max-channel_min))
+            channel_max = np.amax(imgs[:, :, :, channel])
+            channel_min = np.amin(imgs[:, :, :, channel])
+            imgs[:, :, :, channel] = 255 * (
+                (imgs[:, :, :, channel] - channel_min) / (channel_max - channel_min)
+            )
         # check that all images within dataset are on scale of 0-255
-        maxes = np.array([np.amax(imgs[:,:,:,0]), np.amax(imgs[:,:,:,1]), np.amax(imgs[:,:,:,2])])
-        mins = np.array([np.amin(imgs[:,:,:,0]), np.amin(imgs[:,:,:,1]), np.amin(imgs[:,:,:,2])])
-        if np.logical_and(maxes != np.array([255,255,255]), mins != np.array([0,0,0])).any():
+        maxes = np.array(
+            [
+                np.amax(imgs[:, :, :, 0]),
+                np.amax(imgs[:, :, :, 1]),
+                np.amax(imgs[:, :, :, 2]),
+            ]
+        )
+        mins = np.array(
+            [
+                np.amin(imgs[:, :, :, 0]),
+                np.amin(imgs[:, :, :, 1]),
+                np.amin(imgs[:, :, :, 2]),
+            ]
+        )
+        if np.logical_and(
+            maxes != np.array([255, 255, 255]), mins != np.array([0, 0, 0])
+        ).any():
             print("CAUTION: error in normalization of dataset.")
         return imgs
-    
+
     else:
-        print("ERROR: unclear indication of normalization method. Returning original array...")
+        print(
+            "ERROR: unclear indication of normalization method. Returning original array..."
+        )
         return imgs
 
-    
+
 def import_data(normalize=False):
     """
     Imports the data for the FTE/BTE experiments and the recruitment experiment.
-    
+
     Arguments:
         normalize - False, "dataset", or "image"
-        
+
     Returns:
         data - the imported data features.
         classes - the imported class labels.
     """
-    
+
     # create matrices for storing data
     data = []
     classes = []
 
     ### import datasets that emily preprocessed ###########################
-    for set1 in ['101_ObjectCategories', 'CIFAR_10', 'CIFAR_100']:
+    for set1 in ["101_ObjectCategories", "CIFAR_10", "CIFAR_100"]:
         # load from npz
-        load = np.load(set1 + '.npz')
-        # normalize if indicated 
-        imgs = check_normalize(load['imgs'], normalize)
+        load = np.load(set1 + ".npz")
+        # normalize if indicated
+        imgs = check_normalize(load["imgs"], normalize)
         # reformat and append
         data.append(imgs.reshape(len(imgs), -1).astype(np.uint8))
-        classes.append(load['lbls'].astype(np.uint16))
+        classes.append(load["lbls"].astype(np.uint16))
 
     ### import datasets that rahul preprocessed ###########################
     ## food_101
-    food_101 = np.empty((0,32*32*3), np.uint8)
-    for set2 in ['food_101_array_data_x_1', 
-                 'food_101_array_data_x_2', 
-                 'food_101_array_data_x_3', 
-                 'food_101_array_data_x_4']:
+    food_101 = np.empty((0, 32 * 32 * 3), np.uint8)
+    for set2 in [
+        "food_101_array_data_x_1",
+        "food_101_array_data_x_2",
+        "food_101_array_data_x_3",
+        "food_101_array_data_x_4",
+    ]:
         # load from npz
-        load = np.load(set2 + '.npz')
-        # normalize if indicated 
-        imgs = check_normalize(load['arr_0'], normalize)
+        load = np.load(set2 + ".npz")
+        # normalize if indicated
+        imgs = check_normalize(load["arr_0"], normalize)
         # reformat and append
-        food_101 = np.vstack((food_101,imgs.reshape(len(imgs), -1).astype(np.uint8)))
+        food_101 = np.vstack((food_101, imgs.reshape(len(imgs), -1).astype(np.uint8)))
     data.append(food_101)
-    classes.append(np.concatenate([([i]*1000) for i in list(range(100))], axis=0).astype(np.uint16))
+    classes.append(
+        np.concatenate([([i] * 1000) for i in list(range(100))], axis=0).astype(
+            np.uint16
+        )
+    )
     ## DTD
     # load from npz
-    load = np.load('dtd_array_data_x.npz')
-    # normalize if indicated 
-    imgs = check_normalize(load['arr_0'], normalize)
+    load = np.load("dtd_array_data_x.npz")
+    # normalize if indicated
+    imgs = check_normalize(load["arr_0"], normalize)
     # reformat and append
     data.append(imgs.reshape(len(imgs), -1).astype(np.uint8))
-    classes.append(np.concatenate([([i]*120) for i in list(range(40))], axis=0).astype(np.uint16))
-    
+    classes.append(
+        np.concatenate([([i] * 120) for i in list(range(40))], axis=0).astype(np.uint16)
+    )
+
     return data, classes
 
 
 ### FTE/BTE EXPERIMENT ###########################################
+
 
 def ftebte_exp(x, y, model, num_tasks, num_trees, reps, shift):
     """
@@ -166,7 +202,7 @@ def ftebte_exp(x, y, model, num_tasks, num_trees, reps, shift):
         num_trees - number of trees
         shift - whether to shift the data
     """
-    
+
     # shift data if indicated
     x, y = shift_data(x, y, shift)
 
@@ -177,11 +213,13 @@ def ftebte_exp(x, y, model, num_tasks, num_trees, reps, shift):
     ys_by_task = [np.unique(i) for i in y]
 
     # get the count of the least frequent label over all tasks
-    min_labelct = np.min([np.min(np.unique(each_set, return_counts=True)[1]) for each_set in y])
+    min_labelct = np.min(
+        [np.min(np.unique(each_set, return_counts=True)[1]) for each_set in y]
+    )
 
     # run experiment over all reps
     for rep in range(reps):
-        #print('Starting rep', rep)
+        # print('Starting rep', rep)
 
         train_x_task = []
         train_y_task = []
@@ -194,31 +232,39 @@ def ftebte_exp(x, y, model, num_tasks, num_trees, reps, shift):
         for dataset, label in zip(x, y):
             sample = []
             for unique_label in np.unique(label):
-                sample += list(np.random.choice(np.where(label==unique_label)[0], min_labelct))
+                sample += list(
+                    np.random.choice(np.where(label == unique_label)[0], min_labelct)
+                )
             x_sample.append(dataset[sample])
             y_sample.append(label[sample])
 
         # initialize overall learner
-        learner = LifelongClassificationForest(default_n_estimators=num_trees, default_max_depth=30)
+        learner = LifelongClassificationForest(
+            default_n_estimators=num_trees, default_max_depth=30
+        )
 
         # for each task
         for task in range(num_tasks):
-            #print('task', task)
+            # print('task', task)
 
-            # get train/test data 
-            tr_x, te_x, tr_y, te_y = train_test_split(x_sample[task], y_sample[task], test_size=0.2)
+            # get train/test data
+            tr_x, te_x, tr_y, te_y = train_test_split(
+                x_sample[task], y_sample[task], test_size=0.2
+            )
             train_x_task.append(tr_x)
             train_y_task.append(tr_y)
             test_x_task.append(te_x)
             test_y_task.append(te_y)
 
             # predict on single task (UF learner) - CHANGE TO UNCERTAINTYFOREST LATER
-            uf_learner = LifelongClassificationForest(default_n_estimators=num_trees, default_max_depth=30)
+            uf_learner = LifelongClassificationForest(
+                default_n_estimators=num_trees, default_max_depth=30
+            )
             uf_learner.add_task(train_x_task[task], train_y_task[task])
             uf_predictions = uf_learner.predict(test_x_task[task], task_id=0)
             accuracies_across_tasks.append(np.mean(uf_predictions == test_y_task[task]))
 
-            # feed to overall learner 
+            # feed to overall learner
             learner.add_task(train_x_task[task], train_y_task[task])
 
             # evaluate for other tasks
@@ -229,13 +275,17 @@ def ftebte_exp(x, y, model, num_tasks, num_trees, reps, shift):
 
                 else:
                     # predict on current task using other tasks
-                    prev_task_predictions = learner.predict(test_x_task[other_task], task_id=other_task)
-                    accuracies_across_tasks.append(np.mean(prev_task_predictions == test_y_task[other_task]))
+                    prev_task_predictions = learner.predict(
+                        test_x_task[other_task], task_id=other_task
+                    )
+                    accuracies_across_tasks.append(
+                        np.mean(prev_task_predictions == test_y_task[other_task])
+                    )
 
     # average results
     accuracy_all_task = np.array(accuracies_across_tasks).reshape((reps, -1))
-    accuracy_all_task = np.mean(accuracy_all_task, axis = 0)
-    
+    accuracy_all_task = np.mean(accuracy_all_task, axis=0)
+
     return accuracy_all_task
 
 
@@ -248,31 +298,31 @@ def get_metrics(accuracy_all_task, num_tasks):
     err = [[] for i in range(num_tasks)]
     for i in range(num_tasks):
         for j in range(i, num_tasks):
-            err[i].append(1-accuracy_all_task[np.sum(list(range(1,j+2)))+i])
+            err[i].append(1 - accuracy_all_task[np.sum(list(range(1, j + 2))) + i])
 
     # backwards transfer efficiency
     bte = [[] for i in range(num_tasks)]
     for i in range(num_tasks):
         for j in range(i, num_tasks):
-            err_up_to_taskt = 1-accuracy_all_task[np.sum(list(range(1,i+2)))+i]
-            err_all_seen =    1-accuracy_all_task[np.sum(list(range(1,j+2)))+i]
-            bte[i].append(err_up_to_taskt/err_all_seen)
+            err_up_to_taskt = 1 - accuracy_all_task[np.sum(list(range(1, i + 2))) + i]
+            err_all_seen = 1 - accuracy_all_task[np.sum(list(range(1, j + 2))) + i]
+            bte[i].append(err_up_to_taskt / err_all_seen)
 
     # forwards transfer efficiency
     fte = [[] for i in range(num_tasks)]
     for i in range(num_tasks):
-        err_taskt_only =  1-accuracy_all_task[np.sum(list(range(1,i+2)))-1]
-        err_up_to_taskt = 1-accuracy_all_task[np.sum(list(range(1,i+2)))+i]
-        fte[i].append(err_taskt_only/err_up_to_taskt)
+        err_taskt_only = 1 - accuracy_all_task[np.sum(list(range(1, i + 2))) - 1]
+        err_up_to_taskt = 1 - accuracy_all_task[np.sum(list(range(1, i + 2))) + i]
+        fte[i].append(err_taskt_only / err_up_to_taskt)
 
     # transfer efficiency
     te = [[] for i in range(num_tasks)]
     for i in range(num_tasks):
         for j in range(i, num_tasks):
-            err_taskt_only =  1-accuracy_all_task[np.sum(list(range(1,i+2)))-1]
-            err_all_seen =    1-accuracy_all_task[np.sum(list(range(1,j+2)))+i]
-            te[i].append(err_taskt_only/err_all_seen)
-            
+            err_taskt_only = 1 - accuracy_all_task[np.sum(list(range(1, i + 2))) - 1]
+            err_all_seen = 1 - accuracy_all_task[np.sum(list(range(1, j + 2))) + i]
+            te[i].append(err_taskt_only / err_all_seen)
+
     return err, bte, fte, te
 
 
@@ -281,80 +331,88 @@ def plot_ftebte(num_tasks, err, bte, fte, te):
     Plots the results of the FTE/BTE experiment.
     """
 
-    # set figure parameters and plot results 
-    sns.set_style('ticks')
+    # set figure parameters and plot results
+    sns.set_style("ticks")
     clr = ["#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
-    fontsize=32
-    ticksize=32
+    fontsize = 32
+    ticksize = 32
 
-    fig, ax = plt.subplots(2,2, figsize=(16,11.5))
+    fig, ax = plt.subplots(2, 2, figsize=(16, 11.5))
     sns.despine()
     sns.color_palette("Set1")
 
-    ax[0][0].plot(np.arange(1,num_tasks+1), fte, c='red', marker='.', markersize=14, linewidth=3)
-    ax[0][0].hlines(1, 1,num_tasks, colors='grey', linestyles='dashed',linewidth=1.5)
+    ax[0][0].plot(
+        np.arange(1, num_tasks + 1),
+        fte,
+        c="red",
+        marker=".",
+        markersize=14,
+        linewidth=3,
+    )
+    ax[0][0].hlines(1, 1, num_tasks, colors="grey", linestyles="dashed", linewidth=1.5)
     ax[0][0].tick_params(labelsize=ticksize)
-    ax[0][0].set_xlabel('Number of tasks seen', fontsize=fontsize)
-    ax[0][0].set_ylabel('log Forward TE', fontsize=fontsize)
-    ax[0][0].set_xticks(list(range(1, num_tasks+1)))
-    ax[0][0].set_yticks([1,1.05,1.1])
-    log_lbl = np.round(np.log([1,1.05,1.1]),2)
+    ax[0][0].set_xlabel("Number of tasks seen", fontsize=fontsize)
+    ax[0][0].set_ylabel("log Forward TE", fontsize=fontsize)
+    ax[0][0].set_xticks(list(range(1, num_tasks + 1)))
+    ax[0][0].set_yticks([1, 1.05, 1.1])
+    log_lbl = np.round(np.log([1, 1.05, 1.1]), 2)
     labels = [item.get_text() for item in ax[0][0].get_yticklabels()]
-    for ii,_ in enumerate(labels):
+    for ii, _ in enumerate(labels):
         labels[ii] = str(log_lbl[ii])
     ax[0][0].set_yticklabels(labels)
 
     for i in range(num_tasks):
         et = np.asarray(bte[i])
         ns = np.arange(i + 1, num_tasks + 1)
-        ax[0][1].plot(ns, et, c='red', marker='.', markersize=14, linewidth=3)
+        ax[0][1].plot(ns, et, c="red", marker=".", markersize=14, linewidth=3)
 
-    ax[0][1].set_xlabel('Number of tasks seen', fontsize=fontsize)
-    ax[0][1].set_ylabel('log Backward TE', fontsize=fontsize)
+    ax[0][1].set_xlabel("Number of tasks seen", fontsize=fontsize)
+    ax[0][1].set_ylabel("log Backward TE", fontsize=fontsize)
     ax[0][1].tick_params(labelsize=ticksize)
-    ax[0][1].hlines(1, 1,num_tasks, colors='grey', linestyles='dashed',linewidth=1.5)
-    ax[0][1].set_xticks(list(range(1, num_tasks+1)))
-    ax[0][1].set_yticks([1,1.05,1.1])
-    log_lbl = np.round(np.log([1,1.05,1.1]),2)
+    ax[0][1].hlines(1, 1, num_tasks, colors="grey", linestyles="dashed", linewidth=1.5)
+    ax[0][1].set_xticks(list(range(1, num_tasks + 1)))
+    ax[0][1].set_yticks([1, 1.05, 1.1])
+    log_lbl = np.round(np.log([1, 1.05, 1.1]), 2)
     labels = [item.get_text() for item in ax[0][1].get_yticklabels()]
-    for ii,_ in enumerate(labels):
+    for ii, _ in enumerate(labels):
         labels[ii] = str(log_lbl[ii])
     ax[0][1].set_yticklabels(labels)
 
     for i in range(num_tasks):
         et = np.asarray(te[i])
         ns = np.arange(i + 1, num_tasks + 1)
-        ax[1][0].plot(ns, et, c='red', marker='.', markersize=14, linewidth=3)
+        ax[1][0].plot(ns, et, c="red", marker=".", markersize=14, linewidth=3)
 
-    ax[1][0].set_xlabel('Number of tasks seen', fontsize=fontsize)
-    ax[1][0].set_ylabel('log TE', fontsize=fontsize)
-    #ax[1][0].set_xticks(np.arange(1,10))
+    ax[1][0].set_xlabel("Number of tasks seen", fontsize=fontsize)
+    ax[1][0].set_ylabel("log TE", fontsize=fontsize)
+    # ax[1][0].set_xticks(np.arange(1,10))
     ax[1][0].tick_params(labelsize=ticksize)
-    ax[1][0].hlines(1, 1,num_tasks, colors='grey', linestyles='dashed',linewidth=1.5)
-    ax[1][0].set_xticks(list(range(1, num_tasks+1)))
-    ax[1][0].set_yticks([1,1.05,1.1])
-    log_lbl = np.round(np.log([1,1.05,1.1]),2)
+    ax[1][0].hlines(1, 1, num_tasks, colors="grey", linestyles="dashed", linewidth=1.5)
+    ax[1][0].set_xticks(list(range(1, num_tasks + 1)))
+    ax[1][0].set_yticks([1, 1.05, 1.1])
+    log_lbl = np.round(np.log([1, 1.05, 1.1]), 2)
     labels = [item.get_text() for item in ax[1][0].get_yticklabels()]
-    for ii,_ in enumerate(labels):
+    for ii, _ in enumerate(labels):
         labels[ii] = str(log_lbl[ii])
     ax[1][0].set_yticklabels(labels)
 
     for i in range(num_tasks):
         et = np.asarray(err[i])
         ns = np.arange(i + 1, num_tasks + 1)
-        ax[1][1].plot(ns, 1-et , c='red', marker='.', markersize=14, linewidth=3)
+        ax[1][1].plot(ns, 1 - et, c="red", marker=".", markersize=14, linewidth=3)
 
-    ax[1][1].set_xlabel('Number of tasks seen', fontsize=fontsize)
-    ax[1][1].set_ylabel('Accuracy', fontsize=fontsize)
+    ax[1][1].set_xlabel("Number of tasks seen", fontsize=fontsize)
+    ax[1][1].set_ylabel("Accuracy", fontsize=fontsize)
     ax[1][1].tick_params(labelsize=ticksize)
-    ax[1][1].set_xticks([1,2,3,4,5])
+    ax[1][1].set_xticks([1, 2, 3, 4, 5])
     ax[1][1].set_yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
 
-    #fig.suptitle("", fontsize=36)
+    # fig.suptitle("", fontsize=36)
     plt.tight_layout()
-    
+
 
 ### RECRUITMENT EXPERIMENT ###########################################
+
 
 class PosteriorsByTreeLearner(ClassificationProgressiveLearner):
     """
@@ -401,19 +459,14 @@ class PosteriorsByTree(SimpleArgmaxAverage):
                 vote = voter.predict_proba(X_transformed)
                 vote_per_alltrees.append(vote)
         return vote_per_alltrees
-    
-    
-def recruitment_exp(x, y,
-                    num_tasks,
-                    num_trees,
-                    reps,
-                    estimation_set,
-                    shift=0):
+
+
+def recruitment_exp(x, y, num_tasks, num_trees, reps, estimation_set, shift=0):
     """
     Run the recruitment experiment.
     Generalized for MNIST datasets and different task numbers.
     """
-    
+
     # shift data if indicated
     x, y = shift_data(x, y, shift)
 
@@ -428,12 +481,14 @@ def recruitment_exp(x, y,
     # get y values and number labels per task
     ys_by_task = [np.unique(i) for i in y]
     num_labels_by_task = [len(ys) for ys in ys_by_task]
-    
-    # get samples at 1x, 10x, 50x, and 100x number labels 
-    last_task_sample = num_labels_by_task[-1]*np.array([1,5,10,25])
+
+    # get samples at 1x, 10x, 50x, and 100x number labels
+    last_task_sample = num_labels_by_task[-1] * np.array([1, 5, 10, 25])
 
     # get the count of the least frequent label over all tasks
-    min_labelct = np.min([np.min(np.unique(each_set, return_counts=True)[1]) for each_set in y])
+    min_labelct = np.min(
+        [np.min(np.unique(each_set, return_counts=True)[1]) for each_set in y]
+    )
 
     # iterate over all sample sizes ns
     for ns in last_task_sample:
@@ -444,7 +499,7 @@ def recruitment_exp(x, y,
 
         # repeat `rep` times
         for rep in range(reps):
-            #print("doing {} samples for {} th rep".format(ns,rep))
+            # print("doing {} samples for {} th rep".format(ns,rep))
 
             ####### PREP DATA ##################################
 
@@ -456,21 +511,25 @@ def recruitment_exp(x, y,
             # sample [train+test]_points_per_task from each dataset
             for dataset, label in zip(x, y):
 
-                # get min_labelct samples from each 
+                # get min_labelct samples from each
                 sample = []
                 for unique_label in np.unique(label):
-                    sample += list(np.random.choice(np.where(label==unique_label)[0], min_labelct))
+                    sample += list(
+                        np.random.choice(
+                            np.where(label == unique_label)[0], min_labelct
+                        )
+                    )
 
-                # get train/test data 
-                tr_x, te_x, tr_y, te_y = train_test_split(dataset[sample], label[sample], 
-                                                          test_size=0.1)
+                # get train/test data
+                tr_x, te_x, tr_y, te_y = train_test_split(
+                    dataset[sample], label[sample], test_size=0.1
+                )
                 train_x_task.append(tr_x)
                 train_y_task.append(tr_y)
                 test_x_task.append(te_x)
                 test_y_task.append(te_y)
 
             ####################################################
-
 
             # initiate lifelong learner
             l2f = PosteriorsByTreeLearner(
@@ -492,7 +551,7 @@ def recruitment_exp(x, y,
                     cur_X,
                     cur_y,
                     num_transformers=num_trees,
-                    transformer_kwargs={"kwargs":{"max_depth": 30}},
+                    transformer_kwargs={"kwargs": {"max_depth": 30}},
                     voter_kwargs={"classes": np.unique(cur_y)},
                     decider_kwargs={"classes": np.unique(cur_y)},
                 )
@@ -505,7 +564,7 @@ def recruitment_exp(x, y,
                 cur_X,
                 cur_y,
                 num_transformers=num_trees,
-                transformer_kwargs={"kwargs":{"max_depth": 30}},
+                transformer_kwargs={"kwargs": {"max_depth": 30}},
                 voter_kwargs={"classes": np.unique(cur_y)},
                 decider_kwargs={"classes": np.unique(cur_y)},
             )
@@ -522,12 +581,12 @@ def recruitment_exp(x, y,
             error_across_trees = np.zeros((num_tasks - 1) * num_trees)
             validation_target = train_y_task[num_tasks - 1][estimation_sample_no:]
             for tree in range(len(posteriors_across_trees)):
-                res = np.argmax(
-                    posteriors_across_trees[tree], axis=1
-                ) + sum(num_labels_by_task[:num_tasks-1])
+                res = np.argmax(posteriors_across_trees[tree], axis=1) + sum(
+                    num_labels_by_task[: num_tasks - 1]
+                )
                 error_across_trees[tree] = 1 - np.mean(validation_target == res)
             best_n_tree = np.argsort(error_across_trees)[:num_trees]
-            best_halfn_tree = best_n_tree[:int(num_trees/2)]
+            best_halfn_tree = best_n_tree[: int(num_trees / 2)]
 
             ## uf trees validation ###############################
             # get posteriors for l2f on only the 10th task
@@ -540,11 +599,11 @@ def recruitment_exp(x, y,
             error_across_trees = np.zeros(num_trees)
             validation_target = train_y_task[num_tasks - 1][estimation_sample_no:]
             for tree in range(num_trees):
-                res = np.argmax(
-                    posteriors_across_trees[tree], axis=1
-                ) + sum(num_labels_by_task[:num_tasks-1])
+                res = np.argmax(posteriors_across_trees[tree], axis=1) + sum(
+                    num_labels_by_task[: num_tasks - 1]
+                )
                 error_across_trees[tree] = 1 - np.mean(validation_target == res)
-            best_halfn_uf_tree = np.argsort(error_across_trees)[:int(num_trees/2)]
+            best_halfn_uf_tree = np.argsort(error_across_trees)[: int(num_trees / 2)]
 
             ## evaluation ########################################
             # train 10th tree under each scenario: building, recruiting, hybrid, UF
@@ -569,7 +628,9 @@ def recruitment_exp(x, y,
             recruiting_posterior = np.mean(
                 np.array(posteriors_across_trees)[best_n_tree], axis=0
             )
-            res = np.argmax(recruiting_posterior, axis=1) + sum(num_labels_by_task[:num_tasks-1])
+            res = np.argmax(recruiting_posterior, axis=1) + sum(
+                num_labels_by_task[: num_tasks - 1]
+            )
             recruiting[rep] = 1 - np.mean(test_y_task[num_tasks - 1] == res)
             # HYBRID
             posteriors_across_trees_hybrid_uf = l2f.predict_proba(
@@ -585,14 +646,16 @@ def recruitment_exp(x, y,
                 axis=0,
             )
             hybrid_posterior = np.mean(hybrid_posterior_all, axis=0)
-            hybrid_res = np.argmax(hybrid_posterior, axis=1) + sum(num_labels_by_task[:num_tasks-1])
+            hybrid_res = np.argmax(hybrid_posterior, axis=1) + sum(
+                num_labels_by_task[: num_tasks - 1]
+            )
             hybrid[rep] = 1 - np.mean(test_y_task[num_tasks - 1] == hybrid_res)
 
         # print statements
-        #print(np.mean(building))
-        #print(np.mean(uf))
-        #print(np.mean(recruiting))
-        #print(np.mean(hybrid))
+        # print(np.mean(building))
+        # print(np.mean(uf))
+        # print(np.mean(recruiting))
+        # print(np.mean(hybrid))
 
         # calculate mean and stdev for each
         mean_accuracy_dict["building"].append(np.mean(building))
@@ -603,7 +666,7 @@ def recruitment_exp(x, y,
         std_accuracy_dict["recruiting"].append(np.std(recruiting, ddof=1))
         mean_accuracy_dict["hybrid"].append(np.mean(hybrid))
         std_accuracy_dict["hybrid"].append(np.std(hybrid, ddof=1))
-    
+
     return mean_accuracy_dict, std_accuracy_dict, last_task_sample
 
 
