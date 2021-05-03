@@ -290,6 +290,7 @@ class KNNClassificationVoter(BaseClassificationVoter):
         """
         return self.classes[np.argmax(self.predict_proba(X), axis=1)]
 
+
 class TreeRegressionVoter(BaseVoter):
     def __init__(self):
         """
@@ -298,13 +299,11 @@ class TreeRegressionVoter(BaseVoter):
 
         self._is_fitted = False
 
-
     def fit(self, X, y):
         """
         Doc strings here.
         """
-        
-        
+
         self.leaf_to_yhat = {}
         self.global_yhat = np.mean(y)
 
@@ -317,7 +316,6 @@ class TreeRegressionVoter(BaseVoter):
 
         return self
 
-
     def predict(self, X):
         """
         Doc strings here.
@@ -325,11 +323,11 @@ class TreeRegressionVoter(BaseVoter):
 
         if not self.is_fitted():
             msg = (
-                    "This %(name)s instance is not fitted yet. Call 'fit' with "
-                    "appropriate arguments before using this voter."
+                "This %(name)s instance is not fitted yet. Call 'fit' with "
+                "appropriate arguments before using this voter."
             )
             raise NotFittedError(msg % {"name": type(self).__name__})
-        
+
         votes_per_example = []
         for x in X:
             if x in list(self.leaf_to_yhat.keys()):

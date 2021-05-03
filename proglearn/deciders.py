@@ -643,7 +643,7 @@ class KNNSimpleClassificationDecider(BaseClassificationDecider):
         A dictionary with keys of type obj corresponding to transformer ids
         and values of type obj corresponding to a voter class. This dictionary
         maps voter classes to a particular transformer id.
-        
+
     knn : list, default=[]
         A list of sklearn.KNNClassifiers with length equal to the number of bags.
     """
@@ -739,7 +739,7 @@ class KNNSimpleClassificationDecider(BaseClassificationDecider):
         Predicts the most likely class per input example.
 
         Uses each KNN to predict class labels for each bag using all voter posteriors from each
-        transformer. Returns the class predictions for all examples. 
+        transformer. Returns the class predictions for all examples.
 
         Parameters
         ----------

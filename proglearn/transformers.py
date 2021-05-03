@@ -188,6 +188,7 @@ class TreeClassificationTransformer(BaseTransformer):
         X = check_array(X)
         return self.transformer_.apply(X)
 
+
 class TreeRegressionTransformer(BaseTransformer):
     def __init__(self, kwargs={}):
         """
