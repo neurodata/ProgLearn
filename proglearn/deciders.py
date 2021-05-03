@@ -902,7 +902,7 @@ class KNNSimpleClassificationDecider(BaseClassificationDecider):
 class KNNRegressionDecider(BaseDecider):
     """
     A class for a decider that uses a k-nearest neighbor (KNN) vote for regression.
-    
+
     Parameters
     ----------
     k : list, default=[]
@@ -925,7 +925,7 @@ class KNNRegressionDecider(BaseDecider):
         A dictionary with keys of type obj corresponding to transformer ids
         and values of type obj corresponding to a voter class. This dictionary
         maps voter classes to a particular transformer id.
-        
+
     knn : list, default=[]
         A list of sklearn.KNNRegressors with length equal to the number of bags.
     """
