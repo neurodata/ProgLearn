@@ -180,7 +180,11 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         self.classes = classes
 
     def fit(
-        self, X, y, transformer_id_to_transformers, transformer_id_to_voters,
+        self,
+        X,
+        y,
+        transformer_id_to_transformers,
+        transformer_id_to_voters,
     ):
         """
         Function for fitting.
@@ -316,7 +320,7 @@ class KNNClassificationDecider(BaseClassificationDecider):
     Normal implementation uses voter posteriors for all transformers for each bag, but
     creates class specific KNNs for each bag. These class specific KNNs predict a
     one-hot encoded output for their specific classes.
-    
+
     Parameters
     ----------
     k : int, default=None
@@ -342,7 +346,7 @@ class KNNClassificationDecider(BaseClassificationDecider):
         A dictionary with keys of type obj corresponding to transformer ids
         and values of type obj corresponding to a voter class. This dictionary
         maps voter classes to a particular transformer id.
-        
+
     knn : list, default=[]
         A list of sklearn.KNNClassifiers with length equal to the number of bags.
     """
@@ -449,7 +453,7 @@ class KNNClassificationDecider(BaseClassificationDecider):
 
         Uses each class-specific KNN to predict class labels for each bag using all
         voter posteriors from each transformer.
-        Returns the class predictions for all examples. 
+        Returns the class predictions for all examples.
 
         Parameters
         ----------
@@ -617,7 +621,7 @@ class KNNSimpleClassificationDecider(BaseClassificationDecider):
     A class for a decider that uses a k-nearest neighbor (KNN) vote for classification.
     Simple implementation uses voter posteriors for all classes and all transformers
     for each bag.
-    
+
     Parameters
     ----------
     k : int, default=None
