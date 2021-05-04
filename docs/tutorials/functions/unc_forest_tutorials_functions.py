@@ -40,6 +40,30 @@ def generate_data(n, mean, var):
     
     return X, y
 
+def generate_data_newUF(n, mean, var):
+    '''
+    Parameters
+    ---
+    n : int
+        The number of data to be generated
+    mean : double
+        The mean of the data to be generated
+    var : double
+        The variance in the data to be generated
+    '''
+    y = np.random.binomial(1, .5, n) # classes are 0 and 1. #UPDATED
+    X = np.random.multivariate_normal(mean * y, var * np.eye(n), 1).T # creating the X values using 
+    # the randomly distributed y that were generated in the line above
+
+    # from sklearn import datasets
+    # from random import sample
+    # iris = datasets.load_iris()
+    # indices = sample(range(0,150),n)
+    # X = iris.data[indices,:2].T
+    # y = iris.target[indices]
+    
+    return X, y
+
 def estimate_posterior(algo, n, mean, var, num_trials, X_eval, parallel = False):
     '''
     Estimate posteriors for many trials and evaluate in the given X_eval range
@@ -62,6 +86,40 @@ def estimate_posterior(algo, n, mean, var, num_trials, X_eval, parallel = False)
     obj = algo['instance'] # grabbing the instance of the learner 
     def worker(t):
         X, y = generate_data(n, mean, var) # generating data with the function above
+        obj.fit(X, y) # using the fit function of the learner to fit the data
+        return obj.predict_proba(X_eval)[:,1] # using the predict_proba function on the range of desired X
+        
+    if parallel:
+        predicted_posterior = np.array(Parallel(n_jobs=-2)(delayed(worker)(t) for t in range(num_trials)))
+    else:
+        predicted_posterior = np.zeros((num_trials, X_eval.shape[0]))
+        for t in tqdm(range(num_trials)):
+            predicted_posterior[t, :] = worker(t)
+
+    return predicted_posterior
+
+def estimate_posterior_newUF(algo, n, mean, var, num_trials, X_eval, parallel = False):
+    '''
+    Estimate posteriors for many trials and evaluate in the given X_eval range
+    
+    Parameters
+    ---
+    algo : dict
+        A dictionary of the learner to be used containing a key "instance" of the learner
+    n : int
+        The number of data to be generated
+    mean : double
+        The mean of the data used
+    var : double
+        The variance of the data used
+    num_trials : int
+        The number of trials to run over
+    X_eval : list
+        The range over which to evaluate X values for
+    '''
+    obj = algo['instance'] # grabbing the instance of the learner 
+    def worker(t):
+        X, y = generate_data_newUF(n, mean, var) # generating data with the function above #UPDATED
         obj.fit(X, y) # using the fit function of the learner to fit the data
         return obj.predict_proba(X_eval)[:,1] # using the predict_proba function on the range of desired X
         
