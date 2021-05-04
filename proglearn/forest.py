@@ -53,6 +53,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self.default_tree_construction_proportion = default_tree_construction_proportion
         self.default_kappa = default_kappa
         self.default_max_depth = default_max_depth
+
         self.pl_ = ClassificationProgressiveLearner(
             default_transformer_class=TreeClassificationTransformer,
             default_transformer_kwargs={},
@@ -168,7 +169,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             The number of trees used for the given task.
 
         max_depth : int or str, default='default'
-            The maximum depth of a tree in the UncertaintyForest.
+            The maximum depth of a tree in the Lifelong Classification Forest.
             The default is used if 'default' is provided.
 
         Returns
@@ -267,12 +268,6 @@ class UncertaintyForest:
         self.kappa = kappa
         self.max_depth = max_depth
         self.tree_construction_proportion = tree_construction_proportion
-        self.lf_ = LifelongClassificationForest(
-            default_n_estimators=self.n_estimators,
-            default_kappa=self.kappa,
-            default_max_depth=self.max_depth,
-            default_tree_construction_proportion=self.tree_construction_proportion,
-        )
 
     def fit(self, X, y):
         """
@@ -291,6 +286,13 @@ class UncertaintyForest:
         self : UncertaintyForest
             The object itself.
         """
+        self.lf_ = LifelongClassificationForest(
+            default_n_estimators=self.n_estimators,
+            default_kappa=self.kappa,
+            default_max_depth=self.max_depth,
+            default_tree_construction_proportion=self.tree_construction_proportion,
+        )
+
         X, y = check_X_y(X, y)
         return self.lf_.add_task(X, y, task_id=0)
 

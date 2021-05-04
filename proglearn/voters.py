@@ -10,7 +10,7 @@ from sklearn.utils.validation import (
     check_is_fitted,
 )
 from sklearn.utils.multiclass import check_classification_targets
-from .base import BaseClassificationVoter
+from .base import BaseClassificationVoter, BaseVoter
 
 
 class TreeClassificationVoter(BaseClassificationVoter):
@@ -41,7 +41,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
     def __init__(self, kappa=np.inf, classes=[]):
         self.kappa = kappa
-        self.classes = classes
+        self.classes = np.asarray(classes)
 
     def fit(self, X, y):
         """
@@ -64,7 +64,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         num_fit_classes = len(np.unique(y))
         self.missing_label_indices_ = []
 
-        if np.asarray(self.classes).size != 0 and num_fit_classes < len(self.classes):
+        if self.classes.size != 0 and num_fit_classes < len(self.classes):
             for idx, label in enumerate(self.classes):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(idx)
@@ -206,7 +206,7 @@ class KNNClassificationVoter(BaseClassificationVoter):
     def __init__(self, k=None, kwargs={}, classes=[]):
         self.k = k
         self.kwargs = kwargs
-        self.classes = classes
+        self.classes = np.asarray(classes)
 
     def fit(self, X, y):
         """
@@ -232,7 +232,7 @@ class KNNClassificationVoter(BaseClassificationVoter):
         num_classes = len(np.unique(y))
         self.missing_label_indices_ = []
 
-        if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
+        if self.classes.size != 0 and num_classes < len(self.classes):
             for idx, label in enumerate(self.classes):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(idx)
@@ -289,3 +289,56 @@ class KNNClassificationVoter(BaseClassificationVoter):
             When the model is not fitted.
         """
         return self.classes[np.argmax(self.predict_proba(X), axis=1)]
+
+
+class TreeRegressionVoter(BaseVoter):
+    def __init__(self):
+        """
+        Doc strings here.
+        """
+
+        self._is_fitted = False
+
+    def fit(self, X, y):
+        """
+        Doc strings here.
+        """
+
+        self.leaf_to_yhat = {}
+        self.global_yhat = np.mean(y)
+
+        for leaf_id in np.unique(X):
+            idxs_in_leaf = np.where(X == leaf_id)[0]
+            # class_counts = [len(np.where(y[idxs_in_leaf] == y_val)[0]) for y_val in np.unique(y)]
+            self.leaf_to_yhat[leaf_id] = np.nan_to_num(np.mean(y[idxs_in_leaf]))
+
+        self._is_fitted = True
+
+        return self
+
+    def predict(self, X):
+        """
+        Doc strings here.
+        """
+
+        if not self.is_fitted():
+            msg = (
+                "This %(name)s instance is not fitted yet. Call 'fit' with "
+                "appropriate arguments before using this voter."
+            )
+            raise NotFittedError(msg % {"name": type(self).__name__})
+
+        votes_per_example = []
+        for x in X:
+            if x in list(self.leaf_to_yhat.keys()):
+                votes_per_example.append(self.leaf_to_yhat[x])
+            else:
+                votes_per_example.append(self.global_yhat)
+        return np.array(votes_per_example)
+
+    def is_fitted(self):
+        """
+        Doc strings here.
+        """
+
+        return self._is_fitted
