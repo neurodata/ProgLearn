@@ -1,12 +1,15 @@
-import unittest
-import pytest
-import numpy as np
-import random
-
-from proglearn.forest import LifelongClassificationForest
-from proglearn.transformers import TreeClassificationTransformer
-from proglearn.voters import TreeClassificationVoter
 from proglearn.deciders import SimpleArgmaxAverage
+from proglearn.voters import TreeClassificationVoter
+from proglearn.transformers import TreeClassificationTransformer
+from proglearn.forest import LifelongClassificationForest, UncertaintyForest
+import random
+import numpy as np
+import time
+import pytest
+import unittest
+import pprint
+import sys
+pprint.pprint(sys.path)
 
 
 class TestLifelongClassificationForest:
@@ -47,3 +50,98 @@ class TestLifelongClassificationForest:
     def test_correct_true_initilization_finite_sample_correction(self):
         l2f = LifelongClassificationForest(default_kappa=np.inf)
         assert l2f.pl_.default_voter_kwargs == {"kappa": np.inf}
+
+
+# Test Uncertainty Forest
+
+
+def test_uf_accuracy():
+    uf = UncertaintyForest()
+    X = np.ones((20, 4))
+    X[10:] *= -1
+    y = [0] * 10 + [1] * 10
+    uf = uf.fit(X, y)
+    np.testing.assert_array_equal(uf.predict(X), y)
+
+
+@pytest.mark.parametrize("max_depth", [1, None])
+@pytest.mark.parametrize("max_features", [2, 0.5, "auto", "sqrt", "log2"])
+@pytest.mark.parametrize("poisson_sampler", [False, True])
+def test_decision_tree_params(max_depth, max_features, poisson_sampler):
+    uf = UncertaintyForest(
+        max_depth=max_depth, max_features=max_features, poisson_sampler=poisson_sampler
+    )
+    X = np.ones((12, 20))
+    X[6:] *= -1
+    y = [0] * 6 + [1] * 6
+    uf = uf.fit(X, y)
+
+    assert uf.n_estimators == len(uf.estimators_)
+    depths = [est.max_depth for est in uf.estimators_]
+    assert all(np.asarray(depths) == max_depth)
+
+    features = [est.max_features for est in uf.estimators_]
+    if poisson_sampler:
+        assert not all(np.asarray(features) == features[0])
+    else:
+        assert all(np.asarray(features) == max_features)
+
+
+def test_parallel_trees():
+    uf = UncertaintyForest(n_estimators=100, n_jobs=1,
+                           max_features=1.0, tree_construction_proportion=0.5)
+    uf_parallel = UncertaintyForest(
+        n_estimators=100, n_jobs=10, max_features=1.0, tree_construction_proportion=0.5)
+    X = np.random.normal(0, 1, (1000, 100))
+    y = [0, 1] * (len(X) // 2)
+
+    time_start = time.time()
+    uf.fit(X, y)
+    time_diff = time.time() - time_start
+
+    time_start = time.time()
+    uf_parallel.fit(X, y)
+    time_parallel_diff = time.time() - time_start
+
+    assert time_parallel_diff / time_diff < 0.9
+
+
+def test_max_samples():
+    max_samples_list = [8, 0.5, None]
+    depths = []
+    X = np.random.normal(0, 1, (100, 2))
+    X[:50] *= -1
+    y = [0, 1] * 50
+    for ms in max_samples_list:
+        uf = UncertaintyForest(n_estimators=1, max_samples=ms)
+        uf = uf.fit(X, y)
+        depths.append(uf.estimators_[0].get_depth())
+
+    assert all(np.diff(depths) > 0)
+
+@pytest.mark.parametrize("honest_prior", ["empirical", "uniform", "ignore"])
+def test_honest_prior(honest_prior):
+    X = np.random.normal(0, 1, (60, 2))
+    X[:30] *= -1
+    y = [0, 0, 1] * 20
+    uf = UncertaintyForest(n_estimators=5, honest_prior=honest_prior)
+    uf = uf.fit(X, y)
+    if honest_prior == 'uniform':
+        assert all([len(set(voter.prior_posterior_)) == 1 for voter in uf.voters_])
+    elif honest_prior in ('ignore', 'empirical'):
+        assert all([np.diff(voter.prior_posterior_) < 0 for voter in uf.voters_])
+
+
+@pytest.mark.parametrize("honest_prior", ["empirical", "uniform", "ignore"])
+def test_empty_leaves(honest_prior):
+    np.random.seed(0)
+    X = np.random.normal(0, 1, (100, 2))
+    y = [0]*75 + [1]*25
+    uf = UncertaintyForest(n_estimators=1, honest_prior=honest_prior, tree_construction_proportion=0.96, kappa=np.inf)
+    uf = uf.fit(X, y)
+
+    y_proba = uf.predict_proba(X)
+    if honest_prior == 'uniform':
+        assert len(np.where(y_proba[:, 0] == 0.5)[0]) > 50
+    elif honest_prior in ('ignore', 'empirical'):
+        assert len(np.where(y_proba[:, 0] == 0.75)[0]) > 50
