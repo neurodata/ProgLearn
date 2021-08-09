@@ -283,7 +283,7 @@ top_side.set_visible(False)
 #####################################
 ax = fig.add_subplot(gs[15:21, 18:24])
 
-with open("plots/mean_sample_te.pickle", "rb") as f:
+with open("data/mean_sample_te100.pickle", "rb") as f:
     te = pickle.load(f)
 task2_sample_sweep = (2 ** np.arange(np.log2(60), np.log2(5010) + 1, 0.25)).astype(
     "int"
