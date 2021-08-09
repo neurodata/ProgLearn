@@ -105,7 +105,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         NotFittedError
             When the model is not fitted.
         """
-        check_is_fitted(self)
+        #check_is_fitted(self)
         votes_per_example = []
         for x in X:
             if x in list(self.leaf_to_posterior_.keys()):
