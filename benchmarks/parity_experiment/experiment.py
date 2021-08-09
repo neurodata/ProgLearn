@@ -181,7 +181,7 @@ def experiment(n_task1, n_task2, n_test=1000,
 
 ###main hyperparameters###
 task2_sample_sweep = (2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
-task1_sample_ = [500,1000,5000]
+task1_sample_ = [1000]
 task2_angle = 25*np.pi/180
 mc_rep = 1000
 
