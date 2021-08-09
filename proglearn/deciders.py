@@ -121,14 +121,14 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         NotFittedError
             When the model is not fitted.
         """
-        check_is_fitted(self)
+        #check_is_fitted(self)
         vote_per_transformer_id = []
         for transformer_id in (
             transformer_ids
             if transformer_ids is not None
             else self.transformer_id_to_voters_.keys()
         ):
-            check_is_fitted(self)
+            #check_is_fitted(self)
             vote_per_bag_id = []
             for bag_id in range(
                 len(self.transformer_id_to_transformers_[transformer_id])
