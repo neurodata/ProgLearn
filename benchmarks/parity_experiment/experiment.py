@@ -183,13 +183,13 @@ def experiment(n_task1, n_task2, n_test=1000,
 task2_sample_sweep = (2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
 task1_sample_ = [1000, 5000]
 task2_angle = 25*np.pi/180
-mc_rep = 1000
+mc_rep = 10000
 
 for task1_sample in task1_sample_:
     mean_te = np.zeros(len(task2_sample_sweep), dtype=float)
     for ii,sample_no in enumerate(task2_sample_sweep):
         error = np.array(
-            Parallel(n_jobs=-1,verbose=1)(
+            Parallel(n_jobs=-2,verbose=1)(
             delayed(experiment)(
                 task1_sample,sample_no,
                 task2_angle=task2_angle, 
