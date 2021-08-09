@@ -184,6 +184,6 @@ class TreeClassificationTransformer(BaseTransformer):
         NotFittedError
             When the model is not fitted.
         """
-        check_is_fitted(self)
+        #check_is_fitted(self)
         X = check_array(X)
         return self.transformer_.apply(X)
