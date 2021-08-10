@@ -1,17 +1,12 @@
+#%%
 import random
-import matplotlib
-import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow.keras as keras
-import seaborn as sns
 import numpy as np
 import pickle
 from joblib import Parallel, delayed
 from math import log2, ceil
-from proglearn.progressive_learner import ProgressiveLearner
-from proglearn.deciders import SimpleArgmaxAverage
-from proglearn.transformers import TreeClassificationTransformer, NeuralClassificationTransformer
-from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
+from proglearn.forest import LifelongClassificationForest
 from proglearn.sims import generate_gaussian_parity
 
 #%%
@@ -30,7 +25,6 @@ def experiment(n_task1, n_task2, n_test=1000,
     
     n_task2 : int
         Total number of train dsample for task 2
-
     n_test : int, optional (default=1000)
         Number of test sample for each task.
         
@@ -42,7 +36,6 @@ def experiment(n_task1, n_task2, n_test=1000,
             
     n_trees : int, optional (default=10)
         Number of total trees to train for each task.
-
     max_depth : int, optional (default=None)
         Maximum allowable depth for each tree.
         
@@ -68,32 +61,11 @@ def experiment(n_task1, n_task2, n_test=1000,
 
     errors = np.zeros(6,dtype=float)
 
-    default_transformer_class = TreeClassificationTransformer
-    default_transformer_kwargs = {"kwargs" : {"max_depth" : max_depth}}
-
-    default_voter_class = TreeClassificationVoter
-    default_voter_kwargs = {}
-
-    default_decider_class = SimpleArgmaxAverage
-    default_decider_kwargs = {"classes" : np.arange(2)}
-    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
-                                            default_transformer_kwargs = default_transformer_kwargs,
-                                            default_voter_class = default_voter_class,
-                                            default_voter_kwargs = default_voter_kwargs,
-                                            default_decider_class = default_decider_class,
-                                            default_decider_kwargs = default_decider_kwargs)
-    uf = ProgressiveLearner(default_transformer_class = default_transformer_class,
-                                            default_transformer_kwargs = default_transformer_kwargs,
-                                            default_voter_class = default_voter_class,
-                                            default_voter_kwargs = default_voter_kwargs,
-                                            default_decider_class = default_decider_class,
-                                            default_decider_kwargs = default_decider_kwargs)
-    naive_uf = ProgressiveLearner(default_transformer_class = default_transformer_class,
-                                            default_transformer_kwargs = default_transformer_kwargs,
-                                            default_voter_class = default_voter_class,
-                                            default_voter_kwargs = default_voter_kwargs,
-                                            default_decider_class = default_decider_class,
-                                            default_decider_kwargs = default_decider_kwargs)
+    
+    progressive_learner = LifelongClassificationForest(default_n_estimators=n_trees)
+    uf1 = LifelongClassificationForest(default_n_estimators=n_trees)
+    naive_uf = LifelongClassificationForest(default_n_estimators=n_trees)
+    uf2 = LifelongClassificationForest(default_n_estimators=n_trees)
     
     #source data
     X_task1, y_task1 = generate_gaussian_parity(n_task1, angle_params=task1_angle)
@@ -104,13 +76,13 @@ def experiment(n_task1, n_task2, n_test=1000,
     test_task2, test_label_task2 = generate_gaussian_parity(n_test, angle_params=task2_angle)
 
     if n_task1 == 0:
-        progressive_learner.add_task(X_task2, y_task2, num_transformers=n_trees)
+        progressive_learner.add_task(X_task2, y_task2, n_estimators=n_trees)
+        uf2.add_task(X_task2, y_task2, n_estimators=n_trees)
 
         errors[0] = 0.5
         errors[1] = 0.5
 
-        uf_task2=progressive_learner.predict(test_task2,
-                                             transformer_ids=[0], task_id=0)
+        uf_task2=uf2.predict(test_task2, task_id=0)
         l2f_task2=progressive_learner.predict(test_task2, task_id=0)
 
         errors[2] = 1 - np.mean(uf_task2 == test_label_task2)
@@ -120,10 +92,11 @@ def experiment(n_task1, n_task2, n_test=1000,
         errors[5] = 1 - np.mean(uf_task2 == test_label_task2)
     elif n_task2 == 0:
         progressive_learner.add_task(X_task1, y_task1,
-                                     num_transformers=n_trees)
+                                     n_estimators=n_trees)
+        uf1.add_task(X_task1, y_task1,
+                                     n_estimators=n_trees)
 
-        uf_task1=progressive_learner.predict(test_task1, 
-                                             transformer_ids=[0], task_id=0)
+        uf_task1=uf1.predict(test_task1, task_id=0)
         l2f_task1=progressive_learner.predict(test_task1, task_id=0)
 
         errors[0] = 1 - np.mean(uf_task1 == test_label_task1)
@@ -135,27 +108,27 @@ def experiment(n_task1, n_task2, n_test=1000,
         errors[4] = 1 - np.mean(uf_task1 == test_label_task1)
         errors[5] = 0.5
     else:
-        progressive_learner.add_task(X_task1, y_task1, num_transformers=n_trees)
-        progressive_learner.add_task(X_task2, y_task2, num_transformers=n_trees)
+        progressive_learner.add_task(X_task1, y_task1, n_estimators=n_trees)
+        progressive_learner.add_task(X_task2, y_task2, n_estimators=n_trees)
 
-        uf.add_task(X_task1, y_task1, num_transformers=2*n_trees)
-        uf.add_task(X_task2, y_task2, num_transformers=2*n_trees)
+        uf1.add_task(X_task1, y_task1, n_estimators=2*n_trees)
+        uf2.add_task(X_task2, y_task2, n_estimators=2*n_trees)
         
         naive_uf_train_x = np.concatenate((X_task1,X_task2),axis=0)
         naive_uf_train_y = np.concatenate((y_task1,y_task2),axis=0)
         naive_uf.add_task(
-                naive_uf_train_x, naive_uf_train_y, num_transformers=n_trees
+                naive_uf_train_x, naive_uf_train_y, n_estimators=n_trees
                 )
         
-        uf_task1=uf.predict(test_task1, transformer_ids=[0], task_id=0)
+        uf_task1=uf1.predict(test_task1, task_id=0)
         l2f_task1=progressive_learner.predict(test_task1, task_id=0)
-        uf_task2=uf.predict(test_task2, transformer_ids=[1], task_id=1)
+        uf_task2=uf2.predict(test_task2, task_id=0)
         l2f_task2=progressive_learner.predict(test_task2, task_id=1)
         naive_uf_task1 = naive_uf.predict(
-            test_task1, transformer_ids=[0], task_id=0
+            test_task1, task_id=0
         )
         naive_uf_task2 = naive_uf.predict(
-            test_task2, transformer_ids=[0], task_id=0
+            test_task2, task_id=0
         )
 
         errors[0] = 1 - np.mean(
@@ -178,19 +151,17 @@ def experiment(n_task1, n_task2, n_test=1000,
         )
 
     return errors
+
 #%%
 mc_rep = 1000
 n_test = 1000
 n_trees = 10
 n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
 n_nxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
-
 mean_error = np.zeros((6, len(n_xor)+len(n_nxor)))
 std_error = np.zeros((6, len(n_xor)+len(n_nxor)))
-
 mean_te = np.zeros((4, len(n_xor)+len(n_nxor)))
 std_te = np.zeros((4, len(n_xor)+len(n_nxor)))
-
 for i,n1 in enumerate(n_xor):
     print('starting to compute %s xor\n'%n1)
     error = np.array(
@@ -207,7 +178,6 @@ for i,n1 in enumerate(n_xor):
     mean_te[2,i] = np.mean(error[:,0])/np.mean(error[:,4])
     mean_te[3,i] = np.mean(error[:,2])/np.mean(error[:,5])
     
-
     if n1==n_xor[-1]:
         for j,n2 in enumerate(n_nxor):
             print('starting to compute %s nxor\n'%n2)
@@ -225,29 +195,25 @@ for i,n1 in enumerate(n_xor):
             mean_te[1,i+j+1] = np.mean(error[:,2])/np.mean(error[:,3])
             mean_te[2,i+j+1] = np.mean(error[:,0])/np.mean(error[:,4])
             mean_te[3,i+j+1] = np.mean(error[:,2])/np.mean(error[:,5])
-
-with open('./data/mean_xor_nxor.pickle','wb') as f:
+with open('./data/mean_xor_nxor_with_rep.pickle','wb') as f:
     pickle.dump(mean_error,f)
     
-with open('./data/std_xor_nxor.pickle','wb') as f:
+with open('./data/std_xor_nxor_with_rep.pickle','wb') as f:
     pickle.dump(std_error,f)
     
-with open('./data/mean_te_xor_nxor.pickle','wb') as f:
+with open('./data/mean_te_xor_nxor_with_rep.pickle','wb') as f:
     pickle.dump(mean_te,f)
-
+    
 #%%
 mc_rep = 1000
 n_test = 1000
 n_trees = 10
 n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
 n_rxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
-
 mean_error = np.zeros((6, len(n_xor)+len(n_rxor)))
 std_error = np.zeros((6, len(n_xor)+len(n_rxor)))
-
 mean_te = np.zeros((4, len(n_xor)+len(n_rxor)))
 std_te = np.zeros((4, len(n_xor)+len(n_rxor)))
-
 for i,n1 in enumerate(n_xor):
     print('starting to compute %s xor\n'%n1)
     error = np.array(
@@ -264,7 +230,6 @@ for i,n1 in enumerate(n_xor):
     mean_te[1,i] = np.mean(error[:,2])/np.mean(error[:,3])
     mean_te[2,i] = np.mean(error[:,0])/np.mean(error[:,4])
     mean_te[3,i] = np.mean(error[:,2])/np.mean(error[:,5])
-
     if n1==n_xor[-1]:
         for j,n2 in enumerate(n_rxor):
             print('starting to compute %s rxor\n'%n2)
@@ -283,14 +248,33 @@ for i,n1 in enumerate(n_xor):
             mean_te[1,i+j+1] = np.mean(error[:,2])/np.mean(error[:,3])
             mean_te[2,i+j+1] = np.mean(error[:,0])/np.mean(error[:,4])
             mean_te[3,i+j+1] = np.mean(error[:,2])/np.mean(error[:,5])
-
-with open('./data/mean_xor_rxor.pickle','wb') as f:
+with open('./data/mean_xor_rxor_with_rep.pickle','wb') as f:
     pickle.dump(mean_error,f)
     
-with open('./data/std_xor_rxor.pickle','wb') as f:
+with open('./data/std_xor_rxor_with_rep.pickle','wb') as f:
     pickle.dump(std_error,f)
     
-with open('./data/mean_te_xor_rxor.pickle','wb') as f:
+with open('./data/mean_te_xor_rxor_with_rep.pickle','wb') as f:
+    pickle.dump(mean_te,f)
+#%%
+###main hyperparameters###
+task2_sample_sweep = (2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
+task1_sample = 500
+task2_angle = 25*np.pi/180
+mc_rep = 1000
+mean_te = np.zeros(len(task2_sample_sweep), dtype=float)
+for ii,sample_no in enumerate(task2_sample_sweep):
+    error = np.array(
+        Parallel(n_jobs=-1,verbose=1)(
+        delayed(experiment)(
+            task1_sample,sample_no,
+            task2_angle=task2_angle, 
+            max_depth=None
+        ) for _ in range(mc_rep)
+      )
+    )
+    mean_te[ii] = np.mean(error[:,0])/np.mean(error[:,1])
+with open('./data/mean_sample_te_with_rep.pickle','wb') as f:
     pickle.dump(mean_te,f)
 
 #%%
@@ -314,5 +298,5 @@ for ii,angle in enumerate(angle_sweep):
 
     mean_te[ii] = np.mean(error[:,0])/np.mean(error[:,1])
 
-with open('./data/mean_angle_te.pickle','wb') as f:
+with open('./data/mean_angle_te_with_rep.pickle','wb') as f:
     pickle.dump(mean_te,f)
