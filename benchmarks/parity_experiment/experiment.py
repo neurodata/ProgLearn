@@ -178,27 +178,141 @@ def experiment(n_task1, n_task2, n_test=1000,
         )
 
     return errors
+#%%
+mc_rep = 1000
+n_test = 1000
+n_trees = 10
+n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
+n_nxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
 
+mean_error = np.zeros((6, len(n_xor)+len(n_nxor)))
+std_error = np.zeros((6, len(n_xor)+len(n_nxor)))
+
+mean_te = np.zeros((4, len(n_xor)+len(n_nxor)))
+std_te = np.zeros((4, len(n_xor)+len(n_nxor)))
+
+for i,n1 in enumerate(n_xor):
+    print('starting to compute %s xor\n'%n1)
+    error = np.array(
+        Parallel(n_jobs=-1,verbose=1)(
+        delayed(experiment)(
+            n1,0,max_depth=ceil(log2(n1))
+        ) for _ in range(mc_rep)
+      )
+    )
+    mean_error[:,i] = np.mean(error,axis=0)
+    std_error[:,i] = np.std(error,ddof=1,axis=0)
+    mean_te[0,i] = np.mean(error[:,0])/np.mean(error[:,1])
+    mean_te[1,i] = np.mean(error[:,2])/np.mean(error[:,3])
+    mean_te[2,i] = np.mean(error[:,0])/np.mean(error[:,4])
+    mean_te[3,i] = np.mean(error[:,2])/np.mean(error[:,5])
+    
+
+    if n1==n_xor[-1]:
+        for j,n2 in enumerate(n_nxor):
+            print('starting to compute %s nxor\n'%n2)
+            
+            error = np.array(
+                Parallel(n_jobs=-1,verbose=1)(
+                delayed(experiment)(
+                    n1,n2,max_depth=ceil(log2(750))
+                ) for _ in range(mc_rep)
+              )
+            )
+            mean_error[:,i+j+1] = np.mean(error,axis=0)
+            std_error[:,i+j+1] = np.std(error,ddof=1,axis=0)
+            mean_te[0,i+j+1] = np.mean(error[:,0])/np.mean(error[:,1])
+            mean_te[1,i+j+1] = np.mean(error[:,2])/np.mean(error[:,3])
+            mean_te[2,i+j+1] = np.mean(error[:,0])/np.mean(error[:,4])
+            mean_te[3,i+j+1] = np.mean(error[:,2])/np.mean(error[:,5])
+
+with open('./data/mean_xor_nxor.pickle','wb') as f:
+    pickle.dump(mean_error,f)
+    
+with open('./data/std_xor_nxor.pickle','wb') as f:
+    pickle.dump(std_error,f)
+    
+with open('./data/mean_te_xor_nxor.pickle','wb') as f:
+    pickle.dump(mean_te,f)
+
+#%%
+mc_rep = 1000
+n_test = 1000
+n_trees = 10
+n_xor = (100*np.arange(0.5, 7.25, step=0.25)).astype(int)
+n_rxor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
+
+mean_error = np.zeros((6, len(n_xor)+len(n_rxor)))
+std_error = np.zeros((6, len(n_xor)+len(n_rxor)))
+
+mean_te = np.zeros((4, len(n_xor)+len(n_rxor)))
+std_te = np.zeros((4, len(n_xor)+len(n_rxor)))
+
+for i,n1 in enumerate(n_xor):
+    print('starting to compute %s xor\n'%n1)
+    error = np.array(
+        Parallel(n_jobs=-1,verbose=1)(
+        delayed(experiment)(
+            n1,0,task2_angle=np.pi/4,
+            max_depth=ceil(log2(750))
+        ) for _ in range(mc_rep)
+      )
+    )
+    mean_error[:,i] = np.mean(error,axis=0)
+    std_error[:,i] = np.std(error,ddof=1,axis=0)
+    mean_te[0,i] = np.mean(error[:,0])/np.mean(error[:,1])
+    mean_te[1,i] = np.mean(error[:,2])/np.mean(error[:,3])
+    mean_te[2,i] = np.mean(error[:,0])/np.mean(error[:,4])
+    mean_te[3,i] = np.mean(error[:,2])/np.mean(error[:,5])
+
+    if n1==n_xor[-1]:
+        for j,n2 in enumerate(n_rxor):
+            print('starting to compute %s rxor\n'%n2)
+            
+            error = np.array(
+                Parallel(n_jobs=-1,verbose=1)(
+                delayed(experiment)(
+                    n1,n2,task2_angle=np.pi/4,
+                    max_depth=ceil(log2(750))
+                ) for _ in range(mc_rep)
+              )
+            )
+            mean_error[:,i+j+1] = np.mean(error,axis=0)
+            std_error[:,i+j+1] = np.std(error,ddof=1,axis=0)
+            mean_te[0,i+j+1] = np.mean(error[:,0])/np.mean(error[:,1])
+            mean_te[1,i+j+1] = np.mean(error[:,2])/np.mean(error[:,3])
+            mean_te[2,i+j+1] = np.mean(error[:,0])/np.mean(error[:,4])
+            mean_te[3,i+j+1] = np.mean(error[:,2])/np.mean(error[:,5])
+
+with open('./data/mean_xor_rxor.pickle','wb') as f:
+    pickle.dump(mean_error,f)
+    
+with open('./data/std_xor_rxor.pickle','wb') as f:
+    pickle.dump(std_error,f)
+    
+with open('./data/mean_te_xor_rxor.pickle','wb') as f:
+    pickle.dump(mean_te,f)
+
+#%%
 ###main hyperparameters###
-task2_sample_sweep = (2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
-task1_sample_ = [1000, 5000]
-task2_angle = 25*np.pi/180
-mc_rep = 9000
+angle_sweep = range(0,90,1)
+task1_sample = 100
+task2_sample = 100
+mc_rep = 10000
 
-for task1_sample in task1_sample_:
-    mean_te = np.zeros(len(task2_sample_sweep), dtype=float)
-    for ii,sample_no in enumerate(task2_sample_sweep):
-        error = np.array(
-            Parallel(n_jobs=-2,verbose=1)(
-            delayed(experiment)(
-                task1_sample,sample_no,
-                task2_angle=task2_angle, 
-                max_depth=None
-            ) for _ in range(mc_rep)
-        )
-        )
+mean_te = np.zeros(len(angle_sweep), dtype=float)
+for ii,angle in enumerate(angle_sweep):
+    error = np.array(
+        Parallel(n_jobs=-1,verbose=1)(
+        delayed(experiment)(
+            task1_sample,task2_sample,
+            task2_angle=angle*np.pi/180, 
+            max_depth=ceil(log2(task1_sample))
+        ) for _ in range(mc_rep)
+      )
+    )
 
-        mean_te[ii] = np.mean(error[:,0])/np.mean(error[:,1])
+    mean_te[ii] = np.mean(error[:,0])/np.mean(error[:,1])
 
-    with open('./data/mean_sample_te'+str(task1_sample)+'.pickle','wb') as f:
-        pickle.dump(mean_te,f)
+with open('./data/mean_angle_te.pickle','wb') as f:
+    pickle.dump(mean_te,f)
