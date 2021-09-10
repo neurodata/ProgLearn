@@ -45,6 +45,8 @@ Or, alternatively, you can use ``pip``::
     $ cd proglearn
     $ pip install .
 
+The installation process takes about 4 seconds in a typical desktop computer.
+
 Python package dependencies
 ---------------------------
 ``proglearn`` requires the following packages:
