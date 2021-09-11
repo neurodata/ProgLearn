@@ -269,7 +269,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ################################
     # Plots of Generalization Error
     ################################
-    algorithms = ["XOR Forest", "N-XOR Forest", "PLF", "RF"]
+    algorithms = ["XOR Forest", "XNOR Forest", "Odif ", "RF"]
 
     fontsize=30
     labelsize=28
@@ -284,10 +284,11 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
 
     ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontsize=fontsize)
     ax1.legend(loc='upper left', fontsize=20, frameon=False)
-    #ax1.set_ylim(0.09, 0.21)
     ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
     ax1.tick_params(labelsize=labelsize)
-    #ax1.set_yticks([0.5,0.15, 0.25])
+    ax1.set_yscale('log')
+    ax1.yaxis.set_major_formatter(ScalarFormatter())
+    ax1.set_yticks([0.1, 0.3, 0.5])
     ax1.set_xticks([50,750,1500])
     ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
     ax1.set_title('XOR', fontsize=30)
@@ -302,10 +303,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
 
     ##############
 
-    algorithms = ["XOR Forest", "N-XOR Forest", "PLF", "RF"]
-
-    TASK1='XOR'
-    TASK2='N-XOR'
+    algorithms = ["XOR Forest", "XNOR Forest", "Odif", "RF"]
 
     ax1 = fig.add_subplot(gs[7:,7:13])
 
@@ -316,9 +314,11 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax1.legend(loc='upper left', fontsize=20, frameon=False)
     ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
     ax1.tick_params(labelsize=labelsize)
+    ax1.set_yscale('log')
+    ax1.yaxis.set_major_formatter(ScalarFormatter())
+    ax1.set_yticks([0.1, 0.5, 0.9])
     ax1.set_xticks([50,750,1500])
     ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
-
 
     right_side = ax1.spines["right"]
     right_side.set_visible(False)
@@ -328,16 +328,13 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
     ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
-    ax1.set_title('N-XOR', fontsize=30)
+    ax1.set_title('XNOR', fontsize=30)
 
     ################################
     # Plots of Transfer Efficiency
     ################################
 
-    algorithms = ['PLF BTE', 'PLF FTE', 'RF BTE', 'RF FTE']
-
-    TASK1='XOR'
-    TASK2='N-XOR'
+    algorithms = ['Odif BTE', 'Odif FTE', 'RF BTE', 'RF FTE']
 
     ax1 = fig.add_subplot(gs[7:,14:])
 
@@ -346,11 +343,22 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax1.plot(ns, mean_te[2], label=algorithms[2], c='g', ls=ls[0], lw=3)
     ax1.plot(ns[len(n1s):], mean_te[3, len(n1s):], label=algorithms[3], c='g', ls=ls[1], lw=3)
 
-    ax1.set_ylabel('Forward/Backward \n Transfer Efficiency (FTE/BTE)', fontsize=fontsize)
+    ax1.set_ylabel('log Forward/Backward \n Transfer Efficiency (FTE/BTE)', fontsize=fontsize)
     ax1.legend(loc='upper right', fontsize=20, frameon=False)
-    ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
+    ax1.set_yticks([0.05, 1, 2.5])
+    ax1.set_ylim(0.05, 2.52)
+    ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
+    log_lbl = np.round(
+        np.log([.05,1,2.5]),
+        2
+    )
+    labels = [item.get_text() for item in ax1.get_yticklabels()]
+
+    for ii,_ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+
+    ax1.set_yticklabels(labels)
     ax1.tick_params(labelsize=labelsize)
-    #ax1.set_yticks([0,.5,1,1.5])
     ax1.set_xticks([50,750,1500])
     ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
     right_side = ax1.spines["right"]
@@ -375,7 +383,6 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax.set_yticks([])
     ax.set_title('Gaussian XOR', fontsize=30)
 
-    #plt.tight_layout()
     ax.axis('off')
 
     colors = sns.color_palette('Dark2', n_colors=2)
@@ -386,6 +393,6 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
 
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title('Gaussian N-XOR', fontsize=30)
+    ax.set_title('Gaussian XNOR', fontsize=30)
     ax.axis('off')
 
