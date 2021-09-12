@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 import random
 
-import keras
+from tensorflow import keras
 
 from proglearn.network import LifelongClassificationNetwork
 from proglearn.transformers import NeuralClassificationTransformer
