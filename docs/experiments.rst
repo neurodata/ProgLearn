@@ -13,7 +13,7 @@ The following experiments illustrate specific tests using the ``ProgLearn`` pack
     experiments/random_class_exp
     experiments/rotation_cifar
     experiments/spiral_exp
-    experiments/xor_nxor_exp
+    experiments/xor_xnor_exp
     experiments/xor_rxor_exp
     experiments/xor_rxor_with_cpd
     experiments/xor_rxor_with_icp

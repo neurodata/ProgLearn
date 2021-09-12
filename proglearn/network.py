@@ -9,8 +9,8 @@ from .transformers import NeuralClassificationTransformer
 from .voters import KNNClassificationVoter
 from .deciders import SimpleArgmaxAverage
 
-from keras.optimizers import Adam
-from keras.callbacks import EarlyStopping
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
 
 from sklearn.utils.validation import check_X_y, check_array
 

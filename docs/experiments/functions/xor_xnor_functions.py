@@ -5,7 +5,7 @@ from math import log2, ceil
 
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+from matplotlib.ticker import ScalarFormatter
 from proglearn.forest import LifelongClassificationForest, UncertaintyForest
 from proglearn.sims import *
 from proglearn.progressive_learner import ProgressiveLearner
@@ -20,7 +20,7 @@ def get_colors(colors, inds):
     return c
 
 
-def plot_xor_nxor(data, labels, title):
+def plot_xor_xnor(data, labels, title):
     colors = sns.color_palette("Dark2", n_colors=2)
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
     ax.scatter(data[:, 0], data[:, 1], c=get_colors(colors, labels), s=50)
@@ -31,7 +31,7 @@ def plot_xor_nxor(data, labels, title):
     ax.axis("off")
     plt.show()
 
-def run(mc_rep, n_test, n_trees,n_xor,n_nxor, mean_error, std_error, mean_te, std_te):
+def run(mc_rep, n_test, n_trees, n_xor, n_xnor, mean_error, std_error, mean_te, std_te):
     for i,n1 in enumerate(n_xor):
         #print('starting to compute %s xor\n'%n1)
         #run experiment in parallel
@@ -52,7 +52,7 @@ def run(mc_rep, n_test, n_trees,n_xor,n_nxor, mean_error, std_error, mean_te, st
         
         # initialize learning on n-xor data
         if n1==n_xor[-1]:
-            for j,n2 in enumerate(n_nxor):
+            for j,n2 in enumerate(n_xnor):
                 #print('starting to compute %s nxor\n'%n2)
                 # run experiment in parallel
                 error = np.array(
@@ -77,7 +77,7 @@ def experiment(n_task1, n_task2, n_test=1000,
                n_trees=10, max_depth=None, random_state=None):
     
     """
-    A function to do progressive experiment between two tasks
+    A function to do Odif experiment between two tasks
     where the task data is generated using Gaussian parity.
     
     Parameters
@@ -125,32 +125,11 @@ def experiment(n_task1, n_task2, n_test=1000,
 
     errors = np.zeros(6,dtype=float)
 
-    default_transformer_class = TreeClassificationTransformer
-    default_transformer_kwargs = {"kwargs" : {"max_depth" : max_depth}}
-
-    default_voter_class = TreeClassificationVoter
-    default_voter_kwargs = {}
-
-    default_decider_class = SimpleArgmaxAverage
-    default_decider_kwargs = {"classes" : np.arange(2)}
-    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
-                                            default_transformer_kwargs = default_transformer_kwargs,
-                                            default_voter_class = default_voter_class,
-                                            default_voter_kwargs = default_voter_kwargs,
-                                            default_decider_class = default_decider_class,
-                                            default_decider_kwargs = default_decider_kwargs)
-    uf = ProgressiveLearner(default_transformer_class = default_transformer_class,
-                                            default_transformer_kwargs = default_transformer_kwargs,
-                                            default_voter_class = default_voter_class,
-                                            default_voter_kwargs = default_voter_kwargs,
-                                            default_decider_class = default_decider_class,
-                                            default_decider_kwargs = default_decider_kwargs)
-    naive_uf = ProgressiveLearner(default_transformer_class = default_transformer_class,
-                                            default_transformer_kwargs = default_transformer_kwargs,
-                                            default_voter_class = default_voter_class,
-                                            default_voter_kwargs = default_voter_kwargs,
-                                            default_decider_class = default_decider_class,
-                                            default_decider_kwargs = default_decider_kwargs)
+    
+    progressive_learner = LifelongClassificationForest(default_n_estimators=n_trees)
+    uf1 = LifelongClassificationForest(default_n_estimators=n_trees)
+    naive_uf = LifelongClassificationForest(default_n_estimators=n_trees)
+    uf2 = LifelongClassificationForest(default_n_estimators=n_trees)
     
     #source data
     X_task1, y_task1 = generate_gaussian_parity(n_task1, angle_params=task1_angle)
@@ -161,13 +140,13 @@ def experiment(n_task1, n_task2, n_test=1000,
     test_task2, test_label_task2 = generate_gaussian_parity(n_test, angle_params=task2_angle)
 
     if n_task1 == 0:
-        progressive_learner.add_task(X_task2, y_task2, num_transformers=n_trees)
+        progressive_learner.add_task(X_task2, y_task2, n_estimators=n_trees)
+        uf2.add_task(X_task2, y_task2, n_estimators=n_trees)
 
         errors[0] = 0.5
         errors[1] = 0.5
 
-        uf_task2=progressive_learner.predict(test_task2,
-                                             transformer_ids=[0], task_id=0)
+        uf_task2=uf2.predict(test_task2, task_id=0)
         l2f_task2=progressive_learner.predict(test_task2, task_id=0)
 
         errors[2] = 1 - np.mean(uf_task2 == test_label_task2)
@@ -177,10 +156,11 @@ def experiment(n_task1, n_task2, n_test=1000,
         errors[5] = 1 - np.mean(uf_task2 == test_label_task2)
     elif n_task2 == 0:
         progressive_learner.add_task(X_task1, y_task1,
-                                     num_transformers=n_trees)
+                                     n_estimators=n_trees)
+        uf1.add_task(X_task1, y_task1,
+                                     n_estimators=n_trees)
 
-        uf_task1=progressive_learner.predict(test_task1, 
-                                             transformer_ids=[0], task_id=0)
+        uf_task1=uf1.predict(test_task1, task_id=0)
         l2f_task1=progressive_learner.predict(test_task1, task_id=0)
 
         errors[0] = 1 - np.mean(uf_task1 == test_label_task1)
@@ -192,27 +172,27 @@ def experiment(n_task1, n_task2, n_test=1000,
         errors[4] = 1 - np.mean(uf_task1 == test_label_task1)
         errors[5] = 0.5
     else:
-        progressive_learner.add_task(X_task1, y_task1, num_transformers=n_trees)
-        progressive_learner.add_task(X_task2, y_task2, num_transformers=n_trees)
+        progressive_learner.add_task(X_task1, y_task1, n_estimators=n_trees)
+        progressive_learner.add_task(X_task2, y_task2, n_estimators=n_trees)
 
-        uf.add_task(X_task1, y_task1, num_transformers=2*n_trees)
-        uf.add_task(X_task2, y_task2, num_transformers=2*n_trees)
+        uf1.add_task(X_task1, y_task1, n_estimators=2*n_trees)
+        uf2.add_task(X_task2, y_task2, n_estimators=2*n_trees)
         
         naive_uf_train_x = np.concatenate((X_task1,X_task2),axis=0)
         naive_uf_train_y = np.concatenate((y_task1,y_task2),axis=0)
         naive_uf.add_task(
-                naive_uf_train_x, naive_uf_train_y, num_transformers=n_trees
+                naive_uf_train_x, naive_uf_train_y, n_estimators=n_trees
                 )
         
-        uf_task1=uf.predict(test_task1, transformer_ids=[0], task_id=0)
+        uf_task1=uf1.predict(test_task1, task_id=0)
         l2f_task1=progressive_learner.predict(test_task1, task_id=0)
-        uf_task2=uf.predict(test_task2, transformer_ids=[1], task_id=1)
+        uf_task2=uf2.predict(test_task2, task_id=0)
         l2f_task2=progressive_learner.predict(test_task2, task_id=1)
         naive_uf_task1 = naive_uf.predict(
-            test_task1, transformer_ids=[0], task_id=0
+            test_task1, task_id=0
         )
         naive_uf_task2 = naive_uf.predict(
-            test_task2, transformer_ids=[0], task_id=0
+            test_task2, task_id=0
         )
 
         errors[0] = 1 - np.mean(
@@ -269,7 +249,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ################################
     # Plots of Generalization Error
     ################################
-    algorithms = ["XOR Forest", "N-XOR Forest", "PLF", "RF"]
+    algorithms = ["XOR Forest", "XNOR Forest", "Odif ", "RF"]
 
     fontsize=30
     labelsize=28
@@ -284,10 +264,11 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
 
     ax1.set_ylabel('Generalization Error (%s)'%(TASK1), fontsize=fontsize)
     ax1.legend(loc='upper left', fontsize=20, frameon=False)
-    #ax1.set_ylim(0.09, 0.21)
     ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
     ax1.tick_params(labelsize=labelsize)
-    #ax1.set_yticks([0.5,0.15, 0.25])
+    ax1.set_yscale('log')
+    ax1.yaxis.set_major_formatter(ScalarFormatter())
+    ax1.set_yticks([0.1, 0.3, 0.5])
     ax1.set_xticks([50,750,1500])
     ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
     ax1.set_title('XOR', fontsize=30)
@@ -302,10 +283,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
 
     ##############
 
-    algorithms = ["XOR Forest", "N-XOR Forest", "PLF", "RF"]
-
-    TASK1='XOR'
-    TASK2='N-XOR'
+    algorithms = ["XOR Forest", "XNOR Forest", "Odif", "RF"]
 
     ax1 = fig.add_subplot(gs[7:,7:13])
 
@@ -316,9 +294,11 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax1.legend(loc='upper left', fontsize=20, frameon=False)
     ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
     ax1.tick_params(labelsize=labelsize)
+    ax1.set_yscale('log')
+    ax1.yaxis.set_major_formatter(ScalarFormatter())
+    ax1.set_yticks([0.1, 0.5, 0.9])
     ax1.set_xticks([50,750,1500])
     ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
-
 
     right_side = ax1.spines["right"]
     right_side.set_visible(False)
@@ -328,16 +308,13 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax1.text(400, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
     ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
 
-    ax1.set_title('N-XOR', fontsize=30)
+    ax1.set_title('XNOR', fontsize=30)
 
     ################################
     # Plots of Transfer Efficiency
     ################################
 
-    algorithms = ['PLF BTE', 'PLF FTE', 'RF BTE', 'RF FTE']
-
-    TASK1='XOR'
-    TASK2='N-XOR'
+    algorithms = ['Odif BTE', 'Odif FTE', 'RF BTE', 'RF FTE']
 
     ax1 = fig.add_subplot(gs[7:,14:])
 
@@ -346,11 +323,22 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax1.plot(ns, mean_te[2], label=algorithms[2], c='g', ls=ls[0], lw=3)
     ax1.plot(ns[len(n1s):], mean_te[3, len(n1s):], label=algorithms[3], c='g', ls=ls[1], lw=3)
 
-    ax1.set_ylabel('Forward/Backward \n Transfer Efficiency (FTE/BTE)', fontsize=fontsize)
+    ax1.set_ylabel('log Forward/Backward \n Transfer Efficiency (FTE/BTE)', fontsize=fontsize)
     ax1.legend(loc='upper right', fontsize=20, frameon=False)
-    ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
+    ax1.set_yticks([0.05, 1, 2.5])
+    ax1.set_ylim(0.05, 2.52)
+    ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
+    log_lbl = np.round(
+        np.log([.05,1,2.5]),
+        2
+    )
+    labels = [item.get_text() for item in ax1.get_yticklabels()]
+
+    for ii,_ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+
+    ax1.set_yticklabels(labels)
     ax1.tick_params(labelsize=labelsize)
-    #ax1.set_yticks([0,.5,1,1.5])
     ax1.set_xticks([50,750,1500])
     ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
     right_side = ax1.spines["right"]
@@ -375,7 +363,6 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax.set_yticks([])
     ax.set_title('Gaussian XOR', fontsize=30)
 
-    #plt.tight_layout()
     ax.axis('off')
 
     colors = sns.color_palette('Dark2', n_colors=2)
@@ -386,6 +373,6 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
 
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title('Gaussian N-XOR', fontsize=30)
+    ax.set_title('Gaussian XNOR', fontsize=30)
     ax.axis('off')
 

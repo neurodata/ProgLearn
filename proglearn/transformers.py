@@ -2,7 +2,7 @@
 Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
-import keras
+from tensorflow import keras
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
