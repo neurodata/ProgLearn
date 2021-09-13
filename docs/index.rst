@@ -51,9 +51,9 @@ terms of the :doc:`MIT </license>`.  We welcome contributions. Join us on
 History
 -------
 
-``ProgLearn`` was founded in February 2020. The source code was designed and written by
-Will LeVine and Hayden Helm. The experiment code was designed and written by Jayanta Dey
-and Will LeVine. The repository is maintained by Will LeVine and Jayanta Dey.
+``ProgLearn`` was founded in February 2020. The source code was designed, written and verified by
+Will LeVine, Jayanta Dey, and Hayden Helm. The experiment code was designed and written by Jayanta Dey
+and Will LeVine. The repository is maintained by Jayanta Dey.
 
 Documentation
 =============
