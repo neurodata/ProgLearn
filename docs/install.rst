@@ -50,7 +50,6 @@ The installation process takes about 4 seconds in a typical desktop computer.
 If the installation is done in a new Python virtual environment, it takes about 1 
 minute and 35 seconds. 
 
-
 Python package dependencies
 ---------------------------
 ``proglearn`` requires the following packages:
