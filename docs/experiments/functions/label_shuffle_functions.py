@@ -150,7 +150,7 @@ def label_shuffle_experiment(
     accuracies_across_tasks = []
 
     # Declare the progressive learner model (L2F), with ntrees as a parameter
-    learner = LifelongClassificationForest(n_estimators=ntrees)
+    learner = LifelongClassificationForest(default_n_estimators=ntrees)
 
     for task_ii in range(10):
         print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))
@@ -252,10 +252,21 @@ def plot_bte(btes):
     fig, ax = plt.subplots(1, 1, figsize=(10, 8))
 
     # Plot the results
-    ax.plot(np.arange(1, 11), btes[0], c=c[0], label="L2F", linewidth=3)
+    ax.plot(np.arange(1, 11), btes[0], c=c[0], label="Odif", linewidth=3)
 
     # Format the plot, and show result
-    ax.set_yticks([0.9, 0.95, 1, 1.05, 1.1, 1.15, 1.2])
+    ax.set_yticks([1, 1.1, 1.15])
+    log_lbl = np.round(
+        np.log([1, 1.1, 1.15]),
+        2
+    )
+    labels = [item.get_text() for item in ax.get_yticklabels()]
+
+    for ii,_ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+
+    ax.set_yticklabels(labels)
+
     ax.set_xticks(np.arange(1, 11))
     ax.tick_params(labelsize=20)
     ax.set_xlabel("Number of tasks seen", fontsize=24)
