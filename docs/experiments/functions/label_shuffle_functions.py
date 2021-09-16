@@ -183,7 +183,7 @@ def plot_bte(btes):
     ax.set_xticks(np.arange(1, 11))
     ax.tick_params(labelsize=20)
     ax.set_xlabel("Number of tasks seen", fontsize=24)
-    ax.set_ylabel("Backward Transfer Efficiency", fontsize=24)
+    ax.set_ylabel("log Backward TE", fontsize=24)
     ax.set_title("Label Shuffled CIFAR", fontsize=24)
     ax.hlines(1, 1, 10, colors="grey", linestyles="dashed", linewidth=1.5)
     right_side = ax.spines["right"]
