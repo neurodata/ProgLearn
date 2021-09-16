@@ -11,7 +11,7 @@ from skimage.util import img_as_ubyte
 import numpy as np
 import seaborn as sns
 
-# Import the progressive learning packages
+# Import the omnidirectional learning packages
 from proglearn.forest import LifelongClassificationForest
 
 # Randomized selection of training and testing subsets
@@ -53,7 +53,7 @@ def cross_val_data(data_x, data_y, total_cls=10):
 
 
 # Runs the experiments
-def LF_experiment(
+def odif_experiment(
     angle, data_x, data_y, granularity, max_depth, reps=1, ntrees=29, acorn=None
 ):
 
@@ -100,17 +100,17 @@ def LF_experiment(
         )
         # number of trees (estimators) to use is passed as an argument because the default is 100 estimators
         progressive_learner = LifelongClassificationForest(
-            n_estimators=ntrees, default_max_depth=max_depth
+             default_max_depth=max_depth
         )
 
         # Add the original task
-        progressive_learner.add_task(X=train_x1, y=train_y1)
+        progressive_learner.add_task(X=train_x1, y=train_y1, n_estimators=ntrees)
 
         # Predict and get errors for original task
         llf_single_task = progressive_learner.predict(test_x, task_id=0)
 
         # Add the new transformer
-        progressive_learner.add_transformer(X=tmp_data, y=train_y2)
+        progressive_learner.add_transformer(X=tmp_data, y=train_y2, n_estimators=ntrees)
 
         # Predict and get errors with the new transformer
         llf_task1 = progressive_learner.predict(test_x, task_id=0)
@@ -159,18 +159,30 @@ def plot_bte(bte, angles):
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
 
     # Plot the data
-    ax.plot(angles, bte, c=c[0], label="L2F", linewidth=3)
+    ax.plot(angles, bte, c=c[0], label="Odif", linewidth=3)
 
     # Format and label the plot
     ax.set_xticks([0, 30, 60, 90, 120, 150, 180])
     ax.tick_params(labelsize=20)
+    ax.set_yticks([1, 1.1, 1.15])
+
+    log_lbl = np.round(
+        np.log([1, 1.1, 1.15]),
+        2
+    )
+    labels = [item.get_text() for item in ax.get_yticklabels()]
+
+    for ii,_ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+
+    ax.set_yticklabels(labels)
+
     ax.set_xlabel("Angle of Rotation (Degrees)", fontsize=24)
-    ax.set_ylabel("Backward Transfer Efficiency", fontsize=24)
+    ax.set_ylabel("log Backward TE", fontsize=24)
     ax.set_title("Rotation Experiment", fontsize=24)
     right_side = ax.spines["right"]
     right_side.set_visible(False)
     top_side = ax.spines["top"]
     top_side.set_visible(False)
     plt.tight_layout()
-    # x.legend(fontsize = 24)
     plt.show()

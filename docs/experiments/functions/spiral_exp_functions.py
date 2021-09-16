@@ -218,7 +218,7 @@ def plot_results(n_spiral3,n_spiral5,mean_error, std_error, mean_te, std_te):
 
     ns = np.concatenate((n1s, n2s + n1s[-1]))
     ls=['-', '--']
-    algorithms = ['3 spirals Forest', '5 spirals Forest', "Progressive Learning Forest (PLF)", "Random Forest (RF)"]
+    algorithms = ['3 spirals Forest', '5 spirals Forest', "Omnidirectional Forest (Odif)", "Random Forest (RF)"]
 
 
     TASK1='3 spirals'
@@ -240,9 +240,9 @@ def plot_results(n_spiral3,n_spiral5,mean_error, std_error, mean_te, std_te):
     #ax1.set_ylim(0.09, 0.21)
     ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
     ax1.tick_params(labelsize=labelsize)
-    #ax1.set_yticks([0.5,0.15, 0.25])
+    ax1.set_yticks([0.25,0.35, 0.45, 0.55])
     ax1.set_xticks([50,750,1500])
-    #ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+    ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
     ax1.set_title('3 spirals', fontsize=30)
 
     right_side = ax1.spines["right"]
@@ -263,8 +263,9 @@ def plot_results(n_spiral3,n_spiral5,mean_error, std_error, mean_te, std_te):
     ax1.set_ylabel('Generalization Error (%s)'%(TASK2), fontsize=fontsize)
     ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
     ax1.tick_params(labelsize=labelsize)
+    ax1.set_yticks([0.2,0.5, 0.8])
     ax1.set_xticks([50,750,1500])
-    #ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+    ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
 
 
     right_side = ax1.spines["right"]
@@ -280,7 +281,7 @@ def plot_results(n_spiral3,n_spiral5,mean_error, std_error, mean_te, std_te):
     #####################################
 
 
-    algorithms = ['PLF BTE', 'PLF FTE', 'RF BTE', 'RF FTE']
+    algorithms = ['Odif BTE', 'Odif FTE', 'RF BTE', 'RF FTE']
 
     ax1 = fig.add_subplot(gs[7:,14:])
 
@@ -289,17 +290,30 @@ def plot_results(n_spiral3,n_spiral5,mean_error, std_error, mean_te, std_te):
     ax1.plot(ns, mean_te[2], label=algorithms[2], c='g', ls=ls[0], lw=3)
     ax1.plot(ns[len(n1s):], mean_te[3, len(n1s):], label=algorithms[3], c='g', ls=ls[1], lw=3)
 
-    ax1.set_ylabel('Forward/Backward \n Transfer Efficiency (FTE/BTE)', fontsize=fontsize)
+    ax1.set_ylabel('log Forward/Backward \n Transfer Efficiency (FTE/BTE)', fontsize=fontsize)
     ax1.legend(loc='upper left', fontsize=20, frameon=False)
     ax1.set_xlabel('Total Sample Size', fontsize=fontsize)
     ax1.tick_params(labelsize=labelsize)
+    ax1.set_yticks([0.4, 0.6, 0.8, 1, 1.2])
     ax1.set_xticks([50,750,1500])
-    #ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+    ax1.axvline(x=750, c='gray', linewidth=1.5, linestyle="dashed")
+
     right_side = ax1.spines["right"]
     right_side.set_visible(False)
     top_side = ax1.spines["top"]
     top_side.set_visible(False)
     ax1.hlines(1, 50,1500, colors='gray', linestyles='dashed',linewidth=1.5)
+
+    log_lbl = np.round(
+        np.log([0.4, 0.6, 0.8, 1, 1.2]),
+        2
+    )
+    labels = [item.get_text() for item in ax1.get_yticklabels()]
+
+    for ii,_ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+
+    ax1.set_yticklabels(labels)
 
     ax1.text(200, np.mean(ax1.get_ylim()), "%s"%(TASK1), fontsize=26)
     ax1.text(900, np.mean(ax1.get_ylim()), "%s"%(TASK2), fontsize=26)
