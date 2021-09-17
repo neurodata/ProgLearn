@@ -19,14 +19,14 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'ProgLearn'
-copyright = '2020, Will LeVine, Jayanta Dey, Hayden Helm'
-author = 'Will LeVine, Jayanta Dey, Hayden Helm'
+project = "ProgLearn"
+copyright = "2020, Will LeVine, Jayanta Dey, Hayden Helm"
+author = "Will LeVine, Jayanta Dey, Hayden Helm"
 
 # The short X.Y version
-version = ''
+version = ""
 # The full version, including alpha/beta/rc tags
-release = '0.01'
+release = "0.01"
 
 
 # -- Extension configuration -------------------------------------------------
@@ -99,7 +99,7 @@ html_theme_options = {
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ProgLearnDoc'
+htmlhelp_basename = "ProgLearnDoc"
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -108,15 +108,12 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
@@ -126,8 +123,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'ProgLearn.tex', 'ProgLearn Documentation',
-     'Will LeVine, Jayanta Dey, Hayden Helm', 'manual'),
+    (
+        master_doc,
+        "ProgLearn.tex",
+        "ProgLearn Documentation",
+        "Will LeVine, Jayanta Dey, Hayden Helm",
+        "manual",
+    ),
 ]
 
 
@@ -135,10 +137,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'proglearn', 'ProgLearn Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, "proglearn", "ProgLearn Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -147,9 +146,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'ProgLearn', 'ProgLearn Documentation',
-     author, 'ProgLearn', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        "ProgLearn",
+        "ProgLearn Documentation",
+        author,
+        "ProgLearn",
+        "One line description of project.",
+        "Miscellaneous",
+    ),
 ]
 
 
@@ -168,7 +173,7 @@ epub_title = project
 # epub_uid = ''
 
 # A list of files that should not be packed into the epub file.
-epub_exclude_files = ['search.html']
+epub_exclude_files = ["search.html"]
 
 
 # -- Extension configuration -------------------------------------------------

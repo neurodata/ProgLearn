@@ -2,15 +2,15 @@
 
 .. _contents:
 
-Overview of ProgLearn_
+ProgLearn_
 ======================
 
 .. _proglearn: https://proglearn.neurodata.io/
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4276573.svg
-   :target: https://doi.org/10.5281/zenodo.4276573
-.. image:: https://travis-ci.org/neurodata/ProgLearn.svg?branch=main
-   :target: https://travis-ci.org/neurodata/ProgLearn
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4060264.svg
+   :target: https://doi.org/10.5281/zenodo.4060264
+.. image:: https://circleci.com/gh/neurodata/ProgLearn/tree/main.svg?style=shield&circle-token=:circle-token
+   :target: https://app.circleci.com/pipelines/github/neurodata/ProgLearn
 .. image:: https://codecov.io/gh/neurodata/ProgLearn/branches/main/graph/badge.svg
    :target: https://codecov.io/gh/neurodata/ProgLearn
 .. image:: https://img.shields.io/pypi/v/proglearn.svg
@@ -24,7 +24,7 @@ Overview of ProgLearn_
 .. image:: https://img.shields.io/pypi/dm/proglearn.svg
    :target: https://pypi.org/project/proglearn/#files
 
-``ProgLearn`` (**Prog**\ ressive **Learn**\ ing) is a package for exploring and using progressive learning algorithms.
+``ProgLearn`` (**Prog**\ ressive **Learn**\ ing) is a package for exploring and using omnidirectional learning algorithms proposed in our paper (https://arxiv.org/abs/2004.12908).
 
 Motivation
 ----------
@@ -51,9 +51,9 @@ terms of the :doc:`MIT </license>`.  We welcome contributions. Join us on
 History
 -------
 
-``ProgLearn`` was founded in February 2020. The source code was designed and written by
-Will LeVine and Hayden Helm. The experiment code was designed and written by Jayanta Dey
-and Will LeVine. The repository is maintained by Will LeVine and Jayanta Dey.
+``ProgLearn`` was founded in February 2020. The source code was designed, written and verified by
+Will LeVine, Jayanta Dey, and Hayden Helm. The experiment code was designed and written by Jayanta Dey
+and Will LeVine. The repository is maintained by Jayanta Dey.
 
 Documentation
 =============
@@ -62,9 +62,11 @@ Documentation
    :maxdepth: 1
    :caption: Using ProgLearn
 
+   overview
    install
    tutorials/
-   reference/index
+   experiments/
+   api/index
    contributing
    license
 

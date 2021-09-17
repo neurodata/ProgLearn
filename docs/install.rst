@@ -45,6 +45,11 @@ Or, alternatively, you can use ``pip``::
     $ cd proglearn
     $ pip install .
 
+The installation process takes about 4 seconds in a typical desktop computer.
+
+If the installation is done in a new Python virtual environment, it takes about 1 
+minute and 35 seconds. 
+
 Python package dependencies
 ---------------------------
 ``proglearn`` requires the following packages:
@@ -53,8 +58,8 @@ Python package dependencies
 - tensorflow>=1.19.0
 - scikit-learn>=0.22.0
 - scipy==1.4.1
-- numpy<1.19
 - joblib>=0.14.1
+- numpy==1.19.2
 
 Hardware requirements
 ---------------------
@@ -65,7 +70,7 @@ tensorflow's backend.
 OS Requirements
 ---------------
 This package is supported for all major operating systems. The following
-versions of operating systems was tested on Travis CI:
+versions of operating systems was tested on CircleCI:
 
 - **Linux**: Ubuntu 16.04
 - **macOS**: Mojave (10.14.1)

@@ -8,4 +8,7 @@ Lifelong Classification Forest
 
 .. autoclass:: LifelongClassificationForest
 
+Uncertainty Forest
+------------------------------
+
 .. autoclass:: UncertaintyForest
