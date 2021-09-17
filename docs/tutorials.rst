@@ -12,3 +12,4 @@ The following tutorials highlight what one can do with the ``ProgLearn`` package
     tutorials/uncertaintyforest_posteriorestimates
     tutorials/uncertaintyforest_conditionalentropyestimates
     tutorials/uncertaintyforest_mutualinformationestimates
+
