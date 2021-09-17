@@ -151,10 +151,10 @@ def plot_bte(bte, angles):
     # Format and label the plot
     ax.set_xticks([0, 30, 60, 90, 120, 150, 180])
     ax.tick_params(labelsize=20)
-    ax.set_yticks([1, 1.1])
+    ax.set_yticks([1, 1.05])
 
     log_lbl = np.round(
-        np.log([1, 1.1]),
+        np.log([1, 1.05]),
         2
     )
     labels = [item.get_text() for item in ax.get_yticklabels()]
