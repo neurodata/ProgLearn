@@ -67,7 +67,7 @@ def cross_val_data(
     return data_x_train, data_y_train, data_x_test, data_y_test
 
 
-# The method runs the lifelong learning experiments
+# The method runs the omnidirectional learning experiments
 def Odif_experiment(
     data_x, data_y, ntrees, shift, slot, num_points_per_task, acorn=None
 ):
@@ -140,7 +140,7 @@ def Odif_experiment(
     df["slot"] = slots
     df["accuracy"] = accuracies_across_tasks
 
-    return df 
+    return df
 
 # The method calculates the bte and time results
 def calculate_results(df_results, slot_num, shift_num):
