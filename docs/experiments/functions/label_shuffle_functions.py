@@ -5,7 +5,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import sys
 
-from proglearn.forest import LifelongClassificationForest
+# Import the progressive learning packages
+from proglearn.progressive_learner import ProgressiveLearner
+from proglearn.deciders import SimpleArgmaxAverage
+from proglearn.transformers import TreeClassificationTransformer
+from proglearn.voters import TreeClassificationVoter
 
 
 def run_parallel_exp(data_x, data_y, n_trees, num_points_per_task, slot=0, shift=1):
@@ -27,174 +31,83 @@ def run_parallel_exp(data_x, data_y, n_trees, num_points_per_task, slot=0, shift
     return df
 
 
-def cross_val_data(data_x, data_y, num_points_per_task, shift, total_task=10):
+def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
     x = data_x.copy()
     y = data_y.copy()
     idx = [np.where(data_y == u)[0] for u in np.unique(data_y)]
 
-    batch_per_task = 5000 // num_points_per_task
-    sample_per_class = num_points_per_task // total_task
+    batch_per_task=5000//num_points_per_task
+    sample_per_class = num_points_per_task//total_task
+    test_data_slot=100//batch_per_task
 
     for task in range(total_task):
         for batch in range(batch_per_task):
-            for class_no in range(task * 10, (task + 1) * 10, 1):
-                indx = np.roll(idx[class_no], (shift - 1) * 100)
+            for class_no in range(task*10,(task+1)*10,1):
+                indx = np.roll(idx[class_no],(shift-1)*100)
 
-                if batch == 0 and class_no == 0 and task == 0:
-                    train_x = x[
-                        indx[batch * sample_per_class : (batch + 1) * sample_per_class]
-                    ]
-                    test_x = x[
-                        indx[
-                            batch * total_task
-                            + num_points_per_task : (batch + 1) * total_task
-                            + num_points_per_task
-                        ]
-                    ]
-                    train_y = np.random.randint(
-                        low=0, high=total_task, size=sample_per_class
-                    )
-                    test_y = np.random.randint(low=0, high=total_task, size=total_task)
+                if batch==0 and class_no==0 and task==0:
+                    train_x = x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]
+                    train_y = y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]
+                    test_x = x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]
+                    test_y = y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]
                 else:
-                    train_x = np.concatenate(
-                        (
-                            train_x,
-                            x[
-                                indx[
-                                    batch
-                                    * sample_per_class : (batch + 1)
-                                    * sample_per_class
-                                ]
-                            ],
-                        ),
-                        axis=0,
-                    )
-                    test_x = np.concatenate(
-                        (
-                            test_x,
-                            x[
-                                indx[
-                                    batch * total_task
-                                    + num_points_per_task : (batch + 1) * total_task
-                                    + num_points_per_task
-                                ]
-                            ],
-                        ),
-                        axis=0,
-                    )
-                    if task == 0:
-                        train_y = np.concatenate(
-                            (
-                                train_y,
-                                y[
-                                    indx[
-                                        batch
-                                        * sample_per_class : (batch + 1)
-                                        * sample_per_class
-                                    ]
-                                ],
-                            ),
-                            axis=0,
-                        )
-                        test_y = np.concatenate(
-                            (
-                                test_y,
-                                y[
-                                    indx[
-                                        batch * total_task
-                                        + num_points_per_task : (batch + 1) * total_task
-                                        + num_points_per_task
-                                    ]
-                                ],
-                            ),
-                            axis=0,
-                        )
-                    else:
-                        train_y = np.concatenate(
-                            (
-                                train_y,
-                                np.random.randint(
-                                    low=0, high=total_task, size=sample_per_class
-                                ),
-                            ),
-                            axis=0,
-                        )
-                        test_y = np.concatenate(
-                            (
-                                test_y,
-                                np.random.randint(
-                                    low=0, high=total_task, size=total_task
-                                ),
-                            ),
-                            axis=0,
-                        )
+                    train_x = np.concatenate((train_x, x[indx[batch*sample_per_class:(batch+1)*sample_per_class],:]), axis=0)
+                    train_y = np.concatenate((train_y, y[indx[batch*sample_per_class:(batch+1)*sample_per_class]]), axis=0)
+                    test_x = np.concatenate((test_x, x[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500],:]), axis=0)
+                    test_y = np.concatenate((test_y, y[indx[batch*test_data_slot+500:(batch+1)*test_data_slot+500]]), axis=0)
 
     return train_x, train_y, test_x, test_y
 
+def label_shuffle_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, num_points_per_task, acorn=None):
 
-def label_shuffle_experiment(
-    train_x,
-    train_y,
-    test_x,
-    test_y,
-    ntrees,
-    shift,
-    slot,
-    num_points_per_task,
-    acorn=None,
-):
-
-    # We initialize lists to store the results
     df = pd.DataFrame()
+    single_task_accuracies = np.zeros(10,dtype=float)
     shifts = []
+    tasks = []
+    base_tasks = []
     accuracies_across_tasks = []
 
-    # Declare the progressive learner model (L2F), with ntrees as a parameter
-    learner = LifelongClassificationForest(n_estimators=ntrees)
+    default_transformer_class = TreeClassificationTransformer
+    default_transformer_kwargs = {"kwargs" : {"max_depth" : 30, "max_features" : "auto"}}
+
+    default_voter_class = TreeClassificationVoter
+    default_voter_kwargs = {}
+
+    default_decider_class = SimpleArgmaxAverage
+
+
+    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
+                                         default_transformer_kwargs = default_transformer_kwargs,
+                                         default_voter_class = default_voter_class,
+                                         default_voter_kwargs = default_voter_kwargs,
+                                         default_decider_class = default_decider_class)
 
     for task_ii in range(10):
-        print("Starting Task {} For Fold {} For Slot {}".format(task_ii, shift, slot))
         if acorn is not None:
             np.random.seed(acorn)
 
-        # If task number is 0, add task. Else, add a transformer for the task
-        if task_ii == 0:
-            learner.add_task(
-                X=train_x[
-                    task_ii * 5000
-                    + slot * num_points_per_task : task_ii * 5000
-                    + (slot + 1) * num_points_per_task
-                ],
-                y=train_y[
-                    task_ii * 5000
-                    + slot * num_points_per_task : task_ii * 5000
-                    + (slot + 1) * num_points_per_task
-                ],
-                task_id=0,
-            )
-        else:
-            learner.add_transformer(
-                X=train_x[
-                    task_ii * 5000
-                    + slot * num_points_per_task : task_ii * 5000
-                    + (slot + 1) * num_points_per_task
-                ],
-                y=train_y[
-                    task_ii * 5000
-                    + slot * num_points_per_task : task_ii * 5000
-                    + (slot + 1) * num_points_per_task
-                ],
+        tmp_y = train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task]
+
+        if task_ii != 0:
+            np.random.shuffle(tmp_y)
+
+        progressive_learner.add_task(
+            X = train_x[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task],
+            y = tmp_y,
+            num_transformers = ntrees,
+            transformer_voter_decider_split = [0.63, 0.37, 0],
+            decider_kwargs = {"classes" : np.unique(train_y[task_ii*5000+slot*num_points_per_task:task_ii*5000+(slot+1)*num_points_per_task])}
             )
 
-        # Make a prediction on task 0 using the trained learner on test data
-        llf_task = learner.predict(test_x[:1000], task_id=0)
+        llf_task=progressive_learner.predict(
+            X = test_x[0:1000,:], task_id=0
+            )
 
-        # Calculate the accuracy of the task 0 predictions
-        acc = np.mean(llf_task == test_y[:1000])
-        accuracies_across_tasks.append(acc)
         shifts.append(shift)
-
-        print("Accuracy Across Tasks: {}".format(accuracies_across_tasks))
+        
+        accuracies_across_tasks.append(np.mean(
+            llf_task == test_y[0:1000]
+            ))
 
     df["data_fold"] = shifts
     df["task"] = range(1, 11)
@@ -252,14 +165,25 @@ def plot_bte(btes):
     fig, ax = plt.subplots(1, 1, figsize=(10, 8))
 
     # Plot the results
-    ax.plot(np.arange(1, 11), btes[0], c=c[0], label="L2F", linewidth=3)
+    ax.plot(np.arange(1, 11), btes[0], c=c[0], label="Odif", linewidth=3)
 
     # Format the plot, and show result
-    ax.set_yticks([0.9, 0.95, 1, 1.05, 1.1, 1.15, 1.2])
+    ax.set_yticks([1, 1.1, 1.15])
+    log_lbl = np.round(
+        np.log([1, 1.1, 1.15]),
+        2
+    )
+    labels = [item.get_text() for item in ax.get_yticklabels()]
+
+    for ii,_ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+
+    ax.set_yticklabels(labels)
+
     ax.set_xticks(np.arange(1, 11))
     ax.tick_params(labelsize=20)
     ax.set_xlabel("Number of tasks seen", fontsize=24)
-    ax.set_ylabel("Backward Transfer Efficiency", fontsize=24)
+    ax.set_ylabel("log Backward TE", fontsize=24)
     ax.set_title("Label Shuffled CIFAR", fontsize=24)
     ax.hlines(1, 1, 10, colors="grey", linestyles="dashed", linewidth=1.5)
     right_side = ax.spines["right"]

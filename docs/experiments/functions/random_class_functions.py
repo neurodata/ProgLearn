@@ -36,12 +36,13 @@ def cross_val_data(
     data_x_train, data_y_train = data_x[train_idx], data_y[train_idx]
     data_x_test, data_y_test = data_x[test_idx], data_y[test_idx]
 
-    selected_classes = np.random.choice(range(0, 100), total_task)
+    selected_classes = np.random.choice(range(0, 100), 10, replace=False)
+    #print(selected_classes)
     train_idxs_of_selected_class = np.array(
         [np.where(data_y_train == y_val)[0] for y_val in selected_classes]
     )
     num_points_per_class_per_slot = [
-        int(len(train_idxs_of_selected_class[class_idx]) // total_task)
+        int(len(train_idxs_of_selected_class[class_idx]) // 10)
         for class_idx in range(len(selected_classes))
     ]
     selected_idxs = np.concatenate(
@@ -62,56 +63,55 @@ def cross_val_data(
     )
     data_x_test = data_x_test[test_idxs_of_selected_class]
     data_y_test = data_y_test[test_idxs_of_selected_class]
-
+    #print(np.unique(data_y_train))
     return data_x_train, data_y_train, data_x_test, data_y_test
 
 
-# The method runs the lifelong learning experiments
-def L2_experiment(
-    data_x, data_y, ntrees, shift, slot, num_points_per_task, task_num, acorn=None
+# The method runs the omnidirectional learning experiments
+def Odif_experiment(
+    data_x, data_y, ntrees, shift, slot, num_points_per_task, acorn=None
 ):
 
-    # construct dataframes
     df = pd.DataFrame()
     shifts = []
     slots = []
     accuracies_across_tasks = []
 
-    # randomly separate the training and testing subsets
     train_x_task0, train_y_task0, test_x_task0, test_y_task0 = cross_val_data(
         data_x, data_y, num_points_per_task, total_task=10, shift=shift, slot=slot
     )
 
-    # choose Uncertainty Forest as transformer
-    progressive_learner = ProgressiveLearner(
-        default_transformer_class=TreeClassificationTransformer,
-        default_transformer_kwargs={"kwargs": {"max_depth": 30}},
-        default_voter_class=TreeClassificationVoter,
-        default_voter_kwargs={},
-        default_decider_class=SimpleArgmaxAverage,
-    )
+    default_transformer_class = TreeClassificationTransformer
+    default_transformer_kwargs = {"kwargs" : {"max_depth" : 30, "max_features" : "auto"}}
 
-    # training process
+    default_voter_class = TreeClassificationVoter
+    default_voter_kwargs = {}
+
+    default_decider_class = SimpleArgmaxAverage
+
+
+    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
+                                     default_transformer_kwargs = default_transformer_kwargs,
+                                     default_voter_class = default_voter_class,
+                                     default_voter_kwargs = default_voter_kwargs,
+                                     default_decider_class = default_decider_class)
+
     progressive_learner.add_task(
-        X=train_x_task0,
-        y=train_y_task0,
-        num_transformers=ntrees,
-        transformer_voter_decider_split=[0.67, 0.33, 0],
-        decider_kwargs={"classes": np.unique(train_y_task0)},
-    )
+            X = train_x_task0,
+            y = train_y_task0,
+            num_transformers = ntrees,
+            transformer_voter_decider_split = [0.67, 0.33, 0],
+            decider_kwargs = {"classes" : np.unique(train_y_task0)}
+        )
 
-    # testing process
+
     task_0_predictions = progressive_learner.predict(test_x_task0, task_id=0)
 
-    # record results
     shifts.append(shift)
     slots.append(slot)
     accuracies_across_tasks.append(np.mean(task_0_predictions == test_y_task0))
 
-    # repeating the tasks for task_num times
-    for task_ii in range(1, task_num):
-
-        # randomly separate the training and testing subsets
+    for task_ii in range(1, 20):
         train_x, train_y, _, _ = cross_val_data(
             data_x,
             data_y,
@@ -119,50 +119,28 @@ def L2_experiment(
             total_task=10,
             shift=shift,
             slot=slot,
-            task=task_ii,
+            task=task_ii
         )
 
-        # training process
-        progressive_learner.add_transformer(
-            X=train_x,
-            y=train_y,
-            transformer_data_proportion=1,
-            num_transformers=ntrees,
-            backward_task_ids=[0],
+        progressive_learner.add_task(
+        X=train_x,
+        y=train_y,
+        num_transformers=ntrees,
+        transformer_voter_decider_split=[0.67, 0.33, 0],
+        decider_kwargs={"classes": np.unique(train_y)}
         )
 
-        # testing process
         task_0_predictions = progressive_learner.predict(test_x_task0, task_id=0)
 
-        # record results
         shifts.append(shift)
         slots.append(slot)
         accuracies_across_tasks.append(np.mean(task_0_predictions == test_y_task0))
 
-    # finalize dataframes
     df["data_fold"] = shifts
     df["slot"] = slots
     df["accuracy"] = accuracies_across_tasks
 
-    # save results
     return df
-
-
-# The method allows multiple lifelong forest experiments to be run at the same time
-def run_parallel_exp(
-    data_x, data_y, n_trees, num_points_per_task, task_num, slot=0, shift=1
-):
-    return L2_experiment(
-        data_x,
-        data_y,
-        n_trees,
-        shift,
-        slot,
-        num_points_per_task,
-        task_num,
-        acorn=12345,
-    )
-
 
 # The method calculates the bte and time results
 def calculate_results(df_results, slot_num, shift_num):
@@ -204,14 +182,27 @@ def plot_bte(bte, fontsize, ticksize):
         c="red",
         linewidth=3,
         linestyle="solid",
-        label="L2F",
+        label="Odif",
     )
-
+    ax.hlines(1, 0, 19, colors='gray', linestyles='dashed',linewidth=1.5)
     ax.set_xlabel("Number of Tasks Seen", fontsize=fontsize)
-    ax.set_ylabel("BTE (Task 1)", fontsize=fontsize)
-    ax.set_yticks([1.0, 1.1, 1.2])
+    ax.set_ylabel("log TE (Task 1)", fontsize=fontsize)
+    ax.set_yticks([1, 1.1])
+    ax.set_ylim(.98, 1.12)
+    ax.set_xlabel("Number of Tasks Seen", fontsize=fontsize)
+    log_lbl = np.round(
+        np.log([1, 1.1]),
+        2
+    )
+    labels = [item.get_text() for item in ax.get_yticklabels()]
+
+    for ii,_ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+
+    ax.set_yticklabels(labels)
+
     ax.tick_params(labelsize=ticksize)
-    ax.legend(fontsize=fontsize)
+    ax.legend(fontsize=fontsize, frameon=False)
 
     # show the BTE plot
     plt.tight_layout()
