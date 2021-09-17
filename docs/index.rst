@@ -24,7 +24,7 @@ ProgLearn_
 .. image:: https://img.shields.io/pypi/dm/proglearn.svg
    :target: https://pypi.org/project/proglearn/#files
 
-``ProgLearn`` (**Prog**\ ressive **Learn**\ ing) is a package for exploring and using omnidirectional learning algorithms proposed in our [paper](https://arxiv.org/abs/2004.12908).
+``ProgLearn`` (**Prog**\ ressive **Learn**\ ing) is a package for exploring and using omnidirectional learning algorithms proposed in our paper (https://arxiv.org/abs/2004.12908).
 
 Motivation
 ----------
