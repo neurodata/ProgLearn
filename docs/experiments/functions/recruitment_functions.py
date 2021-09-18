@@ -220,7 +220,7 @@ def experiment(
                 default_transformer_class=TreeClassificationTransformer,
                 default_transformer_kwargs={},
                 default_voter_class=TreeClassificationVoter,
-                default_voter_kwargs={"finite_sample_correction": False},
+                default_voter_kwargs={},
                 default_decider_class=PosteriorsByTree,
                 default_decider_kwargs={},
             )
@@ -240,7 +240,6 @@ def experiment(
                     # transformer_kwargs={"kwargs":{"max_depth": ceil(log2(num_points_per_forest))}},
                     voter_kwargs={
                         "classes": np.unique(cur_y),
-                        "finite_sample_correction": False,
                     },
                     decider_kwargs={"classes": np.unique(cur_y)},
                 )
@@ -259,7 +258,6 @@ def experiment(
                 # transformer_kwargs={"kwargs":{"max_depth": ceil(log2(estimation_sample_no))}},
                 voter_kwargs={
                     "classes": np.unique(cur_y),
-                    "finite_sample_correction": False,
                 },
                 decider_kwargs={"classes": np.unique(cur_y)},
             )
@@ -359,7 +357,7 @@ def recruitment_plot(mean_acc_dict, std_acc_dict, ns):
 
     # determine colors and labels for figure
     colors = sns.color_palette("Set1", n_colors=len(mean_acc_dict))
-    labels = ["L2F (building)", "UF (new)", "recruiting", "hybrid"]
+    labels = ["Odif (building)", "UF (new)", "recruiting", "hybrid"]
 
     # plot and format figure
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
@@ -678,7 +676,7 @@ def recruitment_plot_mnist(mean_acc_dict, std_acc_dict, ns):
     """
     # determine colors and labels for figure
     colors = sns.color_palette("Set1", n_colors=len(mean_acc_dict))
-    labels = ["L2F (building)", "UF (new)", "recruiting", "hybrid"]
+    labels = ["Odif (building)", "UF (new)", "recruiting", "hybrid"]
 
     # plot and format figure
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
@@ -718,7 +716,7 @@ def recruitment_plot_mnist_between(mean_acc_dict, std_acc_dict, ns):
     """
     # determine colors and labels for figure
     colors = sns.color_palette("Set1", n_colors=len(mean_acc_dict))
-    labels = ["L2F (building)", "UF (new)", "recruiting", "hybrid"]
+    labels = ["Odif (building)", "UF (new)", "recruiting", "hybrid"]
 
     # plot and format figure
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
