@@ -415,6 +415,7 @@ def run_cnn(
         testset,
     )
 
+
 def cnn_train_test_3_class(
     cnn_model,
     y_train,
@@ -511,7 +512,7 @@ def run_rf_3_class(
     fraction_of_train_samples,
     class1,
     class2,
-    class3
+    class3,
 ):
     num_train_samples_class_1 = int(
         np.sum(train_labels == class1) * fraction_of_train_samples
@@ -528,30 +529,30 @@ def run_rf_3_class(
         [
             train_images[train_labels == class1][:num_train_samples_class_1],
             train_images[train_labels == class2][:num_train_samples_class_2],
-            train_images[train_labels == class3][:num_train_samples_class_3]
+            train_images[train_labels == class3][:num_train_samples_class_3],
         ]
     )
     train_labels = np.concatenate(
         [
             np.repeat(0, num_train_samples_class_1),
             np.repeat(1, num_train_samples_class_2),
-            np.repeat(2, num_train_samples_class_3)
+            np.repeat(2, num_train_samples_class_3),
         ]
     )
 
     # get only test images and labels for class 1, class 2 and class 3
     test_images = np.concatenate(
         [
-         test_images[test_labels == class1],
-         test_images[test_labels == class2],
-         test_images[test_labels == class3]
+            test_images[test_labels == class1],
+            test_images[test_labels == class2],
+            test_images[test_labels == class3],
         ]
     )
     test_labels = np.concatenate(
         [
             np.repeat(0, np.sum(test_labels == class1)),
             np.repeat(1, np.sum(test_labels == class2)),
-            np.repeat(2, np.sum(test_labels == class3))
+            np.repeat(2, np.sum(test_labels == class3)),
         ]
     )
 
@@ -575,7 +576,7 @@ def run_cnn_3_class(
     class2,
     class3,
     trainset,
-    testset
+    testset,
 ):
     return cnn_train_test_3_class(
         cnn_model,
@@ -586,5 +587,5 @@ def run_cnn_3_class(
         class2,
         class3,
         trainset,
-        testset
+        testset,
     )

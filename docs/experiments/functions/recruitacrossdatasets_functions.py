@@ -532,7 +532,7 @@ def recruitment_exp(x, y, num_tasks, num_trees, reps, estimation_set, shift=0):
             ####################################################
 
             # initiate lifelong learner
-            l2f = PosteriorsByTreeLearner(
+            odif = PosteriorsByTreeLearner(
                 default_transformer_class=TreeClassificationTransformer,
                 default_transformer_kwargs={},
                 default_voter_class=TreeClassificationVoter,
@@ -541,13 +541,13 @@ def recruitment_exp(x, y, num_tasks, num_trees, reps, estimation_set, shift=0):
                 default_decider_kwargs={},
             )
 
-            # train l2f on first tasks
+            # train odif on first tasks
             for task in range(num_tasks - 1):
 
                 cur_X = train_x_task[task]
                 cur_y = train_y_task[task]
 
-                l2f.add_task(
+                odif.add_task(
                     cur_X,
                     cur_y,
                     num_transformers=num_trees,
@@ -556,11 +556,11 @@ def recruitment_exp(x, y, num_tasks, num_trees, reps, estimation_set, shift=0):
                     decider_kwargs={"classes": np.unique(cur_y)},
                 )
 
-            # train l2f on last task
+            # train odif on last task
             cur_X = train_x_task[num_tasks - 1][:estimation_sample_no]
             cur_y = train_y_task[num_tasks - 1][:estimation_sample_no]
 
-            l2f.add_task(
+            odif.add_task(
                 cur_X,
                 cur_y,
                 num_transformers=num_trees,
@@ -569,10 +569,10 @@ def recruitment_exp(x, y, num_tasks, num_trees, reps, estimation_set, shift=0):
                 decider_kwargs={"classes": np.unique(cur_y)},
             )
 
-            ## L2F validation ####################################
-            # get posteriors for l2f on first 9 tasks
+            ## Odif validation ####################################
+            # get posteriors for odif on first 9 tasks
             # want posteriors_across_trees to have shape ((num_tasks-1)*num_trees, validation_sample_no, 10)
-            posteriors_across_trees = l2f.predict_proba(
+            posteriors_across_trees = odif.predict_proba(
                 train_x_task[num_tasks - 1][estimation_sample_no:],
                 task_id=num_tasks - 1,
                 transformer_ids=list(range(num_tasks - 1)),
@@ -589,8 +589,8 @@ def recruitment_exp(x, y, num_tasks, num_trees, reps, estimation_set, shift=0):
             best_halfn_tree = best_n_tree[: int(num_trees / 2)]
 
             ## uf trees validation ###############################
-            # get posteriors for l2f on only the 10th task
-            posteriors_across_trees = l2f.predict_proba(
+            # get posteriors for odif on only the 10th task
+            posteriors_across_trees = odif.predict_proba(
                 train_x_task[num_tasks - 1][estimation_sample_no:],
                 task_id=num_tasks - 1,
                 transformer_ids=[num_tasks - 1],
@@ -608,19 +608,19 @@ def recruitment_exp(x, y, num_tasks, num_trees, reps, estimation_set, shift=0):
             ## evaluation ########################################
             # train 10th tree under each scenario: building, recruiting, hybrid, UF
             # BUILDING
-            building_res = l2f.predict(
+            building_res = odif.predict(
                 test_x_task[num_tasks - 1], task_id=num_tasks - 1
             )
             building[rep] = 1 - np.mean(test_y_task[num_tasks - 1] == building_res)
             # UF
-            uf_res = l2f.predict(
+            uf_res = odif.predict(
                 test_x_task[num_tasks - 1],
                 task_id=num_tasks - 1,
                 transformer_ids=[num_tasks - 1],
             )
             uf[rep] = 1 - np.mean(test_y_task[num_tasks - 1] == uf_res)
             # RECRUITING
-            posteriors_across_trees = l2f.predict_proba(
+            posteriors_across_trees = odif.predict_proba(
                 test_x_task[num_tasks - 1],
                 task_id=num_tasks - 1,
                 transformer_ids=list(range(num_tasks - 1)),
@@ -633,7 +633,7 @@ def recruitment_exp(x, y, num_tasks, num_trees, reps, estimation_set, shift=0):
             )
             recruiting[rep] = 1 - np.mean(test_y_task[num_tasks - 1] == res)
             # HYBRID
-            posteriors_across_trees_hybrid_uf = l2f.predict_proba(
+            posteriors_across_trees_hybrid_uf = odif.predict_proba(
                 test_x_task[num_tasks - 1],
                 task_id=num_tasks - 1,
                 transformer_ids=[num_tasks - 1],
@@ -676,7 +676,7 @@ def recruitment_plot(mean_acc_dict, std_acc_dict, last_task_sample, num_tasks):
     """
     # determine colors and labels for figure
     colors = sns.color_palette("Set1", n_colors=len(mean_acc_dict))
-    labels = ["L2F (building)", "UF (new)", "recruiting", "hybrid"]
+    labels = ["Odif (building)", "UF (new)", "recruiting", "hybrid"]
 
     # plot and format figure
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))

@@ -9,13 +9,18 @@ from keras.callbacks import EarlyStopping
 from keras.optimizers import Adam
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.progressive_learner import ProgressiveLearner
-from proglearn.transformers import NeuralClassificationTransformer, TreeClassificationTransformer
+from proglearn.transformers import (
+    NeuralClassificationTransformer,
+    TreeClassificationTransformer,
+)
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.backend import clear_session  # To avoid OOM error when using odin
 
 
-def load_tasks(path_aircraft_x_all, path_aircraft_y_all, path_birdsnap_x_all, path_birdsnap_y_all):
+def load_tasks(
+    path_aircraft_x_all, path_aircraft_y_all, path_birdsnap_x_all, path_birdsnap_y_all
+):
     n_task_aircraft = 5  # Set up 5 tasks from aircraft
     n_task_birdsnap = 5  # Set up 5 tasks from birdsnap
     n_label_per_task = 20
@@ -34,24 +39,52 @@ def load_tasks(path_aircraft_x_all, path_aircraft_y_all, path_birdsnap_x_all, pa
     # load aircraft data to tasks
     for i in range(n_task_aircraft):
         X = np.empty([0, 32, 32, 3])
-        Y = np.empty([0, ])
+        Y = np.empty(
+            [
+                0,
+            ]
+        )
         for j in range(n_label_per_task):
-            new_x = aircraft_x_all[aircraft_y_all == n_label_per_task * i + j + 1][:n_sample_label]
-            new_y = aircraft_y_all[aircraft_y_all == n_label_per_task * i + j + 1][:n_sample_label]
+            new_x = aircraft_x_all[aircraft_y_all == n_label_per_task * i + j + 1][
+                :n_sample_label
+            ]
+            new_y = aircraft_y_all[aircraft_y_all == n_label_per_task * i + j + 1][
+                :n_sample_label
+            ]
             X = np.concatenate((X, new_x), axis=0)
             Y = np.concatenate((Y, new_y), axis=0)
-        train_x_task[i], test_x_task[i], train_y_task[i], test_y_task[i] = train_test_split(X, Y, test_size=test_size)
+        (
+            train_x_task[i],
+            test_x_task[i],
+            train_y_task[i],
+            test_y_task[i],
+        ) = train_test_split(X, Y, test_size=test_size)
     # load birdsnap data to tasks
     for i in range(n_task_birdsnap):
         X = np.empty([0, 32, 32, 3])
-        Y = np.empty([0, ])
+        Y = np.empty(
+            [
+                0,
+            ]
+        )
         for j in range(n_label_per_task):
-            new_x = birdsnap_x_all[birdsnap_y_all == n_label_per_task * i + j + 1][:n_sample_label]
-            new_y = birdsnap_y_all[birdsnap_y_all == n_label_per_task * i + j + 1][:n_sample_label] + 100
+            new_x = birdsnap_x_all[birdsnap_y_all == n_label_per_task * i + j + 1][
+                :n_sample_label
+            ]
+            new_y = (
+                birdsnap_y_all[birdsnap_y_all == n_label_per_task * i + j + 1][
+                    :n_sample_label
+                ]
+                + 100
+            )
             X = np.concatenate((X, new_x), axis=0)
             Y = np.concatenate((Y, new_y), axis=0)
-        train_x_task[n_task_aircraft + i], test_x_task[n_task_aircraft + i], train_y_task[n_task_aircraft + i], \
-        test_y_task[n_task_aircraft + i] = train_test_split(X, Y, test_size=test_size)
+        (
+            train_x_task[n_task_aircraft + i],
+            test_x_task[n_task_aircraft + i],
+            train_y_task[n_task_aircraft + i],
+            test_y_task[n_task_aircraft + i],
+        ) = train_test_split(X, Y, test_size=test_size)
     return train_x_task, test_x_task, train_y_task, test_y_task
 
 
@@ -73,12 +106,14 @@ def show_image(train_x_task):
     plt.title("Sample in Birdsnap")
 
 
-def single_experiment(train_x_task, test_x_task, train_y_task, test_y_task, ntrees=10, model='odif'):
+def single_experiment(
+    train_x_task, test_x_task, train_y_task, test_y_task, ntrees=10, model="odif"
+):
     num_tasks = 10
     num_points_per_task = 1800
     accuracies = np.zeros(65, dtype=float)
 
-    if model == 'odin':
+    if model == "odin":
 
         clear_session()  # clear GPU memory before each run, to avoid OOM error
 
@@ -86,23 +121,61 @@ def single_experiment(train_x_task, test_x_task, train_y_task, test_y_task, ntre
 
         network = keras.Sequential()
         network.add(
-            layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=np.shape(train_x_task[0])[1:]))
+            layers.Conv2D(
+                filters=16,
+                kernel_size=(3, 3),
+                activation="relu",
+                input_shape=np.shape(train_x_task[0])[1:],
+            )
+        )
         network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=32, kernel_size=(3, 3), strides=2, padding="same", activation='relu'))
+        network.add(
+            layers.Conv2D(
+                filters=32,
+                kernel_size=(3, 3),
+                strides=2,
+                padding="same",
+                activation="relu",
+            )
+        )
         network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=64, kernel_size=(3, 3), strides=2, padding="same", activation='relu'))
+        network.add(
+            layers.Conv2D(
+                filters=64,
+                kernel_size=(3, 3),
+                strides=2,
+                padding="same",
+                activation="relu",
+            )
+        )
         network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=128, kernel_size=(3, 3), strides=2, padding="same", activation='relu'))
+        network.add(
+            layers.Conv2D(
+                filters=128,
+                kernel_size=(3, 3),
+                strides=2,
+                padding="same",
+                activation="relu",
+            )
+        )
         network.add(layers.BatchNormalization())
-        network.add(layers.Conv2D(filters=254, kernel_size=(3, 3), strides=2, padding="same", activation='relu'))
+        network.add(
+            layers.Conv2D(
+                filters=254,
+                kernel_size=(3, 3),
+                strides=2,
+                padding="same",
+                activation="relu",
+            )
+        )
 
         network.add(layers.Flatten())
         network.add(layers.BatchNormalization())
-        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.Dense(2000, activation="relu"))
         network.add(layers.BatchNormalization())
-        network.add(layers.Dense(2000, activation='relu'))
+        network.add(layers.Dense(2000, activation="relu"))
         network.add(layers.BatchNormalization())
-        network.add(layers.Dense(units=20, activation='softmax'))  # units=10
+        network.add(layers.Dense(units=20, activation="softmax"))  # units=10
 
         default_transformer_kwargs = {
             "network": network,
@@ -121,7 +194,7 @@ def single_experiment(train_x_task, test_x_task, train_y_task, test_y_task, ntre
         default_voter_kwargs = {"k": int(np.log2(num_points_per_task))}
         default_decider_class = SimpleArgmaxAverage
 
-    elif model == 'odif':
+    elif model == "odif":
         for i in range(num_tasks):
             train_x_task[i] = train_x_task[i].reshape(1080, -1)
             test_x_task[i] = test_x_task[i].reshape(720, -1)
@@ -132,11 +205,13 @@ def single_experiment(train_x_task, test_x_task, train_y_task, test_y_task, ntre
         default_voter_kwargs = {}
         default_decider_class = SimpleArgmaxAverage
 
-    progressive_learner = ProgressiveLearner(default_transformer_class=default_transformer_class,
-                                             default_transformer_kwargs=default_transformer_kwargs,
-                                             default_voter_class=default_voter_class,
-                                             default_voter_kwargs=default_voter_kwargs,
-                                             default_decider_class=default_decider_class)
+    progressive_learner = ProgressiveLearner(
+        default_transformer_class=default_transformer_class,
+        default_transformer_kwargs=default_transformer_kwargs,
+        default_voter_class=default_voter_class,
+        default_voter_kwargs=default_voter_kwargs,
+        default_decider_class=default_decider_class,
+    )
 
     for i in range(num_tasks):
         progressive_learner.add_task(
@@ -156,9 +231,13 @@ def single_experiment(train_x_task, test_x_task, train_y_task, test_y_task, ntre
             if j > i:
                 pass  # this is not wrong but misleading, should be continue
             else:
-                odif_predictions = progressive_learner.predict(test_x_task[j], task_id=j)
+                odif_predictions = progressive_learner.predict(
+                    test_x_task[j], task_id=j
+                )
 
-            accuracies[10 + j + (i * (i + 1)) // 2] = np.mean(odif_predictions == test_y_task[j])
+            accuracies[10 + j + (i * (i + 1)) // 2] = np.mean(
+                odif_predictions == test_y_task[j]
+            )
     # print('single experiment done!')
 
     return accuracies
@@ -190,7 +269,7 @@ def calculate_results(accuracy_all):
 
 def plot_all(err, bte, fte, te):
     num_tasks = 10
-    sns.set(style='ticks')
+    sns.set(style="ticks")
 
     fontsize = 30
     ticksize = 24
@@ -200,22 +279,28 @@ def plot_all(err, bte, fte, te):
     fig, ax = plt.subplots(2, 2, figsize=(20, 14.5))
 
     # FTE
-    ax[0][0].axvline(x=5, linestyle="dashed", color='black', alpha=0.5)
-    ax[0][0].text(5, 1.001, 'Dataset Switch', fontsize=25, color='black')
-    ax[0][0].plot(np.arange(1, num_tasks + 1), fte, c='red', marker='.', markersize=markersize, linewidth=linewidth,
-                  label='Odif')
+    ax[0][0].axvline(x=5, linestyle="dashed", color="black", alpha=0.5)
+    ax[0][0].text(5, 1.001, "Dataset Switch", fontsize=25, color="black")
+    ax[0][0].plot(
+        np.arange(1, num_tasks + 1),
+        fte,
+        c="red",
+        marker=".",
+        markersize=markersize,
+        linewidth=linewidth,
+        label="Odif",
+    )
 
-    ax[0][0].hlines(1, 1, num_tasks, colors='grey', linestyles='dashed', linewidth=0.5 * linewidth)
+    ax[0][0].hlines(
+        1, 1, num_tasks, colors="grey", linestyles="dashed", linewidth=0.5 * linewidth
+    )
     ax[0][0].tick_params(labelsize=ticksize)
-    ax[0][0].set_xlabel('Number of tasks seen', fontsize=fontsize)
-    ax[0][0].set_ylabel('log FTE', fontsize=fontsize)
+    ax[0][0].set_xlabel("Number of tasks seen", fontsize=fontsize)
+    ax[0][0].set_ylabel("log FTE", fontsize=fontsize)
     ax[0][0].set_yticks([1, 1.0408, 1.0833])
     ax[0][0].set_ylim(0.99, 1.09)
 
-    log_lbl = np.round(
-        np.log([1, 1.0408, 1.0833]),
-        2
-    )
+    log_lbl = np.round(np.log([1, 1.0408, 1.0833]), 2)
     labels = [item.get_text() for item in ax[0][0].get_yticklabels()]
 
     for ii, _ in enumerate(labels):
@@ -224,24 +309,23 @@ def plot_all(err, bte, fte, te):
     ax[0][0].set_yticklabels(labels)
 
     # BTE
-    ax[0][1].axvline(x=5, linestyle="dashed", color='black', alpha=0.5)
+    ax[0][1].axvline(x=5, linestyle="dashed", color="black", alpha=0.5)
     for i in range(num_tasks):
         et = np.asarray(bte[i])
         ns = np.arange(i + 1, num_tasks + 1)
-        ax[0][1].plot(ns, et, c='red', linewidth=linewidth)
+        ax[0][1].plot(ns, et, c="red", linewidth=linewidth)
 
-    ax[0][1].set_xlabel('Number of tasks seen', fontsize=fontsize)
-    ax[0][1].set_ylabel('log BTE', fontsize=fontsize)
+    ax[0][1].set_xlabel("Number of tasks seen", fontsize=fontsize)
+    ax[0][1].set_ylabel("log BTE", fontsize=fontsize)
     ax[0][1].tick_params(labelsize=ticksize)
-    ax[0][1].hlines(1, 1, num_tasks, colors='grey', linestyles='dashed', linewidth=0.5 * linewidth)
+    ax[0][1].hlines(
+        1, 1, num_tasks, colors="grey", linestyles="dashed", linewidth=0.5 * linewidth
+    )
 
     ax[0][1].set_yticks([1, 1.0202, 1.0408])
     ax[0][1].set_ylim(0.995, 1.048)
 
-    log_lbl = np.round(
-        np.log([1, 1.0202, 1.0408]),
-        2
-    )
+    log_lbl = np.round(np.log([1, 1.0202, 1.0408]), 2)
     labels = [item.get_text() for item in ax[0][1].get_yticklabels()]
 
     for ii, _ in enumerate(labels):
@@ -250,24 +334,23 @@ def plot_all(err, bte, fte, te):
     ax[0][1].set_yticklabels(labels)
 
     # TE
-    ax[1][0].axvline(x=5, linestyle="dashed", color='black', alpha=0.5)
+    ax[1][0].axvline(x=5, linestyle="dashed", color="black", alpha=0.5)
     for i in range(num_tasks):
         et = np.asarray(te[i])
         ns = np.arange(i + 1, num_tasks + 1)
-        ax[1][0].plot(ns, et, c='red', linewidth=linewidth)
+        ax[1][0].plot(ns, et, c="red", linewidth=linewidth)
 
-    ax[1][0].set_xlabel('Number of tasks seen', fontsize=fontsize)
-    ax[1][0].set_ylabel('log Transfer Efficiency', fontsize=fontsize)
+    ax[1][0].set_xlabel("Number of tasks seen", fontsize=fontsize)
+    ax[1][0].set_ylabel("log Transfer Efficiency", fontsize=fontsize)
     ax[1][0].tick_params(labelsize=ticksize)
-    ax[1][0].hlines(1, 1, num_tasks, colors='grey', linestyles='dashed', linewidth=0.5 * linewidth)
+    ax[1][0].hlines(
+        1, 1, num_tasks, colors="grey", linestyles="dashed", linewidth=0.5 * linewidth
+    )
 
     ax[1][0].set_yticks([1, 1.0513, 1.1052])
     ax[1][0].set_ylim(0.99, 1.12)
 
-    log_lbl = np.round(
-        np.log([1, 1.0513, 1.1052]),
-        2
-    )
+    log_lbl = np.round(np.log([1, 1.0513, 1.1052]), 2)
     labels = [item.get_text() for item in ax[1][0].get_yticklabels()]
 
     for ii, _ in enumerate(labels):
@@ -276,15 +359,15 @@ def plot_all(err, bte, fte, te):
     ax[1][0].set_yticklabels(labels)
 
     # Accuracy
-    ax[1][1].axvline(x=5, linestyle="dashed", color='black', alpha=0.5)
+    ax[1][1].axvline(x=5, linestyle="dashed", color="black", alpha=0.5)
     for i in range(num_tasks):
         et = 1 - np.asarray(err[i])
         ns = np.arange(i + 1, num_tasks + 1)
         if i == 0:
-            ax[1][1].plot(ns, et, c='red', linewidth=linewidth, label='Odif')
+            ax[1][1].plot(ns, et, c="red", linewidth=linewidth, label="Odif")
         else:
-            ax[1][1].plot(ns, et, c='red', linewidth=linewidth)
+            ax[1][1].plot(ns, et, c="red", linewidth=linewidth)
 
-    ax[1][1].set_xlabel('Number of tasks seen', fontsize=fontsize)
-    ax[1][1].set_ylabel('Accuracy', fontsize=fontsize)
+    ax[1][1].set_xlabel("Number of tasks seen", fontsize=fontsize)
+    ax[1][1].set_ylabel("Accuracy", fontsize=fontsize)
     ax[1][1].tick_params(labelsize=ticksize)
