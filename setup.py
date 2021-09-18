@@ -18,7 +18,7 @@ setup(
     version=VERSION,
     author="Will LeVine, Jayanta Dey, Hayden Helm",
     author_email="levinewill@icloud.com",
-    maintainer="Will LeVine, Jayanta Dey",
+    maintainer="Jayanta Dey",
     maintainer_email="jdey4@jhmi.edu",
     description="A package to implement and extend the methods desribed in 'A General Approach to Progressive Learning'",
     long_description=LONG_DESCRIPTION,
