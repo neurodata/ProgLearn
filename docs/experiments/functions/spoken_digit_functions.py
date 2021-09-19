@@ -360,7 +360,6 @@ def plot_results(acc, bte, fte, te, model):
         labels[ii] = str(log_lbl[ii])
     ax[1][0].set_yticklabels(labels)
 
-    ax[1][1].set_yscale("log")
     for i in range(num_tasks):
         et = 1 - np.asarray(acc[i])
         ns = np.arange(i + 1, num_tasks + 1)
@@ -373,7 +372,7 @@ def plot_results(acc, bte, fte, te, model):
     yticks = [ylims[0], (ylims[0] + ylims[1]) / 2, ylims[1]]
     ax[1][1].set_yticks(yticks)
     ax[1][1].minorticks_off()
-    log_lbl = np.round(np.log(yticks), 2)
+    log_lbl = np.round(yticks, 2)
     labels = [item.get_text() for item in ax[1][1].get_yticklabels()]
     for ii, _ in enumerate(labels):
         labels[ii] = str(log_lbl[ii])
