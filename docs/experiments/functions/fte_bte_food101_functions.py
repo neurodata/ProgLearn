@@ -120,7 +120,7 @@ def fte_bte_experiment(
 
     for task_num in range((which_task - 1), 10):
         accuracy_per_task = []
-        #print("Starting Task {} For Shift {} For Slot {}".format(task_num, shift, slot))
+        # print("Starting Task {} For Shift {} For Slot {}".format(task_num, shift, slot))
         if acorn is not None:
             np.random.seed(acorn)
 
@@ -137,18 +137,19 @@ def fte_bte_experiment(
             while t_num < task_num:
                 # Make a prediction on task t using the trained learner on test data
                 llf_task = learner.predict(
-                    test_x[((which_task - 1) * 1000) : (which_task * 1000), :], task_id=0
+                    test_x[((which_task - 1) * 1000) : (which_task * 1000), :],
+                    task_id=0,
                 )
                 acc = np.mean(
                     llf_task == test_y[((which_task - 1) * 1000) : (which_task * 1000)]
                 )
                 accuracies_across_tasks.append(acc)
-                
+
                 learner.add_transformer(
                     X=train_x[(t_num * 900) : ((t_num + 1) * 900)],
                     y=train_y[(t_num * 900) : ((t_num + 1) * 900)],
                 )
-                
+
                 # Add transformer for next task
                 t_num = t_num + 1
 
@@ -166,7 +167,7 @@ def fte_bte_experiment(
             llf_task == test_y[((which_task - 1) * 1000) : (which_task * 1000)]
         )
         accuracies_across_tasks.append(acc)
-        #print("Accuracy Across Tasks: {}".format(accuracies_across_tasks))
+        # print("Accuracy Across Tasks: {}".format(accuracies_across_tasks))
 
     df["task"] = range(1, 11)
     df["task_accuracy"] = accuracies_across_tasks

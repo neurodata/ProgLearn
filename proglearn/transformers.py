@@ -91,7 +91,6 @@ class NeuralClassificationTransformer(BaseTransformer):
         self : NeuralClassificationTransformer
             The object itself.
         """
-        check_X_y(X, y)
         _, y = np.unique(y, return_inverse=True)
 
         # more typechecking
@@ -123,7 +122,6 @@ class NeuralClassificationTransformer(BaseTransformer):
             When the model is not fitted.
         """
         check_is_fitted(self)
-        check_array(X)
         return self.encoder_.predict(X)
 
 

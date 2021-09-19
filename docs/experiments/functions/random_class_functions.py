@@ -37,7 +37,7 @@ def cross_val_data(
     data_x_test, data_y_test = data_x[test_idx], data_y[test_idx]
 
     selected_classes = np.random.choice(range(0, 100), 10, replace=False)
-    #print(selected_classes)
+    # print(selected_classes)
     train_idxs_of_selected_class = np.array(
         [np.where(data_y_train == y_val)[0] for y_val in selected_classes]
     )
@@ -63,7 +63,7 @@ def cross_val_data(
     )
     data_x_test = data_x_test[test_idxs_of_selected_class]
     data_y_test = data_y_test[test_idxs_of_selected_class]
-    #print(np.unique(data_y_train))
+    # print(np.unique(data_y_train))
     return data_x_train, data_y_train, data_x_test, data_y_test
 
 
@@ -82,28 +82,28 @@ def Odif_experiment(
     )
 
     default_transformer_class = TreeClassificationTransformer
-    default_transformer_kwargs = {"kwargs" : {"max_depth" : 30, "max_features" : "auto"}}
+    default_transformer_kwargs = {"kwargs": {"max_depth": 30, "max_features": "auto"}}
 
     default_voter_class = TreeClassificationVoter
     default_voter_kwargs = {}
 
     default_decider_class = SimpleArgmaxAverage
 
-
-    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
-                                     default_transformer_kwargs = default_transformer_kwargs,
-                                     default_voter_class = default_voter_class,
-                                     default_voter_kwargs = default_voter_kwargs,
-                                     default_decider_class = default_decider_class)
+    progressive_learner = ProgressiveLearner(
+        default_transformer_class=default_transformer_class,
+        default_transformer_kwargs=default_transformer_kwargs,
+        default_voter_class=default_voter_class,
+        default_voter_kwargs=default_voter_kwargs,
+        default_decider_class=default_decider_class,
+    )
 
     progressive_learner.add_task(
-            X = train_x_task0,
-            y = train_y_task0,
-            num_transformers = ntrees,
-            transformer_voter_decider_split = [0.67, 0.33, 0],
-            decider_kwargs = {"classes" : np.unique(train_y_task0)}
-        )
-
+        X=train_x_task0,
+        y=train_y_task0,
+        num_transformers=ntrees,
+        transformer_voter_decider_split=[0.67, 0.33, 0],
+        decider_kwargs={"classes": np.unique(train_y_task0)},
+    )
 
     task_0_predictions = progressive_learner.predict(test_x_task0, task_id=0)
 
@@ -119,15 +119,15 @@ def Odif_experiment(
             total_task=10,
             shift=shift,
             slot=slot,
-            task=task_ii
+            task=task_ii,
         )
 
         progressive_learner.add_task(
-        X=train_x,
-        y=train_y,
-        num_transformers=ntrees,
-        transformer_voter_decider_split=[0.67, 0.33, 0],
-        decider_kwargs={"classes": np.unique(train_y)}
+            X=train_x,
+            y=train_y,
+            num_transformers=ntrees,
+            transformer_voter_decider_split=[0.67, 0.33, 0],
+            decider_kwargs={"classes": np.unique(train_y)},
         )
 
         task_0_predictions = progressive_learner.predict(test_x_task0, task_id=0)
@@ -141,6 +141,7 @@ def Odif_experiment(
     df["accuracy"] = accuracies_across_tasks
 
     return df
+
 
 # The method calculates the bte and time results
 def calculate_results(df_results, slot_num, shift_num):
@@ -161,6 +162,7 @@ def calculate_results(df_results, slot_num, shift_num):
             btes.append(bte)
 
     return btes
+
 
 # The method plots the Backward Transfer Efficiency
 def plot_bte(bte, fontsize, ticksize):
@@ -184,19 +186,16 @@ def plot_bte(bte, fontsize, ticksize):
         linestyle="solid",
         label="Odif",
     )
-    ax.hlines(1, 0, 19, colors='gray', linestyles='dashed',linewidth=1.5)
+    ax.hlines(1, 0, 19, colors="gray", linestyles="dashed", linewidth=1.5)
     ax.set_xlabel("Number of Tasks Seen", fontsize=fontsize)
     ax.set_ylabel("log TE (Task 1)", fontsize=fontsize)
     ax.set_yticks([1, 1.1])
-    ax.set_ylim(.98, 1.12)
+    ax.set_ylim(0.98, 1.12)
     ax.set_xlabel("Number of Tasks Seen", fontsize=fontsize)
-    log_lbl = np.round(
-        np.log([1, 1.1]),
-        2
-    )
+    log_lbl = np.round(np.log([1, 1.1]), 2)
     labels = [item.get_text() for item in ax.get_yticklabels()]
 
-    for ii,_ in enumerate(labels):
+    for ii, _ in enumerate(labels):
         labels[ii] = str(log_lbl[ii])
 
     ax.set_yticklabels(labels)
