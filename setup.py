@@ -7,10 +7,10 @@ for line in open(os.path.join(PROJECT_PATH, "proglearn", "__init__.py")):
     if line.startswith("__version__ = "):
         VERSION = line.strip().split()[2][1:-1]
 
-with open("README.md", mode="r", encoding = "utf8") as f:
+with open("README.md", mode="r", encoding="utf8") as f:
     LONG_DESCRIPTION = f.read()
 
-with open("requirements.txt", mode="r", encoding = "utf8") as f:
+with open("requirements.txt", mode="r", encoding="utf8") as f:
     REQUIREMENTS = f.read()
 
 setup(
@@ -18,9 +18,9 @@ setup(
     version=VERSION,
     author="Will LeVine, Jayanta Dey, Hayden Helm",
     author_email="levinewill@icloud.com",
-    maintainer="Will LeVine, Jayanta Dey",
+    maintainer="Jayanta Dey, Haoyin Xu",
     maintainer_email="jdey4@jhmi.edu",
-    description="A package to implement and extend the methods desribed in 'A General Approach to Progressive Learning'",
+    description="A package to implement and extend the methods desribed in 'Omnidirectional Transfer for Quasilinear Lifelong Learning'",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     url="https://github.com/neurodata/ProgLearn/",
@@ -32,9 +32,9 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8"
+        "Programming Language :: Python :: 3.8",
     ],
     install_requires=REQUIREMENTS,
     packages=find_packages(exclude=["tests", "tests.*", "tests/*"]),
-    include_package_data=True
+    include_package_data=True,
 )

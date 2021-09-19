@@ -36,6 +36,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         The class of decider to which the progressive learner defaults
         if None is provided in any of the functions which add or set
         deciders.
+
     default_decider_kwargs : dict, default=None
         A dictionary with keys of type string and values of type obj corresponding
         to the given string kwarg. This determines to which type of decider the

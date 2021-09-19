@@ -131,8 +131,10 @@ dmypy.json
 # Data and IDE
 .vscode
 
-#experiments
+# experiments
 .DS_Store
+*.wav
+*.npz
 
-#pickle
+# pickle
 *.pickle
