@@ -219,8 +219,6 @@ def ftebte_exp(x, y, model, num_tasks, num_trees, reps, shift):
 
     # run experiment over all reps
     for rep in range(reps):
-        # print('Starting rep', rep)
-
         train_x_task = []
         train_y_task = []
         test_x_task = []
@@ -245,8 +243,6 @@ def ftebte_exp(x, y, model, num_tasks, num_trees, reps, shift):
 
         # for each task
         for task in range(num_tasks):
-            # print('task', task)
-
             # get train/test data
             tr_x, te_x, tr_y, te_y = train_test_split(
                 x_sample[task], y_sample[task], test_size=0.2
@@ -499,8 +495,6 @@ def recruitment_exp(x, y, num_tasks, num_trees, reps, estimation_set, shift=0):
 
         # repeat `rep` times
         for rep in range(reps):
-            # print("doing {} samples for {} th rep".format(ns,rep))
-
             ####### PREP DATA ##################################
 
             train_x_task = []
@@ -650,12 +644,6 @@ def recruitment_exp(x, y, num_tasks, num_trees, reps, estimation_set, shift=0):
                 num_labels_by_task[: num_tasks - 1]
             )
             hybrid[rep] = 1 - np.mean(test_y_task[num_tasks - 1] == hybrid_res)
-
-        # print statements
-        # print(np.mean(building))
-        # print(np.mean(uf))
-        # print(np.mean(recruiting))
-        # print(np.mean(hybrid))
 
         # calculate mean and stdev for each
         mean_accuracy_dict["building"].append(np.mean(building))
