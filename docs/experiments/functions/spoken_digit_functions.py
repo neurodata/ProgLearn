@@ -297,6 +297,7 @@ def plot_results(acc, bte, fte, te, model):
     ticksize = 20
 
     fig, ax = plt.subplots(2, 2, figsize=(16, 11.5))
+    ax[0][0].set_yscale("log")
     ax[0][0].plot(
         np.arange(1, num_tasks + 1),
         fte,
@@ -306,11 +307,20 @@ def plot_results(acc, bte, fte, te, model):
         linewidth=3,
     )
     ax[0][0].hlines(1, 1, num_tasks, colors="grey", linestyles="dashed", linewidth=1.5)
-    ax[0][0].tick_params(labelsize=ticksize)
+    ax[0][0].tick_params(labelsize=ticksize, labelleft="off")
     ax[0][0].set_xlabel("Number of tasks seen", fontsize=fontsize)
     ax[0][0].set_ylabel("log Forward TE", fontsize=fontsize)
-    ax[0][0].set_yscale("log")
+    ylims = ax[0][0].get_ylim()
+    yticks = [ylims[0], (ylims[0] + ylims[1]) / 2, ylims[1]]
+    ax[0][0].set_yticks(yticks)
+    ax[0][0].minorticks_off()
+    log_lbl = np.round(np.log(yticks), 2)
+    labels = [item.get_text() for item in ax[0][0].get_yticklabels()]
+    for ii, _ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+    ax[0][0].set_yticklabels(labels)
 
+    ax[0][1].set_yscale("log")
     for i in range(num_tasks):
         et = np.asarray(bte[i])
         ns = np.arange(i + 1, num_tasks + 1)
@@ -318,10 +328,19 @@ def plot_results(acc, bte, fte, te, model):
 
     ax[0][1].set_xlabel("Number of tasks seen", fontsize=fontsize)
     ax[0][1].set_ylabel("log Backward TE", fontsize=fontsize)
-    ax[0][1].tick_params(labelsize=ticksize)
+    ax[0][1].tick_params(labelsize=ticksize, labelleft="off")
     ax[0][1].hlines(1, 1, num_tasks, colors="grey", linestyles="dashed", linewidth=1.5)
-    ax[0][1].set_yscale("log")
+    ylims = ax[0][1].get_ylim()
+    yticks = [ylims[0], (ylims[0] + ylims[1]) / 2, ylims[1]]
+    ax[0][1].set_yticks(yticks)
+    ax[0][1].minorticks_off()
+    log_lbl = np.round(np.log(yticks), 2)
+    labels = [item.get_text() for item in ax[0][1].get_yticklabels()]
+    for ii, _ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+    ax[0][1].set_yticklabels(labels)
 
+    ax[1][0].set_yscale("log")
     for i in range(num_tasks):
         et = np.asarray(te[i])
         ns = np.arange(i + 1, num_tasks + 1)
@@ -329,10 +348,19 @@ def plot_results(acc, bte, fte, te, model):
 
     ax[1][0].set_xlabel("Number of tasks seen", fontsize=fontsize)
     ax[1][0].set_ylabel("log Transfer Efficiency", fontsize=fontsize)
-    ax[1][0].tick_params(labelsize=ticksize)
+    ax[1][0].tick_params(labelsize=ticksize, labelleft="off")
     ax[1][0].hlines(1, 1, num_tasks, colors="grey", linestyles="dashed", linewidth=1.5)
-    ax[1][0].set_yscale("log")
+    ylims = ax[1][0].get_ylim()
+    yticks = [ylims[0], (ylims[0] + ylims[1]) / 2, ylims[1]]
+    ax[1][0].set_yticks(yticks)
+    ax[1][0].minorticks_off()
+    log_lbl = np.round(np.log(yticks), 2)
+    labels = [item.get_text() for item in ax[1][0].get_yticklabels()]
+    for ii, _ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+    ax[1][0].set_yticklabels(labels)
 
+    ax[1][1].set_yscale("log")
     for i in range(num_tasks):
         et = 1 - np.asarray(acc[i])
         ns = np.arange(i + 1, num_tasks + 1)
@@ -340,8 +368,16 @@ def plot_results(acc, bte, fte, te, model):
 
     ax[1][1].set_xlabel("Number of tasks seen", fontsize=fontsize)
     ax[1][1].set_ylabel("Accuracy", fontsize=fontsize)
-    ax[1][1].tick_params(labelsize=ticksize)
-    ax[1][1].set_yscale("log")
+    ax[1][1].tick_params(labelsize=ticksize, labelleft="off")
+    ylims = ax[1][1].get_ylim()
+    yticks = [ylims[0], (ylims[0] + ylims[1]) / 2, ylims[1]]
+    ax[1][1].set_yticks(yticks)
+    ax[1][1].minorticks_off()
+    log_lbl = np.round(np.log(yticks), 2)
+    labels = [item.get_text() for item in ax[1][1].get_yticklabels()]
+    for ii, _ in enumerate(labels):
+        labels[ii] = str(log_lbl[ii])
+    ax[1][1].set_yticklabels(labels)
 
 
 def plot_paper_figure(bte, fte):
