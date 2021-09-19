@@ -383,7 +383,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     colors = sns.color_palette("Dark2", n_colors=2)
 
     X, Y = generate_gaussian_parity(750, angle_params=0)
-    Z, W = generate_gaussian_parity(750, angle_params=np.pi / 2)
+    Z, W = generate_gaussian_parity(750, angle_params=np.pi / 4)
 
     ax = fig.add_subplot(gs[:6, 4:10])
     clr = [colors[i] for i in Y]
@@ -403,7 +403,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
 
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title("Gaussian RXOR", fontsize=30)
+    ax.set_title("Gaussian R-XOR", fontsize=30)
     ax.axis("off")
 
 
