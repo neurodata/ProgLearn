@@ -1,6 +1,6 @@
 # YAML 1.2
 ---
-authors: 
+authors:
   -
     affiliation: "Johns Hopkins University, Baltimore, MD"
     family-names: Vogelstein
@@ -26,6 +26,11 @@ authors:
     affiliation: "Johns Hopkins University, Baltimore, MD"
     family-names: Geisa
     given-names: Ali
+  -
+    affiliation: "Johns Hopkins University, Baltimore, MD"
+    family-names: Xu
+    given-names: Haoyin
+    orcid: "https://orcid.org/0000-0001-8235-4950"
   -
     affiliation: "Baylor College of Medicine, Houston, TX"
     family-names: "van de Ven"
@@ -59,21 +64,21 @@ authors:
     family-names: Priebe
     given-names: Carey
 cff-version: "1.1.0"
-date-released: 2021-02-03
-identifiers: 
-  - 
+date-released: 2021-09-18
+identifiers:
+  -
     type: url
     value: "https://arxiv.org/pdf/2004.12908.pdf"
-keywords: 
+keywords:
   - Python
   - classification
   - "decision trees"
-  - "progressive learning"
+  - "lifelong learning"
   - "transfer learning"
   - "domain adaptation"
 license: MIT
 message: "If you use this software, please cite it using these metadata."
 repository-code: "https://github.com/neurodata/ProgLearn"
-title: "ProgLearn: Progressive Learning"
-version: "0.0.4"
+title: "Omnidirectional Transfer for Quasilinear Lifelong Learning"
+version: "0.0.5"
 ...
