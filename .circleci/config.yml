@@ -34,6 +34,10 @@ jobs:
     parameters:
       module:
         type: string
+      experiments:
+        type: string
+      tutorials:
+        type: string
     docker:
       - image: cimg/python:3.8
     steps:
@@ -56,6 +60,8 @@ jobs:
           command: |
             . venv/bin/activate
             black --check --diff ./<< parameters.module >>
+            black --check --diff ./<< parameters.experiments >>
+            black --check --diff ./<< parameters.tutorials >>
       - run:
           name: run tests and coverage
           command: |
@@ -121,6 +127,8 @@ workflows:
       - test-module:
           name: "proglearn"
           module: "proglearn"
+          experiments: "docs/experiments/functions"
+          tutorials: "docs/tutorials/functions"
           requires:
             - "v3.8"
       - deploy:
