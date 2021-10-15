@@ -17,13 +17,15 @@ from proglearn.transformers import *
 
 
 def _generate_network():
+    X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+
     network = keras.Sequential()
     network.add(
         layers.Conv2D(
             filters=16,
             kernel_size=(3, 3),
             activation="relu",
-            input_shape=np.shape(x_all)[1:],
+            input_shape=np.shape(X)[1:],
         )
     )
     network.add(layers.BatchNormalization())
