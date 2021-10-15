@@ -16,29 +16,29 @@ class TestLifelongClassificationForest:
 
     def test_correct_default_transformer(self):
         l2f = LifelongClassificationForest()
-        assert l2f.pl_.default_transformer_class == TreeClassificationTransformer
+        assert l2f.default_transformer_class == TreeClassificationTransformer
 
     def test_correct_default_voter(self):
         l2f = LifelongClassificationForest()
-        assert l2f.pl_.default_voter_class == TreeClassificationVoter
+        assert l2f.default_voter_class == TreeClassificationVoter
 
     def test_correct_default_decider(self):
         l2f = LifelongClassificationForest()
-        assert l2f.pl_.default_decider_class == SimpleArgmaxAverage
+        assert l2f.default_decider_class == SimpleArgmaxAverage
 
     def test_correct_default_kwargs(self):
         l2f = LifelongClassificationForest()
 
         # transformer
-        assert l2f.pl_.default_transformer_kwargs == {}
+        assert l2f.default_transformer_kwargs == {}
 
         # voter
-        assert len(l2f.pl_.default_voter_kwargs) == 1
-        assert "kappa" in list(l2f.pl_.default_voter_kwargs.keys())
-        assert l2f.pl_.default_voter_kwargs["kappa"] == np.inf
+        assert len(l2f.default_voter_kwargs) == 1
+        assert "kappa" in list(l2f.default_voter_kwargs.keys())
+        assert l2f.default_voter_kwargs["kappa"] == np.inf
 
         # decider
-        assert l2f.pl_.default_decider_kwargs == {}
+        assert l2f.default_decider_kwargs == {}
 
     def test_correct_default_n_estimators(self):
         l2f = LifelongClassificationForest()
@@ -46,7 +46,7 @@ class TestLifelongClassificationForest:
 
     def test_correct_true_initilization_finite_sample_correction(self):
         l2f = LifelongClassificationForest(default_kappa=np.inf)
-        assert l2f.pl_.default_voter_kwargs == {"kappa": np.inf}
+        assert l2f.default_voter_kwargs == {"kappa": np.inf}
 
 
 class TestUncertaintyForest:
@@ -56,29 +56,29 @@ class TestUncertaintyForest:
 
     def test_correct_default_transformer(self):
         uf = UncertaintyForest()
-        assert uf.pl_.default_transformer_class == TreeClassificationTransformer
+        assert uf.default_transformer_class == TreeClassificationTransformer
 
     def test_correct_default_voter(self):
         uf = UncertaintyForest()
-        assert uf.pl_.default_voter_class == TreeClassificationVoter
+        assert uf.default_voter_class == TreeClassificationVoter
 
     def test_correct_default_decider(self):
         uf = UncertaintyForest()
-        assert uf.pl_.default_decider_class == SimpleArgmaxAverage
+        assert uf.default_decider_class == SimpleArgmaxAverage
 
     def test_correct_default_kwargs(self):
         uf = UncertaintyForest()
 
         # transformer
-        assert uf.pl_.default_transformer_kwargs == {}
+        assert uf.default_transformer_kwargs == {}
 
         # voter
-        assert len(uf.pl_.default_voter_kwargs) == 1
-        assert "kappa" in list(uf.pl_.default_voter_kwargs.keys())
-        assert uf.pl_.default_voter_kwargs["kappa"] == np.inf
+        assert len(uf.default_voter_kwargs) == 1
+        assert "kappa" in list(uf.default_voter_kwargs.keys())
+        assert uf.default_voter_kwargs["kappa"] == np.inf
 
         # decider
-        assert uf.pl_.default_decider_kwargs == {}
+        assert uf.default_decider_kwargs == {}
 
     def test_correct_default_n_estimators(self):
         uf = UncertaintyForest()
@@ -86,4 +86,4 @@ class TestUncertaintyForest:
 
     def test_correct_true_initilization_finite_sample_correction(self):
         uf = UncertaintyForest(kappa=np.inf)
-        assert uf.pl_.default_voter_kwargs == {"kappa": np.inf}
+        assert uf.default_voter_kwargs == {"kappa": np.inf}

@@ -37,9 +37,38 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
 
     Attributes
     ----------
-    pl_ : ClassificationProgressiveLearner
-        Internal ClassificationProgressiveLearner used to train and make
-        inference.
+    default_transformer_class : TreeClassificationTransformer
+        The class of transformer to which the forest defaults
+        if None is provided in any of the functions which add or set
+        transformers.
+
+    default_transformer_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of transformer the
+        forest defaults if None is provided in any of the functions
+        which add or set transformers.
+
+    default_voter_class : TreeClassificationVoter
+        The class of voter to which the forest defaults
+        if None is provided in any of the functions which add or set
+        voters.
+
+    default_voter_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of voter the
+        forest defaults if None is provided in any of the functions
+        which add or set voters.
+
+    default_decider_class : SimpleArgmaxAverage
+        The class of decider to which the forest defaults
+        if None is provided in any of the functions which add or set
+        deciders.
+
+    default_decider_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of decider the
+        forest defaults if None is provided in any of the functions
+        which add or set deciders.
     """
 
     def __init__(
@@ -49,12 +78,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         default_kappa=np.inf,
         default_max_depth=30,
     ):
-        self.default_n_estimators = default_n_estimators
-        self.default_tree_construction_proportion = default_tree_construction_proportion
-        self.default_kappa = default_kappa
-        self.default_max_depth = default_max_depth
-
-        self.pl_ = ClassificationProgressiveLearner(
+        super().__init__(
             default_transformer_class=TreeClassificationTransformer,
             default_transformer_kwargs={},
             default_voter_class=TreeClassificationVoter,
@@ -62,6 +86,11 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             default_decider_class=SimpleArgmaxAverage,
             default_decider_kwargs={},
         )
+
+        self.default_n_estimators = default_n_estimators
+        self.default_tree_construction_proportion = default_tree_construction_proportion
+        self.default_kappa = default_kappa
+        self.default_max_depth = default_max_depth
 
     def add_task(
         self,
@@ -122,7 +151,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             max_depth = self.default_max_depth
 
         X, y = check_X_y(X, y)
-        return self.pl_.add_task(
+        return super().add_task(
             X,
             y,
             task_id=task_id,
@@ -183,7 +212,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             max_depth = self.default_max_depth
 
         X, y = check_X_y(X, y)
-        return self.pl_.add_transformer(
+        return super().add_transformer(
             X,
             y,
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
@@ -208,7 +237,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return self.pl_.predict_proba(check_array(X), task_id)
+        return super().predict_proba(check_array(X), task_id)
 
     def predict(self, X, task_id):
         """
@@ -227,7 +256,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.pl_.predict(check_array(X), task_id)
+        return super().predict(check_array(X), task_id)
 
 
 class UncertaintyForest(LifelongClassificationForest):
@@ -305,7 +334,7 @@ class UncertaintyForest(LifelongClassificationForest):
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return super().predict_proba(check_array(X), 0)
+        return super().predict_proba(X, 0)
 
     def predict(self, X):
         """
@@ -321,4 +350,4 @@ class UncertaintyForest(LifelongClassificationForest):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return super().predict(check_array(X), 0)
+        return super().predict(X, 0)

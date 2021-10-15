@@ -1,5 +1,5 @@
 """
-Main Author: Will LeVine 
+Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 import numpy as np
@@ -18,20 +18,24 @@ class ProgressiveLearner(BaseProgressiveLearner):
         The class of transformer to which the progressive learner defaults
         if None is provided in any of the functions which add or set
         transformers.
+
     default_transformer_kwargs : dict, default=None
         A dictionary with keys of type string and values of type obj corresponding
         to the given string kwarg. This determines to which type of transformer the
         progressive learner defaults if None is provided in any of the functions
         which add or set transformers.
+
     default_voter_class : BaseVoter, default=None
         The class of voter to which the progressive learner defaults
         if None is provided in any of the functions which add or set
         voters.
+
     default_voter_kwargs : dict, default=None
         A dictionary with keys of type string and values of type obj corresponding
         to the given string kwarg. This determines to which type of voter the
         progressive learner defaults if None is provided in any of the functions
         which add or set voters.
+
     default_decider_class : BaseDecider, default=None
         The class of decider to which the progressive learner defaults
         if None is provided in any of the functions which add or set
@@ -284,7 +288,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         if transformer_kwargs is None:
             if self.default_transformer_kwargs is None:
                 raise ValueError(
-                    """transformer_kwargs is None and 
+                    """transformer_kwargs is None and
                     'default_transformer_kwargs' is None."""
                 )
             else:
@@ -327,8 +331,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 voter_class = self.default_voter_class
             else:
                 raise ValueError(
-                    """voter_class is None, the default voter class for the overall 
-                    learner is None, and the default voter class 
+                    """voter_class is None, the default voter class for the overall
+                    learner is None, and the default voter class
                     for this transformer is None."""
                 )
 
@@ -342,8 +346,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 voter_kwargs = self.default_voter_kwargs
             else:
                 raise ValueError(
-                    """voter_kwargs is None, the default voter kwargs for the overall 
-                    learner is None, and the default voter kwargs 
+                    """voter_kwargs is None, the default voter kwargs for the overall
+                    learner is None, and the default voter kwargs
                     for this transformer is None."""
                 )
 
