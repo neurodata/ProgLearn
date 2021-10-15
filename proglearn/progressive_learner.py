@@ -242,6 +242,76 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 )
                 return first_idx, second_idx
 
+    def _add_transformer(
+        self,
+        X,
+        y,
+        transformer_data_proportion=1.0,
+        transformer_voter_data_idx=None,
+        transformer_id=None,
+        num_transformers=1,
+        transformer_class=None,
+        transformer_kwargs=None,
+        backward_task_ids=None,
+    ):
+        if transformer_id is None:
+            transformer_id = len(self.get_transformer_ids())
+
+        backward_task_ids = (
+            backward_task_ids if backward_task_ids is not None else self.get_task_ids()
+        )
+        transformer_voter_data_idx = (
+            range(len(X))
+            if transformer_voter_data_idx is None
+            else transformer_voter_data_idx
+        )
+
+        if transformer_id not in list(self.task_id_to_X.keys()):
+            self.transformer_id_to_X[transformer_id] = X
+        if transformer_id not in list(self.task_id_to_y.keys()):
+            self.transformer_id_to_y[transformer_id] = y
+
+        # train new transformers
+        for transformer_num in range(num_transformers):
+            if X is not None:
+                n = len(X)
+            elif y is not None:
+                n = len(y)
+            else:
+                n = None
+            if n is not None:
+                transformer_data_idx = np.random.choice(
+                    transformer_voter_data_idx,
+                    int(transformer_data_proportion * n),
+                    replace=False,
+                )
+            else:
+                transformer_data_idx = None
+            self.set_transformer(
+                transformer_id=transformer_id,
+                transformer_data_idx=transformer_data_idx,
+                transformer_class=transformer_class,
+                transformer_kwargs=transformer_kwargs,
+            )
+            voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
+            self._append_voter_data_idx(
+                task_id=transformer_id,
+                bag_id=transformer_num,
+                voter_data_idx=voter_data_idx,
+            )
+
+        # train voters and deciders from new transformer to previous tasks
+        for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
+            self.set_voter(transformer_id=transformer_id, task_id=existing_task_id)
+            self.set_decider(
+                task_id=existing_task_id,
+                transformer_ids=list(
+                    self.task_id_to_transformer_id_to_voters[existing_task_id].keys()
+                ),
+            )
+
+        return self
+
     # make sure the below ganular functions work without add_{transformer, task}
     def set_transformer(
         self,
@@ -488,63 +558,18 @@ class ProgressiveLearner(BaseProgressiveLearner):
         self : ProgressiveLearner
             The object itself.
         """
-        if transformer_id is None:
-            transformer_id = len(self.get_transformer_ids())
-
-        backward_task_ids = (
-            backward_task_ids if backward_task_ids is not None else self.get_task_ids()
+        return self._add_transformer(
+            self,
+            X,
+            y,
+            transformer_data_proportion=transformer_data_proportion,
+            transformer_voter_data_idx=transformer_voter_data_idx,
+            transformer_id=transformer_id,
+            num_transformers=num_transformers,
+            transformer_class=transformer_class,
+            transformer_kwargs=transformer_kwargs,
+            backward_task_ids=backward_task_ids,
         )
-        transformer_voter_data_idx = (
-            range(len(X))
-            if transformer_voter_data_idx is None
-            else transformer_voter_data_idx
-        )
-
-        if transformer_id not in list(self.task_id_to_X.keys()):
-            self.transformer_id_to_X[transformer_id] = X
-        if transformer_id not in list(self.task_id_to_y.keys()):
-            self.transformer_id_to_y[transformer_id] = y
-
-        # train new transformers
-        for transformer_num in range(num_transformers):
-            if X is not None:
-                n = len(X)
-            elif y is not None:
-                n = len(y)
-            else:
-                n = None
-            if n is not None:
-                transformer_data_idx = np.random.choice(
-                    transformer_voter_data_idx,
-                    int(transformer_data_proportion * n),
-                    replace=False,
-                )
-            else:
-                transformer_data_idx = None
-            self.set_transformer(
-                transformer_id=transformer_id,
-                transformer_data_idx=transformer_data_idx,
-                transformer_class=transformer_class,
-                transformer_kwargs=transformer_kwargs,
-            )
-            voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
-            self._append_voter_data_idx(
-                task_id=transformer_id,
-                bag_id=transformer_num,
-                voter_data_idx=voter_data_idx,
-            )
-
-        # train voters and deciders from new transformer to previous tasks
-        for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
-            self.set_voter(transformer_id=transformer_id, task_id=existing_task_id)
-            self.set_decider(
-                task_id=existing_task_id,
-                transformer_ids=list(
-                    self.task_id_to_transformer_id_to_voters[existing_task_id].keys()
-                ),
-            )
-
-        return self
 
     def add_task(
         self,
@@ -655,7 +680,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         # add new transformer and train voters and decider
         # from new transformer to previous tasks
         if num_transformers > 0:
-            self.add_transformer(
+            self._add_transformer(
                 X,
                 y,
                 transformer_data_proportion=transformer_voter_decider_split[0]
