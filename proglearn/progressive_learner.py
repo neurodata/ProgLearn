@@ -726,7 +726,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
 
 
 class ClassificationProgressiveLearner(
-    BaseClassificationProgressiveLearner, ProgressiveLearner
+    ProgressiveLearner, BaseClassificationProgressiveLearner
 ):
     """
     A (mostly) internal class for progressive learning in the classification
