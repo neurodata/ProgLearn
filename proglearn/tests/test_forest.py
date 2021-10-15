@@ -2,6 +2,7 @@ import unittest
 import pytest
 import numpy as np
 import random
+from sklearn.exceptions import NotFittedError
 
 from proglearn.forest import LifelongClassificationForest, UncertaintyForest
 from proglearn.transformers import TreeClassificationTransformer
