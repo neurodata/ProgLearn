@@ -281,9 +281,38 @@ class UncertaintyForest(LifelongClassificationForest):
 
     Attributes
     ----------
-    pl_ : ClassificationProgressiveLearner
-        Internal ClassificationProgressiveLearner used to train and make
-        inference.
+    default_transformer_class : TreeClassificationTransformer
+        The class of transformer to which the forest defaults
+        if None is provided in any of the functions which add or set
+        transformers.
+
+    default_transformer_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of transformer the
+        forest defaults if None is provided in any of the functions
+        which add or set transformers.
+
+    default_voter_class : TreeClassificationVoter
+        The class of voter to which the forest defaults
+        if None is provided in any of the functions which add or set
+        voters.
+
+    default_voter_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of voter the
+        forest defaults if None is provided in any of the functions
+        which add or set voters.
+
+    default_decider_class : SimpleArgmaxAverage
+        The class of decider to which the forest defaults
+        if None is provided in any of the functions which add or set
+        deciders.
+
+    default_decider_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of decider the
+        forest defaults if None is provided in any of the functions
+        which add or set deciders.
     """
 
     def __init__(
