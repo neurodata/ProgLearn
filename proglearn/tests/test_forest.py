@@ -85,5 +85,5 @@ class TestUncertaintyForest:
         assert uf.default_n_estimators == 100
 
     def test_correct_true_initilization_finite_sample_correction(self):
-        uf = UncertaintyForest(default_kappa=np.inf)
+        uf = UncertaintyForest(kappa=np.inf)
         assert uf.pl_.default_voter_kwargs == {"kappa": np.inf}
