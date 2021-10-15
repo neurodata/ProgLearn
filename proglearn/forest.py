@@ -230,7 +230,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         return self.pl_.predict(check_array(X), task_id)
 
 
-class UncertaintyForest:
+class UncertaintyForest(LifelongClassificationForest):
     """
     A class used to represent an uncertainty forest.
 
@@ -252,8 +252,8 @@ class UncertaintyForest:
 
     Attributes
     ----------
-    lf_ : LifelongClassificationForest
-        Internal LifelongClassificationForest used to train and make
+    pl_ : ClassificationProgressiveLearner
+        Internal ClassificationProgressiveLearner used to train and make
         inference.
     """
 
@@ -264,10 +264,12 @@ class UncertaintyForest:
         max_depth=30,
         tree_construction_proportion=0.67,
     ):
-        self.n_estimators = n_estimators
-        self.kappa = kappa
-        self.max_depth = max_depth
-        self.tree_construction_proportion = tree_construction_proportion
+        super().__init__(
+            default_n_estimators=n_estimators,
+            default_tree_construction_proportion=tree_construction_proportion,
+            default_kappa=kappa,
+            default_max_depth=max_depth,
+        )
 
     def fit(self, X, y):
         """
@@ -286,15 +288,8 @@ class UncertaintyForest:
         self : UncertaintyForest
             The object itself.
         """
-        self.lf_ = LifelongClassificationForest(
-            default_n_estimators=self.n_estimators,
-            default_kappa=self.kappa,
-            default_max_depth=self.max_depth,
-            default_tree_construction_proportion=self.tree_construction_proportion,
-        )
 
-        X, y = check_X_y(X, y)
-        return self.lf_.add_task(X, y, task_id=0)
+        return super().add_task(X, y, task_id=0)
 
     def predict_proba(self, X):
         """
@@ -310,7 +305,7 @@ class UncertaintyForest:
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return self.lf_.predict_proba(check_array(X), 0)
+        return super().predict_proba(check_array(X), 0)
 
     def predict(self, X):
         """
@@ -326,4 +321,4 @@ class UncertaintyForest:
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.lf_.predict(check_array(X), 0)
+        return super().predict(check_array(X), 0)
