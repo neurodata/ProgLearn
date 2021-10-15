@@ -3,6 +3,8 @@ Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 import numpy as np
+from sklearn.exceptions import NotFittedError
+
 from .base import BaseClassificationProgressiveLearner, BaseProgressiveLearner
 
 
@@ -720,9 +722,11 @@ class ProgressiveLearner(BaseProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.task_id_to_decider[task_id].predict(
-            X, transformer_ids=transformer_ids
-        )
+        if self.task_id_to_decider == {}:
+            raise NotFittedError
+
+        decider = self.task_id_to_decider[task_id]
+        return decider.predict(X, transformer_ids=transformer_ids)
 
 
 class ClassificationProgressiveLearner(
@@ -757,7 +761,8 @@ class ClassificationProgressiveLearner(
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
+        if self.task_id_to_decider == {}:
+            raise NotFittedError
+
         decider = self.task_id_to_decider[task_id]
-        return self.task_id_to_decider[task_id].predict_proba(
-            X, transformer_ids=transformer_ids
-        )
+        return decider.predict_proba(X, transformer_ids=transformer_ids)
