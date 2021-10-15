@@ -169,7 +169,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             decider_kwargs={"classes": np.unique(y)},
         )
 
-    def add_transformer(
+    def _add_transformer(
         self,
         X,
         y,
