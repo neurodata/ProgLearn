@@ -47,9 +47,38 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
 
     Attributes
     ----------
-    pl_ : ClassificationProgressiveLearner
-        Internal ClassificationProgressiveLearner used to train and make
-        inference.
+    default_transformer_class : NeuralClassificationTransformer
+        The class of transformer to which the network defaults
+        if None is provided in any of the functions which add or set
+        transformers.
+
+    default_transformer_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of transformer the
+        network defaults if None is provided in any of the functions
+        which add or set transformers.
+
+    default_voter_class : KNNClassificationVoter
+        The class of voter to which the network defaults
+        if None is provided in any of the functions which add or set
+        voters.
+
+    default_voter_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of voter the
+        network defaults if None is provided in any of the functions
+        which add or set voters.
+
+    default_decider_class : SimpleArgmaxAverage
+        The class of decider to which the network defaults
+        if None is provided in any of the functions which add or set
+        deciders.
+
+    default_decider_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of decider the
+        network defaults if None is provided in any of the functions
+        which add or set deciders.
     """
 
     def __init__(
@@ -87,7 +116,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
             },
         }
 
-        self.pl_ = ClassificationProgressiveLearner(
+        super().__init__(
             default_transformer_class=NeuralClassificationTransformer,
             default_transformer_kwargs=default_transformer_kwargs,
             default_voter_class=KNNClassificationVoter,
@@ -125,7 +154,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
             network_construction_proportion = self.network_construction_proportion
 
         X, y = check_X_y(X, y, ensure_2d=False)
-        return self.pl_.add_task(
+        return super().add_task(
             X,
             y,
             task_id=task_id,
@@ -162,7 +191,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
             The object itself.
         """
         X, y = check_X_y(X, y, ensure_2d=False)
-        return self.pl_.add_transformer(X, y, transformer_id=transformer_id)
+        return super().add_transformer(X, y, transformer_id=transformer_id)
 
     def predict(self, X, task_id):
         """
@@ -181,7 +210,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.pl_.predict(check_array(X, ensure_2d=False), task_id)
+        return super().predict(check_array(X, ensure_2d=False), task_id)
 
     def predict_proba(self, X, task_id):
         """
@@ -200,4 +229,4 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return self.pl_.predict_proba(check_array(X, ensure_2d=False), task_id)
+        return super().predict_proba(check_array(X, ensure_2d=False), task_id)
