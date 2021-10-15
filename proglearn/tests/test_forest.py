@@ -66,12 +66,12 @@ class TestLifelongClassificationForest:
         y = np.concatenate((np.zeros(100), np.ones(100)))
 
         l2f.add_task(X, y)
-        u1 = l2f.predict(np.array([0]).reshape(1, -1))
-        u2 = l2f.predict(np.array([1]).reshape(1, -1))
+        u1 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
+        u2 = l2f.predict(np.array([1]).reshape(1, -1), task_id=0)
         assert u1 != u2
 
-        u1 = l2f.predict(np.array([0]).reshape(1, -1))
-        u2 = l2f.predict(np.array([0]).reshape(1, -1))
+        u1 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
+        u2 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
         assert u1 == u2
 
     def test_predict_proba(self):
@@ -83,12 +83,12 @@ class TestLifelongClassificationForest:
         y = np.concatenate((np.zeros(100), np.ones(100)))
 
         l2f.add_task(X, y)
-        u1 = l2f.predict_proba(np.array([0]).reshape(1, -1))
-        u2 = l2f.predict_proba(np.array([1]).reshape(1, -1))
+        u1 = l2f.predict_proba(np.array([0]).reshape(1, -1), task_id=0)
+        u2 = l2f.predict_proba(np.array([1]).reshape(1, -1), task_id=0)
         assert u1 != u2
 
-        u1 = l2f.predict_proba(np.array([0]).reshape(1, -1))
-        u2 = l2f.predict_proba(np.array([0]).reshape(1, -1))
+        u1 = l2f.predict_proba(np.array([0]).reshape(1, -1), task_id=0)
+        u2 = l2f.predict_proba(np.array([0]).reshape(1, -1), task_id=0)
         assert u1 == u2
 
 
