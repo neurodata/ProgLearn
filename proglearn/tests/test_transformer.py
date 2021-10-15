@@ -10,9 +10,72 @@ from numpy import random as rng
 from sklearn.datasets import load_iris
 from sklearn.exceptions import NotFittedError
 from tensorflow import keras
+from tensorflow.keras import layers
 from tensorflow.keras.optimizers import Adam
 
 from proglearn.transformers import *
+
+
+def _generate_network():
+    network = keras.Sequential()
+    network.add(
+        layers.Conv2D(
+            filters=16,
+            kernel_size=(3, 3),
+            activation="relu",
+            input_shape=np.shape(x_all)[1:],
+        )
+    )
+    network.add(layers.BatchNormalization())
+    network.add(
+        layers.Conv2D(
+            filters=32,
+            kernel_size=(3, 3),
+            strides=2,
+            padding="same",
+            activation="relu",
+        )
+    )
+    network.add(layers.BatchNormalization())
+    network.add(
+        layers.Conv2D(
+            filters=64,
+            kernel_size=(3, 3),
+            strides=2,
+            padding="same",
+            activation="relu",
+        )
+    )
+    network.add(layers.BatchNormalization())
+    network.add(
+        layers.Conv2D(
+            filters=128,
+            kernel_size=(3, 3),
+            strides=2,
+            padding="same",
+            activation="relu",
+        )
+    )
+    network.add(layers.BatchNormalization())
+    network.add(
+        layers.Conv2D(
+            filters=254,
+            kernel_size=(3, 3),
+            strides=2,
+            padding="same",
+            activation="relu",
+        )
+    )
+
+    network.add(layers.Flatten())
+    network.add(layers.BatchNormalization())
+    network.add(layers.Dense(2000, activation="relu"))
+    network.add(layers.BatchNormalization())
+    network.add(layers.Dense(2000, activation="relu"))
+    network.add(layers.BatchNormalization())
+    network.add(layers.Dense(units=10, activation="softmax"))
+
+    return network
 
 
 class TestTreeClassificationTransformer:
@@ -45,7 +108,7 @@ class TestTreeClassificationTransformer:
 class TestNeuralClassificationTransformer:
     def test_init(self):
         NeuralClassificationTransformer(
-            network=keras.Sequential(), euclidean_layer_idx=-2, optimizer=Adam(3e-4)
+            network=_generate_network(), euclidean_layer_idx=-2, optimizer=Adam(3e-4)
         )
         assert True
 
@@ -55,7 +118,9 @@ class TestNeuralClassificationTransformer:
 
         with pytest.raises(NotFittedError):
             trt = NeuralClassificationTransformer(
-                network=keras.Sequential(), euclidean_layer_idx=-2, optimizer=Adam(3e-4)
+                network=_generate_network(),
+                euclidean_layer_idx=-2,
+                optimizer=Adam(3e-4),
             )
             trt.transform(X)
 
@@ -63,7 +128,7 @@ class TestNeuralClassificationTransformer:
         np.random.seed(1)
 
         trt = NeuralClassificationTransformer(
-            network=keras.Sequential(), euclidean_layer_idx=-2, optimizer=Adam(3e-4)
+            network=_generate_network(), euclidean_layer_idx=-2, optimizer=Adam(3e-4)
         )
 
         X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
