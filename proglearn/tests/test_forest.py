@@ -85,11 +85,11 @@ class TestLifelongClassificationForest:
         l2f.add_task(X, y)
         u1 = l2f.predict_proba(np.array([0]).reshape(1, -1), task_id=0)
         u2 = l2f.predict_proba(np.array([1]).reshape(1, -1), task_id=0)
-        assert u1 != u2
+        assert not np.array_equiv(u1, u2)
 
         u1 = l2f.predict_proba(np.array([0]).reshape(1, -1), task_id=0)
         u2 = l2f.predict_proba(np.array([0]).reshape(1, -1), task_id=0)
-        assert u1 == u2
+        assert np.array_equiv(u1, u2)
 
 
 class TestUncertaintyForest:
@@ -130,3 +130,45 @@ class TestUncertaintyForest:
     def test_correct_true_initilization_finite_sample_correction(self):
         uf = UncertaintyForest(kappa=np.inf)
         assert uf.default_voter_kwargs == {"kappa": np.inf}
+
+    def test_predict_without_fit(self):
+        # Generate random data
+        X = np.random.normal(0, 1, size=(100, 3))
+
+        with pytest.raises(NotFittedError):
+            uf = UncertaintyForest()
+            uf.predict(X)
+
+    def test_predict(self):
+        np.random.seed(1)
+
+        uf = UncertaintyForest()
+
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        uf.fit(X, y)
+        u1 = uf.predict(np.array([0]).reshape(1, -1))
+        u2 = uf.predict(np.array([1]).reshape(1, -1))
+        assert u1 != u2
+
+        u1 = uf.predict(np.array([0]).reshape(1, -1))
+        u2 = uf.predict(np.array([0]).reshape(1, -1))
+        assert u1 == u2
+
+    def test_predict_proba(self):
+        np.random.seed(1)
+
+        uf = UncertaintyForest()
+
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        uf.fit(X, y)
+        u1 = uf.predict_proba(np.array([0]).reshape(1, -1))
+        u2 = uf.predict_proba(np.array([1]).reshape(1, -1))
+        assert not np.array_equiv(u1, u2)
+
+        u1 = uf.predict_proba(np.array([0]).reshape(1, -1))
+        u2 = uf.predict_proba(np.array([0]).reshape(1, -1))
+        assert np.array_equiv(u1, u2)
