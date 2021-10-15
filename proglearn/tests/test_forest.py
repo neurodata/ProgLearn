@@ -55,7 +55,7 @@ class TestLifelongClassificationForest:
 
         with pytest.raises(NotFittedError):
             l2f = LifelongClassificationForest()
-            l2f.predict(X)
+            l2f.predict(X, task_id=0)
 
     def test_predict(self):
         np.random.seed(1)
@@ -65,7 +65,7 @@ class TestLifelongClassificationForest:
         X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
         y = np.concatenate((np.zeros(100), np.ones(100)))
 
-        l2f.add_task(X, y)
+        l2f.add_task(X, y, num_transformers=1)
         u1 = l2f.predict(np.array([0]).reshape(1, -1))
         u2 = l2f.predict(np.array([1]).reshape(1, -1))
         assert u1 != u2
@@ -82,7 +82,7 @@ class TestLifelongClassificationForest:
         X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
         y = np.concatenate((np.zeros(100), np.ones(100)))
 
-        l2f.add_task(X, y)
+        l2f.add_task(X, y, num_transformers=1)
         u1 = l2f.predict_proba(np.array([0]).reshape(1, -1))
         u2 = l2f.predict_proba(np.array([1]).reshape(1, -1))
         assert u1 != u2
