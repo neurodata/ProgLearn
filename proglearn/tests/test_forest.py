@@ -48,6 +48,48 @@ class TestLifelongClassificationForest:
         l2f = LifelongClassificationForest(default_kappa=np.inf)
         assert l2f.default_voter_kwargs == {"kappa": np.inf}
 
+    def test_predict_without_fit(self):
+        # Generate random data
+        X = np.random.normal(0, 1, size=(100, 3))
+
+        with pytest.raises(NotFittedError):
+            l2f = LifelongClassificationForest()
+            l2f.predict(X)
+
+    def test_predict(self):
+        np.random.seed(1)
+
+        l2f = LifelongClassificationForest()
+
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        l2f.add_task(X, y)
+        u1 = l2f.predict(np.array([0]).reshape(1, -1))
+        u2 = l2f.predict(np.array([1]).reshape(1, -1))
+        assert u1 != u2
+
+        u1 = l2f.predict(np.array([0]).reshape(1, -1))
+        u2 = l2f.predict(np.array([0]).reshape(1, -1))
+        assert u1 == u2
+
+    def test_predict_proba(self):
+        np.random.seed(1)
+
+        l2f = LifelongClassificationForest()
+
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        l2f.add_task(X, y)
+        u1 = l2f.predict_proba(np.array([0]).reshape(1, -1))
+        u2 = l2f.predict_proba(np.array([1]).reshape(1, -1))
+        assert u1 != u2
+
+        u1 = l2f.predict_proba(np.array([0]).reshape(1, -1))
+        u2 = l2f.predict_proba(np.array([0]).reshape(1, -1))
+        assert u1 == u2
+
 
 class TestUncertaintyForest:
     def test_initialize(self):
