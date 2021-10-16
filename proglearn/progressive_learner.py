@@ -120,30 +120,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
         A dictionary with keys of type obj corresponding to task ids
         and values of type obj corresponding to decider indices. This dictionary
         thus maps decider indices to particular tasks.
-
-    default_transformer_class : BaseTransformer
-        Stores the default transformer class as specified by the parameter
-        default_transformer_class.
-
-    default_transformer_kwargs : dict
-        Stores the default transformer kwargs as specified by the parameter
-        default_transformer_kwargs.
-
-    default_voter_class : BaseVoter
-        Stores the default voter class as specified by the parameter
-        default_voter_class.
-
-    default_voter_kwargs : dict
-        Stores the default voter kwargs as specified by the parameter
-        default_voter_kwargs.
-
-    default_decider_class : BaseDecider
-        Stores the default decider class as specified by the parameter
-        default_decider_class.
-
-    default_decider_kwargs : dict
-        Stores the default decider kwargs as specified by the parameter
-        default_decider_kwargs.
     """
 
     def __init__(

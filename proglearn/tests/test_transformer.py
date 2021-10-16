@@ -7,7 +7,6 @@ from numpy.testing import (
     assert_allclose,
 )
 from numpy import random as rng
-from sklearn.datasets import load_iris
 from sklearn.exceptions import NotFittedError
 from tensorflow import keras
 from tensorflow.keras.layers import Dense

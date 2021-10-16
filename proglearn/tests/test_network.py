@@ -3,11 +3,22 @@ import numpy as np
 import random
 
 from tensorflow import keras
+from tensorflow.keras.layers import Dense
+from sklearn.exceptions import NotFittedError
 
 from proglearn.network import LifelongClassificationNetwork
 from proglearn.transformers import NeuralClassificationTransformer
 from proglearn.voters import KNNClassificationVoter
 from proglearn.deciders import SimpleArgmaxAverage
+
+
+def _generate_network():
+    network = keras.Sequential()
+    network.add(Dense(12, input_dim=8, activation="relu"))
+    network.add(Dense(8, activation="relu"))
+    network.add(Dense(1, activation="sigmoid"))
+
+    return network
 
 
 class TestLifelongClassificationNetwork:
@@ -42,3 +53,23 @@ class TestLifelongClassificationNetwork:
     def test_correct_default_network_construction_proportion(self):
         l2n = LifelongClassificationNetwork(keras.Sequential())
         assert l2n.default_network_construction_proportion == 0.67
+
+    def test_predict_without_fit(self):
+        # Generate random data
+        X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
+
+        with pytest.raises(NotFittedError):
+            l2n = LifelongClassificationNetwork(
+                network=_generate_network(),
+            )
+            l2n.predict(X)
+
+    def test_predict_proba_without_fit(self):
+        # Generate random data
+        X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
+
+        with pytest.raises(NotFittedError):
+            l2n = LifelongClassificationNetwork(
+                network=_generate_network(),
+            )
+            l2n.predict_proba(X)

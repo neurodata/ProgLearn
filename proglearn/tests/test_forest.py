@@ -48,6 +48,17 @@ class TestLifelongClassificationForest:
         l2f = LifelongClassificationForest(default_kappa=np.inf)
         assert l2f.default_voter_kwargs == {"kappa": np.inf}
 
+    def test_add_transformer(self):
+        # Generate random data
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        l2f = LifelongClassificationForest()
+        l2f.add_transformer(X, y)
+
+        assert l2f.transformer_id_to_X[0] == X
+        assert l2f.transformer_id_to_y[0] == y
+
     def test_predict_without_fit(self):
         # Generate random data
         X = np.random.normal(0, 1, size=(100, 3))
