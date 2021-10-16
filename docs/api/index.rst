@@ -3,6 +3,10 @@
 API Reference
 =============
 
+.. automodule:: proglearn
+
+.. currentmodule:: proglearn
+
 Transformers
 -----------------
 
@@ -44,10 +48,6 @@ Forest
    :toctree: generated/
 
    LifelongClassificationForest
-
-.. automodule:: proglearn
-
-.. currentmodule:: proglearn
 
 Network
 -----------------
