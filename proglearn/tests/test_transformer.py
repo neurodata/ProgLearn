@@ -61,7 +61,7 @@ class TestNeuralClassificationTransformer:
 
     def test_predict_without_fit(self):
         # Generate random data
-        X = np.array([0, 1, 0, 1, 0, 1, 0, 1])
+        X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
 
         with pytest.raises(NotFittedError):
             trt = NeuralClassificationTransformer(
@@ -78,12 +78,12 @@ class TestNeuralClassificationTransformer:
             network=_generate_network(), euclidean_layer_idx=-2, optimizer=Adam(3e-4)
         )
 
-        X = np.array([0, 1, 0, 1, 0, 1, 0, 1])
+        X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
         y = np.array([0, 1, 0, 1, 0, 1, 0, 1])
 
         trt.fit(X, y)
-        u1 = trt.transform(np.zeros(8).reshape(-1))
-        u2 = trt.transform(np.ones(8).reshape(-1))
+        u1 = trt.transform(np.zeros(8).reshape(-1, 1))
+        u2 = trt.transform(np.ones(8).reshape(-1, 1))
         assert u1 != u2
 
         u1 = trt.transform(np.zeros(8).reshape(-1))
