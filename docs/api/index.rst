@@ -3,10 +3,6 @@
 API Reference
 =============
 
-.. automodule:: proglearn
-
-.. currentmodule:: proglearn
-
 Transformers
 -----------------
 
@@ -15,12 +11,6 @@ Transformers
 
    NeuralClassificationTransformer
    TreeClassificationTransformer
-
-
-
-.. automodule:: proglearn
-
-.. currentmodule:: proglearn
 
 Voters
 -------------
@@ -31,12 +21,6 @@ Voters
    TreeClassificationVoter
    KNNClassificationVoter
 
-
-
-.. automodule:: proglearn
-
-.. currentmodule:: proglearn
-
 Deciders
 -----------------
 
@@ -45,11 +29,6 @@ Deciders
 
    SimpleArgmaxAverage
 
-
-.. automodule:: proglearn
-
-.. currentmodule:: proglearn
-
 Progressive_Learner
 ---------------------------------------
 
@@ -57,12 +36,6 @@ Progressive_Learner
    :toctree: generated/
 
    ClassificationProgressiveLearner
-
-
-
-.. automodule:: proglearn
-
-.. currentmodule:: proglearn
 
 Forest
 -----------------
@@ -83,11 +56,3 @@ Network
    :toctree: generated/
 
    LifelongClassificationNetwork
-
-
-
-
-
-
-
-
