@@ -10,7 +10,7 @@ from numpy import random as rng
 from sklearn.datasets import load_iris
 from sklearn.exceptions import NotFittedError
 from tensorflow import keras
-from tensorflow.keras import layers
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 
 from proglearn.transformers import *
