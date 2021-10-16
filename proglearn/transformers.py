@@ -122,8 +122,8 @@ class NeuralClassificationTransformer(BaseTransformer):
         NotFittedError
             When the model is not fitted.
         """
-        check_is_fitted(self)
-        check_array(X, y, ensure_2d=False)
+        check_is_fitted(self.network)
+        check_array(X, ensure_2d=False)
         return self.encoder_.predict(X)
 
 
