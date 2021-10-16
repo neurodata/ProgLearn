@@ -3,8 +3,6 @@
 API Reference
 =============
 
-.. automodule:: proglearn
-
 .. currentmodule:: proglearn
 
 Transformers
