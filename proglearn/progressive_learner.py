@@ -222,13 +222,13 @@ class ProgressiveLearner(BaseProgressiveLearner):
         self,
         X,
         y,
-        transformer_data_proportion=1.0,
-        transformer_voter_data_idx=None,
-        transformer_id=None,
-        num_transformers=1,
-        transformer_class=None,
-        transformer_kwargs=None,
-        backward_task_ids=None,
+        transformer_data_proportion,
+        transformer_voter_data_idx,
+        transformer_id,
+        num_transformers,
+        transformer_class,
+        transformer_kwargs,
+        backward_task_ids,
     ):
         if transformer_id is None:
             transformer_id = len(self.get_transformer_ids())
@@ -535,7 +535,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
             The object itself.
         """
         return self._add_transformer(
-            self,
             X,
             y,
             transformer_data_proportion=transformer_data_proportion,

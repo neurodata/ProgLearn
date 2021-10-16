@@ -55,21 +55,19 @@ class TestLifelongClassificationNetwork:
         assert l2n.default_network_construction_proportion == 0.67
 
     def test_predict_without_fit(self):
-        # Generate random data
         X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
 
         with pytest.raises(NotFittedError):
             l2n = LifelongClassificationNetwork(
                 network=_generate_network(),
             )
-            l2n.predict(X)
+            l2n.predict(X, task_id=0)
 
     def test_predict_proba_without_fit(self):
-        # Generate random data
         X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
 
         with pytest.raises(NotFittedError):
             l2n = LifelongClassificationNetwork(
                 network=_generate_network(),
             )
-            l2n.predict_proba(X)
+            l2n.predict_proba(X, task_id=0)
