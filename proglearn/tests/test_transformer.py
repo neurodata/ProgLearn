@@ -70,22 +70,3 @@ class TestNeuralClassificationTransformer:
                 optimizer=Adam(3e-4),
             )
             trt.transform(X)
-
-    def test_transform(self):
-        np.random.seed(1)
-
-        trt = NeuralClassificationTransformer(
-            network=_generate_network(), euclidean_layer_idx=-2, optimizer=Adam(3e-4)
-        )
-
-        X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
-        y = np.array([0, 1, 0, 1, 0, 1, 0, 1])
-
-        trt.fit(X, y)
-        u1 = trt.transform(np.zeros(8).reshape(-1, 1))
-        u2 = trt.transform(np.ones(8).reshape(-1, 1))
-        assert u1 != u2
-
-        u1 = trt.transform(np.zeros(8).reshape(-1))
-        u2 = trt.transform(np.zeros(8).reshape(-1))
-        assert u1 == u2
