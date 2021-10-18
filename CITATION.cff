@@ -84,5 +84,5 @@ doi: 10.5281/zenodo.4060264
 message: "If you use ProgLearn, please cite it using these metadata."
 repository-code: "https://github.com/neurodata/ProgLearn"
 title: "Omnidirectional Transfer for Quasilinear Lifelong Learning"
-version: "0.0.5"
+version: "0.0.6"
 ...

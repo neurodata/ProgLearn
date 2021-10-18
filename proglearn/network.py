@@ -223,7 +223,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         if network_construction_proportion == "default":
             network_construction_proportion = self.network_construction_proportion
 
-        X, y = check_X_y(X, y, ensure_2d=False)
+        X, y = check_X_y(X, y, ensure_2d=False, allow_nd=True)
         return super().add_task(
             X,
             y,
@@ -260,7 +260,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         self : LifelongClassificationNetwork
             The object itself.
         """
-        X, y = check_X_y(X, y, ensure_2d=False)
+        X, y = check_X_y(X, y, ensure_2d=False, allow_nd=True)
         return super().add_transformer(X, y, transformer_id=transformer_id)
 
     def predict(self, X, task_id):
@@ -280,7 +280,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return super().predict(check_array(X, ensure_2d=False), task_id)
+        return super().predict(check_array(X, ensure_2d=False, allow_nd=True), task_id)
 
     def predict_proba(self, X, task_id):
         """
@@ -299,4 +299,6 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return super().predict_proba(check_array(X, ensure_2d=False), task_id)
+        return super().predict_proba(
+            check_array(X, ensure_2d=False, allow_nd=True), task_id
+        )
