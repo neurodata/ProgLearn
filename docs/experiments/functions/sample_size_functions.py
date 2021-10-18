@@ -5,7 +5,7 @@ from scipy import stats
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
-import keras
+from tensorflow import keras
 
 __all__ = [
     "rf_classifier",
