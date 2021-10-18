@@ -49,7 +49,7 @@ class NeuralClassificationTransformer(BaseTransformer):
         Output layers are determined by the euclidean_layer_idx parameter.
 
     fitted_ : boolean
-        A boolean flag to note if the model is fitted.
+        A boolean flag initialized after the model is fitted.
     """
 
     def __init__(
@@ -77,7 +77,6 @@ class NeuralClassificationTransformer(BaseTransformer):
         self.loss = loss
         self.compile_kwargs = compile_kwargs
         self.fit_kwargs = fit_kwargs
-        self.fitted_ = False
 
     def fit(self, X, y):
         """
