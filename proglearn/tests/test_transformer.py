@@ -57,15 +57,3 @@ class TestNeuralClassificationTransformer:
             network=_generate_network(), euclidean_layer_idx=-2, optimizer=Adam(3e-4)
         )
         assert True
-
-    def test_predict_without_fit(self):
-        # Generate random data
-        X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
-
-        with pytest.raises(NotFittedError):
-            trt = NeuralClassificationTransformer(
-                network=_generate_network(),
-                euclidean_layer_idx=-2,
-                optimizer=Adam(3e-4),
-            )
-            trt.transform(X)
