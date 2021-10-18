@@ -47,6 +47,9 @@ class NeuralClassificationTransformer(BaseTransformer):
     encoder_ : object
         A Keras model with inputs and outputs based on the network attribute.
         Output layers are determined by the euclidean_layer_idx parameter.
+
+    fitted_ : boolean
+        A boolean flag to note if the model is fitted.
     """
 
     def __init__(
@@ -65,12 +68,16 @@ class NeuralClassificationTransformer(BaseTransformer):
         },
     ):
         self.network = keras.models.clone_model(network)
-        self.euclidean_layer_idx = euclidean_layer_idx
+        self.encoder_ = keras.models.Model(
+            inputs=self.network.inputs,
+            outputs=self.network.layers[euclidean_layer_idx].output,
+        )
         self.pretrained = pretrained
         self.optimizer = optimizer
         self.loss = loss
         self.compile_kwargs = compile_kwargs
         self.fit_kwargs = fit_kwargs
+        self.fitted_ = False
 
     def fit(self, X, y):
         """
@@ -94,11 +101,10 @@ class NeuralClassificationTransformer(BaseTransformer):
         self.network.compile(
             loss=self.loss, optimizer=self.optimizer, **self.compile_kwargs
         )
+
         self.network.fit(X, keras.utils.to_categorical(y), **self.fit_kwargs)
-        self.encoder_ = keras.models.Model(
-            inputs=self.network.inputs,
-            outputs=self.network.layers[self.euclidean_layer_idx].output,
-        )
+        self.fitted_ = True
+
         return self
 
     def transform(self, X):
@@ -120,8 +126,8 @@ class NeuralClassificationTransformer(BaseTransformer):
         NotFittedError
             When the model is not fitted.
         """
-        check_is_fitted(self, attributes="encoder_")
         check_array(X, ensure_2d=False, allow_nd=True)
+        check_is_fitted(self, attributes="fitted_")
         return self.encoder_.predict(X)
 
 
@@ -182,6 +188,6 @@ class TreeClassificationTransformer(BaseTransformer):
         NotFittedError
             When the model is not fitted.
         """
-        check_is_fitted(self)
         X = check_array(X)
+        check_is_fitted(self)
         return self.transformer_.apply(X)
