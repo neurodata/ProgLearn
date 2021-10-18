@@ -65,10 +65,7 @@ class NeuralClassificationTransformer(BaseTransformer):
         },
     ):
         self.network = keras.models.clone_model(network)
-        self.encoder_ = keras.models.Model(
-            inputs=self.network.inputs,
-            outputs=self.network.layers[euclidean_layer_idx].output,
-        )
+        self.euclidean_layer_idx = euclidean_layer_idx
         self.pretrained = pretrained
         self.optimizer = optimizer
         self.loss = loss
@@ -94,13 +91,14 @@ class NeuralClassificationTransformer(BaseTransformer):
         check_X_y(X, y, ensure_2d=False, allow_nd=True)
         _, y = np.unique(y, return_inverse=True)
 
-        # more typechecking
         self.network.compile(
             loss=self.loss, optimizer=self.optimizer, **self.compile_kwargs
         )
-
         self.network.fit(X, keras.utils.to_categorical(y), **self.fit_kwargs)
-
+        self.encoder_ = keras.models.Model(
+            inputs=self.network.inputs,
+            outputs=self.network.layers[self.euclidean_layer_idx].output,
+        )
         return self
 
     def transform(self, X):
@@ -122,7 +120,7 @@ class NeuralClassificationTransformer(BaseTransformer):
         NotFittedError
             When the model is not fitted.
         """
-        check_is_fitted(self)
+        check_is_fitted(self, attributes="encoder_")
         check_array(X, ensure_2d=False, allow_nd=True)
         return self.encoder_.predict(X)
 
