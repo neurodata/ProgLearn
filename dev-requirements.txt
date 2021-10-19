@@ -3,5 +3,4 @@ pytest
 coverage
 pytest-cov
 codecov
-black
 black[jupyter]
