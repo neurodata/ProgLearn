@@ -127,8 +127,8 @@ workflows:
       - test-module:
           name: "proglearn"
           module: "proglearn"
-          experiments: "docs/experiments/functions"
-          tutorials: "docs/tutorials/functions"
+          experiments: "docs/experiments/"
+          tutorials: "docs/tutorials/"
           requires:
             - "v3.8"
       - deploy:
