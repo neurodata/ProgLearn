@@ -1,5 +1,7 @@
-from setuptools import setup, find_packages
 import os
+import sys
+from setuptools import setup, find_packages
+from setuptools.command.install import install
 
 # Find mgc version.
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -12,6 +14,23 @@ with open("README.md", mode="r", encoding="utf8") as f:
 
 with open("requirements.txt", mode="r", encoding="utf8") as f:
     REQUIREMENTS = f.read()
+
+
+class VerifyVersionCommand(install):
+    """Custom command to verify that the git tag matches our version"""
+
+    description = "verify that the git tag matches our version"
+
+    def run(self):
+        tag = os.getenv("CIRCLE_TAG")
+        version = "v{}".format(VERSION)
+
+        if tag != version:
+            info = "Git tag: {0} does not match the version of this app: {1}".format(
+                tag, version
+            )
+            sys.exit(info)
+
 
 setup(
     name="proglearn",
@@ -37,4 +56,7 @@ setup(
     install_requires=REQUIREMENTS,
     packages=find_packages(exclude=["tests", "tests.*", "tests/*"]),
     include_package_data=True,
+    cmdclass={
+        "verify": VerifyVersionCommand,
+    },
 )
