@@ -18,37 +18,41 @@ import tensorflow as tf
 from numba import cuda
 
 import sys
+
 sys.path.append("../../src")
 
 from lifelong_dnn import LifeLongDNN
 
 #%%
 def image_aug(pic, angle, centroid_x=23, centroid_y=23, win=16, scale=1.45):
-    im_sz = int(np.floor(pic.shape[0]*scale))
-    pic_ = np.uint8(np.zeros((im_sz,im_sz,3),dtype=int))
-    
-    pic_[:,:,0] = ndimage.zoom(pic[:,:,0],scale)
-    
-    pic_[:,:,1] = ndimage.zoom(pic[:,:,1],scale)
-    pic_[:,:,2] = ndimage.zoom(pic[:,:,2],scale)
-    
+    im_sz = int(np.floor(pic.shape[0] * scale))
+    pic_ = np.uint8(np.zeros((im_sz, im_sz, 3), dtype=int))
+
+    pic_[:, :, 0] = ndimage.zoom(pic[:, :, 0], scale)
+
+    pic_[:, :, 1] = ndimage.zoom(pic[:, :, 1], scale)
+    pic_[:, :, 2] = ndimage.zoom(pic[:, :, 2], scale)
+
     image_aug = rotate(pic_, angle, resize=False)
-    #print(image_aug.shape)
-    image_aug_ = image_aug[centroid_x-win:centroid_x+win,centroid_y-win:centroid_y+win,:]
-    
+    # print(image_aug.shape)
+    image_aug_ = image_aug[
+        centroid_x - win : centroid_x + win, centroid_y - win : centroid_y + win, :
+    ]
+
     return img_as_ubyte(image_aug_)
+
 
 # %%
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
 
-fig, ax = plt.subplots(1,2, figsize=(8,4))
-cif = image_aug(X_train[34,:,:,:],0)
-rotated_cif = image_aug(X_train[34,:,:,:],45)
+fig, ax = plt.subplots(1, 2, figsize=(8, 4))
+cif = image_aug(X_train[34, :, :, :], 0)
+rotated_cif = image_aug(X_train[34, :, :, :], 45)
 ax[0].imshow(cif)
 ax[1].imshow(rotated_cif)
 
-ax[0].set_title('CIFAR image', fontsize=14)
-ax[1].set_title('45$^\circ$ rotated CIFAR image', fontsize=14)
+ax[0].set_title("CIFAR image", fontsize=14)
+ax[1].set_title("45$^\circ$ rotated CIFAR image", fontsize=14)
 
 ax[0].set_xticks([])
 ax[0].set_yticks([])

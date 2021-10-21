@@ -34,6 +34,8 @@ jobs:
     parameters:
       module:
         type: string
+      benchmarks:
+        type: string
       experiments:
         type: string
       tutorials:
@@ -60,6 +62,7 @@ jobs:
           command: |
             . venv/bin/activate
             black --check --diff ./<< parameters.module >>
+            black --check --diff ./<< parameters.benchmarks >>
             black --check --diff ./<< parameters.experiments >>
             black --check --diff ./<< parameters.tutorials >>
       - run:
@@ -127,6 +130,7 @@ workflows:
       - test-module:
           name: "proglearn"
           module: "proglearn"
+          benchmarks: "benchmarks/"
           experiments: "docs/experiments/"
           tutorials: "docs/tutorials/"
           requires:
