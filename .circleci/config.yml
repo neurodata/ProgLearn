@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  codecov: codecov/codecov@1.0.2
+  codecov: codecov/codecov@3.1.1
 
 jobs:
   build:
@@ -34,6 +34,12 @@ jobs:
     parameters:
       module:
         type: string
+      benchmarks:
+        type: string
+      experiments:
+        type: string
+      tutorials:
+        type: string
     docker:
       - image: cimg/python:3.8
     steps:
@@ -56,6 +62,9 @@ jobs:
           command: |
             . venv/bin/activate
             black --check --diff ./<< parameters.module >>
+            black --check --diff ./<< parameters.benchmarks >>
+            black --check --diff ./<< parameters.experiments >>
+            black --check --diff ./<< parameters.tutorials >>
       - run:
           name: run tests and coverage
           command: |
@@ -95,12 +104,12 @@ jobs:
           name: init .pypirc
           command: |
             echo -e "[pypi]" >> ~/.pypirc
-            echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
-            echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+            echo -e "username = __token__" >> ~/.pypirc
+            echo -e "password = $PIP_TOKEN" >> ~/.pypirc
       - run:
           name: create packages
           command: |
-            python setup.py sdist
+            python setup.py sdist bdist_wheel
       - run:
           name: upload to pypi
           command: |
@@ -121,13 +130,14 @@ workflows:
       - test-module:
           name: "proglearn"
           module: "proglearn"
+          benchmarks: "benchmarks/"
+          experiments: "docs/experiments/"
+          tutorials: "docs/tutorials/"
           requires:
             - "v3.8"
       - deploy:
-          requires:
-            - "proglearn"
           filters:
             tags:
-              only: /[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*/
             branches:
               ignore: /.*/

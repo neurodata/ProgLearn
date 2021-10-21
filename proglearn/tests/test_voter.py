@@ -1,11 +1,8 @@
-#%%
 import numpy as np
-
+from numpy import testing
 from sklearn.utils.validation import NotFittedError
 
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
-
-from numpy import testing
 
 
 def generate_data(n=100):

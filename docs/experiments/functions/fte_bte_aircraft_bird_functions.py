@@ -1,12 +1,12 @@
 import random
 
-import keras
+from tensorflow import keras
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from keras import layers
-from keras.callbacks import EarlyStopping
-from keras.optimizers import Adam
+from tensorflow.keras import layers
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.optimizers import Adam
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.transformers import (

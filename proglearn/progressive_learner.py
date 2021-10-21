@@ -1,8 +1,10 @@
 """
-Main Author: Will LeVine 
+Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
 import numpy as np
+from sklearn.exceptions import NotFittedError
+
 from .base import BaseClassificationProgressiveLearner, BaseProgressiveLearner
 
 
@@ -18,20 +20,24 @@ class ProgressiveLearner(BaseProgressiveLearner):
         The class of transformer to which the progressive learner defaults
         if None is provided in any of the functions which add or set
         transformers.
+
     default_transformer_kwargs : dict, default=None
         A dictionary with keys of type string and values of type obj corresponding
         to the given string kwarg. This determines to which type of transformer the
         progressive learner defaults if None is provided in any of the functions
         which add or set transformers.
+
     default_voter_class : BaseVoter, default=None
         The class of voter to which the progressive learner defaults
         if None is provided in any of the functions which add or set
         voters.
+
     default_voter_kwargs : dict, default=None
         A dictionary with keys of type string and values of type obj corresponding
         to the given string kwarg. This determines to which type of voter the
         progressive learner defaults if None is provided in any of the functions
         which add or set voters.
+
     default_decider_class : BaseDecider, default=None
         The class of decider to which the progressive learner defaults
         if None is provided in any of the functions which add or set
@@ -114,30 +120,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
         A dictionary with keys of type obj corresponding to task ids
         and values of type obj corresponding to decider indices. This dictionary
         thus maps decider indices to particular tasks.
-
-    default_transformer_class : BaseTransformer
-        Stores the default transformer class as specified by the parameter
-        default_transformer_class.
-
-    default_transformer_kwargs : dict
-        Stores the default transformer kwargs as specified by the parameter
-        default_transformer_kwargs.
-
-    default_voter_class : BaseVoter
-        Stores the default voter class as specified by the parameter
-        default_voter_class.
-
-    default_voter_kwargs : dict
-        Stores the default voter kwargs as specified by the parameter
-        default_voter_kwargs.
-
-    default_decider_class : BaseDecider
-        Stores the default decider class as specified by the parameter
-        default_decider_class.
-
-    default_decider_kwargs : dict
-        Stores the default decider kwargs as specified by the parameter
-        default_decider_kwargs.
     """
 
     def __init__(
@@ -236,6 +218,76 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 )
                 return first_idx, second_idx
 
+    def _add_transformer(
+        self,
+        X,
+        y,
+        transformer_data_proportion,
+        transformer_voter_data_idx,
+        transformer_id,
+        num_transformers,
+        transformer_class,
+        transformer_kwargs,
+        backward_task_ids,
+    ):
+        if transformer_id is None:
+            transformer_id = len(self.get_transformer_ids())
+
+        backward_task_ids = (
+            backward_task_ids if backward_task_ids is not None else self.get_task_ids()
+        )
+        transformer_voter_data_idx = (
+            range(len(X))
+            if transformer_voter_data_idx is None
+            else transformer_voter_data_idx
+        )
+
+        if transformer_id not in list(self.task_id_to_X.keys()):
+            self.transformer_id_to_X[transformer_id] = X
+        if transformer_id not in list(self.task_id_to_y.keys()):
+            self.transformer_id_to_y[transformer_id] = y
+
+        # train new transformers
+        for transformer_num in range(num_transformers):
+            if X is not None:
+                n = len(X)
+            elif y is not None:
+                n = len(y)
+            else:
+                n = None
+            if n is not None:
+                transformer_data_idx = np.random.choice(
+                    transformer_voter_data_idx,
+                    int(transformer_data_proportion * n),
+                    replace=False,
+                )
+            else:
+                transformer_data_idx = None
+            self.set_transformer(
+                transformer_id=transformer_id,
+                transformer_data_idx=transformer_data_idx,
+                transformer_class=transformer_class,
+                transformer_kwargs=transformer_kwargs,
+            )
+            voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
+            self._append_voter_data_idx(
+                task_id=transformer_id,
+                bag_id=transformer_num,
+                voter_data_idx=voter_data_idx,
+            )
+
+        # train voters and deciders from new transformer to previous tasks
+        for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
+            self.set_voter(transformer_id=transformer_id, task_id=existing_task_id)
+            self.set_decider(
+                task_id=existing_task_id,
+                transformer_ids=list(
+                    self.task_id_to_transformer_id_to_voters[existing_task_id].keys()
+                ),
+            )
+
+        return self
+
     # make sure the below ganular functions work without add_{transformer, task}
     def set_transformer(
         self,
@@ -284,7 +336,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         if transformer_kwargs is None:
             if self.default_transformer_kwargs is None:
                 raise ValueError(
-                    """transformer_kwargs is None and 
+                    """transformer_kwargs is None and
                     'default_transformer_kwargs' is None."""
                 )
             else:
@@ -327,8 +379,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 voter_class = self.default_voter_class
             else:
                 raise ValueError(
-                    """voter_class is None, the default voter class for the overall 
-                    learner is None, and the default voter class 
+                    """voter_class is None, the default voter class for the overall
+                    learner is None, and the default voter class
                     for this transformer is None."""
                 )
 
@@ -342,8 +394,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 voter_kwargs = self.default_voter_kwargs
             else:
                 raise ValueError(
-                    """voter_kwargs is None, the default voter kwargs for the overall 
-                    learner is None, and the default voter kwargs 
+                    """voter_kwargs is None, the default voter kwargs for the overall
+                    learner is None, and the default voter kwargs
                     for this transformer is None."""
                 )
 
@@ -482,63 +534,17 @@ class ProgressiveLearner(BaseProgressiveLearner):
         self : ProgressiveLearner
             The object itself.
         """
-        if transformer_id is None:
-            transformer_id = len(self.get_transformer_ids())
-
-        backward_task_ids = (
-            backward_task_ids if backward_task_ids is not None else self.get_task_ids()
+        return self._add_transformer(
+            X,
+            y,
+            transformer_data_proportion=transformer_data_proportion,
+            transformer_voter_data_idx=transformer_voter_data_idx,
+            transformer_id=transformer_id,
+            num_transformers=num_transformers,
+            transformer_class=transformer_class,
+            transformer_kwargs=transformer_kwargs,
+            backward_task_ids=backward_task_ids,
         )
-        transformer_voter_data_idx = (
-            range(len(X))
-            if transformer_voter_data_idx is None
-            else transformer_voter_data_idx
-        )
-
-        if transformer_id not in list(self.task_id_to_X.keys()):
-            self.transformer_id_to_X[transformer_id] = X
-        if transformer_id not in list(self.task_id_to_y.keys()):
-            self.transformer_id_to_y[transformer_id] = y
-
-        # train new transformers
-        for transformer_num in range(num_transformers):
-            if X is not None:
-                n = len(X)
-            elif y is not None:
-                n = len(y)
-            else:
-                n = None
-            if n is not None:
-                transformer_data_idx = np.random.choice(
-                    transformer_voter_data_idx,
-                    int(transformer_data_proportion * n),
-                    replace=False,
-                )
-            else:
-                transformer_data_idx = None
-            self.set_transformer(
-                transformer_id=transformer_id,
-                transformer_data_idx=transformer_data_idx,
-                transformer_class=transformer_class,
-                transformer_kwargs=transformer_kwargs,
-            )
-            voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
-            self._append_voter_data_idx(
-                task_id=transformer_id,
-                bag_id=transformer_num,
-                voter_data_idx=voter_data_idx,
-            )
-
-        # train voters and deciders from new transformer to previous tasks
-        for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
-            self.set_voter(transformer_id=transformer_id, task_id=existing_task_id)
-            self.set_decider(
-                task_id=existing_task_id,
-                transformer_ids=list(
-                    self.task_id_to_transformer_id_to_voters[existing_task_id].keys()
-                ),
-            )
-
-        return self
 
     def add_task(
         self,
@@ -649,7 +655,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         # add new transformer and train voters and decider
         # from new transformer to previous tasks
         if num_transformers > 0:
-            self.add_transformer(
+            self._add_transformer(
                 X,
                 y,
                 transformer_data_proportion=transformer_voter_decider_split[0]
@@ -716,13 +722,15 @@ class ProgressiveLearner(BaseProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.task_id_to_decider[task_id].predict(
-            X, transformer_ids=transformer_ids
-        )
+        if self.task_id_to_decider == {}:
+            raise NotFittedError
+
+        decider = self.task_id_to_decider[task_id]
+        return decider.predict(X, transformer_ids=transformer_ids)
 
 
 class ClassificationProgressiveLearner(
-    BaseClassificationProgressiveLearner, ProgressiveLearner
+    ProgressiveLearner, BaseClassificationProgressiveLearner
 ):
     """
     A (mostly) internal class for progressive learning in the classification
@@ -753,7 +761,8 @@ class ClassificationProgressiveLearner(
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
+        if self.task_id_to_decider == {}:
+            raise NotFittedError
+
         decider = self.task_id_to_decider[task_id]
-        return self.task_id_to_decider[task_id].predict_proba(
-            X, transformer_ids=transformer_ids
-        )
+        return decider.predict_proba(X, transformer_ids=transformer_ids)
