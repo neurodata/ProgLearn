@@ -16,7 +16,7 @@ def _generate_network():
     network = keras.Sequential()
     network.add(Dense(12, input_dim=8, activation="relu"))
     network.add(Dense(8, activation="relu"))
-    network.add(Dense(1, activation="sigmoid"))
+    network.add(Dense(2, activation="sigmoid"))
 
     return network
 
@@ -55,7 +55,8 @@ class TestLifelongClassificationNetwork:
         assert l2n.default_network_construction_proportion == 0.67
 
     def test_predict_without_fit(self):
-        X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
+        X = np.array([[0, 1, 0, 1, 0, 1, 0, 1]])
+        X = np.tile(X, (100, 1))
 
         with pytest.raises(NotFittedError):
             l2n = LifelongClassificationNetwork(
@@ -64,10 +65,31 @@ class TestLifelongClassificationNetwork:
             l2n.predict(X, task_id=0)
 
     def test_predict_proba_without_fit(self):
-        X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
+        X = np.array([[0, 1, 0, 1, 0, 1, 0, 1]])
+        X = np.tile(X, (100, 1))
 
         with pytest.raises(NotFittedError):
             l2n = LifelongClassificationNetwork(
                 network=_generate_network(),
             )
             l2n.predict_proba(X, task_id=0)
+
+    def test_add_task(self):
+        X = np.array([[0, 1, 0, 1, 0, 1, 0, 1]])
+        X = np.tile(X, (100, 1))
+        y = np.tile([0, 1], 50)
+
+        l2n = LifelongClassificationNetwork(
+            network=_generate_network(),
+        )
+        l2n.add_task(X, y)
+
+    def test_add_transformer(self):
+        X = np.array([[0, 1, 0, 1, 0, 1, 0, 1]])
+        X = np.tile(X, (100, 1))
+        y = np.tile([0, 1], 50)
+
+        l2n = LifelongClassificationNetwork(
+            network=_generate_network(),
+        )
+        l2n.add_transformer(X, y)

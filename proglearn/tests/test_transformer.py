@@ -19,7 +19,7 @@ def _generate_network():
     network = keras.Sequential()
     network.add(Dense(12, input_dim=8, activation="relu"))
     network.add(Dense(8, activation="relu"))
-    network.add(Dense(1, activation="sigmoid"))
+    network.add(Dense(2, activation="sigmoid"))
 
     return network
 
@@ -59,8 +59,8 @@ class TestNeuralClassificationTransformer:
         assert True
 
     def test_predict_without_fit(self):
-        # Generate random data
-        X = np.array([0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
+        X = np.array([[0, 1, 0, 1, 0, 1, 0, 1]])
+        X = np.tile(X, (100, 1))
 
         with pytest.raises(NotFittedError):
             trt = NeuralClassificationTransformer(
@@ -69,3 +69,26 @@ class TestNeuralClassificationTransformer:
                 optimizer=Adam(3e-4),
             )
             trt.transform(X)
+
+    def test_correct_transformation(self):
+        np.random.seed(1)
+
+        trt = NeuralClassificationTransformer(
+            network=_generate_network(),
+            euclidean_layer_idx=-2,
+            optimizer=Adam(3e-4),
+        )
+
+        X = np.array([[0, 1, 0, 1, 0, 1, 0, 1]])
+        X = np.tile(X, (100, 1))
+        y = np.tile([0, 1], 50)
+
+        trt.fit(X, y)
+        u1 = trt.transform(np.zeros((100, 8)))
+        u2 = trt.transform(np.ones((100, 8)))
+        assert not np.array_equiv(u1, u2)
+
+        trt.fit(X, y)
+        u1 = trt.transform(np.zeros((100, 8)))
+        u2 = trt.transform(np.zeros((100, 8)))
+        assert np.array_equiv(u1, u2)

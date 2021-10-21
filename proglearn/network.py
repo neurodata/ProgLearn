@@ -221,7 +221,9 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
             The object itself.
         """
         if network_construction_proportion == "default":
-            network_construction_proportion = self.network_construction_proportion
+            network_construction_proportion = (
+                self.default_network_construction_proportion
+            )
 
         X, y = check_X_y(X, y, ensure_2d=False, allow_nd=True)
         return super().add_task(
