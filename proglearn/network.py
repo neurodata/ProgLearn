@@ -47,9 +47,108 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
 
     Attributes
     ----------
-    pl_ : ClassificationProgressiveLearner
-        Internal ClassificationProgressiveLearner used to train and make
-        inference.
+    task_id_to_X : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type ndarray corresponding to the input data matrix X.
+        This dictionary thus maps input data matrix to the task where posteriors
+        are to be estimated.
+
+    task_id_to_y : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type ndarray corresponding to output data matrix y.
+        This dictionary thus maps output data matrix to the task where posteriors
+        are to be estimated.
+
+    transformer_id_to_X : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type ndarray corresponding to the output data matrix X.
+        This dictionary thus maps input data matrix to a particular transformer.
+
+    transformer_id_to_y : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type ndarray corresponding to the output data matrix y.
+        This dictionary thus maps output data matrix to a particular transformer.
+
+    transformer_id_to_transformers : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type obj corresponding to a transformer. This dictionary thus
+        maps transformer ids to the corresponding transformers.
+
+    task_id_to_trasnformer_id_to_voters : dict
+        A nested dictionary with outer key of type obj, corresponding to task ids
+        inner key of type obj, corresponding to transformer ids,
+        and values of type obj, corresponding to a voter. This dictionary thus maps
+        voters to a corresponding transformer assigned to a particular task.
+
+    task_id_to_decider : dict
+        A dictionary with keys of type obj, corresponding to task ids,
+        and values of type obj corresponding to a decider. This dictionary thus
+        maps deciders to a particular task.
+
+    task_id_to_decider_class : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a decider class. This dictionary
+        thus maps decider classes to a particular task id.
+
+    task_id_to_voter_class : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a voter class. This dictionary thus
+        maps voter classes to a particular task id.
+
+    task_id_to_voter_kwargs : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a voter kwargs. This dictionary thus
+        maps voter kwargs to a particular task id.
+
+    task_id_to_decider_kwargs : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a decider kwargs. This dictionary
+        thus maps decider kwargs to a particular task id.
+
+    task_id_to_bag_id_to_voter_data_idx : dict
+        A nested dictionary with outer keys of type obj corresponding to task ids
+        inner keys of type obj corresponding to bag ids
+        and values of type obj corresponding to voter data indices.
+        This dictionary thus maps voter data indices to particular bags
+        for particular tasks.
+
+    task_id_to_decider_idx : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to decider indices. This dictionary
+        thus maps decider indices to particular tasks.
+
+    default_transformer_class : NeuralClassificationTransformer
+        The class of transformer to which the network defaults
+        if None is provided in any of the functions which add or set
+        transformers.
+
+    default_transformer_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of transformer the
+        network defaults if None is provided in any of the functions
+        which add or set transformers.
+
+    default_voter_class : KNNClassificationVoter
+        The class of voter to which the network defaults
+        if None is provided in any of the functions which add or set
+        voters.
+
+    default_voter_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of voter the
+        network defaults if None is provided in any of the functions
+        which add or set voters.
+
+    default_decider_class : SimpleArgmaxAverage
+        The class of decider to which the network defaults
+        if None is provided in any of the functions which add or set
+        deciders.
+
+    default_decider_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of decider the
+        network defaults if None is provided in any of the functions
+        which add or set deciders.
     """
 
     def __init__(
@@ -87,7 +186,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
             },
         }
 
-        self.pl_ = ClassificationProgressiveLearner(
+        super().__init__(
             default_transformer_class=NeuralClassificationTransformer,
             default_transformer_kwargs=default_transformer_kwargs,
             default_voter_class=KNNClassificationVoter,
@@ -122,10 +221,12 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
             The object itself.
         """
         if network_construction_proportion == "default":
-            network_construction_proportion = self.network_construction_proportion
+            network_construction_proportion = (
+                self.default_network_construction_proportion
+            )
 
-        X, y = check_X_y(X, y, ensure_2d=False)
-        return self.pl_.add_task(
+        X, y = check_X_y(X, y, ensure_2d=False, allow_nd=True)
+        return super().add_task(
             X,
             y,
             task_id=task_id,
@@ -161,8 +262,8 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         self : LifelongClassificationNetwork
             The object itself.
         """
-        X, y = check_X_y(X, y, ensure_2d=False)
-        return self.pl_.add_transformer(X, y, transformer_id=transformer_id)
+        X, y = check_X_y(X, y, ensure_2d=False, allow_nd=True)
+        return super().add_transformer(X, y, transformer_id=transformer_id)
 
     def predict(self, X, task_id):
         """
@@ -181,7 +282,7 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.pl_.predict(check_array(X, ensure_2d=False), task_id)
+        return super().predict(check_array(X, ensure_2d=False, allow_nd=True), task_id)
 
     def predict_proba(self, X, task_id):
         """
@@ -200,4 +301,6 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return self.pl_.predict_proba(check_array(X, ensure_2d=False), task_id)
+        return super().predict_proba(
+            check_array(X, ensure_2d=False, allow_nd=True), task_id
+        )

@@ -47,6 +47,9 @@ class NeuralClassificationTransformer(BaseTransformer):
     encoder_ : object
         A Keras model with inputs and outputs based on the network attribute.
         Output layers are determined by the euclidean_layer_idx parameter.
+
+    fitted_ : boolean
+        A boolean flag initialized after the model is fitted.
     """
 
     def __init__(
@@ -91,14 +94,15 @@ class NeuralClassificationTransformer(BaseTransformer):
         self : NeuralClassificationTransformer
             The object itself.
         """
+        check_X_y(X, y, ensure_2d=False, allow_nd=True)
         _, y = np.unique(y, return_inverse=True)
 
-        # more typechecking
         self.network.compile(
             loss=self.loss, optimizer=self.optimizer, **self.compile_kwargs
         )
 
         self.network.fit(X, keras.utils.to_categorical(y), **self.fit_kwargs)
+        self.fitted_ = True
 
         return self
 
@@ -121,7 +125,8 @@ class NeuralClassificationTransformer(BaseTransformer):
         NotFittedError
             When the model is not fitted.
         """
-        check_is_fitted(self)
+        check_array(X, ensure_2d=False, allow_nd=True)
+        check_is_fitted(self, attributes="fitted_")
         return self.encoder_.predict(X)
 
 
@@ -182,6 +187,6 @@ class TreeClassificationTransformer(BaseTransformer):
         NotFittedError
             When the model is not fitted.
         """
-        check_is_fitted(self)
         X = check_array(X)
+        check_is_fitted(self)
         return self.transformer_.apply(X)

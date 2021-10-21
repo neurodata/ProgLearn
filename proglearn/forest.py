@@ -37,9 +37,108 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
 
     Attributes
     ----------
-    pl_ : ClassificationProgressiveLearner
-        Internal ClassificationProgressiveLearner used to train and make
-        inference.
+    task_id_to_X : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type ndarray corresponding to the input data matrix X.
+        This dictionary thus maps input data matrix to the task where posteriors
+        are to be estimated.
+
+    task_id_to_y : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type ndarray corresponding to output data matrix y.
+        This dictionary thus maps output data matrix to the task where posteriors
+        are to be estimated.
+
+    transformer_id_to_X : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type ndarray corresponding to the output data matrix X.
+        This dictionary thus maps input data matrix to a particular transformer.
+
+    transformer_id_to_y : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type ndarray corresponding to the output data matrix y.
+        This dictionary thus maps output data matrix to a particular transformer.
+
+    transformer_id_to_transformers : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type obj corresponding to a transformer. This dictionary thus
+        maps transformer ids to the corresponding transformers.
+
+    task_id_to_trasnformer_id_to_voters : dict
+        A nested dictionary with outer key of type obj, corresponding to task ids
+        inner key of type obj, corresponding to transformer ids,
+        and values of type obj, corresponding to a voter. This dictionary thus maps
+        voters to a corresponding transformer assigned to a particular task.
+
+    task_id_to_decider : dict
+        A dictionary with keys of type obj, corresponding to task ids,
+        and values of type obj corresponding to a decider. This dictionary thus
+        maps deciders to a particular task.
+
+    task_id_to_decider_class : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a decider class. This dictionary
+        thus maps decider classes to a particular task id.
+
+    task_id_to_voter_class : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a voter class. This dictionary thus
+        maps voter classes to a particular task id.
+
+    task_id_to_voter_kwargs : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a voter kwargs. This dictionary thus
+        maps voter kwargs to a particular task id.
+
+    task_id_to_decider_kwargs : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to a decider kwargs. This dictionary
+        thus maps decider kwargs to a particular task id.
+
+    task_id_to_bag_id_to_voter_data_idx : dict
+        A nested dictionary with outer keys of type obj corresponding to task ids
+        inner keys of type obj corresponding to bag ids
+        and values of type obj corresponding to voter data indices.
+        This dictionary thus maps voter data indices to particular bags
+        for particular tasks.
+
+    task_id_to_decider_idx : dict
+        A dictionary with keys of type obj corresponding to task ids
+        and values of type obj corresponding to decider indices. This dictionary
+        thus maps decider indices to particular tasks.
+
+    default_transformer_class : TreeClassificationTransformer
+        The class of transformer to which the forest defaults
+        if None is provided in any of the functions which add or set
+        transformers.
+
+    default_transformer_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of transformer the
+        forest defaults if None is provided in any of the functions
+        which add or set transformers.
+
+    default_voter_class : TreeClassificationVoter
+        The class of voter to which the forest defaults
+        if None is provided in any of the functions which add or set
+        voters.
+
+    default_voter_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of voter the
+        forest defaults if None is provided in any of the functions
+        which add or set voters.
+
+    default_decider_class : SimpleArgmaxAverage
+        The class of decider to which the forest defaults
+        if None is provided in any of the functions which add or set
+        deciders.
+
+    default_decider_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of decider the
+        forest defaults if None is provided in any of the functions
+        which add or set deciders.
     """
 
     def __init__(
@@ -49,12 +148,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         default_kappa=np.inf,
         default_max_depth=30,
     ):
-        self.default_n_estimators = default_n_estimators
-        self.default_tree_construction_proportion = default_tree_construction_proportion
-        self.default_kappa = default_kappa
-        self.default_max_depth = default_max_depth
-
-        self.pl_ = ClassificationProgressiveLearner(
+        super().__init__(
             default_transformer_class=TreeClassificationTransformer,
             default_transformer_kwargs={},
             default_voter_class=TreeClassificationVoter,
@@ -62,6 +156,11 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             default_decider_class=SimpleArgmaxAverage,
             default_decider_kwargs={},
         )
+
+        self.default_n_estimators = default_n_estimators
+        self.default_tree_construction_proportion = default_tree_construction_proportion
+        self.default_kappa = default_kappa
+        self.default_max_depth = default_max_depth
 
     def add_task(
         self,
@@ -122,7 +221,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             max_depth = self.default_max_depth
 
         X, y = check_X_y(X, y)
-        return self.pl_.add_task(
+        return super().add_task(
             X,
             y,
             task_id=task_id,
@@ -183,7 +282,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             max_depth = self.default_max_depth
 
         X, y = check_X_y(X, y)
-        return self.pl_.add_transformer(
+        return super().add_transformer(
             X,
             y,
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
@@ -208,7 +307,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return self.pl_.predict_proba(check_array(X), task_id)
+        return super().predict_proba(check_array(X), task_id)
 
     def predict(self, X, task_id):
         """
@@ -227,10 +326,10 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.pl_.predict(check_array(X), task_id)
+        return super().predict(check_array(X), task_id)
 
 
-class UncertaintyForest:
+class UncertaintyForest(LifelongClassificationForest):
     """
     A class used to represent an uncertainty forest.
 
@@ -252,9 +351,38 @@ class UncertaintyForest:
 
     Attributes
     ----------
-    lf_ : LifelongClassificationForest
-        Internal LifelongClassificationForest used to train and make
-        inference.
+    default_transformer_class : TreeClassificationTransformer
+        The class of transformer to which the forest defaults
+        if None is provided in any of the functions which add or set
+        transformers.
+
+    default_transformer_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of transformer the
+        forest defaults if None is provided in any of the functions
+        which add or set transformers.
+
+    default_voter_class : TreeClassificationVoter
+        The class of voter to which the forest defaults
+        if None is provided in any of the functions which add or set
+        voters.
+
+    default_voter_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of voter the
+        forest defaults if None is provided in any of the functions
+        which add or set voters.
+
+    default_decider_class : SimpleArgmaxAverage
+        The class of decider to which the forest defaults
+        if None is provided in any of the functions which add or set
+        deciders.
+
+    default_decider_kwargs : dict
+        A dictionary with keys of type string and values of type obj corresponding
+        to the given string kwarg. This determines to which type of decider the
+        forest defaults if None is provided in any of the functions
+        which add or set deciders.
     """
 
     def __init__(
@@ -264,10 +392,12 @@ class UncertaintyForest:
         max_depth=30,
         tree_construction_proportion=0.67,
     ):
-        self.n_estimators = n_estimators
-        self.kappa = kappa
-        self.max_depth = max_depth
-        self.tree_construction_proportion = tree_construction_proportion
+        super().__init__(
+            default_n_estimators=n_estimators,
+            default_tree_construction_proportion=tree_construction_proportion,
+            default_kappa=kappa,
+            default_max_depth=max_depth,
+        )
 
     def fit(self, X, y):
         """
@@ -286,15 +416,8 @@ class UncertaintyForest:
         self : UncertaintyForest
             The object itself.
         """
-        self.lf_ = LifelongClassificationForest(
-            default_n_estimators=self.n_estimators,
-            default_kappa=self.kappa,
-            default_max_depth=self.max_depth,
-            default_tree_construction_proportion=self.tree_construction_proportion,
-        )
 
-        X, y = check_X_y(X, y)
-        return self.lf_.add_task(X, y, task_id=0)
+        return super().add_task(X, y, task_id=0)
 
     def predict_proba(self, X):
         """
@@ -310,7 +433,7 @@ class UncertaintyForest:
         y_proba_hat : ndarray of shape [n_samples, n_classes]
             posteriors per example
         """
-        return self.lf_.predict_proba(check_array(X), 0)
+        return super().predict_proba(X, 0)
 
     def predict(self, X):
         """
@@ -326,4 +449,4 @@ class UncertaintyForest:
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
-        return self.lf_.predict(check_array(X), 0)
+        return super().predict(X, 0)

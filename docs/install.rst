@@ -47,14 +47,13 @@ Or, alternatively, you can use ``pip``::
 
 The installation process takes about 4 seconds in a typical desktop computer.
 
-If the installation is done in a new Python virtual environment, it takes about 1 
-minute and 35 seconds. 
+If the installation is done in a new Python virtual environment, it takes about 1
+minute and 35 seconds.
 
 Python package dependencies
 ---------------------------
 ``proglearn`` requires the following packages:
 
-- keras>=2.3.1
 - tensorflow>=1.19.0
 - scikit-learn>=0.22.0
 - scipy==1.4.1
@@ -64,8 +63,8 @@ Python package dependencies
 Hardware requirements
 ---------------------
 ``ProgLearn`` package requires only a standard computer with enough RAM to support
-the in-memory operations. GPU's can speed up the networks which are powered by 
-tensorflow's backend. 
+the in-memory operations. GPU's can speed up the networks which are powered by
+tensorflow's backend.
 
 OS Requirements
 ---------------

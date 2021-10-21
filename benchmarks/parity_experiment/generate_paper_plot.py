@@ -80,7 +80,12 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls = ["-", "--"]
-algorithms = ["XOR Forest", "N-XOR Forest", "Progressive Learning Forest (PLF)", "Random Forest (RF)"]
+algorithms = [
+    "XOR Forest",
+    "N-XOR Forest",
+    "Progressive Learning Forest (PLF)",
+    "Random Forest (RF)",
+]
 
 
 TASK1 = "XOR"
@@ -132,7 +137,12 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 #######################
 mean_error = unpickle("plots/mean_xor_nxor.pickle")
 
-algorithms = ["XOR Forest", "N-XOR Forest", "Progressive Learning Forest (PLF)", "Random Forest (RF)"]
+algorithms = [
+    "XOR Forest",
+    "N-XOR Forest",
+    "Progressive Learning Forest (PLF)",
+    "Random Forest (RF)",
+]
 
 TASK1 = "XOR"
 TASK2 = "N-XOR"
@@ -239,9 +249,7 @@ ax1.plot(
 )
 
 ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
-ax1.plot(
-    ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", lw=3
-)
+ax1.plot(ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", lw=3)
 
 ax1.set_ylabel("Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
 # ax1.legend(loc='upper left', fontsize=20, frameon=False)

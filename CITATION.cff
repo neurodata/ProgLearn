@@ -63,12 +63,15 @@ authors:
     affiliation: "Johns Hopkins University, Baltimore, MD"
     family-names: Priebe
     given-names: Carey
-cff-version: "1.1.0"
+cff-version: "1.2.0"
 date-released: 2021-09-18
 identifiers:
   -
     type: url
     value: "https://arxiv.org/pdf/2004.12908.pdf"
+  -
+    type: doi
+    value: 10.5281/zenodo.4060264
 keywords:
   - Python
   - classification
@@ -77,8 +80,9 @@ keywords:
   - "transfer learning"
   - "domain adaptation"
 license: MIT
-message: "If you use this software, please cite it using these metadata."
+doi: 10.5281/zenodo.4060264
+message: "If you use ProgLearn, please cite it using these metadata."
 repository-code: "https://github.com/neurodata/ProgLearn"
 title: "Omnidirectional Transfer for Quasilinear Lifelong Learning"
-version: "0.0.5"
+version: "0.0.6"
 ...
