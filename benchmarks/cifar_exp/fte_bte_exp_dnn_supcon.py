@@ -27,6 +27,8 @@ import tensorflow as tf
 import time
 import sys
 
+from supcon.losses import ContrastiveLoss
+
 #%%
 def unpickle(file):
     with open(file, 'rb') as fo:
@@ -94,7 +96,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
             "network": network,
             "euclidean_layer_idx": -2,
             "loss": "categorical_crossentropy",
-            "optimizer": Adam(3e-4),
+            "optimizer": Adam(3e-4).minimize(ContrastiveLoss),
             "fit_kwargs": {
                 "epochs": 100,
                 "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
@@ -204,7 +206,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
 
     #print(df)
     summary = (df,df_single_task)
-    file_to_save = 'result/result/'+model+str(ntrees)+'_'+str(shift)+'_Adam'+'.pickle'
+    file_to_save = 'result/result/'+model+str(ntrees)+'_'+str(shift)+'_supcon'+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(summary, f)
 
