@@ -1,6 +1,7 @@
 import numpy as np
 import seaborn as sns
 
+
 def get_colors(colors, inds):
     """
     Parameters
@@ -14,14 +15,14 @@ def get_colors(colors, inds):
     return c
 
 
-def plot_gaussians(X, y): 
+def plot_gaussians(X, y):
     """
-    Plot the gaussians with the color according to the class label 
+    Plot the gaussians with the color according to the class label
 
     Parameters
     ---
-    X : 2D array 
-        A multi-dimensional array which contains the coordinates of points in the multivariate random distribution 
+    X : 2D array
+        A multi-dimensional array which contains the coordinates of points in the multivariate random distribution
     Y : int array
         Contains the class labels for each data point in X
     """
@@ -30,4 +31,3 @@ def plot_gaussians(X, y):
     ax.scatter(X[:, 0], X[:, 1], c=get_colors(colors, y), s=50)
     ax.set_title("Created Gaussians", fontsize=30)
     plt.tight_layout()
-    
