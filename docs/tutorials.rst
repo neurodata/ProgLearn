@@ -8,6 +8,7 @@ The following tutorials highlight what one can do with the ``ProgLearn`` package
     :maxdepth: 1
 
     tutorials/installation_guide
+    tutorials/bayeserrorestimate_gaussianparity
     tutorials/uncertaintyforest_running_example
     tutorials/uncertaintyforest_posteriorestimates
     tutorials/uncertaintyforest_conditionalentropyestimates
