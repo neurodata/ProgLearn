@@ -95,8 +95,8 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         default_transformer_kwargs = {
             "network": network,
             "euclidean_layer_idx": -2,
-            "loss": "categorical_crossentropy",
-            "optimizer": Adam(3e-4).minimize(ContrastiveLoss),
+            "loss": ContrastiveLoss,
+            "optimizer": Adam(3e-4),
             "fit_kwargs": {
                 "epochs": 100,
                 "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
