@@ -283,7 +283,7 @@ if model == "uf":
                 ) for ntree,shift,slot in iterable
                 )
 elif model == "dnn":
-    slot_fold = range(10) #edit this default 10 is correct?
+    #slot_fold = range(10) #edit this default 10 is correct?
     
     '''
     #parallel
@@ -305,7 +305,7 @@ elif model == "dnn":
     '''
 
     #sequential
-    #slot_fold = range(1) #this should be 10, comment out
+    slot_fold = range(1) #this should be 10, comment out
     shift_fold = [1,2,3,4,5,6]
     n_trees=[0]
     iterable = product(n_trees,shift_fold,slot_fold)
