@@ -4,7 +4,7 @@ from tensorflow.keras import layers
 
 def color_distortion(image, s=.5):
     """
-    from paper: A Simple Framework for Contrastive Learning of Visual Representations, Chen et al
+    From paper: A Simple Framework for Contrastive Learning of Visual Representations, Chen et al
     """
     # image is a tensor with value range in [0, 1].
     # s is the strength of color distortion.
@@ -25,7 +25,7 @@ def color_distortion(image, s=.5):
 
     def random_apply(f, img, p=1.):
         """
-        added for implementation
+        Added for implementation
         """
         p_rand = np.random.uniform()
         if p_rand <= p:
@@ -38,16 +38,13 @@ def color_distortion(image, s=.5):
     image = random_apply(color_drop, image, p=.2)
     return image
 
-def apply_aug_seq(X):
+def get_aug_seq(img_h, img_w):
     """
     X: batch of images
     """
     crop_div = 2
     #color_dist_strength = 1.
 
-    img_ct = np.size(X, 0)
-    img_h = np.size(X, 1)
-    img_w = np.size(X, 2)
     aug_seq = tf.keras.Sequential([
         layers.RandomCrop(img_h // crop_div, img_w // crop_div), #random size?
         layers.Resizing(img_h, img_w), #RandomZoom instead of crop and resize?
@@ -55,4 +52,35 @@ def apply_aug_seq(X):
         layers.Lambda(color_distortion),
         #RandomGaussianBlur(),
         ])
-    return aug_seq(X)
+    return aug_seq
+
+def g(h_i):
+    """
+    Projection head, maps representations to contrastive loss space
+    MLP with one hidden layer
+    """
+    return z
+
+def sim(z_i, z_j):
+    return tf.matmul(z_i, z_j, transpose_b=True) / (tf.norm(z_i) * tf.norm(z_j))
+
+def contrastive_loss(z, i, j):
+    """
+    Loss function for positive pair of examples
+    """
+    N = np.size(z, 0) #this will be 2N where N is batch size because z has augs?
+    tau = 1
+    num = tf.math.exp(sim(z[i], z[j]) / tau)
+    den = 0.
+    for k in range(N):
+        if k != i:
+            den += tf.math.exp(sim(z[i], z[k]) / tau)
+    return -tf.math.log(num / den)
+
+def unsupcon(X, N, tau):
+    img_h = np.size(X, 1)
+    img_w = np.size(X, 2)
+    for batch in X:
+        for k in range(N):
+            t = get_aug_seq(img_h, img_w)
+            t_prime = get_aug_seq(img_h, img_w)
