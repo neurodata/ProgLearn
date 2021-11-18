@@ -328,6 +328,171 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         """
         return super().predict(check_array(X), task_id)
 
+class LifelongClassificationForestStream(ClassificationProgressiveLearner):
+
+    def __init__(
+        self,
+        default_n_estimators=100,
+        default_tree_construction_proportion=0.67,
+        default_kappa=np.inf,
+        default_max_depth=30,
+    ):
+        super().__init__(
+            default_transformer_class=TreeClassificationTransformer,
+            default_transformer_kwargs={},
+            default_voter_class=TreeClassificationVoter,
+            default_voter_kwargs={"kappa": default_kappa},
+            default_decider_class=SimpleArgmaxAverage,
+            default_decider_kwargs={},
+        )
+
+        self.default_n_estimators = default_n_estimators
+        self.default_tree_construction_proportion = default_tree_construction_proportion
+        self.default_kappa = default_kappa
+        self.default_max_depth = default_max_depth
+
+    def update_task(
+        self,
+        X,
+        y,
+        task_id=None,
+        n_estimators="default",
+        tree_construction_proportion="default",
+        kappa="default",
+        max_depth="default",
+        classes = None
+    ):
+        """
+        adds a task with id task_id, max tree depth max_depth, given input data matrix X
+        and output data matrix y, to the Lifelong Classification Forest. Also splits
+        data for training and voting based on tree_construction_proportion and uses the
+        value of kappa to determine whether the learner will have
+        finite sample correction.
+
+        Parameters
+        ----------
+        X : ndarray
+            The input data matrix.
+
+        y : ndarray
+            The output (response) data matrix.
+
+        task_id : obj, default=None
+            The id corresponding to the task being added.
+
+        n_estimators : int or str, default='default'
+            The number of trees used for the given task.
+
+        tree_construction_proportion : int or str, default='default'
+            The proportions of the input data set aside to train each decision
+            tree. The remainder of the data is used to fill in voting posteriors.
+            The default is used if 'default' is provided.
+
+        kappa : float or str, default='default'
+            The coefficient for finite sample correction.
+            The default is used if 'default' is provided.
+
+        max_depth : int or str, default='default'
+            The maximum depth of a tree in the Lifelong Classification Forest.
+            The default is used if 'default' is provided.
+
+        Returns
+        -------
+        self : LifelongClassificationForest
+            The object itself.
+        """
+        if n_estimators == "default":
+            n_estimators = self.default_n_estimators
+        if tree_construction_proportion == "default":
+            tree_construction_proportion = self.default_tree_construction_proportion
+        if kappa == "default":
+            kappa = self.default_kappa
+        if max_depth == "default":
+            max_depth = self.default_max_depth
+
+        X, y = check_X_y(X, y)
+        return super().update_task(
+            X,
+            y,
+            classes = classes,
+            task_id=task_id,
+            transformer_voter_decider_split=[
+                tree_construction_proportion,
+                1 - tree_construction_proportion,
+                0,
+            ],
+            num_transformers=n_estimators,
+            transformer_kwargs={"kwargs": {"max_depth": max_depth}},
+            voter_kwargs={
+                "classes": np.unique(y),
+                "kappa": kappa,
+            },
+            decider_kwargs={"classes": np.unique(y)},
+        )
+
+    def update_transformer(
+        self,
+        X,
+        y,
+        classes = None,
+        transformer_id=None,
+        n_estimators="default",
+        max_depth="default",
+    ):
+
+        if n_estimators == "default":
+            n_estimators = self.default_n_estimators
+        if max_depth == "default":
+            max_depth = self.default_max_depth
+
+        X, y = check_X_y(X, y)
+        return super().update_transformer(
+            X,
+            y,
+            classes = classes,
+            transformer_kwargs={"kwargs": {"max_depth": max_depth}},
+            transformer_id=transformer_id,
+            num_transformers=n_estimators,
+        )
+
+    def predict_proba(self, X, task_id):
+        """
+        estimates class posteriors under task_id for each example in input data X.
+
+        Parameters
+        ----------
+        X : ndarray
+            The input data matrix.
+
+        task_id:
+            The id corresponding to the task being mapped to.
+
+        Returns
+        -------
+        y_proba_hat : ndarray of shape [n_samples, n_classes]
+            posteriors per example
+        """
+        return super().predict_proba(check_array(X), task_id)
+
+    def predict(self, X, task_id):
+        """
+        predicts class labels under task_id for each example in input data X.
+
+        Parameters
+        ----------
+        X : ndarray
+            The input data matrix.
+
+        task_id : obj
+            The id corresponding to the task being mapped to.
+
+        Returns
+        -------
+        y_hat : ndarray of shape [n_samples]
+            predicted class label per example
+        """
+        return super().predict(check_array(X), task_id)
+
 
 class UncertaintyForest(LifelongClassificationForest):
     """
@@ -418,6 +583,75 @@ class UncertaintyForest(LifelongClassificationForest):
         """
 
         return super().add_task(X, y, task_id=0)
+
+    def predict_proba(self, X):
+        """
+        estimates class posteriors for each example in input data X.
+
+        Parameters
+        ----------
+        X : array of shape [n_samples, n_features]
+            The data whose posteriors we are estimating.
+
+        Returns
+        -------
+        y_proba_hat : ndarray of shape [n_samples, n_classes]
+            posteriors per example
+        """
+        return super().predict_proba(X, 0)
+
+    def predict(self, X):
+        """
+        predicts class labels for each example in input data X.
+
+        Parameters
+        ----------
+        X : array of shape [n_samples, n_features]
+            The data on which we are performing inference.
+
+        Returns
+        -------
+        y_hat : ndarray of shape [n_samples]
+            predicted class label per example
+        """
+        return super().predict(X, 0)
+
+class UncertaintyForestStream(LifelongClassificationForest):
+
+
+    def __init__(
+        self,
+        n_estimators=100,
+        kappa=np.inf,
+        max_depth=30,
+        tree_construction_proportion=0.67,
+    ):
+        super().__init__(
+            default_n_estimators=n_estimators,
+            default_tree_construction_proportion=tree_construction_proportion,
+            default_kappa=kappa,
+            default_max_depth=max_depth,
+        )
+
+    def fit(self, X, y, classes):
+        """
+        fits forest to data X with labels y
+
+        Parameters
+        ----------
+        X : array of shape [n_samples, n_features]
+            The data that will be trained on
+
+        y : array of shape [n_samples]
+            The label for cluster membership of the given data
+
+        Returns
+        -------
+        self : UncertaintyForest
+            The object itself.
+        """
+
+        return super().add_task(X, y, task_id=0, classes = classes)
 
     def predict_proba(self, X):
         """

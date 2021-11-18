@@ -105,6 +105,8 @@ class NeuralClassificationTransformer(BaseTransformer):
         self.fitted_ = True
 
         return self
+    
+    
 
     def transform(self, X):
         """
@@ -147,6 +149,12 @@ class TreeClassificationTransformer(BaseTransformer):
 
     def __init__(self, kwargs={}):
         self.kwargs = kwargs
+
+    def partial_fit(self, X, y, classes)
+        X, y = check_X_y(X, y)
+
+        self.transformer_ = DecisionTreeClassifier(**self.kwargs).partial_fit(X, y, classes)
+        return self
 
     def fit(self, X, y):
         """
