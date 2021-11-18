@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 
-def color_distortion(image, s=1.0):
+def color_distortion(image, s=.5):
     """
     from paper: A Simple Framework for Contrastive Learning of Visual Representations, Chen et al
     """
@@ -28,21 +28,21 @@ def color_distortion(image, s=1.0):
         added for implementation
         """
         p_rand = np.random.uniform()
-        if p_rand >= p:
+        if p_rand <= p:
             return f(img)
         else:
             return img
 
     # randomly apply transformation with probability p.
-    image = random_apply(color_jitter, image, p=0.8)
-    image = random_apply(color_drop, image, p=0.2)
+    image = random_apply(color_jitter, image, p=.8)
+    image = random_apply(color_drop, image, p=.2)
     return image
 
-def unsupervised_contrastive_loss(X):
+def apply_aug_seq(X):
     """
     X: batch of images
     """
-    crop_div = 4
+    crop_div = 2
     #color_dist_strength = 1.
 
     img_ct = np.size(X, 0)
