@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 
-def color_distortion(image, s=.5):
+def color_distortion(image, s=.8):
     """
     From paper: A Simple Framework for Contrastive Learning of Visual Representations, Chen et al
     """
@@ -62,25 +62,29 @@ def g(h_i):
     return z
 
 def sim(z_i, z_j):
-    return tf.matmul(z_i, z_j, transpose_b=True) / (tf.norm(z_i) * tf.norm(z_j))
+    return tf.tensordot(z_i, z_j, 1) / (tf.norm(z_i) * tf.norm(z_j))
 
 def contrastive_loss(z, i, j):
     """
     Loss function for positive pair of examples
     """
-    N = np.size(z, 0) #this will be 2N where N is batch size because z has augs?
+    N_2 = np.size(z, 0) #this will be 2N where N is batch size because z has augs
     tau = 1
-    num = tf.math.exp(sim(z[i], z[j]) / tau)
+    z_i = z[i]
+    z_j = z[j]
+    num = tf.math.exp(sim(z_i, z_j) / tau)
     den = 0.
-    for k in range(N):
+    for k in range(N_2):
         if k != i:
-            den += tf.math.exp(sim(z[i], z[k]) / tau)
+            den += tf.math.exp(sim(z_i, z[k]) / tau)
     return -tf.math.log(num / den)
 
 def unsupcon(X, N, tau):
+    img_ct = np.size(X, 0)
     img_h = np.size(X, 1)
     img_w = np.size(X, 2)
-    for batch in X:
+    X_batches = tf.data.Dataset.from_tensor_slices(X).batch(N).take(img_ct // N)
+    for batch in X_batches:
         for k in range(N):
             t = get_aug_seq(img_h, img_w)
             t_prime = get_aug_seq(img_h, img_w)
