@@ -226,7 +226,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
         self,
         X,
         y,
-        classes = None,
         transformer_data_proportion,
         transformer_voter_data_idx,
         transformer_id,
@@ -234,7 +233,9 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_class,
         transformer_kwargs,
         backward_task_ids,
+        classes = None 
     ):
+
         if transformer_id is None:
             transformer_id = len(self.get_transformer_ids())
 
@@ -273,7 +274,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 transformer_data_idx=transformer_data_idx,
                 transformer_class=transformer_class,
                 transformer_kwargs=transformer_kwargs,
-                classes = None
+                classes = classes
             )
             voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
             self._append_voter_data_idx(
@@ -307,6 +308,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         if transformer_id is None:
             transformer_id = len(self.get_transformer_ids())
 
+        
         X = (
             self.transformer_id_to_X[transformer_id]
             if transformer_id in list(self.transformer_id_to_X.keys())
@@ -351,12 +353,13 @@ class ProgressiveLearner(BaseProgressiveLearner):
         # Fit transformer and new voter
         if y is None:
             self._replace_transformer(
-                transformer_id, transformer_class(**transformer_kwargs).partial_fit(X, classes)
+                transformer_id, transformer_class(**transformer_kwargs)._partial_fit(X, classes = classes)
             )
         else:
             # Type check y
             self._append_transformer(
-                transformer_id, transformer_class(**transformer_kwargs).partial_fit(X, y, classes)
+                transformer_id, transformer_class(**transformer_kwargs)._partial_fit(X, y, classes = classes)
+                #transformer_id, transformer_class(**transformer_kwargs).fit(X, y)
             )
 
     def _add_transformer(
@@ -569,6 +572,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
     def set_decider(
         self, task_id, transformer_ids, decider_class=None, decider_kwargs=None
     ):
+
+        print("decider kwargs at start of set_decider: "+str(decider_kwargs))
         if decider_class is None:
             if task_id in list(self.task_id_to_decider_class.keys()):
                 decider_class = self.task_id_to_decider_class[task_id]
@@ -600,9 +605,15 @@ class ProgressiveLearner(BaseProgressiveLearner):
         }
 
         X, y = self.task_id_to_X[task_id], self.task_id_to_y[task_id]
+        print("decider kwargs at middle of set_decider: "+str(decider_kwargs))
+        print("decider_class(decider kwargs) at middle of set_decider: "+str(decider_class(**decider_kwargs)))
 
         self.task_id_to_decider[task_id] = decider_class(**decider_kwargs)
         decider_idx = self.task_id_to_decider_idx[task_id]
+        
+        print("task_to_id_to_decider[task_id] at middle of set_decider: "+str(self.task_id_to_decider[task_id]))
+        print()
+
         self.task_id_to_decider[task_id].fit(
             X[decider_idx],
             y[decider_idx],
@@ -613,11 +624,11 @@ class ProgressiveLearner(BaseProgressiveLearner):
         self.task_id_to_decider_class[task_id] = decider_class
         self.task_id_to_decider_kwargs[task_id] = decider_kwargs
 
-        def update_transformer(
+    def update_transformer(
         self,
         X,
         y,
-        classese = None,
+        classes = None,
         transformer_data_proportion=1.0,
         transformer_voter_data_idx=None,
         transformer_id=None,
@@ -626,6 +637,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_kwargs=None,
         backward_task_ids=None,
     ):
+
         return self._update_transformer(
             X,
             y,
@@ -728,6 +740,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         backward_task_ids=None,
         forward_transformer_ids=None,
     ):
+        print("decider kwards at start of add_task: "+str(decider_kwargs))
         """
         Adds a task to the progressive learner. Optionally trains one or more
         transformer from the input data (if num_transformers > 0), adds voters
@@ -882,6 +895,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         backward_task_ids=None,
         forward_transformer_ids=None,
     ):
+        print("decider kwargs at start of update_task: "+str(decider_kwargs))
         """
         Adds a task to the progressive learner. Optionally trains one or more
         transformer from the input data (if num_transformers > 0), adds voters
@@ -958,6 +972,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
         self : ProgressiveLearner
             The object itself.
         """
+
+
         if task_id is None:
             task_id = max(
                 len(self.get_transformer_ids()), len(self.get_task_ids())
@@ -989,6 +1005,34 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 transformer_kwargs=transformer_kwargs,
                 backward_task_ids=backward_task_ids,
             )
+        
+        # train voters and decider from previous (and current) transformers to new task
+        for transformer_id in (
+            forward_transformer_ids
+            if forward_transformer_ids
+            else self.get_transformer_ids()
+        ):
+            self.set_voter(
+                transformer_id=transformer_id,
+                task_id=task_id,
+                voter_class=voter_class,
+                voter_kwargs=voter_kwargs,
+            )
+
+        # train decider of new task
+        if forward_transformer_ids:
+            if num_transformers == 0:
+                transformer_ids = forward_transformer_ids
+            else:
+                transformer_ids = np.concatenate([forward_transformer_ids, task_id])
+        else:
+            transformer_ids = self.get_transformer_ids()
+        self.set_decider(
+            task_id=task_id,
+            transformer_ids=transformer_ids,
+            decider_class=decider_class,
+            decider_kwargs=decider_kwargs,
+        )
 
         return self
     
@@ -1016,6 +1060,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
+
         if self.task_id_to_decider == {}:
             raise NotFittedError
 

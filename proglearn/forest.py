@@ -650,8 +650,10 @@ class UncertaintyForestStream(LifelongClassificationForest):
         self : UncertaintyForest
             The object itself.
         """
+        print("classes in forest.UncertaintyForestStream")
+        print(classes)
 
-        return super().add_task(X, y, task_id=0, classes = classes)
+        return super().update_task(X, y, classes = classes)
 
     def predict_proba(self, X):
         """
