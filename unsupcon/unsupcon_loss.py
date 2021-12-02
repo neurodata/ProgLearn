@@ -49,7 +49,7 @@ def get_aug_seq(img_h, img_w):
         layers.RandomCrop(img_h // crop_div, img_w // crop_div), #random size?
         layers.Resizing(img_h, img_w), #RandomZoom instead of crop and resize?
         layers.RandomFlip(mode='horizontal'),
-        layers.Lambda(color_distortion),
+        layers.Lambda(color_distortion), # TODO: if preprocess, ensure this can handle negatives
         #RandomGaussianBlur(),
         ])
     return aug_seq
@@ -79,12 +79,14 @@ def contrastive_loss(z, i, j):
             den += tf.math.exp(sim(z_i, z[k]) / tau)
     return -tf.math.log(num / den)
 
-def unsupcon(X, N, tau):
+def unsupcon_learning(X, N, tau):
     img_ct = np.size(X, 0)
     img_h = np.size(X, 1)
     img_w = np.size(X, 2)
+    resnet_model = tf.keras.applications.ResNet50() #top layer (224, 224, 3)
     X_batches = tf.data.Dataset.from_tensor_slices(X).batch(N).take(img_ct // N)
     for batch in X_batches:
         for k in range(N):
             t = get_aug_seq(img_h, img_w)
             t_prime = get_aug_seq(img_h, img_w)
+            
