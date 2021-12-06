@@ -150,10 +150,23 @@ class TreeClassificationTransformer(BaseTransformer):
     def __init__(self, kwargs={}):
         self.kwargs = kwargs
 
-    def _partial_fit(self, X, y, classes=None):
+
+    def _partial_fit(transformer,test, X, y, inputclasses):
+        # print("in partial fit")
+        # print(transformer)
+        # print(test)
+        
         X, y = check_X_y(X, y)
-        self.transformer_ = DecisionTreeClassifier(**self.kwargs).partial_fit(X, y, classes = classes)
-        return self
+        test.partial_fit(X, y, classes = [0,1]) # set to [0,1] for testing
+        #print(self)
+        #print("leaving partial fit")
+        return test
+
+    # def _partial_fit(up_transformer, X, y, inputclasses=None):
+    #     X, y = check_X_y(X, y)
+    #     #self.transformer_ = DecisionTreeClassifier(**self.kwargs).partial_fit(X, y, classes = inputclasses)
+    #     up_transformer.partial_fit(X, y, classes = inputclasses)
+    #     return up_transformer
 
     def fit(self, X, y):
         """
@@ -173,6 +186,7 @@ class TreeClassificationTransformer(BaseTransformer):
         """
         X, y = check_X_y(X, y)
         self.transformer_ = DecisionTreeClassifier(**self.kwargs).fit(X, y)
+        print(self.transformer_)
         return self
 
     def transform(self, X):

@@ -381,6 +381,8 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         max_depth="default",
     ):
 
+        print("update transformer in forest.py is being called!")
+
         if n_estimators == "default":
             n_estimators = self.default_n_estimators
         if max_depth == "default":
