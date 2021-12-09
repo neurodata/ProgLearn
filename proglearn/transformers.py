@@ -152,6 +152,29 @@ class TreeClassificationTransformer(BaseTransformer):
 
 
     def _partial_fit(transformer,test, X, y, inputclasses):
+
+        """
+        Updates the transformer to data X with labels y using partial fit.
+
+        Parameters
+        ----------
+        transformer : TreeClassificationTransformer
+            TreeClassificationTransformer
+        test : DecisionClassifierTree
+            DecisionClassifierTree
+        X : ndarray
+            Input data matrix.
+        y : ndarray
+            Output (i.e. response data matrix).
+        inputclasses : ndarray
+            Classes in X
+
+        Returns
+        -------
+        test : DecisionClassifierTree
+            The object itself.
+        """
+
         # print("in partial fit")
         # print(transformer)
         # print(test)

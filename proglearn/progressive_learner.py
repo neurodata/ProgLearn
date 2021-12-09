@@ -247,10 +247,12 @@ class ProgressiveLearner(BaseProgressiveLearner):
         if transformer_id not in list(self.task_id_to_y.keys()):
             self.transformer_id_to_y[transformer_id] = y
 
+        # for all transformers referring to specified task
+
         for transformer in self.transformer_id_to_transformers[transformer_id]:
-            # print(transformer.transformer_)
-            # print(inputclasses)
-            # print(transformer)
+
+            
+            # Check data and assign data for training
 
             if X is not None:
                 n = len(X)
@@ -280,7 +282,11 @@ class ProgressiveLearner(BaseProgressiveLearner):
             if transformer_data_idx is not None:
                 X2, y2 = X2[transformer_data_idx], y2[transformer_data_idx]
 
+            # replace transformer with updated tranformer
+
             transformer.transformer_ = transformer._partial_fit(transformer.transformer_, X2,y2, inputclasses)
+
+            # update voter to new transformer
 
             voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
             self._append_voter_data_idx(
@@ -291,9 +297,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
             counter = counter + 1
             
         print("testtesttest")
-        # if transformer_id is None:
-        #     transformer_id = len(self.get_transformer_ids())
 
+        # Update backwards 
         backward_task_ids = (
             backward_task_ids if backward_task_ids is not None else self.get_task_ids()
         )
@@ -302,41 +307,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
             if transformer_voter_data_idx is None
             else transformer_voter_data_idx
         )
-
-        # if transformer_id not in list(self.task_id_to_X.keys()):
-        #     self.transformer_id_to_X[transformer_id] = X
-        # if transformer_id not in list(self.task_id_to_y.keys()):
-        #     self.transformer_id_to_y[transformer_id] = y
-
-        # # train new transformers
-        # for transformer_num in range(num_transformers):
-        #     if X is not None:
-        #         n = len(X)
-        #     elif y is not None:
-        #         n = len(y)
-        #     else:
-        #         n = None
-        #     if n is not None:
-        #         transformer_data_idx = np.random.choice(
-        #             transformer_voter_data_idx,
-        #             int(transformer_data_proportion * n),
-        #             replace=False,
-        #         )
-        #     else:
-        #         transformer_data_idx = None
-        #     self.set_updated_transformer(
-        #         transformer_id=transformer_id,
-        #         transformer_data_idx=transformer_data_idx,
-        #         transformer_class=transformer_class,
-        #         transformer_kwargs=transformer_kwargs,
-        #         inputclasses = inputclasses
-        #     )
-        #     voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
-        #     self._append_voter_data_idx(
-        #         task_id=transformer_id,
-        #         bag_id=transformer_num,
-        #         voter_data_idx=voter_data_idx,
-        #     )
 
         #train voters and deciders from new transformer to previous tasks
         for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
@@ -405,7 +375,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
             else:
                 transformer_kwargs = self.default_transformer_kwargs
 
-        # Fit transformer and new voter
+        # Update transformer
         if y is None:
             self._replace_transformer(
                 transformer_id, transformer_class(**transformer_kwargs)._partial_fit(X, inputclasses = inputclasses)
