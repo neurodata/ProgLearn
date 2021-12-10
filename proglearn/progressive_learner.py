@@ -340,7 +340,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
             transformer_id = len(self.get_transformer_ids())
 
         
-        X = (
+        X = (   
             self.transformer_id_to_X[transformer_id]
             if transformer_id in list(self.transformer_id_to_X.keys())
             else self.task_id_to_X[transformer_id]
@@ -1065,32 +1065,32 @@ class ProgressiveLearner(BaseProgressiveLearner):
 
 
         # train voters and decider from previous (and current) transformers to new task
-        for transformer_id in (
-            forward_transformer_ids
-            if forward_transformer_ids
-            else self.get_transformer_ids()
-        ):
-            self.set_voter(
-                transformer_id=transformer_id,
-                task_id=task_id,
-                voter_class=voter_class,
-                voter_kwargs=voter_kwargs,
-            )
+        # for transformer_id in (
+        #     forward_transformer_ids
+        #     if forward_transformer_ids
+        #     else self.get_transformer_ids()
+        # ):
+        #     self.set_voter(
+        #         transformer_id=transformer_id,
+        #         task_id=task_id,
+        #         voter_class=voter_class,
+        #         voter_kwargs=voter_kwargs,
+        #     )
 
-        # train decider of new task
-        if forward_transformer_ids:
-            if num_transformers == 0:
-                transformer_ids = forward_transformer_ids
-            else:
-                transformer_ids = np.concatenate([forward_transformer_ids, task_id])
-        else:
-            transformer_ids = self.get_transformer_ids()
-        self.set_decider(
-            task_id=task_id,
-            transformer_ids=transformer_ids,
-            decider_class=decider_class,
-            decider_kwargs=decider_kwargs,
-        )
+        # # train decider of new task
+        # if forward_transformer_ids:
+        #     if num_transformers == 0:
+        #         transformer_ids = forward_transformer_ids
+        #     else:
+        #         transformer_ids = np.concatenate([forward_transformer_ids, task_id])
+        # else:
+        #     transformer_ids = self.get_transformer_ids()
+        # self.set_decider(
+        #     task_id=task_id,
+        #     transformer_ids=transformer_ids,
+        #     decider_class=decider_class,
+        #     decider_kwargs=decider_kwargs,
+        # )
 
         return self
     
