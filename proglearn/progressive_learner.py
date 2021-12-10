@@ -240,15 +240,15 @@ class ProgressiveLearner(BaseProgressiveLearner):
     ):
         print("transformer id at _update_transformer = " + str(transformer_id))
         print("testtesttest")
-        counter = 0
-
+        print('backward_task_ids: '+str(backward_task_ids))
+        
         if transformer_id not in list(self.task_id_to_X.keys()):
             self.transformer_id_to_X[transformer_id] = X
         if transformer_id not in list(self.task_id_to_y.keys()):
             self.transformer_id_to_y[transformer_id] = y
 
         # for all transformers referring to specified task
-
+        counter = 0
         for transformer in self.transformer_id_to_transformers[transformer_id]:
 
             
@@ -279,44 +279,50 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 if transformer_id in list(self.transformer_id_to_y.keys())
                 else self.task_id_to_y[transformer_id]
             )
+
+
+
             if transformer_data_idx is not None:
                 X2, y2 = X2[transformer_data_idx], y2[transformer_data_idx]
 
             # replace transformer with updated tranformer
-
-            transformer.transformer_ = transformer._partial_fit(transformer.transformer_, X2,y2, inputclasses)
+            transformer.transformer_.partial_fit(X2,y2, inputclasses)
 
             # update voter to new transformer
 
-            voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
-            self._append_voter_data_idx(
-                task_id=transformer_id,
-                bag_id=counter,
-                voter_data_idx=voter_data_idx,
-            )
+            # voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
+            # self._append_voter_data_idx(
+            #     task_id=transformer_id,
+            #     bag_id=counter,
+            #     voter_data_idx=voter_data_idx,
+            #)
             counter = counter + 1
             
-        print("testtesttest")
 
-        # Update backwards 
-        backward_task_ids = (
-            backward_task_ids if backward_task_ids is not None else self.get_task_ids()
-        )
-        transformer_voter_data_idx = (
-            range(len(X))
-            if transformer_voter_data_idx is None
-            else transformer_voter_data_idx
-        )
+        # # Update backwards 
+        # backward_task_ids = (
+        #     backward_task_ids if backward_task_ids is not None else self.get_task_ids()
+        # )
+        # print('backward_task_ids: '+str(backward_task_ids))
+        # transformer_voter_data_idx = (
+        #     range(len(X))
+        #     if transformer_voter_data_idx is None
+        #     else transformer_voter_data_idx
+        # )
 
-        #train voters and deciders from new transformer to previous tasks
-        for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
-            self.set_voter(transformer_id=transformer_id, task_id=existing_task_id)
-            self.set_decider(
-                task_id=existing_task_id,
-                transformer_ids=list(
-                    self.task_id_to_transformer_id_to_voters[existing_task_id].keys()
-                ),
-            )
+        # #train voters and deciders from new transformer to previous tasks
+        # for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
+        #     self.set_voter(transformer_id=transformer_id, task_id=existing_task_id)
+        #     print("backpropagation")
+        #     print(list(
+        #             self.task_id_to_transformer_id_to_voters[existing_task_id].keys()))
+
+        #     self.set_decider(
+        #         task_id=existing_task_id,
+        #         transformer_ids=list(
+        #             self.task_id_to_transformer_id_to_voters[existing_task_id].keys()
+        #         ),
+        #     )
 
         return self
     
@@ -400,12 +406,18 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_kwargs,
         backward_task_ids
     ):
+
+        print('in _add_transformer \n')
+
         if transformer_id is None:
             transformer_id = len(self.get_transformer_ids())
 
         backward_task_ids = (
             backward_task_ids if backward_task_ids is not None else self.get_task_ids()
         )
+
+        print('backward_task_ids: '+str(backward_task_ids))
+
         transformer_voter_data_idx = (
             range(len(X))
             if transformer_voter_data_idx is None
@@ -447,7 +459,14 @@ class ProgressiveLearner(BaseProgressiveLearner):
             )
 
         # train voters and deciders from new transformer to previous tasks
+
+        print(np.intersect1d(backward_task_ids, self.get_task_ids()))
         for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
+
+            print("backpropagation")
+            print(list(
+                    self.task_id_to_transformer_id_to_voters[existing_task_id].keys()))
+
             self.set_voter(transformer_id=transformer_id, task_id=existing_task_id)
             self.set_decider(
                 task_id=existing_task_id,
@@ -1045,33 +1064,33 @@ class ProgressiveLearner(BaseProgressiveLearner):
         # improves accuracy
 
 
-        # # train voters and decider from previous (and current) transformers to new task
-        # for transformer_id in (
-        #     forward_transformer_ids
-        #     if forward_transformer_ids
-        #     else self.get_transformer_ids()
-        # ):
-        #     self.set_voter(
-        #         transformer_id=transformer_id,
-        #         task_id=task_id,
-        #         voter_class=voter_class,
-        #         voter_kwargs=voter_kwargs,
-        #     )
+        # train voters and decider from previous (and current) transformers to new task
+        for transformer_id in (
+            forward_transformer_ids
+            if forward_transformer_ids
+            else self.get_transformer_ids()
+        ):
+            self.set_voter(
+                transformer_id=transformer_id,
+                task_id=task_id,
+                voter_class=voter_class,
+                voter_kwargs=voter_kwargs,
+            )
 
-        # # train decider of new task
-        # if forward_transformer_ids:
-        #     if num_transformers == 0:
-        #         transformer_ids = forward_transformer_ids
-        #     else:
-        #         transformer_ids = np.concatenate([forward_transformer_ids, task_id])
-        # else:
-        #     transformer_ids = self.get_transformer_ids()
-        # self.set_decider(
-        #     task_id=task_id,
-        #     transformer_ids=transformer_ids,
-        #     decider_class=decider_class,
-        #     decider_kwargs=decider_kwargs,
-        # )
+        # train decider of new task
+        if forward_transformer_ids:
+            if num_transformers == 0:
+                transformer_ids = forward_transformer_ids
+            else:
+                transformer_ids = np.concatenate([forward_transformer_ids, task_id])
+        else:
+            transformer_ids = self.get_transformer_ids()
+        self.set_decider(
+            task_id=task_id,
+            transformer_ids=transformer_ids,
+            decider_class=decider_class,
+            decider_kwargs=decider_kwargs,
+        )
 
         return self
     
