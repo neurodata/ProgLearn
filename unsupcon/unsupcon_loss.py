@@ -69,7 +69,7 @@ def sim(z_i, z_j):
 
 def contrastive_loss(s, i, j, N, tau=1.):
     """
-    Loss function for positive pair of examples
+    Contrastive loss function for a positive pair of examples
     """
     num = tf.math.exp(s[i, j] / tau)
     den = tf.constant(0.)
@@ -120,6 +120,7 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
                                              include_top=True
                                             ) #input layer (224, 224, 3)
     f = Model(inputs=base_model.input, outputs=base_model.layers[-2].output)
+    f.compile()
     generator = DataGenerator(images=X_train, batch_size=N, shuffle=True)
     optimizer = keras.optimizers.Adam()
     loss_train = np.zeros(shape=(n_epochs,), dtype=np.float32)
@@ -142,12 +143,12 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
                     x_t[2*k] = t(x_batch[k])
                     y_ = f(tf.expand_dims(x_t[2*k], axis=0), training=True)
                     #z = g(y_) # TODO: projection head
-                    #z_l.append(z)
+                    #z_l.append(tf.squeeze(z))
                     z_l.append(tf.squeeze(y_))
                     x_t[2*k + 1] = t_p(x_batch[k])
                     y_p = f(tf.expand_dims(x_t[2*k + 1], axis=0), training=True)
                     #z_p = g(y_p) # TODO: projection head
-                    #z_l.append(z_p)
+                    #z_l.append(tf.squeeze(z_p))
                     z_l.append(tf.squeeze(y_p))
                 z_tsr = tf.stack(z_l)
                 for i in range(2*N):
@@ -182,8 +183,10 @@ def main():
     #X_test = X_test[:1000]
     f, loss_batch, loss_epoch = unsupcon_learning(X_train)
     f.save("unsupcon_RN50.h5")
-    pickle.dump(loss_batch, "loss_batch.pickle")
-    pickle.dump(loss_epoch, "loss_epoch.pickle")
+    with open(r"loss_batch.pickle", 'wb') as outfile:
+        pickle.dump(list(map(tf.get_static_value, loss_batch)), outfile)
+    with open(r"loss_epoch.pickle", 'wb') as outfile:
+        pickle.dump(list(map(tf.get_static_value, loss_epoch)), outfile)
 
 if __name__ == '__main__':
     main()
