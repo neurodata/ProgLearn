@@ -125,33 +125,25 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
     n_batches = len(generator)
     optimizer = keras.optimizers.SGD()
     loss_train = np.zeros(shape=(n_epochs,), dtype=np.float32)
-    acc_train = np.zeros(shape=(n_epochs,), dtype=np.float32)
-    loss_val = np.zeros(shape=(n_epochs,))
-    acc_val = np.zeros(shape=(n_epochs,))
     for epoch in range(n_epochs):
         epoch_loss_avg = keras.metrics.Mean()
-        epoch_acc_avg = keras.metrics.Mean()
         for batch in range(n_batches):
             x_batch = generator[batch]
-            z_l = []
             s_l_l = []
+            x_t = np.zeros((2*N, 224, 224, 3))
+            for k in range(N):
+                t = get_aug_seq(img_h, img_w)
+                t_p = get_aug_seq(img_h, img_w)
+                x_t[2*k] = t(x_batch[k])
+                x_t[2*k + 1] = t_p(x_batch[k])
             with tf.GradientTape() as tape:
-                for k in range(N):
-                    t = get_aug_seq(img_h, img_w)
-                    t_p = get_aug_seq(img_h, img_w)
-                    y_ = f(tf.expand_dims(t(x_batch[k]), axis=0), training=True)
-                    #z = g(y_) # TODO: projection head
-                    #z_l.append(tf.squeeze(z))
-                    z_l.append(tf.squeeze(y_))
-                    y_p = f(tf.expand_dims(t_p(x_batch[k]), axis=0), training=True)
-                    #z_p = g(y_p) # TODO: projection head
-                    #z_l.append(tf.squeeze(z_p))
-                    z_l.append(tf.squeeze(y_p))
-                z_tsr = tf.stack(z_l)
+                h = f(x_t, training=True)
+                #z = g(h) # TODO: projection head
+                z = h
                 for i in range(2*N):
                     s_l = []
                     for j in range(2*N):
-                        s_l.append(sim(z_tsr[i], z_tsr[j]))
+                        s_l.append(sim(z[i], z[j]))
                     s_l_l.append(tf.stack(s_l))
                 s_tsr = tf.stack(s_l_l)
                 L = model_loss(s_tsr, N)
