@@ -151,45 +151,6 @@ class TreeClassificationTransformer(BaseTransformer):
         self.kwargs = kwargs
 
 
-    def _partial_fit(transformer,test, X, y, inputclasses):
-
-        """
-        Updates the transformer to data X with labels y using partial fit.
-
-        Parameters
-        ----------
-        transformer : TreeClassificationTransformer
-            TreeClassificationTransformer
-        test : DecisionClassifierTree
-            DecisionClassifierTree
-        X : ndarray
-            Input data matrix.
-        y : ndarray
-            Output (i.e. response data matrix).
-        inputclasses : ndarray
-            Classes in X
-
-        Returns
-        -------
-        test : DecisionClassifierTree
-            The object itself.
-        """
-
-        # print("in partial fit")
-        # print(transformer)
-        # print(test)
-        
-        X, y = check_X_y(X, y)
-        test.partial_fit(X, y, classes = [0,1]) # set to [0,1] for testing
-        #print(self)
-        #print("leaving partial fit")
-        return test
-
-    # def _partial_fit(up_transformer, X, y, inputclasses=None):
-    #     X, y = check_X_y(X, y)
-    #     #self.transformer_ = DecisionTreeClassifier(**self.kwargs).partial_fit(X, y, classes = inputclasses)
-    #     up_transformer.partial_fit(X, y, classes = inputclasses)
-    #     return up_transformer
 
     def fit(self, X, y):
         """
@@ -209,7 +170,7 @@ class TreeClassificationTransformer(BaseTransformer):
         """
         X, y = check_X_y(X, y)
         self.transformer_ = DecisionTreeClassifier(**self.kwargs).fit(X, y)
-        print(self.transformer_)
+        #print(self.transformer_)
         return self
 
     def transform(self, X):
