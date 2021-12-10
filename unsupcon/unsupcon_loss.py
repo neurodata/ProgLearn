@@ -25,8 +25,8 @@ def color_distortion(image, s=.8):
         return x
     def color_drop(x):
         x = tf.image.rgb_to_grayscale(x)
-        #image = tf.tile(x, [1, 1, 3])
-        return x
+        image = tf.tile(x, [1, 1, 3])
+        return image
 
     def random_apply(f, img, p=1.):
         """
@@ -122,31 +122,28 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
     f = Model(inputs=base_model.input, outputs=base_model.layers[-2].output)
     f.compile()
     generator = DataGenerator(images=X_train, batch_size=N, shuffle=True)
-    optimizer = keras.optimizers.Adam()
+    n_batches = len(generator)
+    optimizer = keras.optimizers.SGD()
     loss_train = np.zeros(shape=(n_epochs,), dtype=np.float32)
     acc_train = np.zeros(shape=(n_epochs,), dtype=np.float32)
     loss_val = np.zeros(shape=(n_epochs,))
     acc_val = np.zeros(shape=(n_epochs,))
-    n_batches = len(generator)
     for epoch in range(n_epochs):
         epoch_loss_avg = keras.metrics.Mean()
         epoch_acc_avg = keras.metrics.Mean()
         for batch in range(n_batches):
             x_batch = generator[batch]
-            x_t = np.zeros((2*N, 224, 224, 3))
             z_l = []
             s_l_l = []
             with tf.GradientTape() as tape:
                 for k in range(N):
                     t = get_aug_seq(img_h, img_w)
                     t_p = get_aug_seq(img_h, img_w)
-                    x_t[2*k] = t(x_batch[k])
-                    y_ = f(tf.expand_dims(x_t[2*k], axis=0), training=True)
+                    y_ = f(tf.expand_dims(t(x_batch[k]), axis=0), training=True)
                     #z = g(y_) # TODO: projection head
                     #z_l.append(tf.squeeze(z))
                     z_l.append(tf.squeeze(y_))
-                    x_t[2*k + 1] = t_p(x_batch[k])
-                    y_p = f(tf.expand_dims(x_t[2*k + 1], axis=0), training=True)
+                    y_p = f(tf.expand_dims(t_p(x_batch[k]), axis=0), training=True)
                     #z_p = g(y_p) # TODO: projection head
                     #z_l.append(tf.squeeze(z_p))
                     z_l.append(tf.squeeze(y_p))
@@ -179,7 +176,7 @@ def main():
     #X_test = preprocess_input(X_test)
     X_train = X_train / 255.
     #X_test = X_test / 255.
-    X_train = X_train[:100]
+    X_train = X_train[:1000]
     #X_test = X_test[:1000]
     f, loss_batch, loss_epoch = unsupcon_learning(X_train)
     f.save("unsupcon_RN50.h5")
