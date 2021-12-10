@@ -67,24 +67,21 @@ def g(h_i):
 def sim(z_i, z_j):
     return tf.tensordot(z_i, z_j, 1) / (tf.norm(z_i) * tf.norm(z_j))
 
-def contrastive_loss(z, s, i, j, tau=1.):
+def contrastive_loss(s, i, j, N, tau=1.):
     """
     Loss function for positive pair of examples
     """
-    N_2 = np.size(z, 0) #this will be 2N where N is batch size because z has augs
-    z_i = z[i]
-    z_j = z[j]
     num = tf.math.exp(s[i, j] / tau)
-    den = 0.
-    for k in range(N_2):
+    den = tf.constant(0.)
+    for k in range(2*N):
         if k != i:
             den += tf.math.exp(s[i, k] / tau)
-    return -tf.math.log(num / den)
+    return -1 * tf.math.log(num / den)
 
-def model_loss(l, N):
-    L = 0.
+def model_loss(s, N):
+    L = tf.constant(0.)
     for k in range(N):
-        L += l[2*k, 2*k + 1] + l[2*k + 1, 2*k]
+        L += contrastive_loss(s, 2*k, 2*k + 1, N) + contrastive_loss(s, 2*k + 1, 2*k, N)
     L /= 2*N
     return L
 
@@ -133,44 +130,38 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
         epoch_acc_avg = keras.metrics.Mean()
         for batch in range(n_batches):
             x_batch = generator[batch]
+            x_t = np.zeros((2*N, 224, 224, 3))
+            """
+            h = np.zeros((2*N, n_avg_pool_weights))
+            z = np.zeros((2*N, n_avg_pool_weights)) # TODO: projection head
+            s = np.zeros((2*N, 2*N))
+            l = np.zeros((2*N, 2*N))
+            """
+            z_l = []
+            s_l_l = []
             with tf.GradientTape() as tape:
-                """
-                x_t = np.zeros((2*N, 224, 224, 3))
-                h = np.zeros((2*N, n_avg_pool_weights))
-                z = np.zeros((2*N, n_avg_pool_weights)) # TODO: projection head
-                s = np.zeros((2*N, 2*N))
-                l = np.zeros((2*N, 2*N))
-                """
-                x_t_l = []
-                h_l = []
-                z_l = [] # TODO: projection head
-                s_l = []
-                l_l = []
                 for k in range(N):
                     print(f"batch idx k: {k}")
                     t = get_aug_seq(img_h, img_w)
                     t_p = get_aug_seq(img_h, img_w)
-                    x_t = t(x_batch[k])
-                    x_t_l.append(x_t)
+                    x_t[2*k] = t(x_batch[k])
                     y_ = f(tf.expand_dims(x_t[2*k], axis=0), training=True)
-                    h = y_
-                    h_l.append(h)
-                    #z = g(h) # TODO: projection head
+                    #z = g(y_) # TODO: projection head
                     #z_l.append(z)
-                    z = h
-                    z_l.append(z)
+                    z_l.append(tf.squeeze(y_))
                     x_t[2*k + 1] = t_p(x_batch[k])
-                    y_p = f(np.expand_dims(x_t[2*k + 1], axis=0), training=True)
-                    h[2*k + 1] = y_p
-                    #z[2*k + 1] = g(h[2*k + 1]) # TODO: projection head
-                    z[2*k + 1] = y_p
+                    y_p = f(tf.expand_dims(x_t[2*k + 1], axis=0), training=True)
+                    #z_p = g(y_p) # TODO: projection head
+                    #z_l.append(z_p)
+                    z_l.append(tf.squeeze(y_p))
+                z_tsr = tf.stack(z_l)
                 for i in range(2*N):
+                    s_l = []
                     for j in range(2*N):
-                        s[i, j] = sim(z[i], z[j])
-                for i in range(2*N):
-                    for j in range(2*N):
-                        l[i, j] = contrastive_loss(z, s, i, j, tau=1.)
-                L = model_loss(l, N)
+                        s_l.append(sim(z_tsr[i], z_tsr[j]))
+                    s_l_l.append(tf.stack(s_l))
+                s_tsr = tf.stack(s_l_l)
+                L = model_loss(s_tsr, N)
             grad = tape.gradient(L, f.trainable_variables)
             optimizer.apply_gradients(zip(grad, f.trainable_variables))
             epoch_loss_avg(L)
@@ -178,10 +169,12 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
         generator.on_epoch_end()
         loss_train[epoch] = epoch_loss_avg.result()
         print(f"epoch loss avg: {epoch_loss_avg.result()}")
+
         #acc_train[epoch] = epoch_acc_avg.result()
         #y_ = f.predict(x_val) /#Validation predictions
         #loss_val[epoch] = model_loss(l, N).numpy()
         #acc_val[epoch] = accuracy_score(y_true=y_val, y_pred=np.argmax(y_, axis=-1))
+
     return f
 
 def main():
