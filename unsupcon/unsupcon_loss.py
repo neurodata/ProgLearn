@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.metrics import accuracy_score
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import layers
@@ -165,7 +166,15 @@ def unsupcon_learning(X_train, y_train, n_classes=10, n_epochs=10, N=256):
                         l[i, j] = contrastive_loss(z, s, i, j, tau=1.)
                 L = model_loss(l, N)
             grad = tape.gradient(L, f.trainable_variables)
-            optimizer.apply_gradients()
+            optimizer.apply_gradients(zip(grad, f.trainable_variables))
+            epoch_loss_avg(L)
+            #epoch_acc_avg(accuracy_score(y_true=y, y_pred=np.argmax(y_, axis=-1)))
+        generator.on_epoch_end()
+        loss_train[epoch] = epoch_loss_avg.result()
+        #acc_train[epoch] = epoch_acc_avg.result()
+        #y_ = f.predict(x_val) /#Validation predictions
+        #loss_val[epoch] = model_loss(l, N).numpy()
+        #acc_val[epoch] = accuracy_score(y_true=y_val, y_pred=np.argmax(y_, axis=-1))
 
 def main():
     """
