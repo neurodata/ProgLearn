@@ -1,10 +1,10 @@
 import numpy as np
+import pickle
 from sklearn.metrics import accuracy_score
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
 #from tensorflow.keras.applications.resnet50 import preprocess_input
 
 def color_distortion(image, s=.8):
@@ -112,6 +112,8 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
     X: training data
     N: batch size [256, 8192]
     """
+    loss_batch = []
+    loss_epoch = []
     img_h = np.size(X_train, 1)
     img_w = np.size(X_train, 2)
     base_model = keras.applications.ResNet50(weights=None,
@@ -131,17 +133,10 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
         for batch in range(n_batches):
             x_batch = generator[batch]
             x_t = np.zeros((2*N, 224, 224, 3))
-            """
-            h = np.zeros((2*N, n_avg_pool_weights))
-            z = np.zeros((2*N, n_avg_pool_weights)) # TODO: projection head
-            s = np.zeros((2*N, 2*N))
-            l = np.zeros((2*N, 2*N))
-            """
             z_l = []
             s_l_l = []
             with tf.GradientTape() as tape:
                 for k in range(N):
-                    print(f"batch idx k: {k}")
                     t = get_aug_seq(img_h, img_w)
                     t_p = get_aug_seq(img_h, img_w)
                     x_t[2*k] = t(x_batch[k])
@@ -162,20 +157,16 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
                     s_l_l.append(tf.stack(s_l))
                 s_tsr = tf.stack(s_l_l)
                 L = model_loss(s_tsr, N)
+            print(f"batch loss L: {L}")
+            loss_batch.append(L)
             grad = tape.gradient(L, f.trainable_variables)
             optimizer.apply_gradients(zip(grad, f.trainable_variables))
             epoch_loss_avg(L)
-            #epoch_acc_avg(accuracy_score(y_true=y, y_pred=np.argmax(y_, axis=-1)))
         generator.on_epoch_end()
         loss_train[epoch] = epoch_loss_avg.result()
         print(f"epoch loss avg: {epoch_loss_avg.result()}")
-
-        #acc_train[epoch] = epoch_acc_avg.result()
-        #y_ = f.predict(x_val) /#Validation predictions
-        #loss_val[epoch] = model_loss(l, N).numpy()
-        #acc_val[epoch] = accuracy_score(y_true=y_val, y_pred=np.argmax(y_, axis=-1))
-
-    return f
+        loss_epoch.append(epoch_loss_avg.result())
+    return f, loss_batch, loss_epoch
 
 def main():
     """
@@ -187,9 +178,12 @@ def main():
     #X_test = preprocess_input(X_test)
     X_train = X_train / 255.
     #X_test = X_test / 255.
-    X_train = X_train[:1000]
+    X_train = X_train[:100]
     #X_test = X_test[:1000]
-    f = unsupcon_learning(X_train)
+    f, loss_batch, loss_epoch = unsupcon_learning(X_train)
+    f.save("unsupcon_RN50.h5")
+    pickle.dump(loss_batch, "loss_batch.pickle")
+    pickle.dump(loss_epoch, "loss_epoch.pickle")
 
 if __name__ == '__main__':
     main()
