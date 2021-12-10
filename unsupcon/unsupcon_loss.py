@@ -123,7 +123,7 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
     f.compile()
     generator = DataGenerator(images=X_train, batch_size=N, shuffle=True)
     n_batches = len(generator)
-    optimizer = keras.optimizers.SGD()
+    optimizer = keras.optimizers.SGD(learning_rate=.1, momentum=.2, nesterov=True)
     loss_train = np.zeros(shape=(n_epochs,), dtype=np.float32)
     for epoch in range(n_epochs):
         epoch_loss_avg = keras.metrics.Mean()
