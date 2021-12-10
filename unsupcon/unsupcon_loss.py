@@ -89,11 +89,10 @@ def model_loss(l, N):
     return L
 
 class DataGenerator(tf.keras.utils.Sequence):
-  def __init__(self, images, labels, batch_size=128, shuffle=True):
+  def __init__(self, images, batch_size=128, shuffle=True):
     super().__init__()
     self.images = images
-    self.labels = labels
-    self.batch\_size = batch_size
+    self.batch_size = batch_size
     self.shuffle = shuffle
     key_array = []
     self.key_array = np.arange(self.images.shape[0], dtype=np.uint32)
@@ -105,28 +104,24 @@ class DataGenerator(tf.keras.utils.Sequence):
   def __getitem__(self, index):
     keys = self.key_array[index*self.batch_size:(index+1)*self.batch_size]
     x = np.asarray(self.images[keys], dtype=np.float32)
-    y = np.asarray(self.labels[keys], dtype=np.float32)
-    return x, y
+    return x
 
   def on_epoch_end(self):
     if self.shuffle:
       self.key_array = np.random.permutation(self.key_array)
 
-def unsupcon_learning(X_train, y_train, n_classes=10, n_epochs=10, N=256):
+def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
     """
     X: training data
     N: batch size [256, 8192]
     """
-    img_ct = np.size(X, 0)
-    img_h = np.size(X, 1)
-    img_w = np.size(X, 2)
+    img_h = np.size(X_train, 1)
+    img_w = np.size(X_train, 2)
     base_model = keras.applications.ResNet50(weights=None,
-                                             include_top=False
+                                             include_top=True
                                             ) #input layer (224, 224, 3)
-    o = base_model.output
-    o = GlobalAveragePooling2D()(o)
-    f = Model(inputs=base_model.input, outputs=o)
-    generator = DataGenerator(images=X_train, labels=y_train, batch_size=N, shuffle=True)
+    f = Model(inputs=base_model.input, outputs=base_model.layers[-2].output)
+    generator = DataGenerator(images=X_train, batch_size=N, shuffle=True)
     optimizer = keras.optimizers.Adam()
     loss_train = np.zeros(shape=(n_epochs,), dtype=np.float32)
     acc_train = np.zeros(shape=(n_epochs,), dtype=np.float32)
@@ -137,27 +132,38 @@ def unsupcon_learning(X_train, y_train, n_classes=10, n_epochs=10, N=256):
         epoch_loss_avg = keras.metrics.Mean()
         epoch_acc_avg = keras.metrics.Mean()
         for batch in range(n_batches):
-            x, y = generator[batch]
+            x_batch = generator[batch]
             with tf.GradientTape() as tape:
-                x_t = tf.zeros((2*N, img_h, img_w))
-                h = tf.zeros((2*N, n_avg_pool_weights)) # TODO: n_avg_pool_weights
-                z = tf.zeros((2*N, n_avg_pool_weights)) # TODO: projection head
-                s = tf.zeros((2*N, 2*N))
-                l = tf.zeros((2*N, 2*N))
+                """
+                x_t = np.zeros((2*N, 224, 224, 3))
+                h = np.zeros((2*N, n_avg_pool_weights))
+                z = np.zeros((2*N, n_avg_pool_weights)) # TODO: projection head
+                s = np.zeros((2*N, 2*N))
+                l = np.zeros((2*N, 2*N))
+                """
+                x_t_l = []
+                h_l = []
+                z_l = [] # TODO: projection head
+                s_l = []
+                l_l = []
                 for k in range(N):
+                    print(f"batch idx k: {k}")
                     t = get_aug_seq(img_h, img_w)
                     t_p = get_aug_seq(img_h, img_w)
-                    x_t[2*k] = t(batch[k])
-                    y_ = f(x_t[2*k], training=True)
-                    h[2*k] = y_
-                    #z[2*k] = g(h[2*k]) # TODO: projection head
-                    z[2*k] = y_
-                    x_t[2*k + 1] = t_p(batch[k])
-                    y_p = f(x_t[2*k + 1], training=True)
+                    x_t = t(x_batch[k])
+                    x_t_l.append(x_t)
+                    y_ = f(tf.expand_dims(x_t[2*k], axis=0), training=True)
+                    h = y_
+                    h_l.append(h)
+                    #z = g(h) # TODO: projection head
+                    #z_l.append(z)
+                    z = h
+                    z_l.append(z)
+                    x_t[2*k + 1] = t_p(x_batch[k])
+                    y_p = f(np.expand_dims(x_t[2*k + 1], axis=0), training=True)
                     h[2*k + 1] = y_p
                     #z[2*k + 1] = g(h[2*k + 1]) # TODO: projection head
                     z[2*k + 1] = y_p
-                    loss = contrastive_loss(z, 2*k, 2*k + 1)
                 for i in range(2*N):
                     for j in range(2*N):
                         s[i, j] = sim(z[i], z[j])
@@ -171,10 +177,12 @@ def unsupcon_learning(X_train, y_train, n_classes=10, n_epochs=10, N=256):
             #epoch_acc_avg(accuracy_score(y_true=y, y_pred=np.argmax(y_, axis=-1)))
         generator.on_epoch_end()
         loss_train[epoch] = epoch_loss_avg.result()
+        print(f"epoch loss avg: {epoch_loss_avg.result()}")
         #acc_train[epoch] = epoch_acc_avg.result()
         #y_ = f.predict(x_val) /#Validation predictions
         #loss_val[epoch] = model_loss(l, N).numpy()
         #acc_val[epoch] = accuracy_score(y_true=y_val, y_pred=np.argmax(y_, axis=-1))
+    return f
 
 def main():
     """
@@ -184,9 +192,11 @@ def main():
     (X_train, y_train), (X_test, y_test) = keras.datasets.cifar10.load_data()
     #X_train = preprocess_input(X_train)
     #X_test = preprocess_input(X_test)
-    X_train = tf.math.multiply(1./255, X_train)
-    X_test = tf.math.multiply(1./255, X_test)
-    unsupcon_learning(X_train)
+    X_train = X_train / 255.
+    #X_test = X_test / 255.
+    X_train = X_train[:1000]
+    #X_test = X_test[:1000]
+    f = unsupcon_learning(X_train)
 
 if __name__ == '__main__':
     main()
