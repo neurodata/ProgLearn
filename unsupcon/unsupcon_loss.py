@@ -1,3 +1,4 @@
+from inception_preprocessing import distorted_bounding_box_crop
 import numpy as np
 import pickle
 from sklearn.metrics import accuracy_score
@@ -6,6 +7,18 @@ import tensorflow.keras as keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 #from tensorflow.keras.applications.resnet50 import preprocess_input
+
+def distorted_bounding_box_crop_wrapper(image):
+    """
+    From paper:
+        area: [.08, 1.]
+        aspect ratio: [3/4, 4/3]
+    """
+    image, bbox = distorted_bounding_box_crop(image, tf.zeros((1, 0, 4)),
+                                       aspect_ratio_range=(3/4, 4/3),
+                                       area_range=(.08, 1.)
+                                      )
+    return image
 
 def color_distortion(image, s=.8):
     """
@@ -43,15 +56,15 @@ def color_distortion(image, s=.8):
     image = random_apply(color_drop, image, p=.2)
     return image
 
-def get_aug_seq(img_h, img_w, crop_div=2):
+def get_aug_seq(img_h, img_w):
     """
     X: batch of images
     """
     aug_seq = keras.Sequential([
-        layers.RandomCrop(img_h // crop_div, img_w // crop_div), #random size?
-        layers.Resizing(224, 224), #RandomZoom instead of crop and resize?
+        layers.Lambda(distorted_bounding_box_crop_wrapper),
+        layers.Resizing(224, 224), # RandomZoom instead of crop and resize?
         layers.RandomFlip(mode='horizontal'),
-        layers.Lambda(color_distortion), # TODO: if preprocess, ensure this can handle negatives
+        layers.Lambda(color_distortion), # if preprocess, ensure this can handle negatives
         #RandomGaussianBlur(),
         ])
     return aug_seq
@@ -123,7 +136,7 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
     f.compile()
     generator = DataGenerator(images=X_train, batch_size=N, shuffle=True)
     n_batches = len(generator)
-    optimizer = keras.optimizers.SGD(learning_rate=.1, momentum=.2, nesterov=True)
+    optimizer = keras.optimizers.SGD(learning_rate=.2, momentum=.4, nesterov=True)
     loss_train = np.zeros(shape=(n_epochs,), dtype=np.float32)
     for epoch in range(n_epochs):
         epoch_loss_avg = keras.metrics.Mean()
