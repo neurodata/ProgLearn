@@ -19,6 +19,6 @@ The following experiments illustrate specific tests using the ``ProgLearn`` pack
     experiments/xor_rxor_exp
     experiments/xor_rxor_with_cpd
     experiments/xor_rxor_with_icp
+    experiments/xor_rxor_with_unaware
     experiments/xor_xnor_exp
     experiments/double_descent_RF
-    experiments/gaussian_xor_rxor_aware_vs_unaware
