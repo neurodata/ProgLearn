@@ -1,12 +1,60 @@
 from inception_preprocessing import distorted_bounding_box_crop
 import numpy as np
 import pickle
-from sklearn.metrics import accuracy_score
+#from sklearn.metrics import accuracy_score
 import tensorflow as tf
 import tensorflow.keras as keras
-from tensorflow.keras import layers
-from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Activation, Dense, Lambda, RandomFlip, Resizing
+from tensorflow.keras.models import Model, Sequential
 #from tensorflow.keras.applications.resnet50 import preprocess_input
+
+class DataGenerator(tf.keras.utils.Sequence):
+  def __init__(self, images, batch_size, shuffle=True):
+    super().__init__()
+    self.images = images
+    self.batch_size = batch_size
+    self.shuffle = shuffle
+    key_array = []
+    self.key_array = np.arange(self.images.shape[0], dtype=np.uint32)
+    self.on_epoch_end()
+
+  def __len__(self):
+    return len(self.key_array)//self.batch_size
+
+  def __getitem__(self, index):
+    keys = self.key_array[index*self.batch_size:(index+1)*self.batch_size]
+    x = np.asarray(self.images[keys], dtype=np.float32)
+    return x
+
+  def on_epoch_end(self):
+    if self.shuffle:
+      self.key_array = np.random.permutation(self.key_array)
+
+def build_rn_enc():
+    """
+    Default ResNet50 with input layer (224, 224, 3)
+    Default output layer has been removed
+    New output layer is the average pooling layer (2048)
+    """
+    base_model = keras.applications.ResNet50(weights=None,
+                                             include_top=True
+                                            )
+    f = Model(inputs=base_model.input, outputs=base_model.layers[-2].output)
+    f.compile()
+    return f
+
+def build_proj_head():
+    """
+    Projection head, maps representations to contrastive loss space
+    MLP with one hidden layer
+    Input layer (2048)
+    Output layer (128)
+    """
+    g = Sequential()
+    g.add(Dense(128, input_dim=2048)) # W_1
+    g.add(Activation('relu')) # \sigma
+    g.add(Dense(128)) # W_2
+    return g
 
 def distorted_bounding_box_crop_wrapper(image):
     """
@@ -61,24 +109,43 @@ def get_aug_seq(img_h, img_w):
     X: batch of images
     """
     aug_seq = keras.Sequential([
-        layers.Lambda(distorted_bounding_box_crop_wrapper),
-        layers.Resizing(224, 224), # RandomZoom instead of crop and resize?
-        layers.RandomFlip(mode='horizontal'),
-        layers.Lambda(color_distortion), # if preprocess, ensure this can handle negatives
+        Lambda(distorted_bounding_box_crop_wrapper),
+        Resizing(224, 224),
+        RandomFlip(mode='horizontal'),
+        Lambda(color_distortion), # if preprocess, ensure this can handle negatives
         #RandomGaussianBlur(),
         ])
     return aug_seq
 
-# TODO: include this projection head if necessary
-def g(h_i):
+def get_x_tilde(x_batch, N, img_h, img_w, rsz_hw=224):
     """
-    Projection head, maps representations to contrastive loss space
-    MLP with one hidden layer
+    Sample two augmentation functions t and t_prime to make x_tilde
     """
-    return z
+    x_t = np.zeros((2*N, rsz_hw, rsz_hw, 3))
+    for k in range(N):
+        t = get_aug_seq(img_h, img_w)
+        t_p = get_aug_seq(img_h, img_w)
+        x_t[2*k] = t(x_batch[k])
+        x_t[2*k + 1] = t_p(x_batch[k])
+    return x_t
 
 def sim(z_i, z_j):
+    """
+    Compute the similarity of the given vector pair
+    """
     return tf.tensordot(z_i, z_j, 1) / (tf.norm(z_i) * tf.norm(z_j))
+
+def get_pairwise_sim(z, N):
+    """
+    use the similarity function to construct a matrix of pairwise similarities
+    """
+    s_l_l = []
+    for i in range(2*N):
+        s_l = []
+        for j in range(2*N):
+            s_l.append(sim(z[i], z[j]))
+        s_l_l.append(tf.stack(s_l))
+    return tf.stack(s_l_l)
 
 def contrastive_loss(s, i, j, N, tau=1.):
     """
@@ -91,36 +158,15 @@ def contrastive_loss(s, i, j, N, tau=1.):
             den += tf.math.exp(s[i, k] / tau)
     return -1 * tf.math.log(num / den)
 
-def model_loss(s, N):
+def model_loss(z, N):
+    s = get_pairwise_sim(z, N)
     L = tf.constant(0.)
     for k in range(N):
         L += contrastive_loss(s, 2*k, 2*k + 1, N) + contrastive_loss(s, 2*k + 1, 2*k, N)
     L /= 2*N
     return L
 
-class DataGenerator(tf.keras.utils.Sequence):
-  def __init__(self, images, batch_size=128, shuffle=True):
-    super().__init__()
-    self.images = images
-    self.batch_size = batch_size
-    self.shuffle = shuffle
-    key_array = []
-    self.key_array = np.arange(self.images.shape[0], dtype=np.uint32)
-    self.on_epoch_end()
-
-  def __len__(self):
-    return len(self.key_array)//self.batch_size
-
-  def __getitem__(self, index):
-    keys = self.key_array[index*self.batch_size:(index+1)*self.batch_size]
-    x = np.asarray(self.images[keys], dtype=np.float32)
-    return x
-
-  def on_epoch_end(self):
-    if self.shuffle:
-      self.key_array = np.random.permutation(self.key_array)
-
-def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
+def unsupcon_learning(X_train, n_epochs=10, N=16):
     """
     X: training data
     N: batch size [256, 8192]
@@ -129,41 +175,27 @@ def unsupcon_learning(X_train, n_avg_pool_weights=2048, n_epochs=10, N=16):
     loss_epoch = []
     img_h = np.size(X_train, 1)
     img_w = np.size(X_train, 2)
-    base_model = keras.applications.ResNet50(weights=None,
-                                             include_top=True
-                                            ) #input layer (224, 224, 3)
-    f = Model(inputs=base_model.input, outputs=base_model.layers[-2].output)
-    f.compile()
-    generator = DataGenerator(images=X_train, batch_size=N, shuffle=True)
+    f = build_rn_enc()
+    generator = DataGenerator(X_train, N)
     n_batches = len(generator)
     optimizer = keras.optimizers.SGD(learning_rate=.2, momentum=.4, nesterov=True)
     loss_train = np.zeros(shape=(n_epochs,), dtype=np.float32)
     for epoch in range(n_epochs):
+        g = build_proj_head()
         epoch_loss_avg = keras.metrics.Mean()
         for batch in range(n_batches):
             x_batch = generator[batch]
-            s_l_l = []
-            x_t = np.zeros((2*N, 224, 224, 3))
-            for k in range(N):
-                t = get_aug_seq(img_h, img_w)
-                t_p = get_aug_seq(img_h, img_w)
-                x_t[2*k] = t(x_batch[k])
-                x_t[2*k + 1] = t_p(x_batch[k])
-            with tf.GradientTape() as tape:
+            x_t = get_x_tilde(x_batch, N, img_h, img_w)
+            with tf.GradientTape(persistent=True) as tape:
                 h = f(x_t, training=True)
-                #z = g(h) # TODO: projection head
-                z = h
-                for i in range(2*N):
-                    s_l = []
-                    for j in range(2*N):
-                        s_l.append(sim(z[i], z[j]))
-                    s_l_l.append(tf.stack(s_l))
-                s_tsr = tf.stack(s_l_l)
-                L = model_loss(s_tsr, N)
+                z = g(h, training=True)
+                L = model_loss(z, N)
             print(f"batch loss L: {L}")
             loss_batch.append(L)
-            grad = tape.gradient(L, f.trainable_variables)
-            optimizer.apply_gradients(zip(grad, f.trainable_variables))
+            f_grad = tape.gradient(L, f.trainable_variables)
+            g_grad = tape.gradient(L, g.trainable_variables)
+            optimizer.apply_gradients(zip(f_grad, f.trainable_variables))
+            optimizer.apply_gradients(zip(g_grad, g.trainable_variables))
             epoch_loss_avg(L)
         generator.on_epoch_end()
         loss_train[epoch] = epoch_loss_avg.result()
