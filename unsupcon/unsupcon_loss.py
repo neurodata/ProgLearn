@@ -1,3 +1,8 @@
+"""
+Issue #520
+Dante Basile
+"""
+
 from inception_preprocessing import distorted_bounding_box_crop
 import numpy as np
 import pickle
