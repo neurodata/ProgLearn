@@ -170,7 +170,6 @@ class TreeClassificationTransformer(BaseTransformer):
         """
         X, y = check_X_y(X, y)
         self.transformer_ = DecisionTreeClassifier(**self.kwargs).fit(X, y)
-        #print(self.transformer_)
         return self
 
     def transform(self, X):

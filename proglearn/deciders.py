@@ -37,8 +37,6 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
 
     def __init__(self, classes=[]):
         self.classes = classes
-        print("initialized decider")
-        print(self.classes)
 
     def fit(
         self,
@@ -80,9 +78,6 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         ValueError
             When the labels have not been provided and the classes are empty.
         """
-        print("deciders.fit")
-        print(y)
-        print(self.classes)
         if not isinstance(self.classes, (list, np.ndarray)):
             if len(y) == 0:
                 raise ValueError(
@@ -175,6 +170,4 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
             When the model is not fitted.
         """
         vote_overall = self.predict_proba(X, transformer_ids=transformer_ids)
-        print(vote_overall)
-        print(self.classes)
         return self.classes[np.argmax(vote_overall, axis=1)]
