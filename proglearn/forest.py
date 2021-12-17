@@ -289,6 +289,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             transformer_id=transformer_id,
             num_transformers=n_estimators,
         )
+
     def update_task(
         self,
         X,
@@ -298,7 +299,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         tree_construction_proportion="default",
         kappa="default",
         max_depth="default",
-        inputclasses = None
+        inputclasses=None,
     ):
         """
         updates a task with id task_id, max tree depth max_depth, given input data matrix X
@@ -350,12 +351,12 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
 
         X, y = check_X_y(X, y)
 
-        print("unique y values in update_task: "+str(np.unique(y)))
+        print("unique y values in update_task: " + str(np.unique(y)))
 
         return super().update_task(
             X,
             y,
-            inputclasses = inputclasses,
+            inputclasses=inputclasses,
             task_id=task_id,
             transformer_voter_decider_split=[
                 tree_construction_proportion,
@@ -375,7 +376,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self,
         X,
         y,
-        inputclasses = None,
+        inputclasses=None,
         transformer_id=None,
         n_estimators="default",
         max_depth="default",
@@ -392,11 +393,12 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         return super().update_transformer(
             X,
             y,
-            inputclasses = inputclasses,
+            inputclasses=inputclasses,
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
             transformer_id=transformer_id,
             num_transformers=n_estimators,
         )
+
     def predict_proba(self, X, task_id):
         """
         estimates class posteriors under task_id for each example in input data X.

@@ -105,8 +105,6 @@ class NeuralClassificationTransformer(BaseTransformer):
         self.fitted_ = True
 
         return self
-    
-    
 
     def transform(self, X):
         """
@@ -149,8 +147,6 @@ class TreeClassificationTransformer(BaseTransformer):
 
     def __init__(self, kwargs={}):
         self.kwargs = kwargs
-
-
 
     def fit(self, X, y):
         """

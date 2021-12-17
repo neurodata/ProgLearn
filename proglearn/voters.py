@@ -84,8 +84,6 @@ class TreeClassificationVoter(BaseClassificationVoter):
             )
             self.leaf_to_posterior_[leaf_id] = posteriors
 
-        
-
         return self
 
     def predict_proba(self, X):
