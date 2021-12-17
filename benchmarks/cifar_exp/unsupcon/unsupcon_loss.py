@@ -7,13 +7,10 @@ from inception_preprocessing import distorted_bounding_box_crop
 import numpy as np
 import pickle
 
-# from sklearn.metrics import accuracy_score
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras.layers import Activation, Dense, Lambda, RandomFlip, Resizing
 from tensorflow.keras.models import Model, Sequential
-
-# from tensorflow.keras.applications.resnet50 import preprocess_input
 
 
 class DataGenerator(tf.keras.utils.Sequence):
@@ -128,7 +125,6 @@ def get_aug_seq(img_h, img_w):
             Resizing(224, 224),
             RandomFlip(mode="horizontal"),
             Lambda(color_distortion),  # if preprocess, ensure this can handle negatives
-            # RandomGaussianBlur(),
         ]
     )
     return aug_seq
@@ -234,12 +230,8 @@ def main():
     tau: hardcoded in contrastive_loss
     """
     (X_train, y_train), (X_test, y_test) = keras.datasets.cifar10.load_data()
-    # X_train = preprocess_input(X_train)
-    # X_test = preprocess_input(X_test)
     X_train = X_train / 255.0
-    # X_test = X_test / 255.
     X_train = X_train[:1000]
-    # X_test = X_test[:1000]
     f, loss_batch, loss_epoch = unsupcon_learning(X_train)
     f.save("unsupcon_RN50_e100.h5")
     with open(r"loss_batch_e100.pickle", "wb") as outfile:
