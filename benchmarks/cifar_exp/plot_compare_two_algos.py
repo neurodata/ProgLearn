@@ -240,7 +240,6 @@ sns.set()
 
 n_tasks = 10
 clr = ["#e41a1c", "#a65628", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#CCCC00"]
-# c = sns.color_palette(clr, n_colors=len(clr))
 
 fontsize = 22
 ticksize = 20
@@ -274,7 +273,6 @@ for i in range(n_tasks):
 
 ax[0][1].set_xlabel("Number of tasks seen", fontsize=fontsize)
 ax[0][1].set_ylabel("BTE Difference", fontsize=fontsize)
-# ax[0][1].set_xticks(np.arange(1,10))
 ax[0][1].tick_params(labelsize=ticksize)
 ax[0][1].hlines(1, 1, n_tasks, colors="grey", linestyles="dashed", linewidth=1.5)
 
@@ -288,7 +286,6 @@ for i in range(n_tasks):
 
 ax[1][0].set_xlabel("Number of tasks seen", fontsize=fontsize)
 ax[1][0].set_ylabel("TE Difference", fontsize=fontsize)
-# ax[1][0].set_xticks(np.arange(1,10))
 ax[1][0].tick_params(labelsize=ticksize)
 ax[1][0].hlines(1, 1, n_tasks, colors="grey", linestyles="dashed", linewidth=1.5)
 
@@ -300,12 +297,8 @@ for i in range(n_tasks):
 
     ax[1][1].plot(ns, 1 - et2 - (1 - et), c="red", linewidth=2.6)
 
-# ax[1][1].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=22)
 ax[1][1].set_xlabel("Number of tasks seen", fontsize=fontsize)
 ax[1][1].set_ylabel("Accuracy Difference", fontsize=fontsize)
-# ax[1][1].set_yticks([.4,.6,.8,.9,1, 1.1,1.2])
-# ax[1][1].set_xticks(np.arange(1,10))
-# ax[1][1].set_ylim(0.89, 1.15)
 ax[1][1].tick_params(labelsize=ticksize)
 
 plt.savefig("result/result/", dpi=300)
@@ -321,7 +314,6 @@ ax.spines["top"].set_visible(False)
 ax.yaxis.set_ticks_position("left")
 ax.xaxis.set_ticks_position("bottom")
 
-# fig.suptitle('ntrees = '+str(ntrees),fontsize=25)
 ax.plot(
     range(len(train_time)),
     train_time,
@@ -351,6 +343,5 @@ ax.tick_params(labelsize=ticksize)
 ax.legend(fontsize=22)
 
 plt.tight_layout()
-# plt.savefig('result/result/',dpi=300)
 
 # %%
