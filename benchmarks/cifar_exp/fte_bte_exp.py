@@ -55,8 +55,6 @@ def get_size(obj, seen=None):
         size += sum([get_size(k, seen) for k in obj.keys()])
     elif hasattr(obj, "__dict__"):
         size += get_size(obj.__dict__, seen)
-    """elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
-        size += sum([get_size(i, seen) for i in obj])"""
     return size
 
 
@@ -314,13 +312,6 @@ def LF_experiment(
     with open(file_to_save, "wb") as f:
         pickle.dump(summary, f)
 
-    """file_to_save = 'result/time_res/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
-    with open(file_to_save, 'wb') as f:
-        pickle.dump(time_info, f)
-    file_to_save = 'result/mem_res/'+model+str(ntrees)+'_'+str(shift)+'_'+str(slot)+'.pickle'
-    with open(file_to_save, 'wb') as f:
-        pickle.dump(mem_info, f)"""
-
 
 #%%
 def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
@@ -489,23 +480,6 @@ if model == "uf":
     )
 elif model == "dnn":
     slot_fold = range(10)  # edit this default 10 is correct?
-
-    """
-    #parallel
-    def perform_shift(shift_slot_tuple):
-        shift, slot = shift_slot_tuple
-        return run_parallel_exp(data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift)
-    print("Performing Stage 1 Shifts")
-    stage_1_shifts = range(1, 5)
-    stage_1_iterable = product(stage_1_shifts,slot_fold)
-    with Pool(4) as p:
-        p.map(perform_shift, stage_1_iterable)
-    print("Performing Stage 2 Shifts")
-    stage_2_shifts = range(5, 7)
-    stage_2_iterable = product(stage_2_shifts,slot_fold)
-    with Pool(4) as p:
-        p.map(perform_shift, stage_2_iterable)
-    """
 
     # sequential
     slot_fold = range(1)

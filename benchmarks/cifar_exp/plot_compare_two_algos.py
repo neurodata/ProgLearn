@@ -30,12 +30,10 @@ def get_fte_bte(err, single_err, ntrees):
 
     for i in range(10):
         for j in range(i, 10):
-            # print(err[j][i],j,i)
             bte[i].append(err[i][i] / err[j][i])
             te[i].append(single_err[i] / err[j][i])
 
     for i in range(10):
-        # print(single_err[i],err[i][i])
         fte.append(single_err[i] / err[i][i])
 
     return fte, bte, te
@@ -84,7 +82,6 @@ def calc_mean_err(err, task_num=10, reps=6):
             tmp += np.array(err[i][j])
 
         tmp = tmp / reps
-        # print(tmp)
         mean_err[j].extend([tmp])
 
     return mean_err
@@ -99,7 +96,6 @@ def calc_mean_multitask_time(multitask_time, task_num=10, reps=6):
             tmp += np.array(multitask_time[i][j])
 
         tmp = tmp / reps
-        # print(tmp)
         mean_multitask_time[j].extend([tmp])
 
     return mean_multitask_time
@@ -191,12 +187,10 @@ for shift in range(shifts):
     err_ = [[] for i in range(task_num)]
     for i in range(task_num):
         for j in range(task_num - i):
-            # print(err[i+j][i])
             err_[i].append(err[i + j][i])
     err_2 = [[] for i in range(task_num)]
     for i in range(task_num):
         for j in range(task_num - i):
-            # print(err[i+j][i])
             err_2[i].append(err2[i + j][i])
 
     train_time_tmp[count].extend(np.array(single_task_df["train_times"]))
