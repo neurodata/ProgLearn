@@ -13,7 +13,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v1-<< parameters.version >>-min-dependency-cache-{{ checksum "dev-requirements.txt" }}
+          key: v2-<< parameters.version >>-min-dependency-cache-{{ checksum "dev-requirements.txt" }}
       - run:
           name: install python dependencies
           command: |
@@ -22,7 +22,7 @@ jobs:
             pip install --upgrade pip
             pip install -r dev-requirements.txt
       - save_cache:
-          key: v1-<< parameters.version >>-min-dependency-cache-{{ checksum "dev-requirements.txt" }}
+          key: v2-<< parameters.version >>-min-dependency-cache-{{ checksum "dev-requirements.txt" }}
           paths:
             - "venv"
       - run:
@@ -41,11 +41,11 @@ jobs:
       tutorials:
         type: string
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.9
     steps:
       - checkout
       - restore_cache:
-          key: v1-3.8-dependency-cache-{{ checksum "dev-requirements.txt" }}
+          key: v2-3.9-dependency-cache-{{ checksum "dev-requirements.txt" }}
       - run:
           name: install python dependencies
           command: |
@@ -54,7 +54,7 @@ jobs:
             pip install -r dev-requirements.txt
             pip install -e .
       - save_cache:
-          key: v1-3.8-dependency-cache-{{ checksum "dev-requirements.txt" }}
+          key: v2-3.9-dependency-cache-{{ checksum "dev-requirements.txt" }}
           paths:
             - "venv"
       - run:
@@ -78,11 +78,11 @@ jobs:
           file: "coverage.xml"
   deploy:
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.9
     steps:
       - checkout
       - restore_cache:
-          key: v1-3.8-dependency-cache-{{ checksum "dev-requirements.txt" }}
+          key: v2-3.9-dependency-cache-{{ checksum "dev-requirements.txt" }}
       - run:
           name: install python dependencies
           command: |
@@ -91,7 +91,7 @@ jobs:
             pip install -r dev-requirements.txt
             pip install -e .
       - save_cache:
-          key: v1-3.8-dependency-cache-{{ checksum "dev-requirements.txt" }}
+          key: v2-3.9-dependency-cache-{{ checksum "dev-requirements.txt" }}
           paths:
             - "venv"
       - run:
@@ -127,6 +127,9 @@ workflows:
       - build:
           name: "v3.8"
           version: "3.8"
+      - build:
+          name: "v3.9"
+          version: "3.9"
       - test-module:
           name: "proglearn"
           module: "proglearn"
@@ -134,7 +137,7 @@ workflows:
           experiments: "docs/experiments/"
           tutorials: "docs/tutorials/"
           requires:
-            - "v3.8"
+            - "v3.9"
       - deploy:
           filters:
             tags:

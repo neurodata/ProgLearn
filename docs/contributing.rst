@@ -191,11 +191,16 @@ Properly formatted Jupyter notebooks are required for Netlify deployment.
 It is recommended to check that your tutorial completes the following
 steps before submitting:
 
+- ``black`` format your notebook. Use the official 
+  ``black[jupyter]`` `package <https://github.com/psf/black>`_.
+
 - Add your notebook name to `docs/tutorials.rst
-  </docs/tutorials.rst>`_ if applicable.
+  </docs/tutorials.rst>`_ or `docs/experiments.rst
+  </docs/experiments.rst>`_ if applicable.
 
 - Organize local functions into a separate file and put it in
-  `docs/tutorials/functions </docs/tutorials/functions>`_.
+  `docs/tutorials/functions </docs/tutorials/functions>`_ or 
+  `docs/experiments/functions </docs/experiments/functions>`_.
   This function file and the notebook should have the same name.
 
 - Make your tutorial self-contained if possible. It should neither
