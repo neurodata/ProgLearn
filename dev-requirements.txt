@@ -1,3 +1,4 @@
+wheel
 -r requirements.txt
 pytest
 coverage
