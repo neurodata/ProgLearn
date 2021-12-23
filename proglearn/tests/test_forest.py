@@ -57,6 +57,53 @@ class TestLifelongClassificationForest:
 
         assert np.array_equiv(l2f.transformer_id_to_X[0], X)
         assert np.array_equiv(l2f.transformer_id_to_y[0], y)
+        
+    def test_update_transformer_same(self):
+        # First add a transformer as usual
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        l2f = LifelongClassificationForest()
+        l2f.add_transformer(X, y)
+        
+        # Update transformer with the same values
+        l2f.update_transformer(X, y)
+
+        assert np.array_equiv(l2f.transformer_id_to_X[0], X)
+        assert np.array_equiv(l2f.transformer_id_to_y[0], y)
+        
+    def test_update_transformer_none_values(self):
+        # First add a transformer as usual
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        l2f = LifelongClassificationForest()
+        l2f.add_transformer(X, y)
+        
+        # Check behavior when if statements for X or y being None are entered
+        l2f.update_transformer(None, None)
+
+        # Forest should not be updated
+        assert np.array_equiv(l2f.transformer_id_to_X[0], X)
+        assert np.array_equiv(l2f.transformer_id_to_y[0], y)
+        
+    def test_update_transformer_diff(self):
+        # First add a transformer as usual
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        l2f = LifelongClassificationForest()
+        l2f.add_transformer(X, y)
+        
+        # If we create a new transformer 
+        X2 = np.concatenate((np.ones(100), np.zeros(100))).reshape(-1, 1)
+        y2 = np.concatenate((np.ones(100), np.zeros(100)))
+        
+        # We expect that the new array will be updated
+        l2f.update_transformer(X2, y2)
+
+        assert np.array_equiv(l2f.transformer_id_to_X[0], X2)
+        assert np.array_equiv(l2f.transformer_id_to_y[0], y2)
 
     def test_predict_without_fit(self):
         X = np.random.normal(0, 1, size=(100, 3))
@@ -81,6 +128,70 @@ class TestLifelongClassificationForest:
         u1 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
         u2 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
         assert u1 == u2
+        
+    def test_update_task_no_task_id(self):
+        np.random.seed(1)
+
+        l2f = LifelongClassificationForest()
+
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        l2f.add_task(X, y)
+        
+        X2 = np.concatenate((np.ones(100), np.zeros(100))).reshape(-1, 1)
+        y2 = np.concatenate((np.ones(100), np.zeros(100)))
+        
+        l2f.update_task(X2, y2)
+        
+        # expected to print error message
+        
+    def test_update_task_same(self):
+        np.random.seed(1)
+
+        l2f = LifelongClassificationForest()
+
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        l2f.add_task(X, y, task_id=0)
+        
+        X2 = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y2 = np.concatenate((np.zeros(100), np.ones(100)))
+        
+        l2f.update_task(X2, y2, task_id=0)
+        
+        u1 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
+        u2 = l2f.predict(np.array([1]).reshape(1, -1), task_id=0)
+        assert u1 != u2
+        
+        u1 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
+        u2 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
+        assert u1 == u2
+        
+    def test_update_task_diff(self):
+        np.random.seed(1)
+
+        l2f = LifelongClassificationForest()
+
+        X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+        y = np.concatenate((np.zeros(100), np.ones(100)))
+
+        l2f.add_task(X, y, task_id=0)
+        
+        X2 = np.concatenate((np.ones(100), np.zeros(100))).reshape(-1, 1)
+        y2 = np.concatenate((np.ones(100), np.zeros(100)))
+        
+        l2f.update_task(X2, y2, task_id=0)
+        
+        u1 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
+        u2 = l2f.predict(np.array([1]).reshape(1, -1), task_id=0)
+        assert u1 != u2
+        
+        u1 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
+        u2 = l2f.predict(np.array([0]).reshape(1, -1), task_id=0)
+        assert u1 == u2
+        
 
     def test_predict_proba(self):
         np.random.seed(1)
