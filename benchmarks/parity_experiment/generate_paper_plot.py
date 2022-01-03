@@ -153,7 +153,7 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls = ["-", "--"]
-algorithms = ["XOR Forest", "N-XOR Forest", "Omnidirectional Forest (Odif)", "Random Forest (RF)"]
+algorithms = ["XOR Forest", "N-XOR Forest", "Synergistic Forest (SynF)", "Random Forest (RF)"]
 
 
 TASK1 = "XOR"
@@ -208,7 +208,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 #######################
 mean_error = unpickle("data/mean_xor_nxor_with_rep.pickle")
 
-algorithms = ["XOR Forest", "N-XOR Forest", "Omnidirectional Forest (Odif)", "Random Forest (RF)"]
+algorithms = ["XOR Forest", "N-XOR Forest", "Synergistic Forest (SynF)", "Random Forest (RF)"]
 
 TASK1 = "XOR"
 TASK2 = "XNOR"
@@ -257,7 +257,7 @@ ax1.set_title("Bii. XNOR", fontsize=30)
 
 ##################
 mean_te = unpickle("data/mean_te_xor_nxor_with_rep.pickle")
-algorithms = ["Odif BTE", "Odif FTE", "RF BTE", "RF FTE"]
+algorithms = ["SynF BLE", "SynF FLE", "RF BLE", "RF FLE"]
 
 TASK1 = "XOR"
 TASK2 = "XNOR"
@@ -280,7 +280,7 @@ ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
 )
 
-ax1.set_ylabel("log Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
+ax1.set_ylabel("log Forward/Backward \n Learning Efficiency (FLE/BLE)", fontsize=fontsize)
 ax1.legend(loc="upper left", fontsize=20, frameon=False)
 ax1.set_yticks([0.05, 1, 2.5])
 ax1.set_ylim(0.05, 2.52)
@@ -310,7 +310,7 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 ax1.set_title("Biii.", fontsize=30)
 ######################
 mean_te = unpickle("data/mean_te_xor_rxor_with_rep.pickle")
-algorithms = ["Lifelong BTE", "Lifelong FTE", "Naive BTE", "Naive FTE"]
+algorithms = ["Lifelong BLE", "Lifelong FLE", "Naive BLE", "Naive FLE"]
 
 TASK1 = "XOR"
 TASK2 = "R-XOR"
@@ -333,7 +333,7 @@ ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
 )
 
-ax1.set_ylabel("log Forward/Backward \n Transfer Efficiency (FTE/BTE)", fontsize=fontsize)
+ax1.set_ylabel("log Forward/Backward \n Learning Efficiency (FLE/BLE)", fontsize=fontsize)
 # ax1.legend(loc='upper left', fontsize=20, frameon=False)
 ax1.set_ylim(0.2, 1.2)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
@@ -372,7 +372,7 @@ ax.plot(angle_sweep, te, c="r", linewidth=3)
 ax.set_xticks(range(0, 91, 45))
 ax.tick_params(labelsize=labelsize)
 ax.set_xlabel("Angle of Rotation (Degrees)", fontsize=fontsize)
-ax.set_ylabel("log Backward TE (XOR)", fontsize=fontsize)
+ax.set_ylabel("log Backward LE (XOR)", fontsize=fontsize)
 ax.set_ylim(0.89, 1.25)
 ax.set_yticks([0.9, 1, 1.1, 1.2])
 
@@ -441,7 +441,7 @@ ax.text(
     "Number of $25^\circ$-RXOR Training Samples",
     fontsize=fontsize - 4,
 )
-ax.set_ylabel("log Backward TE (XOR)", fontsize=fontsize)
+ax.set_ylabel("log Backward LE (XOR)", fontsize=fontsize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
