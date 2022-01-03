@@ -1,0 +1,169 @@
+with open('mean_spiral.pickle','rb') as f:
+    mean_error = pickle.load(f)
+
+with open('mean_te_spiral.pickle','rb') as f:
+    mean_te = pickle.load(f)
+
+
+n1s = n_spiral3
+n2s = n_spiral5
+
+ns = np.concatenate((n1s, n2s + n1s[-1]))
+ls = ["-", "--"]
+algorithms = [
+    "3 spirals Forest",
+    "5 spirals Forest",
+    "Synergistic Forest (SynF)",
+    "Random Forest (RF)",
+]
+
+TASK1 = "3 spirals"
+TASK2 = "5 spirals"
+
+fontsize = 30
+labelsize = 28
+
+colors = sns.color_palette("Set1", n_colors=5)
+
+fig = plt.figure(constrained_layout=True, figsize=(21, 14))
+gs = fig.add_gridspec(14, 21)
+ax1 = fig.add_subplot(gs[7:, :6])
+ax1.plot(
+    ns,
+    mean_error[1],
+    label=algorithms[2],
+    c=colors[0],
+    ls=ls[np.sum(1 > 1).astype(int)],
+    lw=3,
+)
+ax1.plot(
+    ns,
+    mean_error[4],
+    label=algorithms[3],
+    c="g",
+    ls=ls[np.sum(1 > 1).astype(int)],
+    lw=3,
+)
+
+ax1.set_ylabel("Generalization Error (%s)" % (TASK1), fontsize=fontsize)
+ax1.legend(loc="upper right", fontsize=16, frameon=False)
+# ax1.set_ylim(0.09, 0.21)
+ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
+ax1.tick_params(labelsize=labelsize)
+ax1.set_yticks([0.25, 0.35, 0.45, 0.55])
+ax1.set_xticks([50, 750, 1500])
+ax1.axvline(x=750, c="gray", linewidth=1.5, linestyle="dashed")
+ax1.set_title("3 spirals", fontsize=30)
+
+right_side = ax1.spines["right"]
+right_side.set_visible(False)
+top_side = ax1.spines["top"]
+top_side.set_visible(False)
+
+ax1.text(200, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
+
+######################################
+
+ax1 = fig.add_subplot(gs[7:, 7:13])
+
+ax1.plot(ns[len(n1s) :], mean_error[3, len(n1s) :], c=colors[0], lw=3)
+ax1.plot(ns[len(n1s) :], mean_error[5, len(n1s) :], c="g", lw=3)
+
+ax1.set_ylabel("Generalization Error (%s)" % (TASK2), fontsize=fontsize)
+ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
+ax1.tick_params(labelsize=labelsize)
+ax1.set_yticks([0.2, 0.5, 0.8])
+ax1.set_xticks([50, 750, 1500])
+ax1.axvline(x=750, c="gray", linewidth=1.5, linestyle="dashed")
+
+right_side = ax1.spines["right"]
+right_side.set_visible(False)
+top_side = ax1.spines["top"]
+top_side.set_visible(False)
+
+ax1.text(200, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
+
+ax1.set_title("5 spirals", fontsize=30)
+
+#####################################
+
+algorithms = ["SynF BLE", "SynF FLE", "RF BLE", "RF FLE"]
+
+ax1 = fig.add_subplot(gs[7:, 14:])
+
+ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
+ax1.plot(
+    ns[len(n1s) :],
+    mean_te[1, len(n1s) :],
+    label=algorithms[1],
+    c=colors[0],
+    ls=ls[1],
+    lw=3,
+)
+ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
+ax1.plot(
+    ns[len(n1s) :],
+    mean_te[3, len(n1s) :],
+    label=algorithms[3],
+    c="g",
+    ls=ls[1],
+    lw=3,
+)
+
+ax1.set_ylabel(
+    "log Forward/Backward \n Learning Efficiency (FLE/BLE)", fontsize=fontsize
+)
+ax1.legend(loc="upper left", fontsize=20, frameon=False)
+ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
+ax1.tick_params(labelsize=labelsize)
+ax1.set_yticks([0.4, 0.6, 0.8, 1, 1.2])
+ax1.set_xticks([50, 750, 1500])
+ax1.axvline(x=750, c="gray", linewidth=1.5, linestyle="dashed")
+
+right_side = ax1.spines["right"]
+right_side.set_visible(False)
+top_side = ax1.spines["top"]
+top_side.set_visible(False)
+ax1.hlines(1, 50, 1500, colors="gray", linestyles="dashed", linewidth=1.5)
+
+log_lbl = np.round(np.log([0.4, 0.6, 0.8, 1, 1.2]), 2)
+labels = [item.get_text() for item in ax1.get_yticklabels()]
+
+for ii, _ in enumerate(labels):
+    labels[ii] = str(log_lbl[ii])
+
+ax1.set_yticklabels(labels)
+
+ax1.text(200, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
+
+colors = sns.color_palette("Dark2", n_colors=5)
+
+X, Y = generate_spirals(750, 3, noise=0.8)
+Z, W = generate_spirals(750, 5, noise=0.4)
+
+ax = fig.add_subplot(gs[:6, 4:10])
+clr = [colors[i] for i in Y]
+ax.scatter(X[:, 0], X[:, 1], c=clr, s=50)
+
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_title("3 spirals", fontsize=30)
+
+# plt.tight_layout()
+ax.axis("off")
+
+colors = sns.color_palette("Dark2", n_colors=5)
+
+ax = fig.add_subplot(gs[:6, 11:16])
+clr = [colors[i] for i in W]
+ax.scatter(Z[:, 0], Z[:, 1], c=clr, s=50)
+
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_title("5 spirals", fontsize=30)
+ax.axis("off")
+
+plt.savefig('plots/spiral_plot.pdf')
