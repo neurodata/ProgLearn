@@ -78,7 +78,7 @@ def get_error_matrix2(filename):
     return err
 
 #%%
-alg_name = ['PLN','PLF','Prog_NN', 'DF_CNN','LwF','EWC','O-EWC','SI', 'Total Replay', 'Partial Replay', 'None']
+alg_name = ['SynN','SynF','Prog_NN', 'DF_CNN','LwF','EWC','O-EWC','SI', 'Total Replay', 'Partial Replay', 'None']
 model_file = ['dnn0','uf10','Prog_NN','DF_CNN', 'LwF', 'EWC', 'OEWC', 'SI', 'offline', 'exact', 'None']
 total_alg = 11
 slots = 10
@@ -138,7 +138,7 @@ ax.set_yticks([.5,.7,.9,1.2])
 ax.set_xticks(np.arange(1,11))
 ax.tick_params(labelsize=ticksize)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
-ax.set_ylabel('Backward Transfer Efficiency', fontsize=fontsize)
+ax.set_ylabel('Backward Learning Efficiency', fontsize=fontsize)
 ax.set_title("Label Shuffled CIFAR", fontsize = fontsize)
 ax.hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 right_side = ax.spines["right"]

@@ -77,7 +77,7 @@ ax.plot(
     c="#e41a1c",
     linewidth=3,
     linestyle="solid",
-    label="PLF"
+    label="SynF"
 )
 ax.plot(
     range(len(btes[1])),
@@ -85,18 +85,29 @@ ax.plot(
     c="#377eb8",
     linewidth=3,
     linestyle="solid",
-    label="PLN"
+    label="SynN"
 )
 
 ax.set_xlabel("Number of Tasks Seen", fontsize=fontsize)
-ax.set_ylabel("Transfer Efficiency (Task 1)", fontsize=fontsize)
+ax.set_ylabel("Learning Efficiency (Task 1)", fontsize=fontsize)
 ax.set_yticks([1.0, 1.1, 1.2])
 ax.tick_params(labelsize=ticksize)
 ax.legend(fontsize=20, frameon=False)
 
+log_lbl = np.round(
+    np.log([1.0, 1.1, 1.2]),
+    2
+)
+labels = [item.get_text() for item in ax.get_yticklabels()]
+
+for ii,_ in enumerate(labels):
+    labels[ii] = str(log_lbl[ii])
+
+ax.set_yticklabels(labels)
+
 plt.tight_layout()
 plt.savefig("./result/figs/random_class.pdf", dpi=300)
-plt.close()
+#plt.close()
 
 '''ax = plt.subplot(111)
 
