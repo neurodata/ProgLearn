@@ -15,7 +15,7 @@ from proglearn.transformers import (
 )
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.backend import clear_session  # To avoid OOM error when using odin
+from tensorflow.keras.backend import clear_session  # To avoid OOM error when using synn
 
 
 def load_tasks(
@@ -107,13 +107,13 @@ def show_image(train_x_task):
 
 
 def single_experiment(
-    train_x_task, test_x_task, train_y_task, test_y_task, ntrees=10, model="odif"
+    train_x_task, test_x_task, train_y_task, test_y_task, ntrees=10, model="synf"
 ):
     num_tasks = 10
     num_points_per_task = 1800
     accuracies = np.zeros(65, dtype=float)
 
-    if model == "odin":
+    if model == "synn":
 
         clear_session()  # clear GPU memory before each run, to avoid OOM error
 
@@ -194,7 +194,7 @@ def single_experiment(
         default_voter_kwargs = {"k": int(np.log2(num_points_per_task))}
         default_decider_class = SimpleArgmaxAverage
 
-    elif model == "odif":
+    elif model == "synf":
         for i in range(num_tasks):
             train_x_task[i] = train_x_task[i].reshape(1080, -1)
             test_x_task[i] = test_x_task[i].reshape(720, -1)
@@ -218,7 +218,7 @@ def single_experiment(
             X=train_x_task[i],
             y=train_y_task[i],
             task_id=i,
-            num_transformers=1 if model == "odin" else ntrees,
+            num_transformers=1 if model == "synn" else ntrees,
             transformer_voter_decider_split=[0.67, 0.33, 0],
             decider_kwargs={"classes": np.unique(train_y_task[i])},
         )
@@ -231,12 +231,12 @@ def single_experiment(
             if j > i:
                 pass  # this is not wrong but misleading, should be continue
             else:
-                odif_predictions = progressive_learner.predict(
+                synf_predictions = progressive_learner.predict(
                     test_x_task[j], task_id=j
                 )
 
             accuracies[10 + j + (i * (i + 1)) // 2] = np.mean(
-                odif_predictions == test_y_task[j]
+                synf_predictions == test_y_task[j]
             )
     # print('single experiment done!')
 
