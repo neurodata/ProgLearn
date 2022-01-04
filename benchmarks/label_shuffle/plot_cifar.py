@@ -134,11 +134,23 @@ for alg_no,alg in enumerate(alg_name):
         ax.plot(np.arange(1,11),tes_label_shuffle[alg_no], c=c[alg_no], label=alg_name[alg_no], marker=marker_style[alg_no])
 
 ax.set_yticks([.5,.7,.9,1.2])
+
+log_lbl = np.round(
+    np.log([.5,.7,.9,1.2]),
+    2
+)
+labels = [item.get_text() for item in ax.get_yticklabels()]
+
+for ii,_ in enumerate(labels):
+    labels[ii] = str(log_lbl[ii])
+
+ax.set_yticklabels(labels)
+
 #ax[0].set_ylim([0.91,1.17])
 ax.set_xticks(np.arange(1,11))
 ax.tick_params(labelsize=ticksize)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
-ax.set_ylabel('Backward Learning Efficiency', fontsize=fontsize)
+ax.set_ylabel('log Backward LE', fontsize=fontsize)
 ax.set_title("Label Shuffled CIFAR", fontsize = fontsize)
 ax.hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 right_side = ax.spines["right"]

@@ -89,7 +89,7 @@ ax.plot(
 )
 
 ax.set_xlabel("Number of Tasks Seen", fontsize=fontsize)
-ax.set_ylabel("Learning Efficiency (Task 1)", fontsize=fontsize)
+ax.set_ylabel("log LE (Task 1)", fontsize=fontsize)
 ax.set_yticks([1.0, 1.1, 1.2])
 ax.tick_params(labelsize=ticksize)
 ax.legend(fontsize=20, frameon=False)
