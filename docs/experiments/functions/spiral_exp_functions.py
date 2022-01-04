@@ -200,7 +200,7 @@ def plot_results(n_spiral3, n_spiral5, mean_error, std_error, mean_te, std_te):
     algorithms = [
         "3 spirals Forest",
         "5 spirals Forest",
-        "Omnidirectional Forest (Odif)",
+        "Synergistic Forest (SynF)",
         "Random Forest (RF)",
     ]
 
@@ -233,7 +233,7 @@ def plot_results(n_spiral3, n_spiral5, mean_error, std_error, mean_te, std_te):
     )
 
     ax1.set_ylabel("Generalization Error (%s)" % (TASK1), fontsize=fontsize)
-    ax1.legend(loc="upper right", fontsize=16, frameon=False)
+    ax1.legend(loc="upper center", fontsize=16, frameon=False)
     # ax1.set_ylim(0.09, 0.21)
     ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
     ax1.tick_params(labelsize=labelsize)
@@ -276,7 +276,7 @@ def plot_results(n_spiral3, n_spiral5, mean_error, std_error, mean_te, std_te):
 
     #####################################
 
-    algorithms = ["Odif BTE", "Odif FTE", "RF BTE", "RF FTE"]
+    algorithms = ["SynF BTE", "SynF FTE", "RF BTE", "RF FTE"]
 
     ax1 = fig.add_subplot(gs[7:, 14:])
 
@@ -344,7 +344,7 @@ def plot_results(n_spiral3, n_spiral5, mean_error, std_error, mean_te, std_te):
 
     colors = sns.color_palette("Dark2", n_colors=5)
 
-    ax = fig.add_subplot(gs[:6, 11:16])
+    ax = fig.add_subplot(gs[:6, 11:17])
     clr = [colors[i] for i in W]
     ax.scatter(Z[:, 0], Z[:, 1], c=clr, s=50)
 
