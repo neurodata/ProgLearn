@@ -67,8 +67,8 @@ def cross_val_data(
     return data_x_train, data_y_train, data_x_test, data_y_test
 
 
-# The method runs the omnidirectional learning experiments
-def Odif_experiment(
+# The method runs the synergistic learning experiments
+def synf_experiment(
     data_x, data_y, ntrees, shift, slot, num_points_per_task, acorn=None
 ):
 
@@ -184,7 +184,7 @@ def plot_bte(bte, fontsize, ticksize):
         c="red",
         linewidth=3,
         linestyle="solid",
-        label="Odif",
+        label="synf",
     )
     ax.hlines(1, 0, 19, colors="gray", linestyles="dashed", linewidth=1.5)
     ax.set_xlabel("Number of Tasks Seen", fontsize=fontsize)
