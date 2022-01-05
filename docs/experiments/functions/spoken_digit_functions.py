@@ -105,14 +105,14 @@ def display_spectrogram(x_spec_mini, y_number, y_speaker, num):
     )
 
 
-def single_experiment(x, y, y_speaker, ntrees=10, model="odif", shuffle=False):
+def single_experiment(x, y, y_speaker, ntrees=10, model="synf", shuffle=False):
     num_tasks = 6
     num_points_per_task = 3000 / num_tasks
     speakers = ["g", "j", "l", "n", "t", "y"]
     single_task_accuracies = np.zeros(num_tasks, dtype=float)
     accuracies = np.zeros(27, dtype=float)
 
-    if model == "odin":
+    if model == "synn":
         x_all = x
         y_all = y
 
@@ -195,7 +195,7 @@ def single_experiment(x, y, y_speaker, ntrees=10, model="odif", shuffle=False):
         default_voter_kwargs = {"k": int(np.log2(num_points_per_task))}
         default_decider_class = SimpleArgmaxAverage
 
-    elif model == "odif":
+    elif model == "synf":
         x_all = x.reshape(3000, -1)
         y_all = y
 
@@ -240,23 +240,23 @@ def single_experiment(x, y, y_speaker, ntrees=10, model="odif", shuffle=False):
             X=train_x_task[j],
             y=train_y_task[j],
             task_id=j,
-            num_transformers=1 if model == "odin" else ntrees,
+            num_transformers=1 if model == "synn" else ntrees,
             transformer_voter_decider_split=[0.67, 0.33, 0],
             decider_kwargs={"classes": np.unique(train_y_task[j])},
         )
-        odi_predictions = progressive_learner.predict(
+        syn_predictions = progressive_learner.predict(
             X=test_x_task[j], transformer_ids=[j], task_id=j
         )
-        accuracies[j] = np.mean(odi_predictions == test_y_task[j])
+        accuracies[j] = np.mean(syn_predictions == test_y_task[j])
 
         for k, contribute_speaker in enumerate(speakers):
             if k > j:
                 pass
             else:
-                odi_predictions = progressive_learner.predict(test_x_task[k], task_id=k)
+                syn_predictions = progressive_learner.predict(test_x_task[k], task_id=k)
 
             accuracies[6 + k + (j * (j + 1)) // 2] = np.mean(
-                odi_predictions == test_y_task[k]
+                syn_predictions == test_y_task[k]
             )
 
     return accuracies
@@ -289,9 +289,9 @@ def calculate_results(accuracy_all):
 def plot_results(acc, bte, fte, te, model):
     num_tasks = 6
     sns.set()
-    if model == "odif":
+    if model == "synf":
         clr = "#e41a1c"
-    elif model == "odin":
+    elif model == "synn":
         clr = "#377eb8"
     fontsize = 22
     ticksize = 20
