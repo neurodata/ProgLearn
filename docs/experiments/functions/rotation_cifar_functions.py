@@ -11,7 +11,7 @@ from skimage.util import img_as_ubyte
 import numpy as np
 import seaborn as sns
 
-# Import the omnidirectional learning packages
+# Import the synergistic learning packages
 from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import (
@@ -162,7 +162,7 @@ def plot_bte(bte, angles):
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
 
     # Plot the data
-    ax.plot(angles, bte, c=c[0], label="Odif", linewidth=3)
+    ax.plot(angles, bte, c=c[0], label="SynF", linewidth=3)
 
     # Format and label the plot
     ax.set_xticks([0, 30, 60, 90, 120, 150, 180])
