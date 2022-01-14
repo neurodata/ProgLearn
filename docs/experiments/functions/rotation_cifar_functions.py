@@ -59,7 +59,7 @@ def cross_val_data(data_x, data_y, total_cls=10):
 
 
 # Runs the experiments
-def odif_experiment(angle, data_x, data_y, reps=1, ntrees=29, acorn=None):
+def synf_experiment(angle, data_x, data_y, reps=1, ntrees=29, acorn=None):
     if acorn is not None:
         np.random.seed(acorn)
 
