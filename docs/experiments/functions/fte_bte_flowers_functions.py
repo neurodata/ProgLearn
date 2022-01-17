@@ -33,7 +33,7 @@ def run_fte_bte_exp(data_x, data_y, which_task, model, ntrees=30, shift=0):
     ):  # Rotates the batch of training samples that are used from each class in each task
         train_x, train_y, test_x, test_y = cross_val_data(data_x, data_y, shift, slot)
 
-        if model == "odif":
+        if model == "synf":
             # Reshape the data
             train_x = train_x.reshape(
                 train_x.shape[0], train_x.shape[1] * train_x.shape[2] * train_x.shape[3]
@@ -42,7 +42,7 @@ def run_fte_bte_exp(data_x, data_y, which_task, model, ntrees=30, shift=0):
                 test_x.shape[0], test_x.shape[1] * test_x.shape[2] * test_x.shape[3]
             )
 
-        if model == "odin":
+        if model == "synn":
             clear_session()  # clear GPU memory before each run, to avoid OOM error
 
             default_transformer_class = NeuralClassificationTransformer
@@ -130,7 +130,7 @@ def run_fte_bte_exp(data_x, data_y, which_task, model, ntrees=30, shift=0):
                 default_decider_class=default_decider_class,
             )
 
-        elif model == "odif":
+        elif model == "synf":
             p_learner = LifelongClassificationForest()
 
         df = fte_bte_experiment(
@@ -225,7 +225,7 @@ def fte_bte_experiment(
     df = pd.DataFrame()
     accuracies_across_tasks = []
 
-    # Declare the progressive learner model (Odif or Odin)
+    # Declare the progressive learner model (Synf or Synn)
     learner = p_learner
 
     for task_num in range((which_task - 1), 10):
@@ -236,7 +236,7 @@ def fte_bte_experiment(
 
         # If first task, add task.
         if task_num == (which_task - 1):
-            if model == "odin":
+            if model == "synn":
                 learner.add_task(
                     X=train_x[(task_num * 300) : ((task_num + 1) * 300)],
                     y=train_y[(task_num * 300) : ((task_num + 1) * 300)],
@@ -249,7 +249,7 @@ def fte_bte_experiment(
                         )
                     },
                 )
-            elif model == "odif":
+            elif model == "synf":
                 learner.add_task(
                     X=train_x[(task_num * 300) : ((task_num + 1) * 300)],
                     y=train_y[(task_num * 300) : ((task_num + 1) * 300)],
@@ -269,7 +269,7 @@ def fte_bte_experiment(
                 )
                 accuracies_across_tasks.append(acc)
 
-                if model == "odin":
+                if model == "synn":
                     learner.add_task(
                         X=train_x[(task_num * 300) : ((task_num + 1) * 300)],
                         y=train_y[(task_num * 300) : ((task_num + 1) * 300)],
@@ -282,7 +282,7 @@ def fte_bte_experiment(
                             )
                         },
                     )
-                elif model == "odif":
+                elif model == "synf":
                     learner.add_task(
                         X=train_x[(task_num * 300) : ((task_num + 1) * 300)],
                         y=train_y[(task_num * 300) : ((task_num + 1) * 300)],
@@ -293,7 +293,7 @@ def fte_bte_experiment(
                 t_num = t_num + 1
 
         else:
-            if model == "odin":
+            if model == "synn":
                 learner.add_task(
                     X=train_x[(task_num * 300) : ((task_num + 1) * 300)],
                     y=train_y[(task_num * 300) : ((task_num + 1) * 300)],
@@ -306,7 +306,7 @@ def fte_bte_experiment(
                         )
                     },
                 )
-            elif model == "odif":
+            elif model == "synf":
                 learner.add_task(
                     X=train_x[(task_num * 300) : ((task_num + 1) * 300)],
                     y=train_y[(task_num * 300) : ((task_num + 1) * 300)],

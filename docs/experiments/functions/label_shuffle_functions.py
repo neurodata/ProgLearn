@@ -257,7 +257,7 @@ def plot_bte(btes):
     fig, ax = plt.subplots(1, 1, figsize=(10, 8))
 
     # Plot the results
-    ax.plot(np.arange(1, 11), btes[0], c=c[0], label="Odif", linewidth=3)
+    ax.plot(np.arange(1, 11), btes[0], c=c[0], label="SynF", linewidth=3)
 
     # Format the plot, and show result
     ax.set_yticks([1, 1.1, 1.15])
