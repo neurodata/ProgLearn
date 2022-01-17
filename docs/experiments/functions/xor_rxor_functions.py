@@ -89,7 +89,7 @@ def experiment(
 ):
 
     """
-    A function to do Odif experiment between two tasks
+    A function to do SynF experiment between two tasks
     where the task data is generated using Gaussian parity.
 
     Parameters
@@ -244,7 +244,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ################################
     # Plots of Generalization Error
     ################################
-    algorithms = ["XOR Forest", "RXOR Forest", "Odif ", "RF"]
+    algorithms = ["XOR Forest", "R-XOR Forest", "SynF ", "RF"]
 
     fontsize = 30
     labelsize = 28
@@ -292,7 +292,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
 
     ##############
 
-    algorithms = ["XOR Forest", "RXOR Forest", "Odif", "RF"]
+    algorithms = ["XOR Forest", "R-XOR Forest", "SynF", "RF"]
 
     ax1 = fig.add_subplot(gs[7:, 7:13])
 
@@ -325,13 +325,13 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
     ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 
-    ax1.set_title("RXOR", fontsize=30)
+    ax1.set_title("R-XOR", fontsize=30)
 
     ################################
     # Plots of Transfer Efficiency
     ################################
 
-    algorithms = ["Odif BTE", "Odif FTE", "RF BTE", "RF FTE"]
+    algorithms = ["SynF BTE", "SynF FTE", "RF BTE", "RF FTE"]
 
     ax1 = fig.add_subplot(gs[7:, 14:])
 
@@ -504,7 +504,7 @@ def plot_bte_v_nsamples(mean_te):
     ax.text(
         50,
         np.mean(ax.get_ylim()) - 0.09,
-        "Number of $25^\circ$-RXOR Training Samples",
+        "Number of $25^\circ$R-XOR Training Samples",
         fontsize=24,
     )
     ax.set_ylabel("Backward Transfer Efficiency (XOR)", fontsize=24)
