@@ -881,13 +881,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 decider_kwargs=decider_kwargs,
             )
 
-        self.set_voter(
-            transformer_id=0,
-            task_id=task_id,
-            voter_class=voter_class,
-            voter_kwargs=voter_kwargs,
-        )
-
         return self
 
     def predict(self, X, task_id, transformer_ids=None):
