@@ -13,42 +13,35 @@ class ProgressiveLearner(BaseProgressiveLearner):
     A (mostly) internal class for progressive learning. Most users who desire to
     utilize ProgLearn should use the classes defined in {network, forest}.py instead
     of this class.
-
     Parameters
     ----------
     default_transformer_class : BaseTransformer, default=None
         The class of transformer to which the progressive learner defaults
         if None is provided in any of the functions which add or set
         transformers.
-
     default_transformer_kwargs : dict, default=None
         A dictionary with keys of type string and values of type obj corresponding
         to the given string kwarg. This determines to which type of transformer the
         progressive learner defaults if None is provided in any of the functions
         which add or set transformers.
-
     default_voter_class : BaseVoter, default=None
         The class of voter to which the progressive learner defaults
         if None is provided in any of the functions which add or set
         voters.
-
     default_voter_kwargs : dict, default=None
         A dictionary with keys of type string and values of type obj corresponding
         to the given string kwarg. This determines to which type of voter the
         progressive learner defaults if None is provided in any of the functions
         which add or set voters.
-
     default_decider_class : BaseDecider, default=None
         The class of decider to which the progressive learner defaults
         if None is provided in any of the functions which add or set
         deciders.
-
     default_decider_kwargs : dict, default=None
         A dictionary with keys of type string and values of type obj corresponding
         to the given string kwarg. This determines to which type of decider the
         progressive learner defaults if None is provided in any of the functions
         which add or set deciders.
-
     Attributes
     ----------
     task_id_to_X : dict
@@ -56,66 +49,54 @@ class ProgressiveLearner(BaseProgressiveLearner):
         and values of type ndarray corresponding to the input data matrix X.
         This dictionary thus maps input data matrix to the task where posteriors
         are to be estimated.
-
     task_id_to_y : dict
         A dictionary with keys of type obj corresponding to task ids
         and values of type ndarray corresponding to output data matrix y.
         This dictionary thus maps output data matrix to the task where posteriors
         are to be estimated.
-
     transformer_id_to_X : dict
         A dictionary with keys of type obj corresponding to transformer ids
         and values of type ndarray corresponding to the output data matrix X.
         This dictionary thus maps input data matrix to a particular transformer.
-
     transformer_id_to_y : dict
         A dictionary with keys of type obj corresponding to transformer ids
         and values of type ndarray corresponding to the output data matrix y.
         This dictionary thus maps output data matrix to a particular transformer.
-
     transformer_id_to_transformers : dict
         A dictionary with keys of type obj corresponding to transformer ids
         and values of type obj corresponding to a transformer. This dictionary thus
         maps transformer ids to the corresponding transformers.
-
-    task_id_to_trasnformer_id_to_voters : dict
+    task_id_to_transformer_id_to_voters : dict
         A nested dictionary with outer key of type obj, corresponding to task ids
         inner key of type obj, corresponding to transformer ids,
         and values of type obj, corresponding to a voter. This dictionary thus maps
         voters to a corresponding transformer assigned to a particular task.
-
     task_id_to_decider : dict
         A dictionary with keys of type obj, corresponding to task ids,
         and values of type obj corresponding to a decider. This dictionary thus
         maps deciders to a particular task.
-
     task_id_to_decider_class : dict
         A dictionary with keys of type obj corresponding to task ids
         and values of type obj corresponding to a decider class. This dictionary
         thus maps decider classes to a particular task id.
-
     task_id_to_voter_class : dict
         A dictionary with keys of type obj corresponding to task ids
         and values of type obj corresponding to a voter class. This dictionary thus
         maps voter classes to a particular task id.
-
     task_id_to_voter_kwargs : dict
         A dictionary with keys of type obj corresponding to task ids
         and values of type obj corresponding to a voter kwargs. This dictionary thus
         maps voter kwargs to a particular task id.
-
     task_id_to_decider_kwargs : dict
         A dictionary with keys of type obj corresponding to task ids
         and values of type obj corresponding to a decider kwargs. This dictionary
         thus maps decider kwargs to a particular task id.
-
     task_id_to_bag_id_to_voter_data_idx : dict
         A nested dictionary with outer keys of type obj corresponding to task ids
         inner keys of type obj corresponding to bag ids
         and values of type obj corresponding to voter data indices.
         This dictionary thus maps voter data indices to particular bags
         for particular tasks.
-
     task_id_to_decider_idx : dict
         A dictionary with keys of type obj corresponding to task ids
         and values of type obj corresponding to decider indices. This dictionary
@@ -168,10 +149,15 @@ class ProgressiveLearner(BaseProgressiveLearner):
         return np.array(list(self.task_id_to_decider.keys()))
 
     def _append_transformer(self, transformer_id, transformer):
+
         if transformer_id in self.get_transformer_ids():
             self.transformer_id_to_transformers[transformer_id].append(transformer)
         else:
             self.transformer_id_to_transformers[transformer_id] = [transformer]
+
+    def _replace_transformer(self, transformer_id, transformer):
+
+        self.transformer_id_to_transformers[transformer_id] = [transformer]
 
     def _append_voter(self, transformer_id, task_id, voter):
         if task_id in list(self.task_id_to_transformer_id_to_voters.keys()):
@@ -191,8 +177,21 @@ class ProgressiveLearner(BaseProgressiveLearner):
             }
 
     def _append_voter_data_idx(self, task_id, bag_id, voter_data_idx):
+
         if task_id in list(self.task_id_to_bag_id_to_voter_data_idx.keys()):
+
             self.task_id_to_bag_id_to_voter_data_idx[task_id][bag_id] = voter_data_idx
+        else:
+            self.task_id_to_bag_id_to_voter_data_idx[task_id] = {bag_id: voter_data_idx}
+
+    def _update_voter_data_idx(self, task_id, bag_id, voter_data_idx):
+
+        if task_id in list(self.task_id_to_bag_id_to_voter_data_idx.keys()):
+            prev = self.task_id_to_bag_id_to_voter_data_idx[task_id][bag_id]
+            new = voter_data_idx
+            self.task_id_to_bag_id_to_voter_data_idx[task_id][bag_id] = np.append(
+                prev, new
+            )
         else:
             self.task_id_to_bag_id_to_voter_data_idx[task_id] = {bag_id: voter_data_idx}
 
@@ -218,6 +217,87 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 )
                 return first_idx, second_idx
 
+    def _update_transformer(
+        self,
+        X,
+        y,
+        transformer_data_proportion,
+        transformer_voter_data_idx,
+        transformer_id,
+        num_transformers,
+        transformer_class,
+        transformer_kwargs,
+        backward_task_ids,
+        inputclasses=None,
+        decider_kwargs=None,
+    ):
+
+        if transformer_id not in list(self.task_id_to_X.keys()):
+            self.transformer_id_to_X[transformer_id] = X
+        if transformer_id not in list(self.task_id_to_y.keys()):
+            self.transformer_id_to_y[transformer_id] = y
+
+        backward_task_ids = (
+            backward_task_ids if backward_task_ids is not None else self.get_task_ids()
+        )
+
+        # for all transformers referring to specified task
+        counter = 0
+        for transformer in self.transformer_id_to_transformers[transformer_id]:
+
+            # Check data and assign data for training
+
+            if X is not None:
+                n = len(X)
+            elif y is not None:
+                n = len(y)
+            else:
+                n = None
+            if n is not None:
+                transformer_data_idx = np.random.choice(
+                    transformer_voter_data_idx,
+                    int(transformer_data_proportion * n),
+                    replace=False,
+                )
+            else:
+                transformer_data_idx = None
+
+            X2 = (
+                self.transformer_id_to_X[transformer_id]
+                if transformer_id in list(self.transformer_id_to_X.keys())
+                else self.task_id_to_X[transformer_id]
+            )
+            y2 = (
+                self.transformer_id_to_y[transformer_id]
+                if transformer_id in list(self.transformer_id_to_y.keys())
+                else self.task_id_to_y[transformer_id]
+            )
+
+            if transformer_data_idx is not None:
+                X2, y2 = X2[transformer_data_idx], y2[transformer_data_idx]
+
+            transformer.transformer_.partial_fit(X2, y2, inputclasses)
+
+            voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
+
+            self._update_voter_data_idx(
+                task_id=transformer_id,
+                bag_id=counter,
+                voter_data_idx=voter_data_idx,
+            )
+            counter = counter + 1
+
+        for existing_task_id in np.intersect1d(backward_task_ids, self.get_task_ids()):
+            self.set_voter(transformer_id=transformer_id, task_id=existing_task_id)
+            self.set_decider(
+                task_id=existing_task_id,
+                transformer_ids=list(
+                    self.task_id_to_transformer_id_to_voters[existing_task_id].keys()
+                ),
+            )
+
+        return self
+
     def _add_transformer(
         self,
         X,
@@ -230,12 +310,14 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_kwargs,
         backward_task_ids,
     ):
+
         if transformer_id is None:
             transformer_id = len(self.get_transformer_ids())
 
         backward_task_ids = (
             backward_task_ids if backward_task_ids is not None else self.get_task_ids()
         )
+
         transformer_voter_data_idx = (
             range(len(X))
             if transformer_voter_data_idx is None
@@ -297,7 +379,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_class=None,
         transformer_kwargs=None,
     ):
-
         if transformer_id is None:
             transformer_id = len(self.get_transformer_ids())
 
@@ -462,6 +543,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
 
         self.task_id_to_decider[task_id] = decider_class(**decider_kwargs)
         decider_idx = self.task_id_to_decider_idx[task_id]
+
         self.task_id_to_decider[task_id].fit(
             X[decider_idx],
             y[decider_idx],
@@ -487,22 +569,18 @@ class ProgressiveLearner(BaseProgressiveLearner):
         """
         Adds a transformer to the progressive learner and trains the voters and
         deciders from this new transformer to the specified backward_task_ids.
-
         Parameters
         ----------
         X : ndarray
             Input data matrix.
-
         y : ndarray
             Output (response) data matrix.
-
         transformer_data_proportion : float, default=1.0
             The proportion of the data set aside to train the transformer. The
             remainder of the data is used to train voters. This is used in the
             case that you are using a bagging algorithm and want the various
             components in that bagging ensemble to train on disjoint subsets of
             the data. This parameter is mostly for internal use.
-
         transformer_voter_data_idx : ndarray, default=None
             A 1d array of type int used to specify the aggregate indices of the input
             data used to train the transformers and voters. This is used in the
@@ -510,25 +588,19 @@ class ProgressiveLearner(BaseProgressiveLearner):
             transformers or voters (e.g. X and/or y contains decider training data
             disjoint from the transformer/voter data). This parameter is mostly
             for internal use.
-
         transformer_id : obj, default=None
             The id corresponding to the transformer being added.
-
         num_transformers : int, default=1
             The number of transformers to add corresponding to the given inputs.
-
         transformer_class : BaseTransformer, default=None
             The class of the transformer(s) being added.
-
         transformer_kwargs : dict, default=None
             A dictionary with keys of type string and values of type obj corresponding
             to the given string kwarg. This determines the kwargs of the transformer(s)
             being added.
-
         backward_task_ids : ndarray, default=None
             A 1d array of type obj used to specify to which existing task voters and deciders
             will be trained from the transformer(s) being added.
-
         Returns
         -------
         self : ProgressiveLearner
@@ -562,6 +634,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         backward_task_ids=None,
         forward_transformer_ids=None,
     ):
+
         """
         Adds a task to the progressive learner. Optionally trains one or more
         transformer from the input data (if num_transformers > 0), adds voters
@@ -570,18 +643,14 @@ class ProgressiveLearner(BaseProgressiveLearner):
         specified in forward_transformer_ids (and from the newly added transformer(s)
         corresponding to the input task_id if num_transformers > 0) to the
         new task_id.
-
         Parameters
         ----------
         X : ndarray
             Input data matrix.
-
         y : ndarray
             Output (response) data matrix.
-
         task_id : obj, default=None
             The id corresponding to the task being added.
-
         transformer_voter_decider_split : ndarray, default=[0.67, 0.33, 0]
             A 1d array of length 3. The 0th index indicates the proportions of the input
             data used to train the (optional) newly added transformer(s) corresponding to
@@ -596,43 +665,33 @@ class ProgressiveLearner(BaseProgressiveLearner):
             proportion of the data set aside to train the decider - these indices are saved
             internally and will be used to train all further deciders corresponding to this
             task for all function calls.
-
         num_transformers : int, default=1
             The number of transformers to add corresponding to the given inputs.
-
         transformer_class : BaseTransformer, default=None
             The class of the transformer(s) being added.
-
         transformer_kwargs : dict, default=None
             A dictionary with keys of type string and values of type obj corresponding
             to the given string kwarg. This determines the kwargs of the transformer(s)
             being added.
-
         voter_class : BaseVoter, default=None
             The class of the voter(s) being added.
-
         voter_kwargs : dict, default=None
             A dictionary with keys of type string and values of type obj corresponding
             to the given string kwarg. This determines the kwargs of the voter(s)
             being added.
-
         decider_class : BaseDecider, default=None
             The class of the decider(s) being added.
-
         decider_kwargs : dict, default=None
             A dictionary with keys of type string and values of type obj corresponding
             to the given string kwarg. This determines the kwargs of the decider(s)
             being added.
-
         backward_task_ids : ndarray, default=None
             A 1d array of type obj used to specify to which existing task voters and deciders
             will be trained from the transformer(s) being added.
-
         foward_transformer_ids : ndarray, default=None
             A 1d array of type obj used to specify from which existing transformer(s) voters and
             deciders will be trained to the new task. If num_transformers > 0, the input task_id
             corresponding to the task being added is automatically appended to this 1d array.
-
         Returns
         -------
         self : ProgressiveLearner
@@ -650,11 +709,13 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_voter_data_idx, decider_idx = self._bifurcate_decider_idxs(
             range(len(X)), transformer_voter_decider_split
         )
+
         self._append_decider_idx(task_id, decider_idx)
 
         # add new transformer and train voters and decider
         # from new transformer to previous tasks
         if num_transformers > 0:
+
             self._add_transformer(
                 X,
                 y,
@@ -690,6 +751,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 transformer_ids = np.concatenate([forward_transformer_ids, task_id])
         else:
             transformer_ids = self.get_transformer_ids()
+
         self.set_decider(
             task_id=task_id,
             transformer_ids=transformer_ids,
@@ -699,33 +761,160 @@ class ProgressiveLearner(BaseProgressiveLearner):
 
         return self
 
+    def update_task(
+        self,
+        X,
+        y,
+        inputclasses=None,
+        task_id=None,
+        transformer_voter_decider_split=[0.67, 0.33, 0],
+        num_transformers=1,
+        transformer_class=None,
+        transformer_kwargs=None,
+        voter_class=None,
+        voter_kwargs=None,
+        decider_class=None,
+        decider_kwargs=None,
+        backward_task_ids=None,
+        forward_transformer_ids=None,
+    ):
+
+        """
+        Adds a task to the progressive learner. Optionally trains one or more
+        transformer from the input data (if num_transformers > 0), adds voters
+        and deciders from this/these new transformer(s) to the tasks specified
+        in backward_task_ids, and adds voters and deciders from the transformers
+        specified in forward_transformer_ids (and from the newly added transformer(s)
+        corresponding to the input task_id if num_transformers > 0) to the
+        new task_id.
+        Parameters
+        ----------
+        X : ndarray
+            Input data matrix.
+        y : ndarray
+            Output (response) data matrix.
+        task_id : obj, default=None
+            The id corresponding to the task being added.
+        transformer_voter_decider_split : ndarray, default=[0.67, 0.33, 0]
+            A 1d array of length 3. The 0th index indicates the proportions of the input
+            data used to train the (optional) newly added transformer(s) corresponding to
+            the task_id provided in this function call. The 1st index indicates the proportion of
+            the data set aside to train the voter(s) from these (optional) newly added
+            transformer(s) to the task_id provided in this function call. For all other tasks,
+            the aggregate transformer and voter data pairs from those tasks are used to train
+            the voter(s) from these (optional) newly added transformer(s) to those tasks;
+            for all other transformers, the aggregate transformer and voter data provided in
+            this function call is used to train the voter(s) from those transformers to
+            the task_id provided in this function call. The 2nd index indicates the
+            proportion of the data set aside to train the decider - these indices are saved
+            internally and will be used to train all further deciders corresponding to this
+            task for all function calls.
+        num_transformers : int, default=1
+            The number of transformers to add corresponding to the given inputs.
+        transformer_class : BaseTransformer, default=None
+            The class of the transformer(s) being added.
+        transformer_kwargs : dict, default=None
+            A dictionary with keys of type string and values of type obj corresponding
+            to the given string kwarg. This determines the kwargs of the transformer(s)
+            being added.
+        voter_class : BaseVoter, default=None
+            The class of the voter(s) being added.
+        voter_kwargs : dict, default=None
+            A dictionary with keys of type string and values of type obj corresponding
+            to the given string kwarg. This determines the kwargs of the voter(s)
+            being added.
+        decider_class : BaseDecider, default=None
+            The class of the decider(s) being added.
+        decider_kwargs : dict, default=None
+            A dictionary with keys of type string and values of type obj corresponding
+            to the given string kwarg. This determines the kwargs of the decider(s)
+            being added.
+        backward_task_ids : ndarray, default=None
+            A 1d array of type obj used to specify to which existing task voters and deciders
+            will be trained from the transformer(s) being added.
+        foward_transformer_ids : ndarray, default=None
+            A 1d array of type obj used to specify from which existing transformer(s) voters and
+            deciders will be trained to the new task. If num_transformers > 0, the input task_id
+            corresponding to the task being added is automatically appended to this 1d array.
+        Returns
+        -------
+        self : ProgressiveLearner
+            The object itself.
+        """
+
+        if task_id is None:
+            print("Error: No Task ID inputted")
+            return self
+            # come up with something that has fewer collision
+        self.task_id_to_transformer_id_to_voters[task_id] = {}
+
+        self.task_id_to_X[task_id] = np.concatenate(
+            (self.task_id_to_X[task_id], X), axis=0
+        )
+        self.task_id_to_y[task_id] = np.concatenate(
+            (self.task_id_to_y[task_id], y), axis=0
+        )
+
+        # split into transformer/voter and decider data
+
+        transformer_voter_data_idx, decider_idx = self._bifurcate_decider_idxs(
+            range(len(X)), transformer_voter_decider_split
+        )
+        self._append_decider_idx(task_id, decider_idx)
+
+        # add new transformer and train voters and decider
+        # from new transformer to previous tasks
+        if num_transformers > 0:
+            self._update_transformer(
+                X,
+                y,
+                inputclasses=inputclasses,
+                transformer_data_proportion=transformer_voter_decider_split[0]
+                if transformer_voter_decider_split
+                else 1,
+                transformer_voter_data_idx=transformer_voter_data_idx,
+                transformer_id=task_id,
+                num_transformers=num_transformers,
+                transformer_class=transformer_class,
+                transformer_kwargs=transformer_kwargs,
+                backward_task_ids=backward_task_ids,
+                decider_kwargs=decider_kwargs,
+            )
+
+        self.set_voter(
+            transformer_id=0,
+            task_id=task_id,
+            voter_class=voter_class,
+            voter_kwargs=voter_kwargs,
+        )
+
+        return self
+
     def predict(self, X, task_id, transformer_ids=None):
         """
         predicts labels under task_id for each example in input data X
         using the given transformer_ids.
-
         Parameters
         ----------
         X : ndarray
             The input data matrix.
-
         task_id : obj
             The id corresponding to the task being mapped to.
-
         transformer_ids : list, default=None
             The list of transformer_ids through which a user would like
             to send X (which will be pipelined with their corresponding
             voters) to make an inference prediction.
-
         Returns
         -------
         y_hat : ndarray of shape [n_samples]
             predicted class label per example
         """
+
         if self.task_id_to_decider == {}:
             raise NotFittedError
 
         decider = self.task_id_to_decider[task_id]
+
         return decider.predict(X, transformer_ids=transformer_ids)
 
 
@@ -742,20 +931,16 @@ class ClassificationProgressiveLearner(
         """
         predicts posteriors under task_id for each example in input data X
         using the given transformer_ids.
-
         Parameters
         ----------
         X : ndarray
             The input data matrix.
-
         task_id : obj
             The id corresponding to the task being mapped to.
-
         transformer_ids : list, default=None
             The list of transformer_ids through which a user would like
             to send X (which will be pipelined with their corresponding
             voters) to estimate posteriors.
-
         Returns
         -------
         y_proba_hat : ndarray of shape [n_samples, n_classes]
