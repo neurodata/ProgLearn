@@ -858,7 +858,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         # split into transformer/voter and decider data
 
         transformer_voter_data_idx, decider_idx = self._bifurcate_decider_idxs(
-            range(len(X)), transformer_voter_decider_split
+            range(len(self.task_id_to_X[task_id])), transformer_voter_decider_split
         )
         self._append_decider_idx(task_id, decider_idx)
 
