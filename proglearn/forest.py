@@ -306,8 +306,6 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
 
         X, y = check_X_y(X, y)
 
-        print("unique y values in update_task: " + str(np.unique(y)))
-
         return super().update_task(
             X,
             y,
