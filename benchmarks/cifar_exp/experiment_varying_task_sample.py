@@ -192,7 +192,7 @@ def LF_experiment(
         if acorn is not None:
             np.random.seed(acorn)
 
-            reduced_sample_no = int(num_points_per_task * (1.29 ** task_ii))
+            reduced_sample_no = int(num_points_per_task * (1.29**task_ii))
 
             print(reduced_sample_no)
 
