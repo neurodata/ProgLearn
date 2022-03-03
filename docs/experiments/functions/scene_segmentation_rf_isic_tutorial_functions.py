@@ -9,11 +9,8 @@
 # import packages
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import (segmentation, 
-                    feature, 
-                    future)
-from skimage.metrics import (adapted_rand_error,
-                              variation_of_information)
+from skimage import segmentation, feature, future
+from skimage.metrics import adapted_rand_error, variation_of_information
 from functools import partial
 
 
@@ -26,6 +23,7 @@ from functools import partial
 #   test - the predicted annotations
 # Output(s):
 #   dice coefficient
+
 
 def get_dice(true, test):
     return np.size(test[test == true]) * 2.0 / (np.size(true) + np.size(test))
@@ -42,6 +40,7 @@ def get_dice(true, test):
 # Output(s):
 #   N/A
 
+
 def perform_scene_seg(img, lbl, clf):
 
     # set up parameters for training
@@ -49,21 +48,21 @@ def perform_scene_seg(img, lbl, clf):
     sigma_max = 16
     features_func = partial(
         feature.multiscale_basic_features,
-        intensity=True, 
-        edges=False, 
+        intensity=True,
+        edges=False,
         texture=True,
-        sigma_min=sigma_min, 
+        sigma_min=sigma_min,
         sigma_max=sigma_max,
-        channel_axis=-1
+        channel_axis=-1,
     )
 
     # get features
     features = features_func(img)
     pred = future.predict_segmenter(features, clf)
 
-    # correction so that the "normal" label for the predicted 
+    # correction so that the "normal" label for the predicted
     # array matches that of the true array (both "0")
-    pred[pred == 1] = 0 
+    pred[pred == 1] = 0
 
     ### QUANTIFICATION ###
 
@@ -85,12 +84,12 @@ def perform_scene_seg(img, lbl, clf):
     # plot
     fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(10, 6))
 
-    ax[0].imshow(segmentation.mark_boundaries(img, pred, mode='thick'))
-    ax[0].set_title('Image')
-    ax[1].imshow(lbl, cmap = plt.cm.gray)
-    ax[1].set_title('True Annotation')
-    ax[2].imshow(pred, cmap = plt.cm.gray)
-    ax[2].set_title('Segmentation')
+    ax[0].imshow(segmentation.mark_boundaries(img, pred, mode="thick"))
+    ax[0].set_title("Image")
+    ax[1].imshow(lbl, cmap=plt.cm.gray)
+    ax[1].set_title("True Annotation")
+    ax[2].imshow(pred, cmap=plt.cm.gray)
+    ax[2].set_title("Segmentation")
     fig.tight_layout()
 
     plt.show()
