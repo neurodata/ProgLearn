@@ -6,7 +6,10 @@ import numpy as np
 from sklearn.exceptions import NotFittedError
 
 from .base import BaseClassificationProgressiveLearner, BaseProgressiveLearner
-
+from .transformers import (
+    NeuralClassificationTransformer,
+    TreeClassificationTransformer,
+)
 
 class ProgressiveLearner(BaseProgressiveLearner):
     """
@@ -276,8 +279,11 @@ class ProgressiveLearner(BaseProgressiveLearner):
             if transformer_data_idx is not None:
                 X2, y2 = X2[transformer_data_idx], y2[transformer_data_idx]
 
-            transformer.transformer_.partial_fit(X2, y2, inputclasses)
-
+            if transformer_class == TreeClassificationTransformer:
+                    transformer.transformer_.partial_fit(X2, y2, inputclasses)
+            if transformer_class == NeuralClassificationTransformer:
+                transformer.transformer_.fit(X2, y2, inputclasses  )
+          
             voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
 
             self._update_voter_data_idx(
