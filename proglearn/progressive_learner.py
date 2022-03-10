@@ -6,10 +6,8 @@ import numpy as np
 from sklearn.exceptions import NotFittedError
 
 from .base import BaseClassificationProgressiveLearner, BaseProgressiveLearner
-from .transformers import (
-    NeuralClassificationTransformer,
-    TreeClassificationTransformer,
-)
+from .transformers import NeuralClassificationTransformer, TreeClassificationTransformer
+
 
 class ProgressiveLearner(BaseProgressiveLearner):
     """
@@ -280,10 +278,10 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 X2, y2 = X2[transformer_data_idx], y2[transformer_data_idx]
 
             if transformer_class == TreeClassificationTransformer:
-                    transformer.transformer_.partial_fit(X2, y2, inputclasses)
+                transformer.transformer_.partial_fit(X2, y2, inputclasses)
             if transformer_class == NeuralClassificationTransformer:
-                transformer.transformer_.fit(X2, y2, inputclasses  )
-          
+                transformer.transformer_.fit(X2, y2, inputclasses)
+
             voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
 
             self._update_voter_data_idx(
@@ -786,13 +784,10 @@ class ProgressiveLearner(BaseProgressiveLearner):
     ):
 
         """
-        Adds a task to the progressive learner. Optionally trains one or more
-        transformer from the input data (if num_transformers > 0), adds voters
-        and deciders from this/these new transformer(s) to the tasks specified
-        in backward_task_ids, and adds voters and deciders from the transformers
-        specified in forward_transformer_ids (and from the newly added transformer(s)
-        corresponding to the input task_id if num_transformers > 0) to the
-        new task_id.
+        Updates a task for the progressive learner. Concatenates new data to existing
+        data for specified task and partial fits transformers. Updates voters and decider
+        from updated transformers.
+
         Parameters
         ----------
         X : ndarray
@@ -868,8 +863,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
         )
         self._append_decider_idx(task_id, decider_idx)
 
-        # add new transformer and train voters and decider
-        # from new transformer to previous tasks
+        # updates transformer and train voters and decider
+        # from updated transformer to previous tasks
         if num_transformers > 0:
             self._update_transformer(
                 X,
