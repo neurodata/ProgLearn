@@ -74,14 +74,11 @@ def generate_spirals(
     else:
         for j in range(1, n_class + 1):
             r = np.linspace(0.01, 1, int(mvt[j - 1]))
-            t = (
-                np.linspace(
-                    (j - 1) * np.pi * 4 * turns / n_class,
-                    j * np.pi * 4 * turns / n_class,
-                    int(mvt[j - 1]),
-                )
-                + np.random.normal(0, noise, int(mvt[j - 1]))
-            )
+            t = np.linspace(
+                (j - 1) * np.pi * 4 * turns / n_class,
+                j * np.pi * 4 * turns / n_class,
+                int(mvt[j - 1]),
+            ) + np.random.normal(0, noise, int(mvt[j - 1]))
 
             dx = r * np.cos(t)
             dy = r * np.sin(t)

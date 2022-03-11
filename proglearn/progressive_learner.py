@@ -150,14 +150,12 @@ class ProgressiveLearner(BaseProgressiveLearner):
         return np.array(list(self.task_id_to_decider.keys()))
 
     def _append_transformer(self, transformer_id, transformer):
-
         if transformer_id in self.get_transformer_ids():
             self.transformer_id_to_transformers[transformer_id].append(transformer)
         else:
             self.transformer_id_to_transformers[transformer_id] = [transformer]
 
     def _replace_transformer(self, transformer_id, transformer):
-
         self.transformer_id_to_transformers[transformer_id] = [transformer]
 
     def _append_voter(self, transformer_id, task_id, voter):
@@ -178,7 +176,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
             }
 
     def _append_voter_data_idx(self, task_id, bag_id, voter_data_idx):
-
         if task_id in list(self.task_id_to_bag_id_to_voter_data_idx.keys()):
 
             self.task_id_to_bag_id_to_voter_data_idx[task_id][bag_id] = voter_data_idx
@@ -186,7 +183,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
             self.task_id_to_bag_id_to_voter_data_idx[task_id] = {bag_id: voter_data_idx}
 
     def _update_voter_data_idx(self, task_id, bag_id, voter_data_idx):
-
         if task_id in list(self.task_id_to_bag_id_to_voter_data_idx.keys()):
             prev = self.task_id_to_bag_id_to_voter_data_idx[task_id][bag_id]
             new = voter_data_idx
@@ -787,7 +783,6 @@ class ProgressiveLearner(BaseProgressiveLearner):
         Updates a task for the progressive learner. Concatenates new data to existing
         data for specified task and partial fits transformers. Updates voters and decider
         from updated transformers.
-
         Parameters
         ----------
         X : ndarray
