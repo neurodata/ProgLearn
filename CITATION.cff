@@ -64,7 +64,7 @@ authors:
     family-names: Priebe
     given-names: Carey
 cff-version: "1.2.0"
-date-released: 2021-09-18
+date-released: 2022-03-11
 identifiers:
   -
     type: url
@@ -83,6 +83,6 @@ license: MIT
 doi: 10.5281/zenodo.4060264
 message: "If you use ProgLearn, please cite it using these metadata."
 repository-code: "https://github.com/neurodata/ProgLearn"
-title: "Omnidirectional Transfer for Quasilinear Lifelong Learning"
-version: "0.0.6"
+title: "Representation Ensembling for Synergistic Lifelong Learning with Quasilinear Complexity"
+version: "0.0.7"
 ...
