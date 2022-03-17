@@ -265,53 +265,6 @@ class LifelongClassificationNetwork(ClassificationProgressiveLearner):
         X, y = check_X_y(X, y, ensure_2d=False, allow_nd=True)
         return super().add_transformer(X, y, transformer_id=transformer_id)
 
-    def update_task(
-        self, X, y, task_id=None, network_construction_proportion="default"
-    ):
-        """
-        updates a task with id task_id, given input data matrix X
-        and output data matrix y, to the Lifelong Classification Network
-
-        Parameters
-        ----------
-        X: ndarray
-            Input data matrix.
-
-        y: ndarray
-            Output (response) data matrix.
-
-        task_id: obj
-            The id corresponding to the task being updated.
-
-        network_construction_proportion: float or str, default='default'
-            The proportions of the input data set aside to train each network. The remainder of the
-            data is used to fill in voting posteriors. The default is used if 'default' is provided.
-
-        Returns
-        -------
-        self : LifelongClassificationNetwork
-            The object itself.
-        """
-        if network_construction_proportion == "default":
-            network_construction_proportion = (
-                self.default_network_construction_proportion
-            )
-
-        X, y = check_X_y(X, y, ensure_2d=False, allow_nd=True)
-
-        return super().update_task(
-            X,
-            y,
-            task_id=task_id,
-            transformer_voter_decider_split=[
-                network_construction_proportion,
-                1 - network_construction_proportion,
-                0,
-            ],
-            decider_kwargs={"classes": np.unique(y)},
-            voter_kwargs={"classes": np.unique(y)},
-        )
-
     def predict(self, X, task_id):
         """
         Predicts class labels under task_id for each example in input data X.
