@@ -224,7 +224,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_class,
         transformer_kwargs,
         backward_task_ids,
-        inputclasses=None,
+        input_classes=None,
         decider_kwargs=None,
     ):
 
@@ -272,14 +272,13 @@ class ProgressiveLearner(BaseProgressiveLearner):
             if transformer_data_idx is not None:
                 X2, y2 = X2[transformer_data_idx], y2[transformer_data_idx]
 
-            transformer.transformer_.partial_fit(X2, y2, inputclasses)
+
+            transformer.transformer_.partial_fit(X2, y2, input_classes)
 
             voter_data_idx = np.delete(transformer_voter_data_idx, transformer_data_idx)
 
             self._update_voter_data_idx(
-                task_id=transformer_id,
-                bag_id=counter,
-                voter_data_idx=voter_data_idx,
+                task_id=transformer_id, bag_id=counter, voter_data_idx=voter_data_idx,
             )
             counter = counter + 1
 
@@ -305,6 +304,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_class,
         transformer_kwargs,
         backward_task_ids,
+        classes,
     ):
 
         if transformer_id is None:
@@ -339,6 +339,27 @@ class ProgressiveLearner(BaseProgressiveLearner):
                     int(transformer_data_proportion * n),
                     replace=False,
                 )
+                if classes is not None:
+                    # raise ValueError to avoid infinite loop
+                    if int(transformer_data_proportion * n) < len(classes):
+                        raise ValueError(
+                            "length of X times transformer_data_proportion must exceed number of classes"
+                        )
+                    ensure_all_classes = False
+                    while ensure_all_classes is False:
+                        transformer_data_idx = np.random.choice(
+                            transformer_voter_data_idx,
+                            int(transformer_data_proportion * n),
+                            replace=False,
+                        )
+                        y = (
+                            self.transformer_id_to_y[transformer_id]
+                            if transformer_id in list(self.transformer_id_to_y.keys())
+                            else self.task_id_to_y[transformer_id]
+                        )
+                        if len(np.unique(y[transformer_data_idx])) == len(classes):
+                            ensure_all_classes = True
+
             else:
                 transformer_data_idx = None
             self.set_transformer(
@@ -561,6 +582,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_class=None,
         transformer_kwargs=None,
         backward_task_ids=None,
+        classes=None,
     ):
         """
         Adds a transformer to the progressive learner and trains the voters and
@@ -612,6 +634,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
             transformer_class=transformer_class,
             transformer_kwargs=transformer_kwargs,
             backward_task_ids=backward_task_ids,
+            classes=classes,
         )
 
     def add_task(
@@ -629,6 +652,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         decider_kwargs=None,
         backward_task_ids=None,
         forward_transformer_ids=None,
+        classes=None,
     ):
 
         """
@@ -724,6 +748,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 transformer_class=transformer_class,
                 transformer_kwargs=transformer_kwargs,
                 backward_task_ids=backward_task_ids,
+                classes=classes,
             )
 
         # train voters and decider from previous (and current) transformers to new task
@@ -761,7 +786,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         self,
         X,
         y,
-        inputclasses=None,
+        input_classes=None,
         task_id=None,
         transformer_voter_decider_split=[0.67, 0.33, 0],
         num_transformers=1,
@@ -860,7 +885,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
             self._update_transformer(
                 X,
                 y,
-                inputclasses=inputclasses,
+                input_classes=input_classes,
                 transformer_data_proportion=transformer_voter_decider_split[0]
                 if transformer_voter_decider_split
                 else 1,
