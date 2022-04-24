@@ -78,7 +78,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         and values of type obj corresponding to a transformer. This dictionary thus
         maps transformer ids to the corresponding transformers.
 
-    task_id_to_transformer_id_to_voters : dict
+    task_id_to_trasnformer_id_to_voters : dict
         A nested dictionary with outer key of type obj, corresponding to task ids
         inner key of type obj, corresponding to transformer ids,
         and values of type obj, corresponding to a voter. This dictionary thus maps
