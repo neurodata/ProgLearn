@@ -12,7 +12,7 @@ from sklearn.utils.validation import (
     check_is_fitted,
 )
 
-import keras as keras
+import tensorflow.keras as keras
 
 from .base import BaseTransformer
 
