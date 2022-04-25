@@ -1,7 +1,7 @@
 #%%
 import random
 import tensorflow as tf
-import keras
+from tensorflow import keras
 from keras import layers
 import numpy as np
 import pickle
