@@ -8,8 +8,8 @@ import pickle
 from joblib import Parallel, delayed
 from math import log2, ceil
 from proglearn.progressive_learner import ProgressiveLearner
-from keras.optimizers import Adam
-from keras.callbacks import EarlyStopping
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
 from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import NeuralClassificationTransformer, TreeClassificationTransformer
