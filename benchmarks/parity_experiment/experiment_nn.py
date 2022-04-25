@@ -17,11 +17,10 @@ from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 from proglearn.sims import generate_gaussian_parity
 
 
-def experiment(n_task1, n_task2, n_test=1000, 
-               task1_angle=0, task2_angle=np.pi/2, 
-               max_depth=None, 
+def experiment(n_task1, n_task2,  
                progressive_learner, nn,
-               naive_nn, random_state=None):
+               naive_nn, task1_angle=0, task2_angle=np.pi/2, 
+               max_depth=None, random_state=None, n_test=1000):
     
     """
     A function to do progressive experiment between two tasks
