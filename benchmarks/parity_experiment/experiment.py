@@ -15,6 +15,7 @@ from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import NeuralClassificationTransformer, TreeClassificationTransformer
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 from proglearn.sims import generate_gaussian_parity
+from keras.utils.np_utils import to_categorical
 
 
 def experiment(n_task1, n_task2, n_test=1000, 

@@ -106,7 +106,7 @@ class NeuralClassificationTransformer(BaseTransformer):
             loss=self.loss, optimizer=self.optimizer, **self.compile_kwargs
         )
 
-        self.network.fit(X, keras.utils.to_categorical(y), **self.fit_kwargs)
+        self.network.fit(X, keras.utils.np_utils.to_categorical(y), **self.fit_kwargs)
 
         return self
 
