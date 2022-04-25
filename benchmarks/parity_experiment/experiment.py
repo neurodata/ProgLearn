@@ -2,7 +2,7 @@
 import random
 import tensorflow as tf
 from tensorflow import keras
-from keras import layers
+from tensorflow.keras import layers
 import numpy as np
 import pickle
 from joblib import Parallel, delayed
