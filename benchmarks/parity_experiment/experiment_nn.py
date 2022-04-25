@@ -18,8 +18,7 @@ from proglearn.sims import generate_gaussian_parity
 
 
 def experiment(n_task1, n_task2,  
-               progressive_learner, nn,
-               naive_nn, task1_angle=0, task2_angle=np.pi/2, 
+              task1_angle=0, task2_angle=np.pi/2, 
                max_depth=None, random_state=None, n_test=1000):
     
     """
@@ -106,8 +105,22 @@ def experiment(n_task1, n_task2,
 
     default_decider_class = SimpleArgmaxAverage
     default_decider_kwargs = {"classes" : np.arange(2)}'''
-    
-    
+    progressive_learner = ProgressiveLearner(default_transformer_class = default_transformer_class,
+                                     default_transformer_kwargs = default_transformer_kwargs,
+                                     default_voter_class = default_voter_class,
+                                     default_voter_kwargs = default_voter_kwargs,
+                                     default_decider_class = default_decider_class)
+
+    naive_nn = ProgressiveLearner(default_transformer_class = default_transformer_class,
+                                     default_transformer_kwargs = default_transformer_kwargs,
+                                     default_voter_class = default_voter_class,
+                                     default_voter_kwargs = default_voter_kwargs,
+                                     default_decider_class = default_decider_class)
+    nn = ProgressiveLearner(default_transformer_class = default_transformer_class,
+                                     default_transformer_kwargs = default_transformer_kwargs,
+                                     default_voter_class = default_voter_class,
+                                     default_voter_kwargs = default_voter_kwargs,
+                                     default_decider_class = default_decider_class)
     #source data
     X_task1, y_task1 = generate_gaussian_parity(n_task1, angle_params=task1_angle)
     test_task1, test_label_task1 = generate_gaussian_parity(n_test, angle_params=task1_angle)
