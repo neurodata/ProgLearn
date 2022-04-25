@@ -194,7 +194,7 @@ def experiment(n_task1, n_task2, n_test=1000,
     return errors
 
 #%%
-mc_rep = 100
+mc_rep = 1000
 n_test = 1000
 n_trees = 1
 n_xor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
@@ -251,7 +251,7 @@ with open('./data/mean_te_xor_nxor_nn.pickle','wb') as f:
 
 
 #%%
-mc_rep = 100
+mc_rep = 1000
 n_test = 1000
 n_trees = 1
 n_xor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
@@ -313,7 +313,7 @@ with open('./data/mean_te_xor_rxor_nn.pickle','wb') as f:
 angle_sweep = range(0,91,1)
 task1_sample = 100
 task2_sample = 100
-mc_rep = 100
+mc_rep = 10000
 
 error = np.zeros((mc_rep,6), dtype=float)
 mean_te = np.zeros(len(angle_sweep), dtype=float)
@@ -335,7 +335,7 @@ with open('./data/mean_angle_te_nn.pickle','wb') as f:
 task2_sample_sweep = (2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
 task1_sample = 500
 task2_angle = 25*np.pi/180
-mc_rep = 100
+mc_rep = 1000
 
 error = np.zeros((mc_rep,6), dtype=float)
 mean_te = np.zeros(len(task2_sample_sweep), dtype=float)
