@@ -210,7 +210,7 @@ def experiment(n_task1, n_task2, n_test=1000,
     return errors
 
 #%%
-mc_rep = 1000
+'''mc_rep = 1000
 n_test = 1000
 n_trees = 1
 n_xor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
@@ -263,11 +263,11 @@ with open('./data/std_xor_nxor_nn.pickle','wb') as f:
 with open('./data/mean_te_xor_nxor_nn.pickle','wb') as f:
     pickle.dump(mean_te,f)
     
-
+'''
 
 
 #%%
-mc_rep = 1000
+'''mc_rep = 1000
 n_test = 1000
 n_trees = 1
 n_xor = (100*np.arange(0.5, 7.50, step=0.25)).astype(int)
@@ -322,11 +322,11 @@ with open('./data/std_xor_rxor_nn.pickle','wb') as f:
 with open('./data/mean_te_xor_rxor_nn.pickle','wb') as f:
     pickle.dump(mean_te,f)
 
-
+'''
 
 #%%
 ###main hyperparameters###
-angle_sweep = range(0,91,1)
+'''angle_sweep = range(0,91,1)
 task1_sample = 100
 task2_sample = 100
 mc_rep = 10000
@@ -344,27 +344,29 @@ for ii,angle in enumerate(angle_sweep):
     mean_te[ii] = np.mean(error[:,0])/np.mean(error[:,1])
 
 with open('./data/mean_angle_te_nn.pickle','wb') as f:
-    pickle.dump(mean_te,f)
+    pickle.dump(mean_te,f)'''
 
 #%%
 ###main hyperparameters###
 task2_sample_sweep = (2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
-task1_sample = 500
+task1_sample = 100
 task2_angle = 25*np.pi/180
-mc_rep = 1000
+mc_rep = 100
 
 error = np.zeros((mc_rep,6), dtype=float)
 mean_te = np.zeros(len(task2_sample_sweep), dtype=float)
 for ii,sample_no in enumerate(task2_sample_sweep):
-
-    for jj in range(mc_rep):
-        error[jj] = experiment(
+    error = np.array(
+        Parallel(n_jobs=20,verbose=1)(
+        delayed(experiment)(
                 task1_sample,sample_no,
                 task2_angle=task2_angle, 
                 max_depth=None
-            )
+            ) for _ in range(mc_rep)
+      )
+    )
 
     mean_te[ii] = np.mean(error[:,0])/np.mean(error[:,1])
 
-with open('./data/mean_sample_te_nn.pickle','wb') as f:
+with open('./data/mean_sample_te_nn_1.pickle','wb') as f:
     pickle.dump(mean_te,f)
