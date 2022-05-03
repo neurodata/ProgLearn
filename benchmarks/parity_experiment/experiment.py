@@ -382,5 +382,5 @@ for ii,sample_no in enumerate(task2_sample_sweep):
 
     mean_te[ii] = np.mean(error[:,0])/np.mean(error[:,1])
 
-with open('./data/mean_sample_te_nn_1.pickle','wb') as f:
+with open('./data/mean_sample_te_nn.pickle','wb') as f:
     pickle.dump(mean_te,f)
