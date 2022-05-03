@@ -20,7 +20,7 @@ from tensorflow.keras.utils import to_categorical
 
 def experiment(n_task1, n_task2, n_test=1000, 
                task1_angle=0, task2_angle=np.pi/2, 
-               n_trees=1, max_depth=None, random_state=None):
+               n_trees=1, max_depth=None, random_state=None, single_task=True):
     
     """
     A function to do progressive experiment between two tasks
@@ -69,7 +69,10 @@ def experiment(n_task1, n_task2, n_test=1000,
     if random_state != None:
         np.random.seed(random_state)
 
-    errors = np.zeros(6,dtype=float)
+    if single_task:
+        errors = np.zeros(2,dtype=float)
+    else:
+        errors = np.zeros(6,dtype=float)
 
     default_transformer_class = NeuralClassificationTransformer
     network = keras.Sequential()
@@ -152,10 +155,11 @@ def experiment(n_task1, n_task2, n_test=1000,
         progressive_learner.add_task(X_task1, y_task1,
                                      num_transformers=n_trees)
 
-        nn_task1=progressive_learner.predict(test_task1, 
+        if single_task != True:
+            nn_task1=progressive_learner.predict(test_task1, 
                                              transformer_ids=[0], task_id=0)
         l2f_task1=progressive_learner.predict(test_task1, task_id=0)
-
+        
         errors[0] = 1 - np.mean(nn_task1 == test_label_task1)
         errors[1] = 1 - np.mean(l2f_task1 == test_label_task1)
         
@@ -168,45 +172,55 @@ def experiment(n_task1, n_task2, n_test=1000,
         progressive_learner.add_task(X_task1, y_task1, num_transformers=n_trees)
         progressive_learner.add_task(X_task2, y_task2, num_transformers=n_trees)
 
-        nn.add_task(X_task1, y_task1, num_transformers=2*n_trees)
-        nn.add_task(X_task2, y_task2, num_transformers=2*n_trees)
+        if single_task != True:
+            nn.add_task(X_task1, y_task1, num_transformers=2*n_trees)
+            nn.add_task(X_task2, y_task2, num_transformers=2*n_trees)
         
-        naive_nn_train_x = np.concatenate((X_task1,X_task2),axis=0)
-        naive_nn_train_y = np.concatenate((y_task1,y_task2),axis=0)
-        naive_nn.add_task(
-                naive_nn_train_x, naive_nn_train_y, num_transformers=n_trees
-                )
+            naive_nn_train_x = np.concatenate((X_task1,X_task2),axis=0)
+            naive_nn_train_y = np.concatenate((y_task1,y_task2),axis=0)
+            naive_nn.add_task(
+                    naive_nn_train_x, naive_nn_train_y, num_transformers=n_trees
+                    )
         
-        nn_task1=nn.predict(test_task1, transformer_ids=[0], task_id=0)
+            #nn_task1=nn.predict(test_task1, transformer_ids=[0], task_id=0)
+            uf_task2=nn.predict(test_task2, transformer_ids=[1], task_id=1)
+            naive_nn_task1 = naive_nn.predict(
+                test_task1, transformer_ids=[0], task_id=0
+            )
+            naive_nn_task2 = naive_nn.predict(
+                test_task2, transformer_ids=[0], task_id=0
+            )
+
         l2f_task1=progressive_learner.predict(test_task1, task_id=0)
-        uf_task2=nn.predict(test_task2, transformer_ids=[1], task_id=1)
-        l2f_task2=progressive_learner.predict(test_task2, task_id=1)
-        naive_nn_task1 = naive_nn.predict(
-            test_task1, transformer_ids=[0], task_id=0
-        )
-        naive_nn_task2 = naive_nn.predict(
-            test_task2, transformer_ids=[0], task_id=0
-        )
-
-        errors[0] = 1 - np.mean(
-            nn_task1 == test_label_task1
-        )
-        errors[1] = 1 - np.mean(
-            l2f_task1 == test_label_task1
-        )
-        errors[2] = 1 - np.mean(
-            uf_task2 == test_label_task2
-        )
-        errors[3] = 1 - np.mean(
-            l2f_task2 == test_label_task2
-        )
-        errors[4] = 1 - np.mean(
-            naive_nn_task1 == test_label_task1
-        )
-        errors[5] = 1 - np.mean(
-            naive_nn_task2 == test_label_task2
-        )
-
+        
+        nn_task1=progressive_learner.predict(test_task1, transformer_ids=[0], task_id=0)
+        
+        if single_task != True:
+            errors[0] = 1 - np.mean(
+                nn_task1 == test_label_task1
+            )
+            errors[1] = 1 - np.mean(
+                l2f_task1 == test_label_task1
+            )
+            errors[2] = 1 - np.mean(
+                uf_task2 == test_label_task2
+            )
+            errors[3] = 1 - np.mean(
+                l2f_task2 == test_label_task2
+            )
+            errors[4] = 1 - np.mean(
+                naive_nn_task1 == test_label_task1
+            )
+            errors[5] = 1 - np.mean(
+                naive_nn_task2 == test_label_task2
+            )
+        else:
+            errors[0] = 1 - np.mean(
+                nn_task1 == test_label_task1
+            )
+            errors[1] = 1 - np.mean(
+                l2f_task1 == test_label_task1
+            )
     return errors
 
 #%%
@@ -351,7 +365,7 @@ with open('./data/mean_angle_te_nn.pickle','wb') as f:
 task2_sample_sweep = (2**np.arange(np.log2(60), np.log2(5010)+1, .25)).astype('int')
 task1_sample = 100
 task2_angle = 25*np.pi/180
-mc_rep = 100
+mc_rep = 1000
 
 error = np.zeros((mc_rep,6), dtype=float)
 mean_te = np.zeros(len(task2_sample_sweep), dtype=float)
