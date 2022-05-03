@@ -98,6 +98,20 @@ def generate_gaussian_parity(
 
     return X, y
 
+def move_avg(x, w):
+    avg = []
+    y = []
+    i = 0
+    for x_ in x:
+        i +=1
+        avg.append(x_)
+
+        if i>w:
+            avg.remove(avg[0])
+        y.append(np.mean(avg))
+    return y
+
+
 #%%#%% Plotting the result
 # mc_rep = 50
 fontsize = 30
@@ -144,6 +158,7 @@ ax.axis("off")
 
 ######################
 mean_error = unpickle("data/mean_xor_nxor_with_rep.pickle")
+mean_error_nn = unpickle("data/mean_xor_nxor_nn.pickle")
 
 n_xor = (100 * np.arange(0.5, 7.5, step=0.25)).astype(int)
 n_nxor = (100 * np.arange(0.25, 7.5, step=0.25)).astype(int)
@@ -153,7 +168,7 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls = ["-", "--"]
-algorithms = ["XOR Forest", "N-XOR Forest", "Synergistic Forest (SynF)", "Random Forest (RF)"]
+algorithms = ["XOR Forest", "N-XOR Forest", "SynF", "RF", "SynN", "DN"]
 
 
 TASK1 = "XOR"
@@ -174,12 +189,28 @@ ax1.plot(
     ls=ls[np.sum(1 > 1).astype(int)],
     lw=3,
 )
+ax1.plot(
+    ns,
+    move_avg(mean_error_nn[1],4),
+    label=algorithms[4],
+    c='#377eb8',
+    ls=ls[np.sum(1 > 1).astype(int)],
+    lw=3,
+)
 
 ax1.plot(
     ns,
     mean_error[4],
     label=algorithms[3],
     c="g",
+    ls=ls[np.sum(1 > 1).astype(int)],
+    lw=3,
+)
+ax1.plot(
+    ns,
+    move_avg(mean_error_nn[4],4),
+    label=algorithms[3],
+    c="#b15928",
     ls=ls[np.sum(1 > 1).astype(int)],
     lw=3,
 )
@@ -207,8 +238,9 @@ ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
 
 #######################
 mean_error = unpickle("data/mean_xor_nxor_with_rep.pickle")
+mean_error_nn = unpickle("data/mean_xor_nxor_nn.pickle")
 
-algorithms = ["XOR Forest", "N-XOR Forest", "Synergistic Forest (SynF)", "Random Forest (RF)"]
+algorithms = ["XOR Forest", "N-XOR Forest", "SynF", "RF", "SynN", "DN"]
 
 TASK1 = "XOR"
 TASK2 = "XNOR"
@@ -224,9 +256,24 @@ ax1.plot(
 )
 ax1.plot(
     ns[len(n1s) :],
+    move_avg(mean_error_nn[3, len(n1s) :], 4),
+    label=algorithms[4],
+    c='#377eb8',
+    lw=3,
+)
+
+ax1.plot(
+    ns[len(n1s) :],
     mean_error[5, len(n1s) :],
     label=algorithms[3],
     c="g",
+    lw=3,
+)
+ax1.plot(
+    ns[len(n1s) :],
+    move_avg(mean_error_nn[5, len(n1s) :], 4),
+    label=algorithms[5],
+    c="#b15928",
     lw=3,
 )
 
@@ -257,7 +304,9 @@ ax1.set_title("Bii. XNOR", fontsize=30)
 
 ##################
 mean_te = unpickle("data/mean_te_xor_nxor_with_rep.pickle")
-algorithms = ["SynF BLE", "SynF FLE", "RF BLE", "RF FLE"]
+mean_te_nn = unpickle("data/mean_te_xor_nxor_nn.pickle")
+
+algorithms = ["SynF BLE", "SynF FLE", "RF BLE", "RF FLE", "SynN BLE", "SynN FLE", "DN BLE", "DN FLE"]
 
 TASK1 = "XOR"
 TASK2 = "XNOR"
@@ -265,6 +314,19 @@ TASK2 = "XNOR"
 ax1 = fig.add_subplot(gs[7:13, 18:24])
 
 ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_te_nn[0],4), label=algorithms[4], c='#377eb8', ls=ls[0], lw=3)
+'''sns.regplot(
+    ns,
+    mean_te_nn[0],
+    label=algorithms[4],
+    color="#377eb8",
+    line_kws={"linestyle":ls[0],
+    "linewidth":3},
+    ax=ax1,
+    lowess=True,
+    scatter=False
+)'''
+
 
 ax1.plot(
     ns[len(n1s) :],
@@ -274,11 +336,57 @@ ax1.plot(
     ls=ls[1],
     lw=3,
 )
+ax1.plot(
+    ns[len(n1s) :],
+    move_avg(mean_te_nn[1, len(n1s) :],4),
+    label=algorithms[5],
+    c="#377eb8",
+    ls=ls[1],
+    lw=3,
+)
+'''sns.regplot(
+    ns[len(n1s) :],
+    mean_te_nn[1, len(n1s) :],
+    label=algorithms[5],
+    color="#377eb8",
+    line_kws={"linestyle":ls[1],
+    "linewidth":3},
+    ax=ax1,
+    lowess=True,
+    scatter=False
+)'''
 
 ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_te_nn[2],4), label=algorithms[6], c="#b15928", ls=ls[0], lw=3)
+'''sns.regplot(
+    ns,
+    mean_te_nn[2],
+    label=algorithms[6],
+    color="#b15928",
+    line_kws={"linestyle":ls[0],
+    "linewidth":3},
+    ax=ax1,
+    lowess=True,
+    scatter=False
+)'''
+
 ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
 )
+ax1.plot(
+    ns[len(n1s) :], move_avg(mean_te_nn[3, len(n1s) :], 4), label=algorithms[7], c="#b15928", ls=ls[1], lw=3
+)
+'''sns.regplot(
+    ns[len(n1s) :],
+    mean_te_nn[3, len(n1s) :],
+    label=algorithms[7],
+    color="#b15928",
+    line_kws={"linestyle":ls[1],
+    "linewidth":3},
+    ax=ax1,
+    lowess=True,
+    scatter=False
+)'''
 
 ax1.set_ylabel("log Forward/Backward \n Learning Efficiency (FLE/BLE)", fontsize=fontsize)
 ax1.legend(loc="upper left", fontsize=20, frameon=False)
@@ -305,12 +413,14 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 ax1.hlines(1, 50, 1500, colors="gray", linestyles="dashed", linewidth=1.5)
 
-ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
+ax1.text(400, np.mean(ax1.get_ylim())-.7, "%s" % (TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim())-.7, "%s" % (TASK2), fontsize=26)
 ax1.set_title("Biii.", fontsize=30)
 ######################
 mean_te = unpickle("data/mean_te_xor_rxor_with_rep.pickle")
-algorithms = ["Lifelong BLE", "Lifelong FLE", "Naive BLE", "Naive FLE"]
+mean_te_nn = unpickle("data/mean_te_xor_rxor_nn.pickle")
+
+algorithms = ["SynF BLE", "SynF FLE", "RF BLE", "RF FLE", "SynN BLE", "SynN FLE", "DN BLE", "DN FLE"]
 
 TASK1 = "XOR"
 TASK2 = "R-XOR"
@@ -318,6 +428,7 @@ TASK2 = "R-XOR"
 ax1 = fig.add_subplot(gs[15:21, 2:8])
 
 ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_te_nn[0],4), label=algorithms[4], c='#377eb8', ls=ls[0], lw=3)
 
 ax1.plot(
     ns[len(n1s) :],
@@ -327,10 +438,22 @@ ax1.plot(
     lw=3,
     ls=ls[1]
 )
+ax1.plot(
+    ns[len(n1s) :],
+    move_avg(mean_te_nn[1, len(n1s) :],4),
+    label=algorithms[5],
+    c='#377eb8',
+    lw=3,
+    ls=ls[1]
+)
 
 ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_te_nn[2], 4), label=algorithms[6], c="#b15928", ls=ls[0], lw=3)
 ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
+)
+ax1.plot(
+    ns[len(n1s) :], move_avg(mean_te_nn[3, len(n1s) :], 4), label=algorithms[7], c="#b15928", ls=ls[1], lw=3
 )
 
 ax1.set_ylabel("log Forward/Backward \n Learning Efficiency (FLE/BLE)", fontsize=fontsize)
@@ -366,9 +489,14 @@ ax1.set_title("Ci.", fontsize=30)
 ax = fig.add_subplot(gs[15:21, 10:16])
 with open("data/mean_angle_te_with_rep.pickle", "rb") as f:
     te = pickle.load(f)
+
+with open("data/mean_angle_te_nn.pickle", "rb") as f:
+    te_nn = pickle.load(f)
+
 angle_sweep = range(0, 90, 1)
 
 ax.plot(angle_sweep, te, c="r", linewidth=3)
+ax.plot(angle_sweep, move_avg(te_nn[:-1],10), c='#377eb8', linewidth=3)
 ax.set_xticks(range(0, 91, 45))
 ax.tick_params(labelsize=labelsize)
 ax.set_xlabel("Angle of Rotation (Degrees)", fontsize=fontsize)
@@ -398,28 +526,30 @@ ax.set_title("Cii.", fontsize=30)
 #####################################
 ax = fig.add_subplot(gs[15:21, 18:24])
 
-with open("data/mean_sample_te100.pickle", "rb") as f:
+'''with open("data/mean_sample_te100.pickle", "rb") as f:
     te100 = pickle.load(f)
 with open("data/mean_sample_te1000.pickle", "rb") as f:
-    te1000 = pickle.load(f)
-with open("data/mean_sample_te5000.pickle", "rb") as f:
-    te5000 = pickle.load(f)
+    te1000 = pickle.load(f)'''
+with open("data/mean_sample_te500.pickle", "rb") as f:
+    te500 = pickle.load(f)
+with open("data/mean_sample_te_nn.pickle", "rb") as f:
+    te500_nn = pickle.load(f)
+
 
 task2_sample_sweep = (2 ** np.arange(np.log2(60), np.log2(5010) + 1, 0.25)).astype(
     "int"
 )
 
-ax.plot(task2_sample_sweep, te100, c="r", linewidth=3, label='100 XOR')
-ax.plot(task2_sample_sweep, te1000, c="r", linewidth=3, linestyle='--', label='1000 XOR')
-ax.plot(task2_sample_sweep, te5000, c="r", linewidth=3, linestyle=':', label='5000 XOR')
+ax.plot(task2_sample_sweep, te500, c="r", linewidth=3, label='SynF')
+ax.plot(task2_sample_sweep, move_avg(te500_nn,10), c='#377eb8', linewidth=3, label='SynF')
 
 ax.hlines(1, 60, 5500, colors="gray", linestyles="dashed", linewidth=1.5)
 ax.set_xscale("log")
-ax.set_xticks([])
-ax.set_yticks([0.94,1, 1.04, 1.08])
+#ax.set_xticks([])
+ax.set_yticks([0.8, .9, 1, 1.04])
 
 log_lbl = np.round(
-    np.log([0.94,1,1.04,1.08]),
+    np.log([0.8, .9, 1, 1.04]),
     2
 )
 labels = [item.get_text() for item in ax.get_yticklabels()]
@@ -431,13 +561,13 @@ ax.set_yticklabels(labels)
 
 ax.tick_params(labelsize=26)
 ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-ax.text(50, np.mean(ax.get_ylim()) - 0.082, "50", fontsize=labelsize)
+'''ax.text(50, np.mean(ax.get_ylim()) - 0.082, "50", fontsize=labelsize)
 ax.text(500, np.mean(ax.get_ylim()) - 0.082, "500", fontsize=labelsize)
 ax.text(5000, np.mean(ax.get_ylim()) - 0.082, "5000", fontsize=labelsize)
-
+'''
 ax.text(
     30,
-    np.mean(ax.get_ylim()) - 0.095,
+    np.mean(ax.get_ylim()) - 0.18,
     "Number of $25^\circ$-RXOR Training Samples",
     fontsize=fontsize - 4,
 )
@@ -448,7 +578,7 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.set_title("Ciii.", fontsize=30)
-ax.legend(fontsize=fontsize-5, frameon=False)
+#ax.legend(fontsize=fontsize-5, frameon=False)
 
 plt.savefig("./plots/parity_exp.pdf")
 # %%
