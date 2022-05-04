@@ -530,26 +530,26 @@ ax = fig.add_subplot(gs[15:21, 18:24])
     te100 = pickle.load(f)
 with open("data/mean_sample_te1000.pickle", "rb") as f:
     te1000 = pickle.load(f)'''
-with open("data/mean_sample_te500.pickle", "rb") as f:
-    te500 = pickle.load(f)
+with open("data/mean_sample_te100.pickle", "rb") as f:
+    te = pickle.load(f)
 with open("data/mean_sample_te_nn.pickle", "rb") as f:
-    te500_nn = pickle.load(f)
+    te_nn = 1./pickle.load(f)
 
 
 task2_sample_sweep = (2 ** np.arange(np.log2(60), np.log2(5010) + 1, 0.25)).astype(
     "int"
 )
 
-ax.plot(task2_sample_sweep, te500, c="r", linewidth=3, label='SynF')
-ax.plot(task2_sample_sweep, move_avg(te500_nn,10), c='#377eb8', linewidth=3, label='SynF')
+ax.plot(task2_sample_sweep, te, c="r", linewidth=3, label='SynF')
+ax.plot(task2_sample_sweep, move_avg(te_nn,10), c='#377eb8', linewidth=3, label='SynF')
 
 ax.hlines(1, 60, 5500, colors="gray", linestyles="dashed", linewidth=1.5)
 ax.set_xscale("log")
 #ax.set_xticks([])
-ax.set_yticks([0.8, .9, 1, 1.04])
+ax.set_yticks([0.95, 1, 1.1, 1.25])
 
 log_lbl = np.round(
-    np.log([0.8, .9, 1, 1.04]),
+    np.log([0.95, 1, 1.1, 1.25]),
     2
 )
 labels = [item.get_text() for item in ax.get_yticklabels()]
@@ -567,7 +567,7 @@ ax.text(5000, np.mean(ax.get_ylim()) - 0.082, "5000", fontsize=labelsize)
 '''
 ax.text(
     30,
-    np.mean(ax.get_ylim()) - 0.18,
+    np.mean(ax.get_ylim()) - 0.22,
     "Number of $25^\circ$-RXOR Training Samples",
     fontsize=fontsize - 4,
 )
@@ -581,4 +581,6 @@ ax.set_title("Ciii.", fontsize=30)
 #ax.legend(fontsize=fontsize-5, frameon=False)
 
 plt.savefig("./plots/parity_exp.pdf")
+# %%
+
 # %%
