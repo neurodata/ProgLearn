@@ -88,7 +88,7 @@ def experiment(
 ):
 
     """
-    A function to do Odif experiment between two tasks
+    A function to do SynF experiment between two tasks
     where the task data is generated using Gaussian parity.
 
     Parameters
@@ -243,7 +243,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     ################################
     # Plots of Generalization Error
     ################################
-    algorithms = ["XOR Forest", "XNOR Forest", "Odif ", "RF"]
+    algorithms = ["XOR Forest", "XNOR Forest", "SynF ", "RF"]
 
     fontsize = 30
     labelsize = 28
@@ -291,7 +291,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
 
     ##############
 
-    algorithms = ["XOR Forest", "XNOR Forest", "Odif", "RF"]
+    algorithms = ["XOR Forest", "XNOR Forest", "SynF", "RF"]
 
     ax1 = fig.add_subplot(gs[7:, 7:13])
 
@@ -330,7 +330,7 @@ def plot_error_and_eff(n1s, n2s, mean_error, mean_te, TASK1, TASK2):
     # Plots of Transfer Efficiency
     ################################
 
-    algorithms = ["Odif BTE", "Odif FTE", "RF BTE", "RF FTE"]
+    algorithms = ["SynF BTE", "SynF FTE", "RF BTE", "RF FTE"]
 
     ax1 = fig.add_subplot(gs[7:, 14:])
 
