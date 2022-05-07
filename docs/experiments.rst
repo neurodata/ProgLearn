@@ -17,6 +17,7 @@ The following experiments illustrate specific tests using the ``ProgLearn`` pack
     experiments/spiral_exp
     experiments/spoken_digit_exp
     experiments/xor_rxor_exp
+    experiments/xor_rxor_subset_predictProba_bootstrap_exp
     experiments/xor_rxor_with_cpd
     experiments/xor_rxor_with_icp
     experiments/xor_rxor_with_unaware
