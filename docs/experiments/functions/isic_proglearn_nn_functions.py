@@ -1,6 +1,33 @@
 from tensorflow import keras
 import tensorflow as tf
+import cv2
+import os
+import numpy as np
 
+def get_images(data_path, ids, image_size):
+    images = np.zeros((len(ids), image_size, image_size, 3))
+    masks = np.zeros((len(ids), image_size, image_size, 1))
+
+    for i, id_name in enumerate(ids):
+        image_path = (
+            os.path.join(data_path, "ISIC2018_Task1-2_Training_Input", id_name) + ".jpg"
+        )
+        mask_path = (
+            os.path.join(data_path, "ISIC2018_Task1_Training_GroundTruth", id_name)
+            + "_segmentation.png"
+        )
+        image = cv2.imread(image_path, 1)
+        image = cv2.resize(image, (image_size, image_size))
+        mask = np.zeros((image_size, image_size, 1))
+        _mask = cv2.imread(mask_path, -1)
+        _mask = cv2.resize(_mask, (image_size, image_size))
+        _mask = np.expand_dims(_mask, axis=-1)
+        mask = np.maximum(mask, _mask)
+
+        ## Normalizaing
+        images[i, :, :, :] = image / 255.0
+        masks[i, :, :, :] = np.rint(mask / 255.0)
+    return images, masks
 
 def dice(seg, gt):
     """
