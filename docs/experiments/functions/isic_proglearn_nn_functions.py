@@ -4,6 +4,7 @@ import cv2
 import os
 import numpy as np
 
+
 def get_images(data_path, ids, image_size):
     images = np.zeros((len(ids), image_size, image_size, 3))
     masks = np.zeros((len(ids), image_size, image_size, 1))
@@ -28,6 +29,7 @@ def get_images(data_path, ids, image_size):
         images[i, :, :, :] = image / 255.0
         masks[i, :, :, :] = np.rint(mask / 255.0)
     return images, masks
+
 
 def dice(seg, gt):
     """
