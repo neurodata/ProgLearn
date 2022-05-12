@@ -39,7 +39,11 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         self.classes = classes
 
     def fit(
-        self, X, y, transformer_id_to_transformers, transformer_id_to_voters,
+        self,
+        X,
+        y,
+        transformer_id_to_transformers,
+        transformer_id_to_voters,
     ):
         """
         Function for fitting.
@@ -195,7 +199,11 @@ class BinaryRoundDecider(BaseClassificationDecider):
         self.classes = classes
 
     def fit(
-        self, X, y, transformer_id_to_transformers, transformer_id_to_voters,
+        self,
+        X,
+        y,
+        transformer_id_to_transformers,
+        transformer_id_to_voters,
     ):
         """
         Function for fitting.
