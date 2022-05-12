@@ -100,7 +100,9 @@ class NeuralClassificationTransformer(BaseTransformer):
             The object itself.
         """
         check_X_y(X, y, ensure_2d=False, allow_nd=True)
-        _, y = np.unique(y, return_inverse=True).reshape(y.shape)
+        _, yt = np.unique(y, return_inverse=True)
+
+        y = yt.reshape(y.shape)
 
         self.network.compile(
             loss=self.loss, optimizer=self.optimizer, **self.compile_kwargs
