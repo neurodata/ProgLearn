@@ -209,7 +209,7 @@ ax1.plot(
 ax1.plot(
     ns,
     move_avg(mean_error_nn[4],4),
-    label=algorithms[3],
+    label=algorithms[5],
     c="#b15928",
     ls=ls[np.sum(1 > 1).astype(int)],
     lw=3,
