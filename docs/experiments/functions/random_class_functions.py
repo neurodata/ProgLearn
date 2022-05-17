@@ -179,12 +179,7 @@ def plot_bte(bte, fontsize, ticksize):
     ax.xaxis.set_ticks_position("bottom")
 
     ax.plot(
-        range(len(bte)),
-        bte,
-        c="red",
-        linewidth=3,
-        linestyle="solid",
-        label="synf",
+        range(len(bte)), bte, c="red", linewidth=3, linestyle="solid", label="synf",
     )
     ax.hlines(1, 0, 19, colors="gray", linestyles="dashed", linewidth=1.5)
     ax.set_xlabel("Number of Tasks Seen", fontsize=fontsize)

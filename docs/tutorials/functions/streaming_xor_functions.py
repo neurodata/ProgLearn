@@ -2,115 +2,128 @@ from proglearn.forest import LifelongClassificationForest
 from sdtf import StreamDecisionForest
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
-import numpy as np 
-import seaborn as sns 
+import numpy as np
+import seaborn as sns
 from joblib import Parallel, delayed
 from proglearn.sims import generate_gaussian_parity
 from math import ceil, log2
 
 
 def run_gaussian_experiments(mc_rep):
-    '''
+    """
     A function to run both Gaussian R-XOR and XNOR experiments in streaming and batch settings
-    '''
-    # generate all results 
-    stream_rxor_errors = run_experiment_stream(mc_rep,task2_angle=np.pi/4)
-    stream_xnor_errors = run_experiment_stream(mc_rep, task2_angle=np.pi/2)
-    batch_xnor_error, batch_xnor_le = run_batch_experiment(mc_rep, t2_angle=np.pi/2)
-    batch_rxor_error, batch_rxor_le = run_batch_experiment(mc_rep, t2_angle=np.pi/4)
-    # format for plotting 
-    streaming_rxor_errors, streaming_rxor_efficiencies = get_learning_efficiencies(stream_rxor_errors)
-    streaming_xnor_errors, streaming_xnor_efficiencies = get_learning_efficiencies(stream_xnor_errors)
-    rxor_results = [streaming_rxor_errors, streaming_rxor_efficiencies, batch_rxor_error, batch_rxor_le]
-    xnor_results = [streaming_xnor_errors, streaming_xnor_efficiencies, batch_xnor_error, batch_xnor_le]
+    """
+    # generate all results
+    stream_rxor_errors = run_experiment_stream(mc_rep, task2_angle=np.pi / 4)
+    stream_xnor_errors = run_experiment_stream(mc_rep, task2_angle=np.pi / 2)
+    batch_xnor_error, batch_xnor_le = run_batch_experiment(mc_rep, t2_angle=np.pi / 2)
+    batch_rxor_error, batch_rxor_le = run_batch_experiment(mc_rep, t2_angle=np.pi / 4)
+    # format for plotting
+    streaming_rxor_errors, streaming_rxor_efficiencies = get_learning_efficiencies(
+        stream_rxor_errors
+    )
+    streaming_xnor_errors, streaming_xnor_efficiencies = get_learning_efficiencies(
+        stream_xnor_errors
+    )
+    rxor_results = [
+        streaming_rxor_errors,
+        streaming_rxor_efficiencies,
+        batch_rxor_error,
+        batch_rxor_le,
+    ]
+    xnor_results = [
+        streaming_xnor_errors,
+        streaming_xnor_efficiencies,
+        batch_xnor_error,
+        batch_xnor_le,
+    ]
     return rxor_results, xnor_results
 
 
 def run_experiment_stream(mc_rep, task2_angle):
     mean_errors = experiment_stream(task2_angle=task2_angle)
-    for i in range(mc_rep-1):
-        mean_errors+=experiment_stream(task2_angle=task2_angle)
-    mean_errors = mean_errors/mc_rep
+    for i in range(mc_rep - 1):
+        mean_errors += experiment_stream(task2_angle=task2_angle)
+    mean_errors = mean_errors / mc_rep
     return mean_errors
 
-def get_learning_efficiencies(stream_errors): 
-    '''
+
+def get_learning_efficiencies(stream_errors):
+    """
     Returns
     ----------
     errors: SynF task 1, Synf task 2, SDF task 1, SDF task 2
     learning_efficiencies: SynF FLE, SDF FLE, SynF BLE, SDF BLE 
-    '''
-    stream_synf_FLE = stream_errors[2,:]/stream_errors[6,:]
-    sdf_FLE = stream_errors[5,:]/stream_errors[7,:]
-    stream_synf_BLE = stream_errors[0,:]/stream_errors[1,:]
-    sdf_BLE = stream_errors[3,:]/stream_errors[4,:]
+    """
+    stream_synf_FLE = stream_errors[2, :] / stream_errors[6, :]
+    sdf_FLE = stream_errors[5, :] / stream_errors[7, :]
+    stream_synf_BLE = stream_errors[0, :] / stream_errors[1, :]
+    sdf_BLE = stream_errors[3, :] / stream_errors[4, :]
     errors = [stream_errors[1], stream_errors[6], stream_errors[4], stream_errors[7]]
     learning_efficiencies = [stream_synf_FLE, sdf_FLE, stream_synf_BLE, sdf_BLE]
-    return errors, learning_efficiencies 
+    return errors, learning_efficiencies
+
 
 def experiment_stream(
     n_task1=750,
     n_task2=750,
     n_update=25,
     n_test=1000,
-    task2_angle=np.pi/2,
+    task2_angle=np.pi / 2,
     n_trees=10,
 ):
-    '''
+    """
     A function to do stream SynF and stream decision forest experiment
     between two tasks where the data is generated using Gaussian parity.
-    '''
-    errors = np.zeros((8,((n_task1+n_task2)//n_update)-1), dtype=float)
+    """
+    errors = np.zeros((8, ((n_task1 + n_task2) // n_update) - 1), dtype=float)
 
-    #instantiate classifiers
+    # instantiate classifiers
     synf_single_task_t1 = LifelongClassificationForest(default_n_estimators=n_trees)
     synf_multi_task = LifelongClassificationForest(default_n_estimators=n_trees)
     synf_single_task_t2 = LifelongClassificationForest(default_n_estimators=n_trees)
     sdf_single_task_t1 = StreamDecisionForest(n_estimators=n_trees)
     sdf_multi_task = StreamDecisionForest(n_estimators=n_trees)
     sdf_single_task_t2 = StreamDecisionForest(n_estimators=n_trees)
-    
 
     # generate initial data for add_task
-    x1,y1 = generate_gaussian_parity(n_update)
-    x2,y2 = generate_gaussian_parity(n_update, angle_params=task2_angle)
+    x1, y1 = generate_gaussian_parity(n_update)
+    x2, y2 = generate_gaussian_parity(n_update, angle_params=task2_angle)
     x1_test, y1_test = generate_gaussian_parity(1000)
     x2_test, y2_test = generate_gaussian_parity(1000, angle_params=task2_angle)
 
-
-    # add tasks to progressive learners/decision forests 
-    synf_single_task_t1.add_task(x1,y1,task_id=0, classes=[0,1])
-    synf_multi_task.add_task(x1,y1,task_id=0, classes=[0,1])
-    sdf_single_task_t1.partial_fit(x1,y1,classes=[0,1])
-    sdf_multi_task.partial_fit(x1,y1, classes=[0,1])
+    # add tasks to progressive learners/decision forests
+    synf_single_task_t1.add_task(x1, y1, task_id=0, classes=[0, 1])
+    synf_multi_task.add_task(x1, y1, task_id=0, classes=[0, 1])
+    sdf_single_task_t1.partial_fit(x1, y1, classes=[0, 1])
+    sdf_multi_task.partial_fit(x1, y1, classes=[0, 1])
 
     # updating task 1
-    for i in range(n_task1//n_update - 1):
-        x,y = generate_gaussian_parity(n_update)
-        synf_single_task_t1.update_task(x,y,task_id=0)
-        synf_multi_task.update_task(x,y,task_id=0)
-        sdf_single_task_t1.partial_fit(x,y)
-        sdf_multi_task.partial_fit(x,y)
+    for i in range(n_task1 // n_update - 1):
+        x, y = generate_gaussian_parity(n_update)
+        synf_single_task_t1.update_task(x, y, task_id=0)
+        synf_multi_task.update_task(x, y, task_id=0)
+        sdf_single_task_t1.partial_fit(x, y)
+        sdf_multi_task.partial_fit(x, y)
         synf_t1_y_hat = synf_single_task_t1.predict(x1_test, task_id=0)
         synf_multi_y_hat = synf_multi_task.predict(x1_test, task_id=0)
         sdf_t1_y_hat = sdf_single_task_t1.predict(x1_test)
         sdf_multi_y_hat = sdf_multi_task.predict(x1_test)
-        errors[0,i] = 1-np.mean(synf_t1_y_hat==y1_test) # synf single task, t1
-        errors[1,i] = 1-np.mean(synf_multi_y_hat==y1_test) # synf multi task t1
-        errors[2,i] = 0.5 #synf single task, t2
-        errors[3,i] = 1-np.mean(sdf_t1_y_hat==y1_test) #sdf single task, t1
-        errors[4,i] = 1-np.mean(sdf_multi_y_hat==y1_test)#sdf multi task, t1
-        errors[5,i] = 0.5 #sdf single task, t2
-        errors[6,i] = 0.5 #synf multi task, t2
-        errors[7,i] = 0.5 #sdf multi task, t2
+        errors[0, i] = 1 - np.mean(synf_t1_y_hat == y1_test)  # synf single task, t1
+        errors[1, i] = 1 - np.mean(synf_multi_y_hat == y1_test)  # synf multi task t1
+        errors[2, i] = 0.5  # synf single task, t2
+        errors[3, i] = 1 - np.mean(sdf_t1_y_hat == y1_test)  # sdf single task, t1
+        errors[4, i] = 1 - np.mean(sdf_multi_y_hat == y1_test)  # sdf multi task, t1
+        errors[5, i] = 0.5  # sdf single task, t2
+        errors[6, i] = 0.5  # synf multi task, t2
+        errors[7, i] = 0.5  # sdf multi task, t2
 
-    idx = (n_task1//n_update)-1
+    idx = (n_task1 // n_update) - 1
     # updating task 2
-    synf_multi_task.add_task(x2,y2,task_id=1, classes=[0,1])
-    synf_single_task_t2.add_task(x2,y2,task_id=1, classes=[0,1])
-    sdf_single_task_t2.partial_fit(x2,y2, classes=[0,1])
-    sdf_multi_task.partial_fit(x2,y2,classes=[0,1])
-
+    synf_multi_task.add_task(x2, y2, task_id=1, classes=[0, 1])
+    synf_single_task_t2.add_task(x2, y2, task_id=1, classes=[0, 1])
+    sdf_single_task_t2.partial_fit(x2, y2, classes=[0, 1])
+    sdf_multi_task.partial_fit(x2, y2, classes=[0, 1])
 
     synf_t1_y_hat = synf_single_task_t1.predict(x1_test, task_id=0)
     synf_t2_y_hat = synf_single_task_t2.predict(x2_test, task_id=1)
@@ -121,20 +134,20 @@ def experiment_stream(
     sdf_multi_y_hat_t1 = sdf_multi_task.predict(x1_test)
     sdf_multi_y_hat_t2 = sdf_multi_task.predict(x2_test)
 
-    errors[0,idx] = 1-np.mean(synf_t1_y_hat==y1_test) #synf single task, t1
-    errors[1,idx] = 1-np.mean(synf_multi_y_hat_t1==y1_test) # synf multi task t1
-    errors[2,idx] = 1-np.mean(synf_t2_y_hat==y2_test) #synf single task, t2
-    errors[3,idx] = 1-np.mean(sdf_t1_y_hat==y1_test) #sdf single task, t1
-    errors[4,idx] = 1-np.mean(sdf_multi_y_hat_t1==y1_test)#sdf multi task, t1
-    errors[5,idx] = 1-np.mean(sdf_t2_y_hat==y2_test) #sdf single task, t2
-    errors[6,idx] = 1-np.mean(synf_multi_y_hat_t2==y2_test) #synf multi task, t2
-    errors[7,idx] = 1-np.mean(sdf_multi_y_hat_t2==y2_test) #sdf multi task, t2
-    for i in range(n_task2//n_update - 1):
-        x,y = generate_gaussian_parity(n_update, angle_params=task2_angle)
-        synf_multi_task.update_task(x,y,task_id=1)
-        synf_single_task_t2.update_task(x,y,task_id=1)
-        sdf_single_task_t2.partial_fit(x,y)
-        sdf_multi_task.partial_fit(x,y)
+    errors[0, idx] = 1 - np.mean(synf_t1_y_hat == y1_test)  # synf single task, t1
+    errors[1, idx] = 1 - np.mean(synf_multi_y_hat_t1 == y1_test)  # synf multi task t1
+    errors[2, idx] = 1 - np.mean(synf_t2_y_hat == y2_test)  # synf single task, t2
+    errors[3, idx] = 1 - np.mean(sdf_t1_y_hat == y1_test)  # sdf single task, t1
+    errors[4, idx] = 1 - np.mean(sdf_multi_y_hat_t1 == y1_test)  # sdf multi task, t1
+    errors[5, idx] = 1 - np.mean(sdf_t2_y_hat == y2_test)  # sdf single task, t2
+    errors[6, idx] = 1 - np.mean(synf_multi_y_hat_t2 == y2_test)  # synf multi task, t2
+    errors[7, idx] = 1 - np.mean(sdf_multi_y_hat_t2 == y2_test)  # sdf multi task, t2
+    for i in range(n_task2 // n_update - 1):
+        x, y = generate_gaussian_parity(n_update, angle_params=task2_angle)
+        synf_multi_task.update_task(x, y, task_id=1)
+        synf_single_task_t2.update_task(x, y, task_id=1)
+        sdf_single_task_t2.partial_fit(x, y)
+        sdf_multi_task.partial_fit(x, y)
         synf_t1_y_hat = synf_single_task_t1.predict(x1_test, task_id=0)
         synf_t2_y_hat = synf_single_task_t2.predict(x2_test, task_id=1)
         synf_multi_y_hat_t1 = synf_multi_task.predict(x1_test, task_id=0)
@@ -144,16 +157,33 @@ def experiment_stream(
         sdf_multi_y_hat_t1 = sdf_multi_task.predict(x1_test)
         sdf_multi_y_hat_t2 = sdf_multi_task.predict(x2_test)
 
-        errors[0,i+idx+1] = 1-np.mean(synf_t1_y_hat==y1_test) #synf single task, t1
-        errors[1,i+idx+1] = 1-np.mean(synf_multi_y_hat_t1==y1_test) # synf multi task t1
-        errors[2,i+idx+1] = 1-np.mean(synf_t2_y_hat==y2_test) #synf single task, t2
-        errors[3,i+idx+1] = 1-np.mean(sdf_t1_y_hat==y1_test) #sdf single task, t1
-        errors[4,i+idx+1] = 1-np.mean(sdf_multi_y_hat_t1==y1_test)#sdf multi task, t1
-        errors[5,i+idx+1] = 1-np.mean(sdf_t2_y_hat==y2_test) #sdf single task, t2
-        errors[6,i+idx+1] = 1-np.mean(synf_multi_y_hat_t2==y2_test) #synf multi task, t2
-        errors[7,i+idx+1] = 1-np.mean(sdf_multi_y_hat_t2==y2_test) #sdf multi task, t2
+        errors[0, i + idx + 1] = 1 - np.mean(
+            synf_t1_y_hat == y1_test
+        )  # synf single task, t1
+        errors[1, i + idx + 1] = 1 - np.mean(
+            synf_multi_y_hat_t1 == y1_test
+        )  # synf multi task t1
+        errors[2, i + idx + 1] = 1 - np.mean(
+            synf_t2_y_hat == y2_test
+        )  # synf single task, t2
+        errors[3, i + idx + 1] = 1 - np.mean(
+            sdf_t1_y_hat == y1_test
+        )  # sdf single task, t1
+        errors[4, i + idx + 1] = 1 - np.mean(
+            sdf_multi_y_hat_t1 == y1_test
+        )  # sdf multi task, t1
+        errors[5, i + idx + 1] = 1 - np.mean(
+            sdf_t2_y_hat == y2_test
+        )  # sdf single task, t2
+        errors[6, i + idx + 1] = 1 - np.mean(
+            synf_multi_y_hat_t2 == y2_test
+        )  # synf multi task, t2
+        errors[7, i + idx + 1] = 1 - np.mean(
+            sdf_multi_y_hat_t2 == y2_test
+        )  # sdf multi task, t2
 
     return errors
+
 
 def experiment_batch(
     n_task1=750,
@@ -280,9 +310,7 @@ def experiment_batch(
     return errors
 
 
-def run_batch_experiment(
-    mc_rep, t2_angle
-):
+def run_batch_experiment(mc_rep, t2_angle):
     n_test = 1000
     n_trees = 10
     n_xor = (100 * np.arange(0.25, 7.50, step=0.25)).astype(int)
@@ -295,7 +323,9 @@ def run_batch_experiment(
         # run experiment in parallel
         error = np.array(
             Parallel(n_jobs=1, verbose=0)(
-                delayed(experiment_batch)(n1, 0, task2_angle=t2_angle, max_depth=ceil(log2(n1)))
+                delayed(experiment_batch)(
+                    n1, 0, task2_angle=t2_angle, max_depth=ceil(log2(n1))
+                )
                 for _ in range(mc_rep)
             )
         )
@@ -313,7 +343,9 @@ def run_batch_experiment(
                 # run experiment in parallel
                 error = np.array(
                     Parallel(n_jobs=1, verbose=0)(
-                        delayed(experiment_batch)(n1, n2, task2_angle=t2_angle, max_depth=ceil(log2(750)))
+                        delayed(experiment_batch)(
+                            n1, n2, task2_angle=t2_angle, max_depth=ceil(log2(750))
+                        )
                         for _ in range(mc_rep)
                     )
                 )
@@ -326,6 +358,7 @@ def run_batch_experiment(
                 mean_te[3, i + j + 1] = np.mean(error[:, 2]) / np.mean(error[:, 5])
 
     return mean_error, mean_te
+
 
 def plot_error(results, experiment):
     """Plot Generalization Errors for experiment type (RXOR or XNOR)"""
@@ -597,4 +630,3 @@ def plot_error(results, experiment):
     else:
         ax1.text(200, np.mean(ax1.get_ylim()) + 1.5, "XOR", fontsize=26)
         ax1.text(850, np.mean(ax1.get_ylim()) + 1.5, experiment, fontsize=26)
-

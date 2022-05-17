@@ -150,18 +150,10 @@ TASK2 = "N-XOR"
 ax1 = fig.add_subplot(gs[7:13, 10:16])
 
 ax1.plot(
-    ns[len(n1s) :],
-    mean_error[3, len(n1s) :],
-    label=algorithms[2],
-    c=colors[0],
-    lw=3,
+    ns[len(n1s) :], mean_error[3, len(n1s) :], label=algorithms[2], c=colors[0], lw=3,
 )
 ax1.plot(
-    ns[len(n1s) :],
-    mean_error[5, len(n1s) :],
-    label=algorithms[3],
-    c="g",
-    lw=3,
+    ns[len(n1s) :], mean_error[5, len(n1s) :], label=algorithms[3], c="g", lw=3,
 )
 
 ax1.set_ylabel("Generalization Error (%s)" % (TASK2), fontsize=fontsize)
@@ -241,11 +233,7 @@ ax1 = fig.add_subplot(gs[15:21, 2:8])
 ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
 
 ax1.plot(
-    ns[len(n1s) :],
-    mean_te[1, len(n1s) :],
-    label=algorithms[1],
-    c=colors[0],
-    lw=3,
+    ns[len(n1s) :], mean_te[1, len(n1s) :], label=algorithms[1], c=colors[0], lw=3,
 )
 
 ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)

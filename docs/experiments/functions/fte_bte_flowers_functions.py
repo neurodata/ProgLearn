@@ -166,8 +166,7 @@ def cross_val_data(data_x, data_y, shift, slot, total_cls=100):
         # 30 available training data points per class
         # Chooses all samples other than those in the testing batch
         tmp_x = np.concatenate(
-            (x[indx[0 : (shift * 10)], :], x[indx[((shift + 1) * 10) : 40], :]),
-            axis=0,
+            (x[indx[0 : (shift * 10)], :], x[indx[((shift + 1) * 10) : 40], :]), axis=0,
         )
         tmp_y = np.concatenate(
             (y[indx[0 : (shift * 10)]], y[indx[((shift + 1) * 10) : 40]]), axis=0
