@@ -263,7 +263,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         tree_construction_proportion="default",
         kappa="default",
         max_depth="default",
-        input_classes=None,
+        classes=None,
     ):
         """
         updates a task with id task_id, max tree depth max_depth, given input data matrix X
@@ -310,7 +310,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         return super().update_task(
             X,
             y,
-            input_classes=input_classes,
+            classes=classes,
             task_id=task_id,
             transformer_voter_decider_split=[
                 tree_construction_proportion,
@@ -327,7 +327,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self,
         X,
         y,
-        input_classes=None,
+        classes=None,
         transformer_id=None,
         n_estimators="default",
         max_depth="default",
@@ -342,7 +342,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         return super().update_transformer(
             X,
             y,
-            input_classes=input_classes,
+            classes=classes,
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
             transformer_id=transformer_id,
             num_transformers=n_estimators,
