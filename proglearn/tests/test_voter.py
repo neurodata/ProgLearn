@@ -2,7 +2,7 @@ import numpy as np
 from numpy import testing
 from sklearn.utils.validation import NotFittedError
 
-from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
+from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter, MLKNNClassificationVoter
 
 
 def generate_data(n=100):
@@ -61,3 +61,32 @@ class TestKNNClassificationVoter:
 
         # check if model predicts as expected
         testing.assert_allclose(Y_test, kcv.predict_proba(X_test), atol=1e-4)
+
+    class TestMLKNNClassificationVoter:
+        def test_initialize(self):
+            MLKNNClassificationVoter()
+            assert True
+
+        def test_vote_without_fit(self):
+            # generate random data
+            X = np.random.randn(100, 3)
+            testing.assert_raises(NotFittedError, MLKNNClassificationVoter().predict_proba, X)
+
+        def test_correct_vote(self):
+            # set random seed
+            np.random.seed(0)
+
+            # generate training data and classes
+            X = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+            Y = np.concatenate((np.zeros(100), np.ones(100))).reshape(-1, 1)
+
+            # train model
+            mlkcv = MLKNNClassificationVoter(3)
+            mlkcv.fit(X, Y)
+
+            # generate testing data and class probability
+            X_test = np.ones(6).reshape(-1, 1)
+            Y_test = np.ones(6).reshape(-1, 1)
+
+            # check if model predicts as expected
+            testing.assert_allclose(Y_test, mlkcv.predict_proba(X_test), atol=1e-4)
