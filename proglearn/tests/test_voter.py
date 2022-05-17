@@ -84,18 +84,21 @@ class TestKNNClassificationVoter:
 
             # generate training data and classes
             X = np.concatenate(
-                (np.zeros((100, 10)), 1000 * np.ones((100, 10)))
-            ).reshape(-1, 10)
-            Y = np.concatenate((np.zeros((100, 1)), np.ones((100, 1)))).reshape(-1, 1)
+                (
+                    np.random.normal(0, 0.5, (100, 1)),
+                    1 + np.random.normal(1, 0.5, (100, 1)),
+                )
+            )
+            Y = np.concatenate((np.zeros((100, 1)), np.ones((100, 1))))
 
             # train model
-            mlkcv = MLKNNClassificationVoter(3)
+            mlkcv = MLKNNClassificationVoter(5)
             mlkcv.fit(X, Y)
 
             # generate testing data and class probability
-            X_test = 1000 * np.ones((6, 10)).reshape(-1, 10)
+            X_test = np.ones((6, 1))
 
-            Y_test = np.ones((6, 1)).reshape(-1, 1)
+            Y_test = np.ones((6, 1))
 
             # check if model predicts as expected
             testing.assert_allclose(Y_test, mlkcv.predict(X_test), atol=1e-4)
