@@ -86,7 +86,7 @@ class TestKNNClassificationVoter:
             X = np.concatenate(
                 (
                     np.random.normal(0, 0.5, (100, 1)),
-                    1 + np.random.normal(1, 0.5, (100, 1)),
+                    np.random.normal(5, 0.5, (100, 1)),
                 )
             )
             Y = np.concatenate((np.zeros((100, 1)), np.ones((100, 1))))
@@ -96,9 +96,9 @@ class TestKNNClassificationVoter:
             mlkcv.fit(X, Y)
 
             # generate testing data and class probability
-            X_test = np.ones((6, 1))
+            X_test = 5 * np.ones((6, 1))
 
             Y_test = np.ones((6, 1))
 
             # check if model predicts as expected
-            testing.assert_allclose(Y_test, mlkcv.predict(X_test), atol=1e-4)
+            testing.assert_allclose(Y_test, mlkcv.predict_proba(X_test), atol=1e-4)
