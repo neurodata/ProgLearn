@@ -402,7 +402,7 @@ class MLKNNClassificationVoter(BaseClassificationVoter):
                 new_col = np.zeros(votes_per_example.shape[0])
                 votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
 
-        return votes_per_example
+        return votes_per_example.toarray()
 
     def predict(self, X):
         """
