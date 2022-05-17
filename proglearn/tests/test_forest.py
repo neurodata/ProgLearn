@@ -99,7 +99,7 @@ class TestLifelongClassificationForest:
         u2 = l2f.predict_proba(np.array([0]).reshape(1, -1), task_id=0)
         assert np.array_equiv(u1, u2)
 
-    #def test_update_task(self):
+    # def test_update_task(self):
     #    np.random.seed(1)
 
     #    l2f = LifelongClassificationForest()
