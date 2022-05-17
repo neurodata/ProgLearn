@@ -92,7 +92,7 @@ class TestNeuralClassificationTransformer:
         u1 = trt.transform(np.zeros((100, 8)))
         u2 = trt.transform(np.zeros((100, 8)))
         assert np.array_equiv(u1, u2)
-    
+
     def test_categorical(self):
         np.random.seed(1)
 
