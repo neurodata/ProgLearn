@@ -86,9 +86,7 @@ class TestKNNClassificationVoter:
             X = np.concatenate((np.zeros((100, 10)), np.ones((100, 10)))).reshape(
                 -1, 10
             )
-            Y = np.concatenate((np.zeros((100, 1)), np.ones((100, 1)))).reshape(
-                -1, 1
-            )
+            Y = np.concatenate((np.zeros((100, 1)), np.ones((100, 1)))).reshape(-1, 1)
 
             # train model
             mlkcv = MLKNNClassificationVoter(3)
