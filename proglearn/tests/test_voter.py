@@ -86,8 +86,8 @@ class TestKNNClassificationVoter:
             X = np.concatenate((np.zeros((100, 10)), np.ones((100, 10)))).reshape(
                 -1, 10
             )
-            Y = np.concatenate((np.zeros((100, 10)), np.ones((100, 10)))).reshape(
-                -1, 10
+            Y = np.concatenate((np.zeros((100, 1)), np.ones((100, 1)))).reshape(
+                -1, 1
             )
 
             # train model
@@ -97,7 +97,7 @@ class TestKNNClassificationVoter:
             # generate testing data and class probability
             X_test = np.ones((6, 10)).reshape(-1, 10)
 
-            Y_test = np.ones((6, 10)).reshape(-1, 10)
+            Y_test = np.ones((6, 10)).reshape(-1, 1)
 
             # check if model predicts as expected
             testing.assert_allclose(Y_test, mlkcv.predict_proba(X_test), atol=1e-4)
