@@ -83,9 +83,9 @@ class TestKNNClassificationVoter:
             np.random.seed(0)
 
             # generate training data and classes
-            X = np.concatenate((np.zeros((100, 10)), np.ones((100, 10)))).reshape(
-                -1, 10
-            )
+            X = np.concatenate(
+                (np.zeros((100, 10)), 1000 * np.ones((100, 10)))
+            ).reshape(-1, 10)
             Y = np.concatenate((np.zeros((100, 1)), np.ones((100, 1)))).reshape(-1, 1)
 
             # train model
@@ -93,9 +93,9 @@ class TestKNNClassificationVoter:
             mlkcv.fit(X, Y)
 
             # generate testing data and class probability
-            X_test = np.ones((6, 10)).reshape(-1, 10)
+            X_test = 1000 * np.ones((6, 10)).reshape(-1, 10)
 
-            Y_test = np.ones((6, 10)).reshape(-1, 1)
+            Y_test = np.ones((6, 1)).reshape(-1, 1)
 
             # check if model predicts as expected
-            testing.assert_allclose(Y_test, mlkcv.predict_proba(X_test), atol=1e-4)
+            testing.assert_allclose(Y_test, mlkcv.predict(X_test), atol=1e-4)
