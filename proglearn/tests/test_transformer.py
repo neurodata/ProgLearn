@@ -74,9 +74,7 @@ class TestNeuralClassificationTransformer:
         np.random.seed(1)
 
         trt = NeuralClassificationTransformer(
-            network=_generate_network(),
-            euclidean_layer_idx=-2,
-            optimizer=Adam(3e-4),
+            network=_generate_network(), euclidean_layer_idx=-2, optimizer=Adam(3e-4),
         )
 
         X = np.array([[0, 1, 0, 1, 0, 1, 0, 1]])

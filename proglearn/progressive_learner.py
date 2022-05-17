@@ -272,10 +272,12 @@ class ProgressiveLearner(BaseProgressiveLearner):
             if transformer_data_idx is not None:
                 X2, y2 = X2[transformer_data_idx], y2[transformer_data_idx]
 
-
             transformer.transformer_.partial_fit(X2, y2, classes)
 
-            voter_data_idx = np.delete(transformer_voter_data_idx, np.isin(transformer_voter_data_idx, transformer_data_idx))
+            voter_data_idx = np.delete(
+                transformer_voter_data_idx,
+                np.isin(transformer_voter_data_idx, transformer_data_idx),
+            )
 
             self._update_voter_data_idx(
                 task_id=transformer_id, bag_id=counter, voter_data_idx=voter_data_idx,
@@ -873,8 +875,8 @@ class ProgressiveLearner(BaseProgressiveLearner):
         transformer_voter_data_idx, decider_idx = self._bifurcate_decider_idxs(
             range(len(X)), transformer_voter_decider_split
         )
-        transformer_voter_data_idx+=(len(self.task_id_to_X[task_id])-len(X))
-        decider_idx+=(len(self.task_id_to_X[task_id])-len(X))
+        transformer_voter_data_idx += len(self.task_id_to_X[task_id]) - len(X)
+        decider_idx += len(self.task_id_to_X[task_id]) - len(X)
 
         self._append_decider_idx(task_id, decider_idx)
 

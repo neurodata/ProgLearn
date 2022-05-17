@@ -28,29 +28,29 @@ def generate_gaussian_parity(
     d = len(mean)
 
     if mean[0] == -1 and mean[1] == -1:
-        mean = mean + 1 / 2**k
+        mean = mean + 1 / 2 ** k
 
-    mnt = np.random.multinomial(n, 1 / (4**k) * np.ones(4**k))
+    mnt = np.random.multinomial(n, 1 / (4 ** k) * np.ones(4 ** k))
     cumsum = np.cumsum(mnt)
     cumsum = np.concatenate(([0], cumsum))
 
     Y = np.zeros(n)
     X = np.zeros((n, d))
 
-    for i in range(2**k):
-        for j in range(2**k):
+    for i in range(2 ** k):
+        for j in range(2 ** k):
             temp = np.random.multivariate_normal(
-                mean, cov_scale * np.eye(d), size=mnt[i * (2**k) + j]
+                mean, cov_scale * np.eye(d), size=mnt[i * (2 ** k) + j]
             )
             temp[:, 0] += i * (1 / 2 ** (k - 1))
             temp[:, 1] += j * (1 / 2 ** (k - 1))
 
-            X[cumsum[i * (2**k) + j] : cumsum[i * (2**k) + j + 1]] = temp
+            X[cumsum[i * (2 ** k) + j] : cumsum[i * (2 ** k) + j + 1]] = temp
 
             if i % 2 == j % 2:
-                Y[cumsum[i * (2**k) + j] : cumsum[i * (2**k) + j + 1]] = 0
+                Y[cumsum[i * (2 ** k) + j] : cumsum[i * (2 ** k) + j + 1]] = 0
             else:
-                Y[cumsum[i * (2**k) + j] : cumsum[i * (2**k) + j + 1]] = 1
+                Y[cumsum[i * (2 ** k) + j] : cumsum[i * (2 ** k) + j + 1]] = 1
 
     if d == 2:
         if angle_params is None:
@@ -122,15 +122,7 @@ class TestSystem:
             errors[2, ii] = 1 - np.mean(uf_task2 == test_label_nxor)
             errors[3, ii] = 1 - np.mean(l2f_task2 == test_label_nxor)
 
-        bte = np.mean(errors[0,]) / np.mean(
-            errors[
-                1,
-            ]
-        )
-        fte = np.mean(errors[2,]) / np.mean(
-            errors[
-                3,
-            ]
-        )
+        bte = np.mean(errors[0,]) / np.mean(errors[1,])
+        fte = np.mean(errors[2,]) / np.mean(errors[3,])
 
         assert bte > 1 and fte > 1

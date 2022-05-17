@@ -59,9 +59,7 @@ class TestLifelongClassificationNetwork:
         X = np.tile(X, (100, 1))
 
         with pytest.raises(NotFittedError):
-            l2n = LifelongClassificationNetwork(
-                network=_generate_network(),
-            )
+            l2n = LifelongClassificationNetwork(network=_generate_network(),)
             l2n.predict(X, task_id=0)
 
     def test_predict_proba_without_fit(self):
@@ -69,9 +67,7 @@ class TestLifelongClassificationNetwork:
         X = np.tile(X, (100, 1))
 
         with pytest.raises(NotFittedError):
-            l2n = LifelongClassificationNetwork(
-                network=_generate_network(),
-            )
+            l2n = LifelongClassificationNetwork(network=_generate_network(),)
             l2n.predict_proba(X, task_id=0)
 
     def test_add_task(self):
@@ -79,9 +75,7 @@ class TestLifelongClassificationNetwork:
         X = np.tile(X, (100, 1))
         y = np.tile([0, 1], 50)
 
-        l2n = LifelongClassificationNetwork(
-            network=_generate_network(),
-        )
+        l2n = LifelongClassificationNetwork(network=_generate_network(),)
         l2n.add_task(X, y)
 
     def test_add_transformer(self):
@@ -89,7 +83,5 @@ class TestLifelongClassificationNetwork:
         X = np.tile(X, (100, 1))
         y = np.tile([0, 1], 50)
 
-        l2n = LifelongClassificationNetwork(
-            network=_generate_network(),
-        )
+        l2n = LifelongClassificationNetwork(network=_generate_network(),)
         l2n.add_transformer(X, y)
