@@ -2,7 +2,11 @@ import numpy as np
 from numpy import testing
 from sklearn.utils.validation import NotFittedError
 
-from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter, MLKNNClassificationVoter
+from proglearn.voters import (
+    TreeClassificationVoter,
+    KNNClassificationVoter,
+    MLKNNClassificationVoter,
+)
 
 
 def generate_data(n=100):
@@ -70,7 +74,9 @@ class TestKNNClassificationVoter:
         def test_vote_without_fit(self):
             # generate random data
             X = np.random.randn(100, 3)
-            testing.assert_raises(NotFittedError, MLKNNClassificationVoter().predict_proba, X)
+            testing.assert_raises(
+                NotFittedError, MLKNNClassificationVoter().predict_proba, X
+            )
 
         def test_correct_vote(self):
             # set random seed
