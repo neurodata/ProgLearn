@@ -280,7 +280,9 @@ class ProgressiveLearner(BaseProgressiveLearner):
             )
 
             self._update_voter_data_idx(
-                task_id=transformer_id, bag_id=counter, voter_data_idx=voter_data_idx,
+                task_id=transformer_id,
+                bag_id=counter,
+                voter_data_idx=voter_data_idx,
             )
             counter = counter + 1
 

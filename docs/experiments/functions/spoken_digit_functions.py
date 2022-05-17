@@ -299,7 +299,12 @@ def plot_results(acc, bte, fte, te, model):
     fig, ax = plt.subplots(2, 2, figsize=(16, 11.5))
     ax[0][0].set_yscale("log")
     ax[0][0].plot(
-        np.arange(1, num_tasks + 1), fte, c=clr, marker=".", markersize=14, linewidth=3,
+        np.arange(1, num_tasks + 1),
+        fte,
+        c=clr,
+        marker=".",
+        markersize=14,
+        linewidth=3,
     )
     ax[0][0].hlines(1, 1, num_tasks, colors="grey", linestyles="dashed", linewidth=1.5)
     ax[0][0].tick_params(labelsize=ticksize, labelleft="off")

@@ -202,7 +202,10 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             ],
             num_transformers=n_estimators,
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
-            voter_kwargs={"classes": np.unique(y), "kappa": kappa,},
+            voter_kwargs={
+                "classes": np.unique(y),
+                "kappa": kappa,
+            },
             decider_kwargs={"classes": np.unique(y)},
             classes=classes,
         )
@@ -319,7 +322,10 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             ],
             num_transformers=n_estimators,
             transformer_kwargs={"kwargs": {"max_depth": max_depth}},
-            voter_kwargs={"classes": np.unique(y), "kappa": kappa,},
+            voter_kwargs={
+                "classes": np.unique(y),
+                "kappa": kappa,
+            },
             decider_kwargs={"classes": np.unique(y)},
         )
 

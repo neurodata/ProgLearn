@@ -2,7 +2,10 @@ import numpy as np
 
 
 def generate_spirals(
-    n_samples, n_class=2, noise=0.3, random_state=None,
+    n_samples,
+    n_class=2,
+    noise=0.3,
+    random_state=None,
 ):
     """
     Generate 2-dimensional Gaussian XOR distribution.

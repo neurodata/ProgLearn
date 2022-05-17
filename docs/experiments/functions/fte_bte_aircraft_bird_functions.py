@@ -39,7 +39,11 @@ def load_tasks(
     # load aircraft data to tasks
     for i in range(n_task_aircraft):
         X = np.empty([0, 32, 32, 3])
-        Y = np.empty([0,])
+        Y = np.empty(
+            [
+                0,
+            ]
+        )
         for j in range(n_label_per_task):
             new_x = aircraft_x_all[aircraft_y_all == n_label_per_task * i + j + 1][
                 :n_sample_label
@@ -58,7 +62,11 @@ def load_tasks(
     # load birdsnap data to tasks
     for i in range(n_task_birdsnap):
         X = np.empty([0, 32, 32, 3])
-        Y = np.empty([0,])
+        Y = np.empty(
+            [
+                0,
+            ]
+        )
         for j in range(n_label_per_task):
             new_x = birdsnap_x_all[birdsnap_y_all == n_label_per_task * i + j + 1][
                 :n_sample_label

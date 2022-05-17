@@ -107,7 +107,9 @@ class ConvRFClassifier(BaseEstimator):
         out_labels = None
         if labels is not None:
             out_labels = np.zeros((batch_size, out_dim, out_dim))
-            out_labels[:,] = labels.reshape(-1, 1, 1)
+            out_labels[
+                :,
+            ] = labels.reshape(-1, 1, 1)
 
         return out_images, out_labels, out_dim
 

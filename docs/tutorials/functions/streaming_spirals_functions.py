@@ -72,7 +72,11 @@ def get_learning_efficiencies(stream_errors):
 
 
 def experiment_stream(
-    n_task1=750, n_task2=750, n_update=25, n_test=1000, n_trees=10,
+    n_task1=750,
+    n_task2=750,
+    n_update=25,
+    n_test=1000,
+    n_trees=10,
 ):
     """
     A function to do stream SynF and stream decision forest experiment

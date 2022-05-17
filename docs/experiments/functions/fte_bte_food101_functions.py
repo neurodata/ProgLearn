@@ -100,7 +100,15 @@ def cross_val_data(data_x, data_y, shift, slot, total_cls=100):
 
 
 def fte_bte_experiment(
-    train_x, train_y, test_x, test_y, ntrees, shift, slot, which_task, acorn=None,
+    train_x,
+    train_y,
+    test_x,
+    test_y,
+    ntrees,
+    shift,
+    slot,
+    which_task,
+    acorn=None,
 ):
 
     # We initialize lists to store the results

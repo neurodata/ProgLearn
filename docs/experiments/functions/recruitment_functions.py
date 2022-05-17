@@ -238,7 +238,9 @@ def experiment(
                     cur_y,
                     num_transformers=ntrees,
                     # transformer_kwargs={"kwargs":{"max_depth": ceil(log2(num_points_per_forest))}},
-                    voter_kwargs={"classes": np.unique(cur_y),},
+                    voter_kwargs={
+                        "classes": np.unique(cur_y),
+                    },
                     decider_kwargs={"classes": np.unique(cur_y)},
                 )
 
@@ -254,7 +256,9 @@ def experiment(
                 cur_y,
                 num_transformers=ntrees,
                 # transformer_kwargs={"kwargs":{"max_depth": ceil(log2(estimation_sample_no))}},
-                voter_kwargs={"classes": np.unique(cur_y),},
+                voter_kwargs={
+                    "classes": np.unique(cur_y),
+                },
                 decider_kwargs={"classes": np.unique(cur_y)},
             )
 

@@ -53,7 +53,7 @@ def get_learning_efficiencies(stream_errors):
     Returns
     ----------
     errors: SynF task 1, Synf task 2, SDF task 1, SDF task 2
-    learning_efficiencies: SynF FLE, SDF FLE, SynF BLE, SDF BLE 
+    learning_efficiencies: SynF FLE, SDF FLE, SynF BLE, SDF BLE
     """
     stream_synf_FLE = stream_errors[2, :] / stream_errors[6, :]
     sdf_FLE = stream_errors[5, :] / stream_errors[7, :]
