@@ -111,7 +111,7 @@ class NeuralClassificationTransformer(BaseTransformer):
         if self.categorical:
             self.network.fit(X, keras.utils.to_categorical(y), **self.fit_kwargs)
 
-        else:
+        else: # pragma: no cover
             self.network.fit(X, y, **self.fit_kwargs)
 
         self.fitted_ = True

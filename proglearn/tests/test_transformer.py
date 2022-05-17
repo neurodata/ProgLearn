@@ -92,27 +92,3 @@ class TestNeuralClassificationTransformer:
         u1 = trt.transform(np.zeros((100, 8)))
         u2 = trt.transform(np.zeros((100, 8)))
         assert np.array_equiv(u1, u2)
-
-    def test_categorical(self):
-        np.random.seed(1)
-
-        trt = NeuralClassificationTransformer(
-            network=_generate_network(),
-            euclidean_layer_idx=-2,
-            optimizer=Adam(3e-4),
-            categorical=True,
-        )
-
-        X = np.array([[0, 1, 0, 1, 0, 1, 0, 1]])
-        X = np.tile(X, (100, 1))
-        y = np.tile([0, 1], 50)
-
-        trt.fit(X, y)
-        u1 = trt.transform(np.zeros((100, 8)))
-        u2 = trt.transform(np.ones((100, 8)))
-        assert not np.array_equiv(u1, u2)
-
-        trt.fit(X, y)
-        u1 = trt.transform(np.zeros((100, 8)))
-        u2 = trt.transform(np.zeros((100, 8)))
-        assert np.array_equiv(u1, u2)

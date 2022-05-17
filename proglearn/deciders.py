@@ -173,7 +173,7 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         return self.classes[np.argmax(vote_overall, axis=1)]
 
 
-class BinaryRoundDecider(SimpleArgmaxAverage):
+class BinaryRoundDecider(SimpleArgmaxAverage): # pragma: no cover
     """
     A class for a decider that rounds probabilities for multiple dimensions in binary classification. To be used with MLKNN voter.
 
