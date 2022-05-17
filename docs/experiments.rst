@@ -22,3 +22,4 @@ The following experiments illustrate specific tests using the ``ProgLearn`` pack
     experiments/xor_rxor_with_unaware
     experiments/xor_xnor_exp
     experiments/double_descent_RF
+    experiments/streaming_forest_tutorial
