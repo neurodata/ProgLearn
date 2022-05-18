@@ -68,7 +68,9 @@ class TreeClassificationVoter(BaseClassificationVoter):
         num_fit_classes = len(np.unique(y))
         self.missing_label_indices_ = []
 
-        if self.classes.size != 0 and num_fit_classes < len(self.classes):
+        if self.classes.size != 0 and num_fit_classes < len(
+            self.classes
+        ):  # pragma: no cover
             for idx, label in enumerate(self.classes):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(idx)
@@ -119,14 +121,14 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
         votes_per_example = np.array(votes_per_example)
 
-        if len(self.missing_label_indices_) > 0:
+        if len(self.missing_label_indices_) > 0:  # pragma: no cover
             for i in self.missing_label_indices_:
                 new_col = np.zeros(votes_per_example.shape[0])
                 votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
 
         return votes_per_example
 
-    def predict(self, X):
+    def predict(self, X):  # pragma: no cover
         """
         Returns the predicted class labels for data X.
 
@@ -236,7 +238,9 @@ class KNNClassificationVoter(BaseClassificationVoter):
         num_classes = len(np.unique(y))
         self.missing_label_indices_ = []
 
-        if self.classes.size != 0 and num_classes < len(self.classes):
+        if self.classes.size != 0 and num_classes < len(
+            self.classes
+        ):  # pragma: no cover
             for idx, label in enumerate(self.classes):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(idx)
@@ -266,14 +270,14 @@ class KNNClassificationVoter(BaseClassificationVoter):
         X = check_array(X)
         votes_per_example = self.knn_.predict_proba(X)
 
-        if len(self.missing_label_indices_) > 0:
+        if len(self.missing_label_indices_) > 0:  # pragma: no cover
             for i in self.missing_label_indices_:
                 new_col = np.zeros(votes_per_example.shape[0])
                 votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
 
         return votes_per_example
 
-    def predict(self, X):
+    def predict(self, X):  # pragma: no cover
         """
         Returns the predicted class labels for data X.
 
