@@ -34,6 +34,9 @@ class NeuralClassificationTransformer(BaseTransformer):
     compile_kwargs : dict, default={"metrics": ["acc"]}
         A dictionary containing metrics for judging network performance.
 
+    categorical: bool, default=True
+        A boolean used to perform one-hot encoding on labels
+
     fit_kwargs : dict, default={
                 "epochs": 100,
                 "callbacks": [keras.callbacks.EarlyStopping(patience=5, monitor="val_acc")],
@@ -60,6 +63,7 @@ class NeuralClassificationTransformer(BaseTransformer):
         loss="categorical_crossentropy",
         pretrained=False,
         compile_kwargs={"metrics": ["acc"]},
+        categorical=True,
         fit_kwargs={
             "epochs": 100,
             "callbacks": [keras.callbacks.EarlyStopping(patience=5, monitor="val_acc")],
@@ -77,6 +81,7 @@ class NeuralClassificationTransformer(BaseTransformer):
         self.loss = loss
         self.compile_kwargs = compile_kwargs
         self.fit_kwargs = fit_kwargs
+        self.categorical = categorical
 
     def fit(self, X, y):
         """
@@ -95,13 +100,20 @@ class NeuralClassificationTransformer(BaseTransformer):
             The object itself.
         """
         check_X_y(X, y, ensure_2d=False, allow_nd=True)
-        _, y = np.unique(y, return_inverse=True)
+        _, yt = np.unique(y, return_inverse=True)
+
+        y = yt.reshape(y.shape)
 
         self.network.compile(
             loss=self.loss, optimizer=self.optimizer, **self.compile_kwargs
         )
 
-        self.network.fit(X, keras.utils.to_categorical(y), **self.fit_kwargs)
+        if self.categorical:
+            self.network.fit(X, keras.utils.to_categorical(y), **self.fit_kwargs)
+
+        else:  # pragma: no cover
+            self.network.fit(X, y, **self.fit_kwargs)
+
         self.fitted_ = True
 
         return self
