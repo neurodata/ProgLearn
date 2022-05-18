@@ -171,3 +171,55 @@ class SimpleArgmaxAverage(BaseClassificationDecider):
         """
         vote_overall = self.predict_proba(X, transformer_ids=transformer_ids)
         return self.classes[np.argmax(vote_overall, axis=1)]
+
+
+class BinaryRoundDecider(SimpleArgmaxAverage):  # pragma: no cover
+    """
+    A class for a decider that rounds probabilities for multiple dimensions in binary classification. To be used with MLKNN voter.
+
+    Parameters
+    ----------
+    classes : list, default=[]
+        List of final output classification labels of type obj.
+
+    Attributes
+    ----------
+    transformer_id_to_transformers_ : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type obj corresponding to a transformer. This dictionary
+        maps transformers to a particular transformer id.
+
+    transformer_id_to_voters_ : dict
+        A dictionary with keys of type obj corresponding to transformer ids
+        and values of type obj corresponding to a voter class. This dictionary
+        maps voter classes to a particular transformer id.
+    """
+
+    def predict(self, X, transformer_ids=None):
+        """
+        Predicts the most likely class per input example.
+
+        Uses the predict_proba method to get the mean vote per id.
+        Returns the class with the highest vote.
+
+        Parameters
+        ----------
+        X : ndarray
+            Input data matrix.
+
+        transformer_ids : list, default=None
+            A list with all transformer ids. Defaults to None if no transformer ids
+            are given.
+
+        Returns
+        -------
+        y_hat : ndarray of shape [n_samples]
+            predicted class label per example
+
+        Raises
+        ------
+        NotFittedError
+            When the model is not fitted.
+        """
+        vote_overall = self.predict_proba(X, transformer_ids=transformer_ids)
+        return np.around(vote_overall)
