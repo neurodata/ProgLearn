@@ -16,6 +16,7 @@ The following experiments illustrate specific tests using the ``ProgLearn`` pack
     experiments/recruitment_across_datasets
     experiments/spiral_exp
     experiments/spoken_digit_exp
+    experiments/streaming_forest_tutorial
     experiments/xor_rxor_exp
     experiments/xor_rxor_with_cpd
     experiments/xor_rxor_with_icp
