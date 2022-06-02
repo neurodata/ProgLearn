@@ -166,7 +166,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self,
         X,
         y,
-        multidimensional,
+        multidimensional=False,
         task_id=None,
         n_estimators="default",
         tree_construction_proportion="default",
@@ -188,7 +188,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         y : ndarray
             The output (response) data matrix.
 
-        multidimensional : bool
+        multidimensional : bool, default=False
                         True if X is multidimensional, such as a 2D image for scene segmentation
 
         task_id : obj, default=None
