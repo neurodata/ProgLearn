@@ -2,10 +2,10 @@
 Main Author: Will LeVine
 Corresponding Email: levinewill@icloud.com
 """
-from .progressive_learner import ClassificationProgressiveLearner
-from .transformers import TreeClassificationTransformer
-from .voters import TreeClassificationVoter
-from .deciders import SimpleArgmaxAverage
+from proglearn.progressive_learner import ClassificationProgressiveLearner
+from proglearn.transformers import TreeClassificationTransformer
+from proglearn.voters import TreeClassificationVoter
+from proglearn.deciders import SimpleArgmaxAverage
 
 import numpy as np
 
@@ -166,6 +166,7 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
         self,
         X,
         y,
+        multidimensional=False,
         task_id=None,
         n_estimators="default",
         tree_construction_proportion="default",
@@ -186,6 +187,9 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
 
         y : ndarray
             The output (response) data matrix.
+
+        multidimensional : bool, default=False
+                        True if X is multidimensional, such as a 2D image for scene segmentation
 
         task_id : obj, default=None
             The id corresponding to the task being added.
@@ -219,6 +223,10 @@ class LifelongClassificationForest(ClassificationProgressiveLearner):
             kappa = self.default_kappa
         if max_depth == "default":
             max_depth = self.default_max_depth
+        if multidimensional:
+            mask = y > -1
+            X = X[mask]
+            y = y[mask].ravel()
 
         X, y = check_X_y(X, y)
         return super().add_task(

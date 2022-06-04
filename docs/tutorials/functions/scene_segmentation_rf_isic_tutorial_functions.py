@@ -1,7 +1,7 @@
 ###########################################################
 # Contributor: Amy van Ee
 # Functions to run scene_segmentation_rf_isic_tutorial
-# March 2022
+# 2022
 ###########################################################
 
 
@@ -41,7 +41,7 @@ def get_dice(true, test):
 #   N/A
 
 
-def perform_scene_seg(img, lbl, clf):
+def perform_sceneseg(img, lbl, clf):
 
     # set up parameters for training
     sigma_min = 1
@@ -93,3 +93,24 @@ def perform_scene_seg(img, lbl, clf):
     fig.tight_layout()
 
     plt.show()
+
+
+# ========================================================#
+# FUNCTION III
+
+# performs scene segmentation on multidimensional input
+# Input(s):
+#   classifier - trained classifier
+#   features - ndarray of features, first dimension is number of features, others
+#              are compatible with shape of image to segment
+# Output(s):
+#   output - ndarray of predictions
+
+
+def predict_sceneseg(classifier, features, task_id):
+    sh = features.shape
+    if features.ndim > 2:
+        features = features.reshape((-1, sh[-1]))
+    predicted_labels = classifier.predict(features, task_id)
+    output = predicted_labels.reshape(sh[:-1])
+    return output
