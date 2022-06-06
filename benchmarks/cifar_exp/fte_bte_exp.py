@@ -1,11 +1,14 @@
 #%%
 import random
-import matplotlib.pyplot as plt
 import tensorflow as tf
-import keras
-from keras import layers
+from tensorflow import keras
+from tensorflow.keras import layers
 from itertools import product
 import pandas as pd
+
+from losses import (
+    SupervisedContrastiveLoss,
+)  # adapted version of SupConLoss for ftebte setting, uses cosine similarity matrix
 
 import numpy as np
 import pickle
@@ -16,6 +19,8 @@ from math import log2, ceil
 from joblib import Parallel, delayed
 from multiprocessing import Pool
 
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
 from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.transformers import (
@@ -24,15 +29,33 @@ from proglearn.transformers import (
 )
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
-import tensorflow as tf
-
 import time
+import sys
 
 #%%
 def unpickle(file):
     with open(file, "rb") as fo:
         dict = pickle.load(fo, encoding="bytes")
     return dict
+
+
+def get_size(obj, seen=None):
+    """Recursively finds size of objects"""
+    size = sys.getsizeof(obj)
+    if seen is None:
+        seen = set()
+    obj_id = id(obj)
+    if obj_id in seen:
+        return 0
+    # Important mark as seen *before* entering recursion to gracefully handle
+    # self-referential objects
+    seen.add(obj_id)
+    if isinstance(obj, dict):
+        size += sum([get_size(v, seen) for v in obj.values()])
+        size += sum([get_size(k, seen) for k in obj.keys()])
+    elif hasattr(obj, "__dict__"):
+        size += get_size(obj.__dict__, seen)
+    return size
 
 
 #%%
@@ -58,6 +81,8 @@ def LF_experiment(
     train_times_across_tasks = []
     single_task_inference_times_across_tasks = []
     multitask_inference_times_across_tasks = []
+    time_info = []
+    mem_info = []
 
     if model == "dnn":
         default_transformer_class = NeuralClassificationTransformer
@@ -123,10 +148,16 @@ def LF_experiment(
         default_transformer_kwargs = {
             "network": network,
             "euclidean_layer_idx": -2,
-            "num_classes": 10,
-            "optimizer": keras.optimizers.Adam(3e-4),
+            "loss": SupervisedContrastiveLoss,
+            "optimizer": Adam(3e-4),
+            "fit_kwargs": {
+                "epochs": 100,
+                "callbacks": [EarlyStopping(patience=5, monitor="val_loss")],
+                "verbose": False,
+                "validation_split": 0.33,
+                "batch_size": 32,
+            },
         }
-
         default_voter_class = KNNClassificationVoter
         default_voter_kwargs = {"k": int(np.log2(num_points_per_task))}
 
@@ -152,10 +183,12 @@ def LF_experiment(
 
     for task_ii in range(10):
         print("Starting Task {} For Fold {}".format(task_ii, shift))
+
+        train_start_time = time.time()
+
         if acorn is not None:
             np.random.seed(acorn)
 
-        train_start_time = time.time()
         progressive_learner.add_task(
             X=train_x[
                 task_ii * 5000
@@ -168,7 +201,7 @@ def LF_experiment(
                 + (slot + 1) * num_points_per_task
             ],
             num_transformers=1 if model == "dnn" else ntrees,
-            transformer_voter_decider_split=[0.67, 0.33, 0],
+            transformer_voter_decider_split=[0.63, 0.37, 0],
             decider_kwargs={
                 "classes": np.unique(
                     train_y[
@@ -181,17 +214,54 @@ def LF_experiment(
         )
         train_end_time = time.time()
 
+        single_learner = ProgressiveLearner(
+            default_transformer_class=default_transformer_class,
+            default_transformer_kwargs=default_transformer_kwargs,
+            default_voter_class=default_voter_class,
+            default_voter_kwargs=default_voter_kwargs,
+            default_decider_class=default_decider_class,
+        )
+
+        if acorn is not None:
+            np.random.seed(acorn)
+
+        single_learner.add_task(
+            X=train_x[
+                task_ii * 5000
+                + slot * num_points_per_task : task_ii * 5000
+                + (slot + 1) * num_points_per_task
+            ],
+            y=train_y[
+                task_ii * 5000
+                + slot * num_points_per_task : task_ii * 5000
+                + (slot + 1) * num_points_per_task
+            ],
+            num_transformers=1 if model == "dnn" else (task_ii + 1) * ntrees,
+            transformer_voter_decider_split=[0.67, 0.33, 0],
+            decider_kwargs={
+                "classes": np.unique(
+                    train_y[
+                        task_ii * 5000
+                        + slot * num_points_per_task : task_ii * 5000
+                        + (slot + 1) * num_points_per_task
+                    ]
+                )
+            },
+        )
+
+        time_info.append(train_end_time - train_start_time)
+        mem_info.append(get_size(progressive_learner))
         train_times_across_tasks.append(train_end_time - train_start_time)
 
         single_task_inference_start_time = time.time()
-        llf_task = progressive_learner.predict(
+        single_task = single_learner.predict(
             X=test_x[task_ii * 1000 : (task_ii + 1) * 1000, :],
-            transformer_ids=[task_ii],
-            task_id=task_ii,
+            transformer_ids=[0],
+            task_id=0,
         )
         single_task_inference_end_time = time.time()
         single_task_accuracies[task_ii] = np.mean(
-            llf_task == test_y[task_ii * 1000 : (task_ii + 1) * 1000]
+            single_task == test_y[task_ii * 1000 : (task_ii + 1) * 1000]
         )
         single_task_inference_times_across_tasks.append(
             single_task_inference_end_time - single_task_inference_start_time
@@ -236,8 +306,7 @@ def LF_experiment(
         + str(ntrees)
         + "_"
         + str(shift)
-        + "_"
-        + str(slot)
+        + "_SupervisedContrastiveLoss"
         + ".pickle"
     )
     with open(file_to_save, "wb") as f:
@@ -350,9 +419,9 @@ def run_parallel_exp(
     )
 
     if model == "dnn":
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
-        sess = tf.Session(config=config)
+        sess = tf.compat.v1.Session(config=config)
         with tf.device("/gpu:" + str(shift % 4)):
             LF_experiment(
                 train_x,
@@ -383,8 +452,8 @@ def run_parallel_exp(
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
-num_points_per_task = 500
+model = "dnn"
+num_points_per_task = 500  # change from 5000 to 500
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
@@ -399,7 +468,7 @@ data_y = data_y[:, 0]
 
 #%%
 if model == "uf":
-    slot_fold = range(10)
+    slot_fold = range(1)
     shift_fold = range(1, 7, 1)
     n_trees = [10]
     iterable = product(n_trees, shift_fold, slot_fold)
@@ -410,24 +479,15 @@ if model == "uf":
         for ntree, shift, slot in iterable
     )
 elif model == "dnn":
-    slot_fold = range(10)
+    slot_fold = range(10)  # edit this default 10 is correct?
 
-    def perform_shift(shift_slot_tuple):
-        shift, slot = shift_slot_tuple
-        return run_parallel_exp(
-            data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift
+    # sequential
+    slot_fold = range(1)
+    shift_fold = [1, 2, 3, 4, 5, 6]
+    n_trees = [0]
+    iterable = product(n_trees, shift_fold, slot_fold)
+
+    for ntree, shift, slot in iterable:
+        run_parallel_exp(
+            data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
         )
-
-    print("Performing Stage 1 Shifts")
-    stage_1_shifts = range(1, 5)
-    stage_1_iterable = product(stage_1_shifts, slot_fold)
-    with Pool(4) as p:
-        p.map(perform_shift, stage_1_iterable)
-
-    print("Performing Stage 2 Shifts")
-    stage_2_shifts = range(5, 7)
-    stage_2_iterable = product(stage_2_shifts, slot_fold)
-    with Pool(4) as p:
-        p.map(perform_shift, stage_2_iterable)
-
-# %%
