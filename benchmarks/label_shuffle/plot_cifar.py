@@ -78,9 +78,9 @@ def get_error_matrix2(filename):
     return err
 
 #%%
-alg_name = ['SynN','SynF','Prog_NN', 'DF_CNN','LwF','EWC','O-EWC','SI', 'Total Replay', 'Partial Replay', 'None']
-model_file = ['dnn0','uf10','Prog_NN','DF_CNN', 'LwF', 'EWC', 'OEWC', 'SI', 'offline', 'exact', 'None']
-total_alg = 11
+alg_name = ['Odin','Odif','Prog_NN', 'DF_CNN','LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
+model_file = ['dnn0','uf10','Prog_NN','DF_CNN', 'LwF', 'EWC', 'OEWC', 'SI', 'er', 'agem', 'tag', 'offline', 'exact', 'None']
+total_alg = 14
 slots = 10
 shifts = 6
 
@@ -101,7 +101,7 @@ for alg in range(total_alg):
 
 
         if alg!=2:
-            if alg == 3:
+            if alg == 3 or alg==8 or alg==9 or alg==10:
                 err_ += np.ravel(np.array(get_error_matrix2(filename)))
             else:
                 err_ += np.ravel(np.array(get_error_matrix(filename)))
@@ -121,9 +121,9 @@ ticksize=22
 fig = plt.figure(constrained_layout=True,figsize=(10,8))
 gs = fig.add_gridspec(8, 10)
 
-clr = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928"]
+clr = ["#377eb8", "#e41a1c", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928"]
 c = sns.color_palette(clr, n_colors=len(clr))
-marker_style = ['.', '.', '.', '.', '.', '+', 'o', '*', '.', '+', 'o']
+marker_style = ['.', '.', '.', '.', '.', '.', '.', '+', 'o', '*', '.', '+', 'x', 'v']
 
 ax = fig.add_subplot(gs[:7,:7])
 
