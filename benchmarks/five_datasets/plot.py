@@ -198,8 +198,8 @@ df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 fig = plt.figure(constrained_layout=True,figsize=(28,17))
 gs = fig.add_gridspec(17, 28)
 
-marker_style = ['.', '.', '.', '+', 'o', '*', '.', '+', 'x', '.', '+', 'o']
-marker_style_scatter = ['.', '.', '.', '+', 'o', '*', '.', '+', 'x', '.', '+', 'o']
+marker_style = ['.', '.', '.', '+', 'o', '*', 'o', '+', 'x', '.', '+', 'v']
+marker_style_scatter = ['.', '.', '.', '+', 'o', '*', 'o', '+', 'x', '.', '+', 'v']
 
 clr_combined = ["#377eb8", "#e41a1c", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928"]
 c_combined = sns.color_palette(clr_combined, n_colors=total_alg)
