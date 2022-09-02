@@ -319,7 +319,7 @@ ax_ = sns.boxplot(
     x="Algorithms", y="Transfer Efficieny", data=df, palette=c_combined, whis=np.inf,
     ax=ax, showfliers=False, notch=1
     )
-ax.hlines(0, -1,7, colors='grey', linestyles='dashed',linewidth=1.5)
+ax.hlines(0, -1,12, colors='grey', linestyles='dashed',linewidth=1.5)
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
 #ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
