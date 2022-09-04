@@ -112,7 +112,7 @@ def experiment(train_x, train_y, test_x, test_y, model='synf', ntrees=10):
             },
         }
         default_voter_class = KNNClassificationVoter
-        default_voter_kwargs = {"k": int(np.log2(50000))}
+        default_voter_kwargs = {"k": int(np.log2(2500))}
         default_decider_class = SimpleArgmaxAverage
 
     elif model == "synf":
