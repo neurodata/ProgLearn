@@ -16,39 +16,40 @@ def unpickle(file):
     return dict
 
 def calc_avg_acc(err, reps):
-    avg_acc = np.zeros(5, dtype=float)
-    avg_var = np.zeros(5, dtype=float)
-    for i in range(5):
+    avg_acc = np.zeros(20, dtype=float)
+    avg_var = np.zeros(20, dtype=float)
+    for i in range(20):
         avg_acc[i] = (1*(i+1) - np.sum(err[i])/reps + (4-i)*.1)/10
         avg_var[i] = np.var(1-np.array(err[i])/reps)
     return avg_acc, avg_var
 
 def calc_avg_single_acc(err, reps):
-    avg_acc = np.zeros(5, dtype=float)
-    avg_var = np.zeros(5, dtype=float)
-    for i in range(5):
+    avg_acc = np.zeros(20, dtype=float)
+    avg_var = np.zeros(20, dtype=float)
+    for i in range(20):
         avg_acc[i] = (1*(i+1) - np.sum(err[:i+1])/reps + (4-i)*.1)/10
         avg_var[i] = np.var(1-np.array(err[:i+1])/reps)
     return avg_acc, avg_var
     
 def get_fte_bte(err, single_err):
-    bte = [[] for i in range(5)]
-    te = [[] for i in range(5)]
+    bte = [[] for i in range(20)]
+    te = [[] for i in range(20)]
     fte = []
     
-    for i in range(5):
-        for j in range(i,5):
+    for i in range(20):
+        for j in range(i,20):
             #print(err[j][i],j,i)
+            #print(len(bte), bte[i])
             bte[i].append(err[i][i]/err[j][i])
             te[i].append(single_err[i]/err[j][i])
                 
-    for i in range(5):
+    for i in range(20):
         fte.append(single_err[i]/err[i][i])
             
             
     return fte,bte,te
 
-def calc_mean_bte(btes,task_num=6,reps=10):
+def calc_mean_bte(btes,task_num=20,reps=10):
     mean_bte = [[] for i in range(task_num)]
 
 
@@ -62,7 +63,7 @@ def calc_mean_bte(btes,task_num=6,reps=10):
             
     return mean_bte     
 
-def calc_mean_te(tes,task_num=6,reps=10):
+def calc_mean_te(tes,task_num=20,reps=10):
     mean_te = [[] for i in range(task_num)]
 
     for j in range(task_num):
@@ -75,7 +76,7 @@ def calc_mean_te(tes,task_num=6,reps=10):
                                              
     return mean_te 
 
-def calc_mean_fte(ftes,task_num=5,reps=1):
+def calc_mean_fte(ftes,task_num=20,reps=1):
     fte = np.asarray(ftes)
     
     return list(np.mean(np.asarray(fte),axis=0))
@@ -83,9 +84,9 @@ def calc_mean_fte(ftes,task_num=5,reps=1):
 def get_error_matrix(filename):
     multitask_df, single_task_df = unpickle(filename)
 
-    err = [[] for _ in range(5)]
+    err = [[] for _ in range(20)]
 
-    for ii in range(5):
+    for ii in range(20):
         err[ii].extend(
             1 - np.array(
                 multitask_df[multitask_df['base_task']==ii+1]['accuracy']
@@ -96,9 +97,9 @@ def get_error_matrix(filename):
     return single_err, err
 
 def sum_error_matrix(error_mat1, error_mat2):
-    err = [[] for _ in range(6)]
+    err = [[] for _ in range(20)]
 
-    for ii in range(6):
+    for ii in range(20):
         err[ii].extend(
             list(
                 np.asarray(error_mat1[ii]) +
@@ -128,7 +129,7 @@ def stratified_scatter(te_dict,axis_handle,s,color,style):
 
 #%%
 ### MAIN HYPERPARAMS ###
-task_num = 5
+task_num = 20
 total_alg = 13
 combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
 btes = [[] for i in range(total_alg)]
@@ -178,17 +179,17 @@ for alg in range(total_alg):
     avg_single_var[alg] = avg_single_var_
 
 #%%
-te = {'SynN':np.zeros(5,dtype=float), 'SynF':np.zeros(5,dtype=float), 'model_zoo':np.zeros(5,dtype=float), 
-    'LwF':np.zeros(5,dtype=float), 'EWC':np.zeros(5,dtype=float), 
-    'O-EWC':np.zeros(5,dtype=float), 'SI':np.zeros(5,dtype=float),
-    'ER':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
-    'TAG':np.zeros(5,dtype=float),
-    'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
-    'None':np.zeros(5,dtype=float)}
+te = {'SynN':np.zeros(20,dtype=float), 'SynF':np.zeros(20,dtype=float), 'model_zoo':np.zeros(20,dtype=float), 
+    'LwF':np.zeros(20,dtype=float), 'EWC':np.zeros(20,dtype=float), 
+    'O-EWC':np.zeros(20,dtype=float), 'SI':np.zeros(20,dtype=float),
+    'ER':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
+    'TAG':np.zeros(20,dtype=float),
+    'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
+    'None':np.zeros(20,dtype=float)}
 
 for count,name in enumerate(te.keys()):
-    for i in range(5):
-        te[name][i] = np.log(tes[count][i][4-i])
+    for i in range(20):
+        te[name][i] = np.log(tes[count][i][19-i])
 
 
 df = pd.DataFrame.from_dict(te)
@@ -213,16 +214,16 @@ ax = fig.add_subplot(gs[:7,:7])
 for i, fte in enumerate(ftes):
     fte[0] = 1
     if i == 0:
-        ax.plot(np.arange(1,6), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i], linewidth=3)
+        ax.plot(np.arange(1,21), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i], linewidth=3)
         continue
 
     if i == 1:
-        ax.plot(np.arange(1,6), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i], linewidth=3)
+        ax.plot(np.arange(1,21), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i], linewidth=3)
         continue
     
-    ax.plot(np.arange(1,6), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i])
+    ax.plot(np.arange(1,21), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i])
     
-ax.set_xticks(np.arange(1,6))
+ax.set_xticks(np.arange(1,21,3))
 ax.set_yticks([0.5, 1, 2, 3])
 #ax.set_yticks([])
 #ax.text(0, np.mean(ax.get_ylim()), "%s" % str(0), fontsize=26)
@@ -249,7 +250,7 @@ right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
-ax.hlines(1, 1,6, colors='grey', linestyles='dashed',linewidth=1.5)
+ax.hlines(1, 1,21, colors='grey', linestyles='dashed',linewidth=1.5)
 
 
 
@@ -284,7 +285,7 @@ for i in range(task_num - 1):
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax.set_ylabel('log Backward LE', fontsize=fontsize)
 
-ax.set_xticks(np.arange(1,6))
+ax.set_xticks(np.arange(1,21,3))
 ax.set_yticks([.2,1,2,3])
 #ax.set_xticks(np.arange(1,11))
 #ax.set_ylim(0.76, 1.25)
@@ -307,7 +308,7 @@ right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
-ax.hlines(1, 1,6, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(1, 1,21, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
 handles, labels_ = ax.get_legend_handles_labels()
 #ax.legend(loc='center left', bbox_to_anchor=(.8, 0.5), fontsize=legendsize+16)
@@ -324,7 +325,7 @@ ax.hlines(0, -1,12, colors='grey', linestyles='dashed',linewidth=1.5)
 #ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_.set_xlabel('', fontsize=fontsize)
-ax.set_ylabel('log LE after 5 Tasks', fontsize=fontsize-5)
+ax.set_ylabel('log LE after 20 Tasks', fontsize=fontsize-5)
 ax_.set_xticklabels(
     ['SynN','SynF', 'Model zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay','Partial Replay', 'None'],
     fontsize=18,rotation=65,ha="right",rotation_mode='anchor'
@@ -343,14 +344,14 @@ ax = fig.add_subplot(gs[10:17,4:11])
 
 for i in range(total_alg):
     if i==0 or i==1:
-        ax.plot(np.arange(1,6,1) ,avg_acc[i], color=c_combined[i], marker=marker_style[i], linewidth=3)
+        ax.plot(np.arange(1,21,1) ,avg_acc[i], color=c_combined[i], marker=marker_style[i], linewidth=3)
     else:
-        ax.plot(np.arange(1,6,1) ,avg_acc[i], color=c_combined[i], marker=marker_style[i])
+        ax.plot(np.arange(1,21,1) ,avg_acc[i], color=c_combined[i], marker=marker_style[i])
     #ax.fill_between(np.arange(1,6,1), avg_acc[i]-1.96*avg_var[i], avg_acc[i]+1.96*avg_var[i], facecolor=c_combined[i], alpha=.3)
 
-ax.hlines(.1, 1,5, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-ax.set_yticks([.1,.2,.3,.4,.5])
-ax.set_xticks(np.arange(1,6))
+ax.hlines(.1, 1,21, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.set_yticks([.2,.4,.6,.8,1])
+ax.set_xticks(np.arange(1,21,3))
 ax.tick_params(labelsize=ticksize)
 ax.set_ylabel('Accuracy[$\pm$ std dev.]', fontsize=fontsize)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
@@ -365,14 +366,14 @@ ax = fig.add_subplot(gs[10:17,15:22])
 
 for i in range(total_alg):
     if i==0 or i==1:
-        ax.plot(np.arange(1,6,1) ,avg_single_acc[i], color=c_combined[i], marker=marker_style[i], linewidth=3)
+        ax.plot(np.arange(1,21,1) ,avg_single_acc[i], color=c_combined[i], marker=marker_style[i], linewidth=3)
     else:
-        ax.plot(np.arange(1,6,1) ,avg_single_acc[i], color=c_combined[i], marker=marker_style[i])
+        ax.plot(np.arange(1,21,1) ,avg_single_acc[i], color=c_combined[i], marker=marker_style[i])
    # ax.fill_between(np.arange(1,6,1), avg_single_acc[i]-1.96*avg_single_var[i], avg_single_acc[i]+1.96*avg_single_var[i], facecolor=c_combined[i], alpha=.3)
 
-ax.hlines(.1, 1,5, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-ax.set_yticks([.1,.2,.3,.4,.5])
-ax.set_xticks(np.arange(1,6))
+ax.hlines(.1, 1,21, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.set_yticks([.2,.4,.6,.8,1])
+ax.set_xticks(np.arange(1,21,3))
 ax.tick_params(labelsize=ticksize)
 ax.set_ylabel('Single task accuracy', fontsize=fontsize)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
@@ -382,5 +383,5 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-plt.savefig('five_dataset.pdf')
+plt.savefig('mini_imagenet.pdf')
 # %%
