@@ -129,12 +129,12 @@ def stratified_scatter(te_dict,axis_handle,s,color,style):
 #%%
 ### MAIN HYPERPARAMS ###
 task_num = 5
-total_alg = 12
-combined_alg_name = ['SynN','SynF','LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
+total_alg = 13
+combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
-model_file_combined = ['synn','synf', 'LwF', 'EWC', 'OEWC', 'si', 'er', 'agem', 'tag', 'offline', 'exact', 'None']
+model_file_combined = ['synn','synf', 'model_zoo', 'LwF', 'EWC', 'OEWC', 'si', 'er', 'agem', 'tag', 'offline', 'exact', 'None']
 avg_acc = [[] for i in range(total_alg)]
 avg_var = [[] for i in range(total_alg)]
 avg_single_acc = [[] for i in range(total_alg)]
@@ -178,7 +178,7 @@ for alg in range(total_alg):
     avg_single_var[alg] = avg_single_var_
 
 #%%
-te = {'SynN':np.zeros(5,dtype=float), 'SynF':np.zeros(5,dtype=float), 
+te = {'SynN':np.zeros(5,dtype=float), 'SynF':np.zeros(5,dtype=float), 'model_zoo':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'EWC':np.zeros(5,dtype=float), 
     'O-EWC':np.zeros(5,dtype=float), 'SI':np.zeros(5,dtype=float),
     'ER':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
@@ -198,10 +198,10 @@ df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 fig = plt.figure(constrained_layout=True,figsize=(28,17))
 gs = fig.add_gridspec(17, 28)
 
-marker_style = ['.', '.', '.', '+', 'o', '*', 'o', '+', 'x', '.', '+', 'v']
-marker_style_scatter = ['.', '.', '.', '+', 'o', '*', 'o', '+', 'x', '.', '+', 'v']
+marker_style = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '+', 'x', '.', '+', 'v']
+marker_style_scatter = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '+', 'x', '.', '+', 'v']
 
-clr_combined = ["#377eb8", "#e41a1c", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928"]
+clr_combined = ["#377eb8", "#e41a1c", "#984ea3", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928"]
 c_combined = sns.color_palette(clr_combined, n_colors=total_alg)
 
 fontsize=29
@@ -231,7 +231,7 @@ ax.set_yticks([0.5, 1, 2, 3])
 
 log_lbl = np.round(
     np.log([0.5,1,2,3]),
-    2
+    1
 )
 labels = [item.get_text() for item in ax.get_yticklabels()]
 
@@ -291,7 +291,7 @@ ax.set_yticks([.2,1,2,3])
 
 log_lbl = np.round(
     np.log([.2,1,2,3]),
-    2
+    1
 )
 labels = [item.get_text() for item in ax.get_yticklabels()]
 
@@ -326,7 +326,7 @@ ax.hlines(0, -1,12, colors='grey', linestyles='dashed',linewidth=1.5)
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('log LE after 6 Tasks', fontsize=fontsize-5)
 ax_.set_xticklabels(
-    ['SynN','SynF','LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay','Partial Replay', 'None'],
+    ['SynN','SynF', 'Model zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay','Partial Replay', 'None'],
     fontsize=18,rotation=65,ha="right",rotation_mode='anchor'
     )
 
