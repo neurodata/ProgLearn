@@ -78,6 +78,7 @@ class TestKNNClassificationVoter:
                 NotFittedError, MLKNNClassificationVoter().predict_proba, X
             )
 
+
 #         def test_correct_vote(self):
 #             # set random seed
 #             np.random.seed(0)
