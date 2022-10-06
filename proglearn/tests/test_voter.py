@@ -78,27 +78,27 @@ class TestKNNClassificationVoter:
                 NotFittedError, MLKNNClassificationVoter().predict_proba, X
             )
 
-        def test_correct_vote(self):
-            # set random seed
-            np.random.seed(0)
+#         def test_correct_vote(self):
+#             # set random seed
+#             np.random.seed(0)
 
-            # generate training data and classes
-            X = np.concatenate(
-                (
-                    np.random.normal(0, 0.5, (100, 100)),
-                    np.random.normal(1, 0.5, (100, 100)),
-                )
-            )
-            Y = np.concatenate((np.zeros((100, 1)), np.ones((100, 1))))
+#             # generate training data and classes
+#             X = np.concatenate(
+#                 (
+#                     np.random.normal(0, 0.5, (100, 100)),
+#                     np.random.normal(1, 0.5, (100, 100)),
+#                 )
+#             )
+#             Y = np.concatenate((np.zeros((100, 1)), np.ones((100, 1))))
 
-            # train model
-            mlkcv = MLKNNClassificationVoter(5)
-            mlkcv.fit(X, Y)
+#             # train model
+#             mlkcv = MLKNNClassificationVoter(5)
+#             mlkcv.fit(X, Y)
 
-            # generate testing data and class probability
-            X_test = np.zeros((6, 100))
+#             # generate testing data and class probability
+#             X_test = np.zeros((6, 100))
 
-            Y_test = np.zeros((6, 1))
+#             Y_test = np.zeros((6, 1))
 
-            # check if model predicts as expected
-            testing.assert_allclose(Y_test, mlkcv.predict(X_test), atol=1e-4)
+#             # check if model predicts as expected
+#             testing.assert_allclose(Y_test, mlkcv.predict(X_test), atol=1e-4)
