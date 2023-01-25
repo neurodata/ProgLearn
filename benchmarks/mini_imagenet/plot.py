@@ -10,6 +10,32 @@ import seaborn as sns
 import matplotlib.gridspec as gridspec
 import matplotlib
 #%%
+def calc_forget(err, reps, total_task=5):
+#Tom Vient et al
+    forget = 0
+    for ii in range(total_task-1):
+        forget += err[ii][ii] - err[total_task-1][ii]
+
+    forget /= (total_task-1)
+    return forget/reps
+
+def calc_transfer(err, single_err, reps, total_task=5):
+#Tom Vient et al
+    transfer = np.zeros(total_task,dtype=float)
+
+    for ii in range(total_task):
+        transfer[ii] = (single_err[ii] - err[total_task-1][ii])/reps
+
+    return np.mean(transfer)
+
+def calc_acc(err, reps, total_task=5):
+#Tom Vient et al
+    acc = 0
+    for ii in range(total_task):
+        acc += (1-err[total_task-1][ii]/reps)
+    return acc/total_task
+
+
 def unpickle(file):
     with open(file, 'rb') as fo:
         dict = pickle.load(fo, encoding='bytes')
@@ -177,6 +203,11 @@ for alg in range(total_alg):
     avg_var[alg] = avg_var_
     avg_single_acc[alg]= avg_single_acc_
     avg_single_var[alg] = avg_single_var_
+
+    print('Algo name:' , combined_alg_name[alg])
+    print('Accuracy', np.round(calc_acc(err,reps),2))
+    print('forget', np.round(calc_forget(err, reps),2))
+    print('transfer', np.round(calc_transfer(err, single_err, reps),2))
 
 #%%
 te = {'SynN':np.zeros(20,dtype=float), 'SynF':np.zeros(20,dtype=float), 'model_zoo':np.zeros(20,dtype=float), 
