@@ -287,13 +287,14 @@ handles, labels_ = ax.get_legend_handles_labels()
 
 ax = fig.add_subplot(gs[:13,9:28], projection='3d')
 
+xs = np.linspace(0, task_num, 100)
 for ii in range(total_alg):
     zs = np.linspace(ii-.05,ii+.05,10)
     X, Y = np.meshgrid(xs, zs)
     Z = np.ones(X.shape)
 
     ax.plot_surface(X, Y, Z, color='grey', alpha=1)
-    
+
 #cmap = sns.color_palette("coolwarm", as_cmap=True)
 color = ['b', 'r']
 for i in range(task_num - 1):
@@ -329,7 +330,6 @@ for i in range(task_num - 1):
                 ax.scatter(ns_new, y_interp, zs=j, zdir='y', c=clr, s=2)
 
 
-xs = np.linspace(0, task_num, 100)
 zs = np.linspace(0, total_alg-1, 100)
 X, Y = np.meshgrid(xs, zs)
 Z = np.ones(X.shape)
