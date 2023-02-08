@@ -327,7 +327,14 @@ zs = np.linspace(0, 13, 100)
 X, Y = np.meshgrid(xs, zs)
 Z = np.ones(X.shape)
 
-ax.plot_surface(X, Y, Z, color='grey', alpha=.5)
+ax.plot_surface(X, Y, Z, color='grey', alpha=.3)
+
+for ii in range(total_alg):
+    zs = np.linspace(ii-.05,ii+.05,10)
+    X, Y = np.meshgrid(xs, zs)
+    Z = np.ones(X.shape)
+
+    ax.plot_surface(X, Y, Z, color='grey', alpha=1)
 
 ax.view_init(elev=10., azim=15, roll=0)
 
@@ -361,7 +368,6 @@ ax.invert_xaxis()
 #ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
 for ytick, color in zip(ax.get_yticklabels(), clr_combined):
-    print(ytick)
     ytick.set_color(color)
 
 
