@@ -5,8 +5,8 @@ from random import sample
 import matplotlib.pyplot as plt
 import os
 import cv2
-from keras import layers
-from keras.callbacks import EarlyStopping
+from tensorflow.keras import layers
+from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.progressive_learner import ProgressiveLearner
@@ -16,7 +16,7 @@ from proglearn.transformers import (
 )
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 from sklearn.model_selection import train_test_split
-from keras.backend import clear_session 
+from tensorflow.keras.backend import clear_session 
 import pandas as pd
 import pickle
 
