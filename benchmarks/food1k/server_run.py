@@ -21,7 +21,7 @@ import pandas as pd
 import pickle
 
 #%%
-TRAIN_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/train'
+TRAIN_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Train'
 VAL_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Val'
 
 CATEGORIES = list(range(10))
