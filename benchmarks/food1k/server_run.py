@@ -24,56 +24,10 @@ import pickle
 TRAIN_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Train'
 VAL_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Val'
 
-CATEGORIES = list(range(10))
+CATEGORIES = list(range(20))
 SAMPLE_PER_CLASS = 60
-NUM_CLASS_PER_TASK = 10
+NUM_CLASS_PER_TASK = 20
 IMG_SIZE = 50
-
-#%%
-train_X = []
-train_y = []
-test_X = []
-test_y = []
-for category in CATEGORIES:
-    path = os.path.join(TRAIN_DATADIR, str(category))
-    
-    images = os.listdir(path)
-    total_images = len(images)
-    train_indx = sample(range(total_images), SAMPLE_PER_CLASS)
-    test_indx = np.delete(range(total_images), train_indx)
-    for ii in train_indx:
-        image_data = cv2.imread(
-                os.path.join(path, images[ii])
-            )
-        resized_image = cv2.resize(
-            image_data, 
-            (IMG_SIZE, IMG_SIZE)
-        )
-        train_X.append(
-            resized_image
-        )
-        train_y.append(
-            category
-        )
-    for ii in test_indx:
-        image_data = cv2.imread(
-                os.path.join(path, images[ii])
-            )
-        resized_image = cv2.resize(
-            image_data, 
-            (IMG_SIZE, IMG_SIZE)
-        )
-        test_X.append(
-            resized_image
-        )
-        test_y.append(
-            category
-        )
-
-train_X = np.array(train_X).reshape(-1,IMG_SIZE,IMG_SIZE,3)
-train_y = np.array(train_y)
-test_X = np.array(test_X).reshape(-1,IMG_SIZE,IMG_SIZE,3)
-test_y = np.array(test_y)
 
 #%%
 def get_data(task=0):
@@ -82,7 +36,7 @@ def get_data(task=0):
     test_X = []
     test_y = []
     
-    categories_to_consider = range(task*10,(task+1)*10)
+    categories_to_consider = range(task*NUM_CLASS_PER_TASK,(task+1)*NUM_CLASS_PER_TASK)
     for category in categories_to_consider:
         path = os.path.join(TRAIN_DATADIR, str(category))
 
@@ -128,7 +82,7 @@ def get_data(task=0):
 
 #%%
 def experiment(model='synf', ntrees=10, rep=1):
-    num_tasks = 100
+    num_tasks = 50
     tasks = []
     base_tasks = []
     accuracies_across_tasks = []
