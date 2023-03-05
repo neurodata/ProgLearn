@@ -427,7 +427,7 @@ right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)'''
-fig.text(.38, 0.88, "FOOD1k (60,000 samples)", fontsize=fontsize+15)
+fig.text(.38, 0.88, "FOOD1k (1200 samples)", fontsize=fontsize+15)
 
 plt.savefig('food1k.pdf')
 # %%
