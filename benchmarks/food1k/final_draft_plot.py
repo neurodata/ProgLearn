@@ -237,16 +237,16 @@ for i, fte in enumerate(ftes):
     
     ax.plot(np.arange(1,51), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i])
 
-ax.set_title('Forward Learning (FL)', fontsize=fontsize)
+ax.set_title('Forward Learning (FL)', fontsize=fontsize+5)
 ax.set_xticks([1,10,20,30,40,50])
-ax.set_yticks([0.5, 1, 2, 3])
+ax.set_yticks([0.9,1,1.5])
 #ax.set_yticks([])
 #ax.text(0, np.mean(ax.get_ylim()), "%s" % str(0), fontsize=26)
 #ax.yaxis.set_major_locator(plt.LogLocator(subs=(0.9, 1, 1.1, 1.2, 1.3)))
 #ax.set_ylim(0.89, 1.31)
 
 log_lbl = np.round(
-    np.log([0.5,1,2,3]),
+    np.log([0.9,1,1.5]),
     1
 )
 labels = [item.get_text() for item in ax.get_yticklabels()]
@@ -326,7 +326,7 @@ ax.view_init(elev=10., azim=15, roll=0)
     ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
 
 
-ax.text(.9, .5, 1.7, 'Backward Learning (BL)', fontsize=fontsize)
+ax.text(.9, .5, 1.7, 'Backward Learning (BL)', fontsize=fontsize+5)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
 ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
 
@@ -367,8 +367,8 @@ ax_ = sns.boxplot(
 ax.hlines(0, -1,4, colors='grey', linestyles='dashed',linewidth=1.5)
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
 #ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
-#ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
-ax.set_title('Overall Learning', fontsize=fontsize)
+ax_.set_yticks([-.3,0,.2,.4])
+ax.set_title('Overall Learning', fontsize=fontsize+5)
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('log LE after 50 Tasks', fontsize=fontsize-5)
 ax_.set_xticklabels(
@@ -427,7 +427,7 @@ right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)'''
-fig.text(.38, 0.88, "FOOD1k (60,000 samples)", fontsize=fontsize+10)
+fig.text(.38, 0.88, "FOOD1k (60,000 samples)", fontsize=fontsize+15)
 
 plt.savefig('food1k.pdf')
 # %%
