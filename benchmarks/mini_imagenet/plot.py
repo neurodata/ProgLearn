@@ -227,8 +227,8 @@ df = pd.DataFrame.from_dict(te)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 
 # %%
-fig = plt.figure(constrained_layout=True,figsize=(40,23))
-gs = fig.add_gridspec(23, 40)
+fig = plt.figure(constrained_layout=True,figsize=(40,12))
+gs = fig.add_gridspec(12, 40)
 
 marker_style = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 marker_style_scatter = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
@@ -254,6 +254,7 @@ for i, fte in enumerate(ftes):
     
     ax.plot(np.arange(1,21), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i])
     
+ax.set_title('Forward Learning (FL)', fontsize=fontsize+5)
 ax.set_xticks(np.arange(1,21,3))
 ax.set_yticks([0.5, 1, 2, 3])
 #ax.set_yticks([])
@@ -274,7 +275,7 @@ ax.set_yticklabels(labels)
 
 ax.tick_params(labelsize=ticksize)
 
-ax.set_ylabel('log Forward LE', fontsize=fontsize)
+ax.set_ylabel('log FLE', fontsize=fontsize)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 right_side = ax.spines["right"]
@@ -341,8 +342,9 @@ ax.view_init(elev=10., azim=15, roll=0)
 '''for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
     ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
 
+ax.text(.9, .6, 1.75, 'Backward Learning (BL)', fontsize=fontsize+5)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
-ax.set_zlabel('log Backward LE', fontsize=30, labelpad=15)
+ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
 
 ax.set_zticks([.4,1,1.5])
 ax.set_xticks(np.arange(4,task_num+1,8))
@@ -382,6 +384,7 @@ ax.hlines(0, -1,12, colors='grey', linestyles='dashed',linewidth=1.5)
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
 #ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
+ax.set_title('Overall Learning', fontsize=fontsize+5)
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('log LE after 20 Tasks', fontsize=fontsize-5)
 ax_.set_xticklabels(
@@ -398,7 +401,7 @@ top_side.set_visible(False)
 
 fig.legend(handles, labels_, bbox_to_anchor=(.97, .7), fontsize=legendsize+12, frameon=False)
 
-ax = fig.add_subplot(gs[16:24,8:16])
+'''ax = fig.add_subplot(gs[16:24,8:16])
 
 for i in range(total_alg):
     if i==0 or i==1:
@@ -439,7 +442,8 @@ ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
-top_side.set_visible(False)
+top_side.set_visible(False)'''
 
+fig.text(.4, 0.88, "Mini-Imagenet(2400 samples)", fontsize=fontsize+10)
 plt.savefig('mini_imagenet.pdf')
 # %%
