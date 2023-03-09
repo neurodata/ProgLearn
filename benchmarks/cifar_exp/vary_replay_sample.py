@@ -2,8 +2,8 @@
 import random
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import keras
-from keras import layers
+from tensorflow import keras
+from tensorflow.keras import layers
 from itertools import product
 import pandas as pd
 
@@ -404,7 +404,7 @@ data_y = data_y[:, 0]
 
 #%%
 for sample_to_replay in samples_to_replay_list:
-    if model == "uf":
+    if model == "ufv":
         slot_fold = range(10)
         shift_fold = range(1, 7, 1)
         n_trees = [10]
