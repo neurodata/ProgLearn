@@ -27,7 +27,8 @@ from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 import tensorflow as tf
 
 import time
-
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 #%%
 def unpickle(file):
     with open(file, "rb") as fo:
