@@ -137,7 +137,9 @@ class ProgressiveLearner(BaseProgressiveLearner):
             self.task_id_to_y,
             self.transformer_id_to_X,
             self.transformer_id_to_y,
-        ) = ({}, {}, {}, {})
+            self.task_id_to_X_replay,
+            self.task_id_to_y_replay,
+        ) = ({}, {}, {}, {}, {}, {})
 
         self.transformer_id_to_transformers = {}
         self.task_id_to_transformer_id_to_voters = {}
@@ -399,8 +401,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
                     for this transformer is None."""
                 )
 
-        X = self.task_id_to_X[task_id]
-        y = self.task_id_to_y[task_id]
+        
         if bag_id is None:
             transformers = self.transformer_id_to_transformers[transformer_id]
         else:
@@ -410,20 +411,32 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 voter_data_idx = self.task_id_to_bag_id_to_voter_data_idx[task_id][
                     transformer_num
                 ]
+                #print(task_id, voter_data_idx)
+                self._append_voter(
+                    transformer_id,
+                    task_id,
+                    voter_class(**voter_kwargs).fit(
+                        transformer.transform(self.task_id_to_X[task_id][voter_data_idx]), self.task_id_to_y[task_id][voter_data_idx]
+                    ),
+                )
             else:
                 voter_data_idx = np.delete(
-                    range(len(X)), self.task_id_to_decider_idx[task_id]
+                    range(len(self.task_id_to_X_replay[task_id])), self.task_id_to_decider_idx[task_id]
                 )
-            self._append_voter(
-                transformer_id,
-                task_id,
-                voter_class(**voter_kwargs).fit(
-                    transformer.transform(X[voter_data_idx]), y[voter_data_idx]
-                ),
-            )
+
+                self._append_voter(
+                    transformer_id,
+                    task_id,
+                    voter_class(**voter_kwargs).fit(
+                        transformer.transform(self.task_id_to_X_replay[task_id][voter_data_idx]), self.task_id_to_y_replay[task_id][voter_data_idx]
+                    ),
+                )
+            
 
         self.task_id_to_voter_class[task_id] = voter_class
         self.task_id_to_voter_kwargs[task_id] = voter_kwargs
+
+
 
     def set_decider(
         self, task_id, transformer_ids, decider_class=None, decider_kwargs=None
@@ -643,15 +656,18 @@ class ProgressiveLearner(BaseProgressiveLearner):
             task_id = max(
                 len(self.get_transformer_ids()), len(self.get_task_ids())
             )  # come up with something that has fewer collisions
-
+        
+        self.task_id_to_X[task_id] = X
+        self.task_id_to_y[task_id] = y
+        
         if samples_to_replay == None:
-            self.task_id_to_X[task_id] = X
-            self.task_id_to_y[task_id] = y
+            self.task_id_to_X_replay[task_id] = X
+            self.task_id_to_y_replay[task_id] = y
         else:
             X_, _, y_, _ = train_test_split(X, y, test_size=1-samples_to_replay,
                                                    stratify=y)
-            self.task_id_to_X[task_id] = X_
-            self.task_id_to_y[task_id] = y_
+            self.task_id_to_X_replay[task_id] = X_
+            self.task_id_to_y_replay[task_id] = y_
         # split into transformer/voter and decider data
         transformer_voter_data_idx, decider_idx = self._bifurcate_decider_idxs(
             range(len(X)), transformer_voter_decider_split
