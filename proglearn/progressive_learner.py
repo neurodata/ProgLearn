@@ -4,7 +4,7 @@ Corresponding Email: levinewill@icloud.com
 """
 import numpy as np
 from sklearn.exceptions import NotFittedError
-
+from sklearn.model_selection import train_test_split
 from .base import BaseClassificationProgressiveLearner, BaseProgressiveLearner
 
 
@@ -561,6 +561,7 @@ class ProgressiveLearner(BaseProgressiveLearner):
         decider_kwargs=None,
         backward_task_ids=None,
         forward_transformer_ids=None,
+        samples_to_replay = None,
     ):
         """
         Adds a task to the progressive learner. Optionally trains one or more
@@ -643,9 +644,14 @@ class ProgressiveLearner(BaseProgressiveLearner):
                 len(self.get_transformer_ids()), len(self.get_task_ids())
             )  # come up with something that has fewer collisions
 
-        self.task_id_to_X[task_id] = X
-        self.task_id_to_y[task_id] = y
-
+        if samples_to_replay == None:
+            self.task_id_to_X[task_id] = X
+            self.task_id_to_y[task_id] = y
+        else:
+            X, _, y, _ = train_test_split(X, y, test_size=1-samples_to_replay,
+                                                   stratify=y)
+            self.task_id_to_X[task_id] = X
+            self.task_id_to_y[task_id] = y
         # split into transformer/voter and decider data
         transformer_voter_data_idx, decider_idx = self._bifurcate_decider_idxs(
             range(len(X)), transformer_voter_decider_split
