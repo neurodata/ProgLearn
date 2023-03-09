@@ -388,7 +388,7 @@ def run_parallel_exp(
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 500
 samples_to_replay_list = [2.0/5.0, 3.0/5.0, 4.0/5.0]
 ########################
