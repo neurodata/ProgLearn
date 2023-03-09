@@ -346,7 +346,7 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
 
 #%%
 def run_parallel_exp(
-    data_x, data_y, n_trees, model, num_points_per_task, slot=0, shift=1
+    data_x, data_y, n_trees, model, num_points_per_task, slot=0, shift=1, samples_to_replay=None
 ):
     train_x, train_y, test_x, test_y = cross_val_data(
         data_x, data_y, num_points_per_task, shift=shift
@@ -404,7 +404,7 @@ data_y = data_y[:, 0]
 
 
 #%%
-for sample_to_replay in samples_to_replay_list:
+for samples_to_replay in samples_to_replay_list:
     if model == "ufv":
         slot_fold = range(10)
         shift_fold = range(1, 7, 1)
@@ -422,7 +422,7 @@ for sample_to_replay in samples_to_replay_list:
         def perform_shift(shift_slot_tuple):
             shift, slot = shift_slot_tuple
             return run_parallel_exp(
-                data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift
+                data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift, samples_to_replay=samples_to_replay
             )
 
         print("Performing Stage 1 Shifts")
