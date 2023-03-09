@@ -648,10 +648,10 @@ class ProgressiveLearner(BaseProgressiveLearner):
             self.task_id_to_X[task_id] = X
             self.task_id_to_y[task_id] = y
         else:
-            X, _, y, _ = train_test_split(X, y, test_size=1-samples_to_replay,
+            X_, _, y_, _ = train_test_split(X, y, test_size=1-samples_to_replay,
                                                    stratify=y)
-            self.task_id_to_X[task_id] = X
-            self.task_id_to_y[task_id] = y
+            self.task_id_to_X[task_id] = X_
+            self.task_id_to_y[task_id] = y_
         # split into transformer/voter and decider data
         transformer_voter_data_idx, decider_idx = self._bifurcate_decider_idxs(
             range(len(X)), transformer_voter_decider_split
