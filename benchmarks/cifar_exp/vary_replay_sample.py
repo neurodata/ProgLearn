@@ -417,24 +417,11 @@ for samples_to_replay in samples_to_replay_list:
             for ntree, shift, slot in iterable
         )
     elif model == "dnn":
-        slot_fold = range(10)
-
-        def perform_shift(shift_slot_tuple):
-            shift, slot = shift_slot_tuple
-            return run_parallel_exp(
-                data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift, samples_to_replay=samples_to_replay
-            )
-
-        print("Performing Stage 1 Shifts")
-        stage_1_shifts = range(1, 5)
-        stage_1_iterable = product(stage_1_shifts, slot_fold)
-        with Pool(4) as p:
-            p.map(perform_shift, stage_1_iterable)
-
-        print("Performing Stage 2 Shifts")
-        stage_2_shifts = range(5, 7)
-        stage_2_iterable = product(stage_2_shifts, slot_fold)
-        with Pool(4) as p:
-            p.map(perform_shift, stage_2_iterable)
+        for shift in range(1,7,1):
+            for slot in range(10):
+                print("doing slot ",slot," shift ", shift)
+                run_parallel_exp(
+                    data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift
+                )
 
 # %%

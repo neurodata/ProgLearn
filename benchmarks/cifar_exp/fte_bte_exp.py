@@ -410,8 +410,6 @@ if model == "uf":
         for ntree, shift, slot in iterable
     )
 elif model == "dnn":
-    slot_fold = range(10)
-
     for shift in range(1,7,1):
         for slot in range(10):
             print("doing slot ",slot," shift ", shift)
