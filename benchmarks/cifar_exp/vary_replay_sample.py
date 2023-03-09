@@ -125,7 +125,6 @@ def LF_experiment(
         default_transformer_kwargs = {
             "network": network,
             "euclidean_layer_idx": -2,
-            "num_classes": 10,
             "optimizer": keras.optimizers.Adam(3e-4),
         }
 
