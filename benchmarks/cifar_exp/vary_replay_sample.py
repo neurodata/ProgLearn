@@ -405,14 +405,14 @@ data_y = data_y[:, 0]
 
 #%%
 for samples_to_replay in samples_to_replay_list:
-    if model == "ufv":
+    if model == "uf":
         slot_fold = range(10)
         shift_fold = range(1, 7, 1)
         n_trees = [10]
         iterable = product(n_trees, shift_fold, slot_fold)
         Parallel(n_jobs=-2, verbose=1)(
             delayed(run_parallel_exp)(
-                data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift
+                data_x, data_y, ntree, model, num_points_per_task, slot=slot, shift=shift, samples_to_replay=samples_to_replay
             )
             for ntree, shift, slot in iterable
         )
