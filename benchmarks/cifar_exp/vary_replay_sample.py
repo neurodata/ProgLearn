@@ -420,7 +420,7 @@ for samples_to_replay in samples_to_replay_list:
             for slot in range(10):
                 print("doing slot ",slot," shift ", shift)
                 run_parallel_exp(
-                    data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift
+                    data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift, samples_to_replay=samples_to_replay
                 )
 
 # %%
