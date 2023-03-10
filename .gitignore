@@ -137,4 +137,4 @@ dmypy.json
 *.npz
 
 # pickle
-*.pickle
+#*.pickle
