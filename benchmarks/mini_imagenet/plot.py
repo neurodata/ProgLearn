@@ -310,26 +310,17 @@ for i in range(task_num - 1):
 
     for j in range(0,total_alg):
         y_interp = np.interp(ns_new, ns, et[j,:])
-        idx = np.zeros(len(y_interp), dtype=int)
-        idx[np.where(y_interp>=1)[0]] = 1     
-        clr = [color[i] for i in idx]
+        idx = np.where(y_interp < 1.0)[0]
+        supper = y_interp.copy()
+        supper[idx] = np.nan
 
-        if j == 0:
-            if i == 0:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', label = combined_alg_name[j], c=clr, s=2)
-            else:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', c=clr, s=2)
-        elif j == 1:
-            if i == 0:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', label = combined_alg_name[j], c=clr, s=2)
-            else:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', c=clr, s=2)
-        else:
-            if i == 0:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', label = combined_alg_name[j], c=clr, s=2)
-            else:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', c=clr, s=2)
+        idx = np.where(y_interp >= 1.0)[0]
+        slower = y_interp.copy()
+        slower[idx] = np.nan
 
+        ax.plot(ns_new, supper, zs=j, zdir='y', color='r', linewidth=3)
+        ax.plot(ns_new, slower, zs=j, zdir='y', color='b', linewidth=3)
+        
 
 zs = np.linspace(0, total_alg-1, 100)
 X, Y = np.meshgrid(xs, zs)
