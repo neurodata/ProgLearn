@@ -24,7 +24,8 @@ from proglearn.transformers import (
 )
 from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 import time
 import ssl
@@ -389,7 +390,7 @@ def run_parallel_exp(
 ### MAIN HYPERPARAMS ###
 model = "dnn"
 num_points_per_task = 500
-samples_to_replay_list = [2.0/5.0, 3.0/5.0, 4.0/5.0]
+samples_to_replay_list = [3.0/5.0, 4.0/5.0]
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
