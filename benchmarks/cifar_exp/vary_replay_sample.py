@@ -390,7 +390,7 @@ def run_parallel_exp(
 ### MAIN HYPERPARAMS ###
 model = "dnn"
 num_points_per_task = 500
-samples_to_replay_list = [3.0/5.0, 4.0/5.0]
+samples_to_replay_list = [4.0/5.0]
 ########################
 
 (X_train, y_train), (X_test, y_test) = keras.datasets.cifar100.load_data()
@@ -407,7 +407,7 @@ data_y = data_y[:, 0]
 for samples_to_replay in samples_to_replay_list:
     if model == "uf":
         slot_fold = range(10)
-        shift_fold = range(4, 7, 1)
+        shift_fold = range(1, 7, 1)
         n_trees = [10]
         iterable = product(n_trees, shift_fold, slot_fold)
         Parallel(n_jobs=-2, verbose=1)(
