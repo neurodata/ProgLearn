@@ -297,8 +297,8 @@ df_500 = pd.DataFrame.from_dict(te_500)
 df_500 = pd.melt(df_500,var_name='Algorithms', value_name='Learning Efficieny')
 
 # %%
-fig = plt.figure(constrained_layout=True,figsize=(38,12))
-gs = fig.add_gridspec(12,38)
+fig = plt.figure(constrained_layout=True,figsize=(38,14))
+gs = fig.add_gridspec(14,38)
 
 clr = ['b', 'b', 'b', 'b', 'r', 'r', 'r', 'r']
 
@@ -482,7 +482,7 @@ ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('log LE after 10 Tasks', fontsize=fontsize-5)
 ax_.set_xticklabels(
     ['SynN (0.4)','SynN (0.6)', 'SynN (0.8)', 'SynN (1)','SynF (0.4)', 'SynF (0.6)', 'SynF (0.8)', 'SynF (1)'],
-    fontsize=19,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=22,rotation=80,ha="right",rotation_mode='anchor'
     )
 
 stratified_scatter(te_500,ax,16,clr)
