@@ -417,7 +417,7 @@ for samples_to_replay in samples_to_replay_list:
             for ntree, shift, slot in iterable
         )
     elif model == "dnn":
-        for shift in range(4,7,1):
+        for shift in range(1,4,1):
             for slot in range(10):
                 print("doing slot ",slot," shift ", shift)
                 run_parallel_exp(
