@@ -132,7 +132,7 @@ def sum_error_matrix(error_mat1, error_mat2):
         )
     return err
 
-def stratified_scatter(te_dict,axis_handle,s,color,style):
+def stratified_scatter(te_dict,axis_handle,s,color):
     algo = list(te_dict.keys())
     total_alg = len(algo)
 
@@ -146,9 +146,7 @@ def stratified_scatter(te_dict,axis_handle,s,color,style):
             axis_handle.scatter(
                 pivot_points[algo_no]+interval*no,
                 te_dict[alg][no],
-                s=s,
-                c='k',
-                marker=style[algo_no]
+                c='k'
                 )
 
 #%%
@@ -299,25 +297,10 @@ df_500 = pd.DataFrame.from_dict(te_500)
 df_500 = pd.melt(df_500,var_name='Algorithms', value_name='Learning Efficieny')
 
 # %%
-fig = plt.figure(constrained_layout=True,figsize=(42,12))
-gs = fig.add_gridspec(12,42)
+fig = plt.figure(constrained_layout=True,figsize=(38,12))
+gs = fig.add_gridspec(12,38)
 
-clr_top = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#f781bf", "#b15928", "#b15928", "#984ea3"]
-c_top = sns.color_palette(clr_top, n_colors=len(clr_top))
-
-clr_bottom = ["#e41a1c", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"]
-c_bottom = sns.color_palette(clr_bottom, n_colors=len(clr_bottom))
-
-marker_style_top = ['.', '.', '.', '.', '+', '.', '+', 'v']
-#marker_style_bottom = ['.', '.', 'o', '*', '.', '+', 'x', 'o']
-#marker_style = ['.', '.', '.', '.', '+', '.', '+',  'v', '.', 'o', '*', '.', '+', 'x', 'o']
-marker_style_scatter = ['.', '.', '.', '.', '+', 'v', '.', '+', '.', '.', 'o', '*', '.', '+', 'x', 'o']
-
-clr_combined = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#f781bf", "#b15928", "#b15928", "#984ea3", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"]
-c_combined = sns.color_palette(clr_combined, n_colors=total_alg_top+total_alg_bottom-1)
-
-clr_combined_ = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#f781bf", "#b15928", "#b15928", "#984ea3", "#e41a1c", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"]
-c_combined_ = sns.color_palette(clr_combined_, n_colors=total_alg_top+total_alg_bottom)
+clr = ['b', 'b', 'b', 'b', 'r', 'r', 'r', 'r']
 
 fontsize=38
 ticksize=34
@@ -335,14 +318,14 @@ ax.plot(np.arange(1,11), fte, color='r', label='SynF', linewidth=3)
 
 ax.set_title('Forward Learning (FL)', fontsize=fontsize)
 ax.set_xticks(np.arange(1,11))
-ax.set_yticks([0.8, 0.9, 1, 1.1, 1.2, 1.3])
+ax.set_yticks([0.9, 1, 1.1, 1.2, 1.3])
 #ax.set_yticks([])
 #ax.text(0, np.mean(ax.get_ylim()), "%s" % str(0), fontsize=26)
 #ax.yaxis.set_major_locator(plt.LogLocator(subs=(0.9, 1, 1.1, 1.2, 1.3)))
-ax.set_ylim(0.8, 1.31)
+ax.set_ylim(0.9, 1.31)
 
 log_lbl = np.round(
-    np.log([0.8,0.9,1,1.1,1.2,1.3]),
+    np.log([0.9,1,1.1,1.2,1.3]),
     1
 )
 labels = [item.get_text() for item in ax.get_yticklabels()]
@@ -478,7 +461,7 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 #ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
-for ytick, color in zip(ax.get_yticklabels(), clr_top):
+for ytick, color in zip(ax.get_yticklabels(), clr):
     ytick.set_color(color)
 
 
@@ -502,7 +485,7 @@ ax_.set_xticklabels(
     fontsize=19,rotation=65,ha="right",rotation_mode='anchor'
     )
 
-stratified_scatter(te_500,ax,16,c_combined_,marker_style_scatter)
+stratified_scatter(te_500,ax,16,clr)
 right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
@@ -511,7 +494,7 @@ top_side.set_visible(False)
 #########################################################
 
 fig.text(.35, 0.88, "CIFAR 10X10 (Ablation)", fontsize=fontsize+10)
-fig.legend(handles_top, labels_top, bbox_to_anchor=(.88, .5), fontsize=legendsize+14, frameon=False)
+fig.legend(handles_top, labels_top, bbox_to_anchor=(.9, .5), fontsize=legendsize+14, frameon=False)
 #fig.legend(handles_bottom, labels_bottom, bbox_to_anchor=(1, .45), fontsize=legendsize+14, frameon=False)
 
 plt.savefig('result/figs/ablation.pdf', dpi=300)
