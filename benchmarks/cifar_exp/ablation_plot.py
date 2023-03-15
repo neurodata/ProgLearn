@@ -159,9 +159,9 @@ task_num = 10
 shifts = 6
 total_alg_top = 4
 total_alg_bottom = 4
-alg_name_top = ['SynN']
-alg_name_bottom = ['SynF']
-combined_alg_name = ['SynN','SynF']
+alg_name_top = ['SynN (.4)', 'SynN (.6)', 'SynN (.8)', 'SynN (1)']
+alg_name_bottom = ['SynF (.4)', 'SynF (.6)', 'SynF (.8)', 'SynF (1)']
+combined_alg_name = ['SynN (.4)', 'SynN (.6)', 'SynN (.8)', 'SynN (1)', 'SynF (.4)', 'SynF (.6)', 'SynF (.8)', 'SynF (1)']
 model_file_top = ['dnn0']
 model_file_bottom = ['uf10']
 samples_to_replay = [.4,.6,.8,1]
@@ -280,20 +280,16 @@ for alg, samples in enumerate(samples_to_replay):
     print('forget', np.round(calc_forget(err, reps),2))
     print('transfer', np.round(calc_transfer(err, single_err, reps),2))
 #%%
-te_500 = {'SynN':np.zeros(10,dtype=float), 'SynF':np.zeros(10,dtype=float), 
-          'Model Zoo':np.zeros(10,dtype=float),
-          'Prog-NN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 
-          'EWC':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
-          'Partial Replay':np.zeros(10,dtype=float),
-          'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
-           'O-EWC':np.zeros(10,dtype=float), 'SI':np.zeros(10,dtype=float),
-          'er':np.zeros(10,dtype=float), 'agem':np.zeros(10,dtype=float),
-          'tag':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
+te_500 = {'SynN (.4)':np.zeros(10,dtype=float), 'SynN (.6)':np.zeros(10,dtype=float), 
+          'SynN (.8)':np.zeros(10,dtype=float),
+          'SynN (1)':np.zeros(10,dtype=float), 'SynF (.4)':np.zeros(10,dtype=float), 
+          'SynF (.6)':np.zeros(10,dtype=float),'SynF (.8)':np.zeros(10,dtype=float),
+          'SynF (1)':np.zeros(10,dtype=float)}
 
 for count,name in enumerate(te_500.keys()):
     print(name, count)
     for i in range(10):
-        if count <8:
+        if count <4:
             te_500[name][i] = np.log(tes_top[count][i][9-i])
         else:
             te_500[name][i] = np.log(tes_bottom[count-8][i][9-i])
@@ -303,8 +299,8 @@ df_500 = pd.DataFrame.from_dict(te_500)
 df_500 = pd.melt(df_500,var_name='Algorithms', value_name='Learning Efficieny')
 
 # %%
-fig = plt.figure(constrained_layout=True,figsize=(42,32))
-gs = fig.add_gridspec(32,42)
+fig = plt.figure(constrained_layout=True,figsize=(42,12))
+gs = fig.add_gridspec(12,42)
 
 clr_top = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#f781bf", "#b15928", "#b15928", "#984ea3"]
 c_top = sns.color_palette(clr_top, n_colors=len(clr_top))
@@ -313,8 +309,8 @@ clr_bottom = ["#e41a1c", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", 
 c_bottom = sns.color_palette(clr_bottom, n_colors=len(clr_bottom))
 
 marker_style_top = ['.', '.', '.', '.', '+', '.', '+', 'v']
-marker_style_bottom = ['.', '.', 'o', '*', '.', '+', 'x', 'o']
-marker_style = ['.', '.', '.', '.', '+', '.', '+',  'v', '.', 'o', '*', '.', '+', 'x', 'o']
+#marker_style_bottom = ['.', '.', 'o', '*', '.', '+', 'x', 'o']
+#marker_style = ['.', '.', '.', '.', '+', '.', '+',  'v', '.', 'o', '*', '.', '+', 'x', 'o']
 marker_style_scatter = ['.', '.', '.', '.', '+', 'v', '.', '+', '.', '.', 'o', '*', '.', '+', 'x', 'o']
 
 clr_combined = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#f781bf", "#b15928", "#b15928", "#984ea3", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"]
@@ -330,17 +326,9 @@ legendsize=16
 ax = fig.add_subplot(gs[4:12,:8])
 ax.plot([0], [0], color=[1,1,1], label='Resource Growing     ')
 
-for i, fte in enumerate(ftes_top):
-    fte[0] = 1
-    if i == 0:
-        ax.plot(np.arange(1,11), fte, color=c_top[i], marker=marker_style_top[i], markersize=12, label=alg_name_top[i], linewidth=3)
-        continue
-
-    if i == 1:
-        ax.plot(np.arange(1,11), fte, color=c_top[i], marker=marker_style_top[i], markersize=12, label=alg_name_top[i], linewidth=3)
-        continue
-    
-    ax.plot(np.arange(1,11), fte, color=c_top[i], marker=marker_style_top[i], markersize=12, label=alg_name_top[i])
+fte = ftes_top[3]
+fte[0] = 1
+ax.plot(np.arange(1,11), fte, color=c_top[3], marker=marker_style_top[3], markersize=12, label=alg_name_top[3])
 
 ax.set_title('Forward Learning (FL)', fontsize=fontsize)
 ax.set_xticks(np.arange(1,11))
@@ -404,6 +392,32 @@ for i in range(task_num - 1):
         ax.plot(ns_new, slower, zs=j, zdir='y', color='b', linewidth=3)
         
 
+
+
+for i in range(task_num - 1):
+
+    et = np.zeros((total_alg_bottom,task_num-i))
+
+    for j in range(0,total_alg_bottom):
+        et[j,:] = np.asarray(btes_bottom[j][i])
+
+    ns = np.arange(i + 1, task_num + 1)
+    ns_new = np.linspace(ns.min(), ns.max(), 60)
+
+    for j in range(0,total_alg_bottom):
+        y_interp = np.interp(ns_new, ns, et[j,:])
+        idx = np.where(y_interp < 1.0)[0]
+        supper = y_interp.copy()
+        supper[idx] = np.nan
+
+        idx = np.where(y_interp >= 1.0)[0]
+        slower = y_interp.copy()
+        slower[idx] = np.nan
+
+        ax.plot(ns_new, supper, zs=j+4, zdir='y', color='r', linewidth=3)
+        ax.plot(ns_new, slower, zs=j+4, zdir='y', color='b', linewidth=3)
+        
+
 xs = np.linspace(0, 10, 10)
 zs = np.linspace(0, 7, 10)
 X, Y = np.meshgrid(xs, zs)
@@ -412,6 +426,13 @@ Z = np.ones(X.shape)
 ax.plot_surface(X, Y, Z, color='grey', alpha=.3)
 
 for ii in range(total_alg_top):
+    zs = np.linspace(ii-.05,ii+.05,10)
+    X, Y = np.meshgrid(xs, zs)
+    Z = np.ones(X.shape)
+
+    ax.plot_surface(X, Y, Z, color='grey', alpha=1)
+
+for ii in range(4,4+total_alg_bottom):
     zs = np.linspace(ii-.05,ii+.05,10)
     X, Y = np.meshgrid(xs, zs)
     Z = np.ones(X.shape)
@@ -442,7 +463,7 @@ for ii,_ in enumerate(labels):
     labels[ii] = str(log_lbl[ii])
 
 ax.set_zticklabels(labels)
-ax.set_yticklabels(alg_name_top, rotation=80)
+ax.set_yticklabels(combined_alg_name, rotation=80)
 ax.tick_params(labelsize=ticksize-8)
 #ax[0][1].grid(axis='x')
 ax.invert_xaxis()
@@ -466,14 +487,14 @@ ax_ = sns.boxplot(
     x="Algorithms", y="Learning Efficieny", data=df_500, palette=c_combined_, whis=np.inf,
     ax=ax, showfliers=False, notch=1
     )
-ax.hlines(0, -1,15, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(0, -1,8, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 #sns.boxplot(x="Algorithms", y="Transfer Efficieny", data=mean_df, palette=c, linewidth=3, ax=ax[1][1])
 #ax_=sns.pointplot(x="Algorithms", y="Transfer Efficieny", data=df_500, join=False, color='grey', linewidth=1.5, ci='sd',ax=ax)
 #ax_.set_yticks([.4,.6,.8,1, 1.2,1.4])
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('log LE after 10 Tasks', fontsize=fontsize-5)
 ax_.set_xticklabels(
-    ['SynN','SynF', 'Model Zoo', 'ProgNN', 'DF-CNN','EWC', 'Total Replay', 'Partial Replay', 'SynF (constrained)', 'LwF', 'O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'None'],
+    ['SynN (0.4)','SynN (0.6)', 'SynN (0.8)', 'SynN (1)','SynF (0.4)', 'SynF (0.6)', 'SynF (0.8)', 'SynF (1)'],
     fontsize=19,rotation=65,ha="right",rotation_mode='anchor'
     )
 
@@ -484,406 +505,12 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 
 #########################################################
-ax = fig.add_subplot(gs[19:27,:8])
-ax.plot([0], [0], color=[1,1,1], label='Resource Constrained')
 
-for i, fte in enumerate(ftes_bottom):
-    fte[0] = 1
-    if i == 0:
-        ax.plot(np.arange(1,11), fte, color=c_bottom[i], marker=marker_style_bottom[i], markersize=12, label = alg_name_bottom[i], linewidth=3)
-        continue
-
-    if i == 1:
-        ax.plot(np.arange(1,11), fte, color=c_bottom[i], marker=marker_style_bottom[i], markersize=12, label = alg_name_bottom[i], linewidth=3)
-        continue
-    
-    ax.plot(np.arange(1,11), fte, color=c_bottom[i], marker=marker_style_bottom[i], markersize=12, label = alg_name_bottom[i])
-    
-ax.set_xticks(np.arange(1,11))
-ax.set_yticks([0.85, 1, 1.1])
-ax.set_ylim(0.8, 1.15)
-ax.tick_params(labelsize=ticksize)
-ax.set_title('Resource Constrained FL', fontsize=fontsize)
-
-ax.set_ylabel('log FLE', fontsize=fontsize)
-ax.set_xlabel('Tasks seen', fontsize=fontsize)
-
-log_lbl = np.round(
-    np.log([0.85,1,1.1]),
-    1
-)
-labels = [item.get_text() for item in ax.get_yticklabels()]
-
-for ii,_ in enumerate(labels):
-    labels[ii] = str(log_lbl[ii])
-
-ax.set_yticklabels(labels)
-
-right_side = ax.spines["right"]
-right_side.set_visible(False)
-top_side = ax.spines["top"]
-top_side.set_visible(False)
-ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-
-handles_bottom, labels_bottom = ax.get_legend_handles_labels()
-'''for i in range(0,total_alg_top+total_alg_bottom-1):
-    ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
-
-
-#####################################################
-ax = fig.add_subplot(gs[17:30,8:27], projection='3d')
-
-for i in range(task_num - 1):
-
-    et = np.zeros((total_alg_bottom,task_num-i))
-
-    for j in range(0,total_alg_bottom):
-        et[j,:] = np.asarray(btes_bottom[j][i])
-
-    ns = np.arange(i + 1, task_num + 1)
-    ns_new = np.linspace(ns.min(), ns.max(), 300)
-
-    for j in range(0,total_alg_bottom):
-        y_interp = np.interp(ns_new, ns, et[j,:])
-        idx = np.where(y_interp < 1.0)[0]
-        supper = y_interp.copy()
-        supper[idx] = np.nan
-
-        idx = np.where(y_interp >= 1.0)[0]
-        slower = y_interp.copy()
-        slower[idx] = np.nan
-
-        ax.plot(ns_new, supper, zs=j, zdir='y', color='r', linewidth=3)
-        ax.plot(ns_new, slower, zs=j, zdir='y', color='b', linewidth=3)
-        
-
-xs = np.linspace(0, 10, 10)
-zs = np.linspace(0, 7, 10)
-X, Y = np.meshgrid(xs, zs)
-Z = np.ones(X.shape)
-
-ax.plot_surface(X, Y, Z, color='grey', alpha=.3)
-
-for ii in range(total_alg_bottom):
-    zs = np.linspace(ii-.05,ii+.05,10)
-    X, Y = np.meshgrid(xs, zs)
-    Z = np.ones(X.shape)
-
-    ax.plot_surface(X, Y, Z, color='grey', alpha=1)
-
-ax.view_init(elev=10., azim=15, roll=0)
-
-'''for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
-    ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
-
-ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
-ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
-
-ax.set_zticks([.8,.9,1, 1.1,1.2])
-ax.set_xticks(np.arange(2,11,4))
-ax.set_zlim(0.76, 1.25)
-ax.set_ylim([0,7])
-log_lbl = np.round(
-    np.log([.8,.9,1,1.1,1.2]),
-    1
-)
-labels = [item.get_text() for item in ax.get_zticklabels()]
-
-for ii,_ in enumerate(labels):
-    labels[ii] = str(log_lbl[ii])
-
-ax.text(.9, .5, 1.4, 'Resource Constrained BL', fontsize=fontsize)
-ax.set_zticklabels(labels)
-ax.set_yticklabels(alg_name_bottom, rotation=80)
-ax.tick_params(labelsize=ticksize-8)
-#ax[0][1].grid(axis='x')
-ax.invert_xaxis()
-
-right_side = ax.spines["right"]
-right_side.set_visible(False)
-top_side = ax.spines["top"]
-top_side.set_visible(False)
-#ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-
-for ytick, color in zip(ax.get_yticklabels(), clr_bottom):
-    ytick.set_color(color)
-
-############################
-
-ax = fig.add_subplot(gs[19:27,28:36])
-
-mean_error, std_error = unpickle('../recruitment_exp/result/recruitment_exp_500.pickle')
-ns = 10*np.array([10, 50, 100, 200, 350, 500])
-clr = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3"]
-colors = sns.color_palette(clr, n_colors=len(clr))
-
-#labels = ['recruiting', 'Uncertainty Forest', 'hybrid', '50 Random', 'BF', 'building']
-labels = ['SynF (building)', 'UF (new)', 'recruiting', 'hybrid']
-algo = ['building', 'UF', 'recruiting', 'hybrid']
-adjust = 0
-for i,key in enumerate(algo):
-    err = np.array(mean_error[key])
-    ax.plot(ns, err, c=colors[i], label=labels[i])
-    #ax.fill_between(ns, 
-    #        acc + 1.96*np.array(std_error[key]), 
-    #        acc - 1.96*np.array(std_error[key]), 
-    #        where=acc + 1.96*np.array(std_error[key]) >= acc - 1.96*np.array(std_error[key]), 
-    #        facecolor=colors[i], 
-    #        alpha=0.15,
-    #        interpolate=False)
-
-
-#ax.set_title('CIFAR Recruitment Experiment', fontsize=30)
-ax.set_xscale('log')
-ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-ax.set_ylabel('Generalization Error', fontsize=fontsize)
-ax.set_xlabel('')
-ax.tick_params(labelsize=ticksize)
-#ax.set_ylim(0.325, 0.575)
-ax.set_title("CIFAR Recruitment",fontsize=fontsize)
-ax.set_xticks([])
-ax.set_yticks([0.45, 0.55, 0.65,0.75])
-#ax.set_ylim([0.43,0.62])
-#ax.text(50, 1, "50", fontsize=ticksize)
-ax.text(100, 0.424, "100", fontsize=ticksize-2)
-ax.text(500, 0.424, "500", fontsize=ticksize-2)
-ax.text(5000, 0.424, "5000", fontsize=ticksize-2)
-ax.text(120, 0.39, "Number of Task 10 Samples", fontsize=fontsize-1)
-
-ax.legend(loc='lower left',fontsize=legendsize+6, frameon=False)
-#ax.set_title('Recruitment Experiment on Task 10', fontsize=fontsize)
-
-right_side = ax.spines["right"]
-right_side.set_visible(False)
-top_side = ax.spines["top"]
-top_side.set_visible(False)
-
-
-fig.text(.35, 0.88, "CIFAR 10X10 (500 samples)", fontsize=fontsize+10)
+fig.text(.35, 0.88, "CIFAR 10X10 (Ablation)", fontsize=fontsize+10)
 fig.legend(handles_top, labels_top, bbox_to_anchor=(1, .8), fontsize=legendsize+14, frameon=False)
-fig.legend(handles_bottom, labels_bottom, bbox_to_anchor=(1, .45), fontsize=legendsize+14, frameon=False)
+#fig.legend(handles_bottom, labels_bottom, bbox_to_anchor=(1, .45), fontsize=legendsize+14, frameon=False)
 
-plt.savefig('result/figs/cifar_exp_500_recruit_with_rep.pdf', dpi=300)
+plt.savefig('result/figs/ablation.pdf', dpi=300)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# %%
-fig = plt.figure(constrained_layout=True,figsize=(25,19))
-gs = fig.add_gridspec(19,25)
-
-clr_top = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#f781bf", "#b15928", "#b15928", "#984ea3"]
-c_top = sns.color_palette(clr_top, n_colors=len(clr_top))
-
-clr_bottom = ["#e41a1c", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"]
-c_bottom = sns.color_palette(clr_bottom, n_colors=len(clr_bottom))
-
-marker_style_top = ['.', '.', '.', '.', '+', '.', '+', 'v']
-marker_style_bottom = ['.', '.', 'o', '*', '.', '+', 'x', 'o']
-marker_style = ['.', '.', '.', '.', '+', '.', '+',  'v', '.', 'o', '*', '.', '+', 'x', 'o']
-marker_style_scatter = ['.', '.', '.', '.', '+', 'v', '.', '+', '.', '.', 'o', '*', '.', '+', 'x', 'o']
-
-clr_combined = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#f781bf", "#b15928", "#b15928", "#984ea3", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"]
-c_combined = sns.color_palette(clr_combined, n_colors=total_alg_top+total_alg_bottom-1)
-
-clr_combined_ = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#f781bf", "#b15928", "#b15928", "#984ea3", "#e41a1c", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"]
-c_combined_ = sns.color_palette(clr_combined_, n_colors=total_alg_top+total_alg_bottom)
-
-fontsize=38
-ticksize=34
-legendsize=16
-
-ax = fig.add_subplot(gs[2:9,2:9])
-
-for i in range(total_alg_top):
-    if i==0 or i==1:
-        ax.plot(np.arange(1,11,1) ,avg_acc_top[i], color=c_top[i], marker=marker_style_top[i], linewidth=3)
-    else:
-        ax.plot(np.arange(1,11,1) ,avg_acc_top[i], color=c_top[i], marker=marker_style_top[i])
-    ax.fill_between(np.arange(1,11,1), avg_acc_top[i]-1.96*avg_var_top[i], avg_acc_top[i]+1.96*avg_var_top[i], facecolor=c_top[i], alpha=.3)
-
-ax.hlines(.1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-ax.set_yticks([.1,.2,.3,.4])
-ax.set_xticks(np.arange(2,11,2))
-ax.tick_params(labelsize=ticksize)
-ax.set_ylabel('Average Accuracy', fontsize=fontsize)
-ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
-ax.text(.6,.55,'Lifelong Learners', fontsize=fontsize+4)
-
-right_side = ax.spines["right"]
-right_side.set_visible(False)
-top_side = ax.spines["top"]
-top_side.set_visible(False)
-
-
-
-ax = fig.add_subplot(gs[2:9,10:17])
-
-for i in range(total_alg_top):
-    if i==0 or i==1:
-        ax.plot(np.arange(1,11,1) ,avg_single_acc_top[i], color=c_top[i], marker=marker_style_top[i], linewidth=3)
-    else:
-        ax.plot(np.arange(1,11,1) ,avg_single_acc_top[i], color=c_top[i], marker=marker_style_top[i])
-    ax.fill_between(np.arange(1,11,1), avg_single_acc_top[i]-1.96*avg_single_var_top[i], avg_single_acc_top[i]+1.96*avg_single_var_top[i], facecolor=c_top[i], alpha=.3)
-
-ax.hlines(.1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-ax.set_yticks([.1,.2,.3,.4])
-ax.set_xticks(np.arange(2,11,2))
-ax.tick_params(labelsize=ticksize)
-ax.text(.6,.55,'Single Task Experts', fontsize=fontsize+4)
-ax.set_ylabel('Average Accuracy', fontsize=fontsize)
-ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
-
-right_side = ax.spines["right"]
-right_side.set_visible(False)
-top_side = ax.spines["top"]
-top_side.set_visible(False)
-
-############################
-
-ax = fig.add_subplot(gs[10:,2:9])
-
-for i in range(total_alg_bottom):
-    if i==0:
-        ax.plot(np.arange(1,11,1) ,avg_acc_bottom[i], color=c_bottom[i], marker=marker_style_bottom[i], linewidth=3)
-    else:
-        ax.plot(np.arange(1,11,1) ,avg_acc_bottom[i], color=c_bottom[i], marker=marker_style_bottom[i])
-    ax.fill_between(np.arange(1,11,1), avg_acc_bottom[i]-1.96*avg_var_bottom[i], avg_acc_bottom[i]+1.96*avg_var_bottom[i], facecolor=c_bottom[i], alpha=.3)
-
-ax.hlines(.1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-ax.set_yticks([.1,.2,.3,.4])
-ax.set_xticks(np.arange(2,11,2))
-ax.tick_params(labelsize=ticksize)
-ax.set_ylabel('Average Accuracy \n (Resource constrained)', fontsize=fontsize)
-ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
-
-right_side = ax.spines["right"]
-right_side.set_visible(False)
-top_side = ax.spines["top"]
-top_side.set_visible(False)
-
-
-ax = fig.add_subplot(gs[10:,10:17])
-
-for i in range(total_alg_bottom):
-    if i==0:
-        ax.plot(np.arange(1,11,1) ,avg_single_acc_bottom[i], color=c_bottom[i], marker=marker_style_bottom[i], linewidth=3)
-    else:
-        ax.plot(np.arange(1,11,1) ,avg_single_acc_bottom[i], color=c_bottom[i], marker=marker_style_bottom[i])
-    ax.fill_between(np.arange(1,11,1), avg_single_acc_bottom[i]-1.96*avg_single_var_bottom[i], avg_single_acc_bottom[i]+1.96*avg_single_var_bottom[i], facecolor=c_bottom[i], alpha=.3)
-
-ax.hlines(.1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-ax.set_yticks([.1,.2,.3,.4])
-ax.set_xticks(np.arange(2,11,2))
-ax.tick_params(labelsize=ticksize)
-ax.set_ylabel('Average Accuracy \n (Resource constrained)', fontsize=fontsize)
-ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
-
-right_side = ax.spines["right"]
-right_side.set_visible(False)
-top_side = ax.spines["top"]
-top_side.set_visible(False)
-########################
-
-fig.text(.3, 0.95, "CIFAR 10X10 (500 samples)", fontsize=fontsize+10)
-
-fig.legend(handles_top, labels_top, bbox_to_anchor=(.995, .9), fontsize=legendsize+14, frameon=False)
-fig.legend(handles_bottom, labels_bottom, bbox_to_anchor=(.995, .5), fontsize=legendsize+14, frameon=False)
-
-plt.savefig('result/figs/cifar_exp_500_acc.pdf')
-
-# %%
-from matplotlib import cm
-
-ax = plt.figure(figsize=(12,12)).add_subplot(projection='3d')
-#cmap = sns.color_palette("coolwarm", as_cmap=True)
-color = ['b', 'r']
-for i in range(task_num - 1):
-
-    et = np.zeros((total_alg_bottom,task_num-i))
-
-    for j in range(0,total_alg_bottom):
-        et[j,:] = np.asarray(btes_bottom[j][i])
-
-    ns = np.arange(i + 1, task_num + 1)
-    ns_new = np.linspace(ns.min(), ns.max(), 300)
-
-    for j in range(0,total_alg_bottom):
-        y_interp = np.interp(ns_new, ns, et[j,:])
-        idx = np.zeros(len(y_interp), dtype=int)
-        idx[np.where(y_interp>=1)[0]] = 1     
-        clr = [color[i] for i in idx]
-
-        if j == 0:
-            if i == 0:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', c=clr, s=2)
-            else:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', c=clr, s=2)
-        elif j == 1:
-            if i == 0:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', c=clr, s=2)
-            else:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', c=clr, s=2)
-        else:
-            if i == 0:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', c=clr, s=2)
-            else:
-                ax.scatter(ns_new, y_interp, zs=j, zdir='y', c=clr, s=2)
-
-
-xs = np.linspace(0, 10, 100)
-zs = np.linspace(0, 7, 100)
-X, Y = np.meshgrid(xs, zs)
-Z = np.ones(X.shape)
-
-ax.plot_surface(X, Y, Z, color='grey', alpha=.5)
-
-ax.view_init(elev=10., azim=25, roll=0)
-
-'''for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
-    ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
-
-ax.set_xlabel('Tasks seen', fontsize=15)
-ax.set_zlabel('log Backward LE', fontsize=15)
-
-ax.set_zticks([.8,.9,1, 1.1,1.2])
-ax.set_xticks(np.arange(2,11,4))
-ax.set_zlim(0.76, 1.25)
-ax.set_ylim([0,7])
-log_lbl = np.round(
-    np.log([.8,.9,1,1.1,1.2]),
-    1
-)
-labels = [item.get_text() for item in ax.get_zticklabels()]
-
-for ii,_ in enumerate(labels):
-    labels[ii] = str(log_lbl[ii])
-
-ax.set_zticklabels(labels)
-ax.set_yticklabels(alg_name_bottom, rotation=80)
-ax.tick_params(labelsize=15)
-#ax[0][1].grid(axis='x')
-ax.invert_xaxis()
-
-right_side = ax.spines["right"]
-right_side.set_visible(False)
-top_side = ax.spines["top"]
-top_side.set_visible(False)
-#ax.hlines(1, 1,10, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-
-for ytick, color in zip(ax.get_yticklabels(), clr_bottom):
-    ytick.set_color(color)
-
-plt.savefig('result/figs/test.pdf')
 # %%
