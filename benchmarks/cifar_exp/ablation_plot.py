@@ -324,11 +324,14 @@ ticksize=34
 legendsize=16
 
 ax = fig.add_subplot(gs[4:12,:8])
-ax.plot([0], [0], color=[1,1,1], label='Resource Growing     ')
 
 fte = ftes_top[3]
 fte[0] = 1
-ax.plot(np.arange(1,11), fte, color=c_top[3], marker=marker_style_top[3], markersize=12, label=alg_name_top[3])
+ax.plot(np.arange(1,11), fte, color='b', label='SynN', linewidth=3)
+
+fte = ftes_bottom[3]
+fte[0] = 1
+ax.plot(np.arange(1,11), fte, color='r', label='SynF', linewidth=3)
 
 ax.set_title('Forward Learning (FL)', fontsize=fontsize)
 ax.set_xticks(np.arange(1,11))
@@ -449,12 +452,12 @@ ax.text(.9, .5, 1.4, 'Backward Learning (BL)', fontsize=fontsize)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
 ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
 
-ax.set_zticks([.8,.9,1, 1.1,1.2])
+ax.set_zticks([.9,1, 1.1,1.2])
 ax.set_xticks(np.arange(2,11,4))
-ax.set_zlim(0.76, 1.25)
+ax.set_zlim(0.9, 1.25)
 ax.set_ylim([0,7])
 log_lbl = np.round(
-    np.log([.8,.9,1,1.1,1.2]),
+    np.log([.9,1,1.1,1.2]),
     1
 )
 labels = [item.get_text() for item in ax.get_zticklabels()]
@@ -463,6 +466,7 @@ for ii,_ in enumerate(labels):
     labels[ii] = str(log_lbl[ii])
 
 ax.set_zticklabels(labels)
+ax.set_yticks(np.arange(0,8,1))
 ax.set_yticklabels(combined_alg_name, rotation=80)
 ax.tick_params(labelsize=ticksize-8)
 #ax[0][1].grid(axis='x')
@@ -479,12 +483,12 @@ for ytick, color in zip(ax.get_yticklabels(), clr_top):
 
 
 ##########################################################
-ax = fig.add_subplot(gs[4:12,28:36])
+ax = fig.add_subplot(gs[4:12,26:34])
 
 ax.set_title('Overall Learning', fontsize=fontsize)
 ax.tick_params(labelsize=22)
 ax_ = sns.boxplot(
-    x="Algorithms", y="Learning Efficieny", data=df_500, palette=c_combined_, whis=np.inf,
+    x="Algorithms", y="Learning Efficieny", data=df_500, palette=['b','b','b','b','r','r','r','r'], whis=np.inf,
     ax=ax, showfliers=False, notch=1
     )
 ax.hlines(0, -1,8, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
@@ -507,7 +511,7 @@ top_side.set_visible(False)
 #########################################################
 
 fig.text(.35, 0.88, "CIFAR 10X10 (Ablation)", fontsize=fontsize+10)
-fig.legend(handles_top, labels_top, bbox_to_anchor=(1, .8), fontsize=legendsize+14, frameon=False)
+fig.legend(handles_top, labels_top, bbox_to_anchor=(.88, .5), fontsize=legendsize+14, frameon=False)
 #fig.legend(handles_bottom, labels_bottom, bbox_to_anchor=(1, .45), fontsize=legendsize+14, frameon=False)
 
 plt.savefig('result/figs/ablation.pdf', dpi=300)
