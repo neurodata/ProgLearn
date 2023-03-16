@@ -300,7 +300,7 @@ df_500 = pd.melt(df_500,var_name='Algorithms', value_name='Learning Efficieny')
 fig = plt.figure(constrained_layout=True,figsize=(38,14))
 gs = fig.add_gridspec(14,38)
 
-clr = ['b', 'b', 'b', 'b', 'r', 'r', 'r', 'r']
+clr = ["#984ea3", "#984ea3", "#984ea3", "#984ea3", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a"]
 
 fontsize=38
 ticksize=34
@@ -310,11 +310,11 @@ ax = fig.add_subplot(gs[4:12,:8])
 
 fte = ftes_top[3]
 fte[0] = 1
-ax.plot(np.arange(1,11), fte, color='b', label='SynN', linewidth=3)
+ax.plot(np.arange(1,11), fte, color=clr[0], label='SynN', linewidth=3)
 
 fte = ftes_bottom[3]
 fte[0] = 1
-ax.plot(np.arange(1,11), fte, color='r', label='SynF', linewidth=3)
+ax.plot(np.arange(1,11), fte, color=clr[4], label='SynF', linewidth=3)
 
 ax.set_title('Forward Learning (FL)', fontsize=fontsize)
 ax.set_xticks(np.arange(1,11))
@@ -471,7 +471,7 @@ ax = fig.add_subplot(gs[4:12,26:34])
 ax.set_title('Overall Learning', fontsize=fontsize)
 ax.tick_params(labelsize=22)
 ax_ = sns.boxplot(
-    x="Algorithms", y="Learning Efficieny", data=df_500, palette=['b','b','b','b','r','r','r','r'], whis=np.inf,
+    x="Algorithms", y="Learning Efficieny", data=df_500, palette=clr, whis=np.inf,
     ax=ax, showfliers=False, notch=1
     )
 ax.hlines(0, -1,8, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
