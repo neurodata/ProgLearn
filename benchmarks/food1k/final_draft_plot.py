@@ -206,6 +206,9 @@ for count,name in enumerate(te.keys()):
         te[name][i] = np.log(tes[count][i][49-i])
 
 
+for name in te.keys():
+    print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
+
 df = pd.DataFrame.from_dict(te)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 
