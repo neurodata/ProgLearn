@@ -431,7 +431,7 @@ ax.view_init(elev=10., azim=15, roll=0)
 '''for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
     ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
 
-ax.text(.9, .5, 1.4, 'Backward Learning (BL)', fontsize=fontsize)
+ax.text(.9, .5, 1.35, 'Backward Learning (BL)', fontsize=fontsize)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
 ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
 
@@ -493,7 +493,7 @@ top_side.set_visible(False)
 
 #########################################################
 
-fig.text(.35, 0.88, "CIFAR 10X10 (Ablation)", fontsize=fontsize+10)
+fig.text(.35, 0.85, "CIFAR 10X10 (Ablation)", fontsize=fontsize+10)
 fig.legend(handles_top, labels_top, bbox_to_anchor=(.9, .5), fontsize=legendsize+14, frameon=False)
 #fig.legend(handles_bottom, labels_bottom, bbox_to_anchor=(1, .45), fontsize=legendsize+14, frameon=False)
 
