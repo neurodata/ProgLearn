@@ -493,7 +493,7 @@ top_side.set_visible(False)
 
 #########################################################
 
-fig.text(.35, 0.85, "CIFAR 10X10 (Ablation)", fontsize=fontsize+10)
+fig.text(.35, 0.85, "CIFAR 10X10 (Controlled Replay)", fontsize=fontsize+10)
 fig.legend(handles_top, labels_top, bbox_to_anchor=(.9, .5), fontsize=legendsize+14, frameon=False)
 #fig.legend(handles_bottom, labels_bottom, bbox_to_anchor=(1, .45), fontsize=legendsize+14, frameon=False)
 
