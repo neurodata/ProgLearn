@@ -481,7 +481,7 @@ ax.hlines(0, -1,8, colors='grey', linestyles='dashed',linewidth=1.5, label='chan
 ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('log LE after 10 Tasks', fontsize=fontsize-5)
 ax_.set_xticklabels(
-    ['SynN (0.4)','SynN (0.6)', 'SynN (0.8)', 'SynN (1)','SynF (0.4)', 'SynF (0.6)', 'SynF (0.8)', 'SynF (1)'],
+    ['SynN (0.4)','SynN (0.6)', 'SynN (0.8)', 'SynN (1.0)','SynF (0.4)', 'SynF (0.6)', 'SynF (0.8)', 'SynF (1.0)'],
     fontsize=22,rotation=80,ha="right",rotation_mode='anchor'
     )
 
