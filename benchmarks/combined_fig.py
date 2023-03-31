@@ -419,7 +419,7 @@ marker_style_scatter = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '
 clr_combined = ["#377eb8", "#e41a1c", "#984ea3", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928"]
 c_combined = sns.color_palette(clr_combined, n_colors=total_alg)
 
-fontsize=29
+fontsize=35
 ticksize=26
 legendsize=20
 
@@ -571,7 +571,7 @@ ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('log LE after 5 Tasks', fontsize=fontsize-5)
 ax_.set_xticklabels(
     ['SynN','SynF', 'Model zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay','Partial Replay', 'None'],
-    fontsize=18,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=22,rotation=65,ha="right",rotation_mode='anchor'
     )
 
 stratified_scatter(te,ax,16,c_combined,marker_style_scatter)
@@ -741,7 +741,7 @@ ax.view_init(elev=10., azim=15, roll=0)
     ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
 
 ax.text(.9, .6, 1.75, 'Backward Learning (BL)', fontsize=fontsize+5)
-ax.text(.1, .1, 2, "Mini-Imagenet(2400 samples)", fontsize=fontsize+30)
+ax.text(.1, .1, 2, "Split Mini-Imagenet(2400 samples)", fontsize=fontsize+30)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
 ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
 
@@ -788,7 +788,7 @@ ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('log LE after 20 Tasks', fontsize=fontsize-5)
 ax_.set_xticklabels(
     ['SynN','SynF', 'Model zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay','Partial Replay', 'None'],
-    fontsize=18,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=22,rotation=65,ha="right",rotation_mode='anchor'
     )
 
 stratified_scatter(te,ax,16,c_combined,marker_style_scatter)
@@ -1010,7 +1010,7 @@ ax_.set_xlabel('', fontsize=fontsize)
 ax.set_ylabel('log LE after 50 Tasks', fontsize=fontsize-5)
 ax_.set_xticklabels(
     ['SynN','SynF', 'Model zoo', 'LwF'],
-    fontsize=18,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=22,rotation=65,ha="right",rotation_mode='anchor'
     )
 
 stratified_scatter(te,ax,16,c_combined,marker_style_scatter)
