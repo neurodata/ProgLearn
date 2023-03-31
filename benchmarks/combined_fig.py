@@ -519,7 +519,7 @@ ax.view_init(elev=10., azim=15, roll=0)
     ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
 
 ax.text(.9, .5, 3.8, 'Backward Learning (BL)', fontsize=fontsize+5)
-ax.text(.9, .75, 4.2, "5-dataset", fontsize=fontsize+30)
+ax.text(.9, .75, 4.2, "5-dataset", fontsize=fontsize+20)
 
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
 ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
@@ -741,7 +741,7 @@ ax.view_init(elev=10., azim=15, roll=0)
     ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
 
 ax.text(.9, .6, 1.75, 'Backward Learning (BL)', fontsize=fontsize+5)
-ax.text(.1, .1, 2, "Split Mini-Imagenet(2400 samples)", fontsize=fontsize+30)
+ax.text(.1, .1, 2, "Split Mini-Imagenet(2400 samples)", fontsize=fontsize+20)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
 ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
 
@@ -963,7 +963,7 @@ ax.view_init(elev=10., azim=15, roll=0)
 
 
 ax.text(.9, .5, 1.7, 'Backward Learning (BL)', fontsize=fontsize+5)
-ax.text(.1, .1, 1.8, "FOOD1k 50X20 (1200 samples)", fontsize=fontsize+30)
+ax.text(.1, .1, 1.8, "FOOD1k 50X20 (1200 samples)", fontsize=fontsize+20)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
 ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
 
