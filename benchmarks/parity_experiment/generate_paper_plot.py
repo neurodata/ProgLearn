@@ -388,7 +388,7 @@ ax1.plot(
     scatter=False
 )'''
 
-ax1.set_ylabel("log Forward/Backward \n Learning Efficiency (FLE/BLE)", fontsize=fontsize)
+ax1.set_ylabel("Forward / Backward Learning", fontsize=fontsize)
 ax1.legend(loc="upper left", fontsize=20, frameon=False)
 ax1.set_yticks([0.05, 1, 2.5])
 ax1.set_ylim(0.05, 2.52)
@@ -456,7 +456,7 @@ ax1.plot(
     ns[len(n1s) :], move_avg(mean_te_nn[3, len(n1s) :], 4), label=algorithms[7], c="#b15928", ls=ls[1], lw=3
 )
 
-ax1.set_ylabel("log Forward/Backward \n Learning Efficiency (FLE/BLE)", fontsize=fontsize)
+ax1.set_ylabel("Forward / Backward Learning", fontsize=fontsize)
 # ax1.legend(loc='upper left', fontsize=20, frameon=False)
 ax1.set_ylim(0.2, 1.2)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
@@ -500,7 +500,7 @@ ax.plot(angle_sweep, move_avg(te_nn[:-1],10), c='#377eb8', linewidth=3)
 ax.set_xticks(range(0, 91, 45))
 ax.tick_params(labelsize=labelsize)
 ax.set_xlabel("Angle of Rotation (Degrees)", fontsize=fontsize)
-ax.set_ylabel("log Backward LE (XOR)", fontsize=fontsize)
+ax.set_ylabel("log BLE (XOR)", fontsize=fontsize)
 ax.set_ylim(0.89, 1.25)
 ax.set_yticks([0.9, 1, 1.1, 1.2])
 
@@ -571,7 +571,7 @@ ax.text(
     "Number of $25^\circ$-RXOR Training Samples",
     fontsize=fontsize - 4,
 )
-ax.set_ylabel("log Backward LE (XOR)", fontsize=fontsize)
+ax.set_ylabel("log BLE (XOR)", fontsize=fontsize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
