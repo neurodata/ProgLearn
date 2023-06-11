@@ -479,12 +479,12 @@ ntrees = 10
 slots = 10
 task_num = 10
 shifts = 6
-total_alg_top = 8
+total_alg_top = 9
 total_alg_bottom = 8
-alg_name_top = ['SynN','SynF', 'Model Zoo','ProgNN', 'DF-CNN', 'EWC', 'Total Replay', 'Partial Replay']
+alg_name_top = ['SynN','SynF', 'Model Zoo','ProgNN', 'LMC', 'DF-CNN', 'EWC', 'Total Replay', 'Partial Replay']
 alg_name_bottom = ['SynF','LwF','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'None']
 combined_alg_name = ['SynN','SynF', 'Model Zoo','ProgNN', 'DF-CNN','EWC', 'Total Replay', 'Partial Replay', 'LwF', 'O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'None']
-model_file_top = ['dnn0withrep','fixed_uf10withrep', 'model_zoo','Prog_NN','DF_CNN', 'EWC', 'offline', 'exact']
+model_file_top = ['dnn0withrep','fixed_uf10withrep', 'model_zoo','Prog_NN', 'LMC', 'DF_CNN', 'EWC', 'offline', 'exact']
 model_file_bottom = ['uf10withrep', 'LwF', 'OEWC', 'si', 'er', 'agem', 'tag', 'None']
 btes_top = [[] for i in range(total_alg_top)]
 ftes_top = [[] for i in range(total_alg_top)]
@@ -520,7 +520,7 @@ for alg in range(total_alg_top):
         for shift in range(shifts):
             if alg < 2:
                 filename = 'cifar_exp/result/result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
-            elif alg == 3 or alg == 4:
+            elif alg == 3 or alg == 5:
                 filename = 'cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(shift+1)+'-'+str(slot+1)+'.pickle'
             elif alg == 2:
                 filename = 'cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(slot+1)+'_'+str(shift+1)+'.pickle'
@@ -611,7 +611,8 @@ for alg in range(total_alg_bottom):
 #%%
 te_500 = {'SynN':np.zeros(10,dtype=float), 'SynF':np.zeros(10,dtype=float), 
           'Model Zoo':np.zeros(10,dtype=float),
-          'ProgNN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 
+          'ProgNN':np.zeros(10,dtype=float), 'LMC':np.zeros(10,dtype=float),
+          'DF-CNN':np.zeros(10,dtype=float), 
           'EWC':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
           'Partial Replay':np.zeros(10,dtype=float),
           'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
@@ -622,10 +623,10 @@ te_500 = {'SynN':np.zeros(10,dtype=float), 'SynF':np.zeros(10,dtype=float),
 for count,name in enumerate(te_500.keys()):
     #print(name, count)
     for i in range(10):
-        if count <8:
+        if count <9:
             te_500[name][i] = np.log(tes_top[count][i][9-i])
         else:
-            te_500[name][i] = np.log(tes_bottom[count-8][i][9-i])
+            te_500[name][i] = np.log(tes_bottom[count-9][i][9-i])
 
 
 for name in te_500.keys():
@@ -644,7 +645,8 @@ le['cifar'] = []
 
 bte_end = {'SynN':np.zeros(10,dtype=float), 'SynF':np.zeros(10,dtype=float), 
           'Model Zoo':np.zeros(10,dtype=float),
-          'ProgNN':np.zeros(10,dtype=float), 'DF-CNN':np.zeros(10,dtype=float), 
+          'ProgNN':np.zeros(10,dtype=float), 'LMC':np.zeros(10,dtype=float),
+          'DF-CNN':np.zeros(10,dtype=float), 
           'EWC':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
           'Partial Replay':np.zeros(10,dtype=float),
           'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
@@ -653,13 +655,13 @@ bte_end = {'SynN':np.zeros(10,dtype=float), 'SynF':np.zeros(10,dtype=float),
           'TAG':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
 
 
-for count,name in enumerate(te_500.keys()):
+for count,name in enumerate(bte_end.keys()):
     #print(name, count)
     for i in range(10):
-        if count <8:
+        if count <9:
             bte_end[name][i] = np.log(btes_top[count][i][9-i])
         else:
-            bte_end[name][i] = np.log(btes_bottom[count-8][i][9-i])
+            bte_end[name][i] = np.log(btes_bottom[count-9][i][9-i])
 
 
 for key in te_500.keys():
@@ -667,7 +669,7 @@ for key in te_500.keys():
         np.mean(te_500[key])
     )
 
-for key in te_500.keys():
+for key in bte_end.keys():
     ble['cifar'].append(
         np.mean(bte_end[key])
     )
@@ -793,7 +795,7 @@ ble_sorted = {}
 le_sorted = {}
 data = {}
 
-sorting_idx = [ 0,  2,  1,  3,  8,  4, 12,  6,  7, 13, 14,  9, 10, 11,  5, 15]
+sorting_idx = [ 0,  2,  1,  3,  9,  4,  5, 13,  7,  8, 14, 15, 10, 11, 12,  6, 16]
 algorithms_ours = []
 algorithms_ = list(te_scatter['cifar'].keys())
 
@@ -864,7 +866,7 @@ forget_ = {}
 transfer_ = {}
 transfer = {}
 data_ven = {}
-algorithms_ = ['SynN', 'SynF', 'ProgNN', \
+algorithms_ = ['SynN', 'SynF', 'ProgNN', 'LMC', \
             'DF-CNN', 'EWC', 'Tota Replay', \
             'Partial Replay', 'Model Zoo', \
             'SynF (constrained)', \
@@ -872,43 +874,43 @@ algorithms_ = ['SynN', 'SynF', 'ProgNN', \
             'A-GEM', 'TAG', 'None']
 algorithms = []
 
-sorted_indx = [ 0,  2,  7,  1,  8,  6,  5, 13,  9, 12,  3, 14, 10, 11,  4, 15]
+sorted_indx = [ 0,  2,  8,  1,  9,  3,  7,  6, 14, 10, 13,  4, 15, 11, 12,  5, 16]
 
-accuracy_['cifar'] = [.4, .41, .39, .17, .36, .36, .37, .46,\
+accuracy_['cifar'] = [.4, .41, .39, 0.28, .17, .36, .36, .37, .46,\
            .41, .42, .36, .35, .32, .27, .15, .29]
-forget_['cifar'] = [.03, .03, 0, -.09, -.01, -.03, -.01, .05,\
+forget_['cifar'] = [.03, .03, 0, -0.04, -.09, -.01, -.03, -.01, .05,\
           .03, 0, 0, -.01, -.13, -.17, -.05, -.14]
-transfer_['cifar'] = [.13, .08, .07, -.09, -.09, -.09, -.07,\
+transfer_['cifar'] = [.13, .08, .07,  -0.04, -.09, -.09, -.09, -.07,\
             .05, .03, -.03, -.08, -.09, -.09, -.13,\
             -.23, -.16]
 
-accuracy_['5 dataset'] = [.79, .71, np.nan, np.nan, .68, .83, .82, .89,\
+accuracy_['5 dataset'] = [.79, .71, np.nan, np.nan, np.nan, .68, .83, .82, .89,\
             np.nan, .8, .68, .66, .68, .67, .69, .62]
-forget_['5 dataset'] = [-.02, -.01, np.nan, np.nan, -.08, -.01, -.01, .03,\
+forget_['5 dataset'] = [-.02, -.01, np.nan, np.nan, np.nan, -.08, -.01, -.01, .03,\
             np.nan, -.07, -.08, -.07, -.13, -.14, -.11, -.31]
-transfer_['5 dataset'] = [-.03, -.02, np.nan, np.nan, -.18, -.03, -.04, .03,\
+transfer_['5 dataset'] = [-.03, -.02, np.nan, np.nan, np.nan, -.18, -.03, -.04, .03,\
             np.nan, -.06, -.18, -.2, -.12, -.09, -.1, -.24]
 
 
-accuracy_['imagenet'] = [.55, .52, np.nan, np.nan, .54, .58, .58, .6,\
+accuracy_['imagenet'] = [.55, .52, np.nan, np.nan, np.nan, .54, .58, .58, .6,\
             np.nan, .6, .55, .57, .58, .56, .58, .52]
-forget_['imagenet'] = [.03, .02, np.nan, np.nan, -.04, -.01, -.01, .06,\
+forget_['imagenet'] = [.03, .02, np.nan, np.nan, np.nan, -.04, -.01, -.01, .06,\
             np.nan, 0, -.03, -.02, -.07, -.07, -.06, -.12]
-transfer_['imagenet'] = [.02, .04, np.nan, np.nan, -.07, -.03, -.03, .1,\
+transfer_['imagenet'] = [.02, .04, np.nan, np.nan, np.nan, -.07, -.03, -.03, .1,\
             np.nan, -.01, -.06, -.04, -.01, .05, -.04, -.1]
 
-accuracy_['speech'] = [.91, .91, np.nan, np.nan, .73, .93, .93, .98,\
+accuracy_['speech'] = [.91, .91, np.nan, np.nan, np.nan, .73, .93, .93, .98,\
             np.nan, .76, .72, .72, np.nan, np.nan, np.nan, .73]
-forget_['speech'] = [.035, .01, np.nan, np.nan, -.28, 0, 0, 0.01,\
+forget_['speech'] = [.035, .01, np.nan, np.nan, np.nan, -.28, 0, 0, 0.01,\
             np.nan, -.24, -.29, -.27, np.nan, np.nan, np.nan, -.3]
-transfer_['speech'] = [.16, .03, np.nan, np.nan, -.24, -.04, -.04, 0,\
+transfer_['speech'] = [.16, .03, np.nan, np.nan, np.nan, -.24, -.04, -.04, 0,\
             np.nan, -.21, -.25, -.25, np.nan, np.nan, np.nan, -.23]
 
-accuracy_['food1k'] = [.45, .36, np.nan, np.nan, np.nan, np.nan, np.nan, .42,\
+accuracy_['food1k'] = [.45, .36, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, .42,\
            np.nan, .43, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
-forget_['food1k'] = [.03, .01, np.nan, np.nan, np.nan, np.nan, np.nan, .05,\
+forget_['food1k'] = [.03, .01, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, .05,\
            np.nan, -.08, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
-transfer_['food1k'] = [.2, .09, np.nan, np.nan, np.nan, np.nan, np.nan, .08,\
+transfer_['food1k'] = [.2, .09, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, .08,\
            np.nan, -.03, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
 
 for idx in sorted_indx:
@@ -951,7 +953,7 @@ fig, ax = plt.subplots(2, 3, figsize=(18,16), sharex=True)
 sns.set_context('talk')
 vmins = [-1.5,-1.5,-1.5]
 vmaxs = [1.5,1.5,1.5]
-clr = ["#984ea3","#984ea3","#984ea3","#984ea3","#4daf4a","#984ea3","#4daf4a","#984ea3","#984ea3","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#984ea3","#4daf4a"]
+clr = ["#984ea3","#984ea3","#984ea3","#984ea3","#4daf4a","#984ea3","#984ea3","#4daf4a","#984ea3","#984ea3","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#984ea3","#4daf4a"]
 for i in range(3):
     sns.heatmap(data[keys_ours[i]], yticklabels=algorithms_ours,\
                 vmin=vmins[i], vmax=vmaxs[i],
