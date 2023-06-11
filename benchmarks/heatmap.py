@@ -974,6 +974,8 @@ for ytick, color in zip(ax[0][0].get_yticklabels(), clr):
 
 
 ### veniant's ###
+clr = ["#984ea3","#984ea3","#984ea3","#984ea3","#4daf4a","#984ea3","#984ea3","#984ea3","#4daf4a","#4daf4a","#4daf4a","#984ea3","#4daf4a","#4daf4a","#4daf4a","#984ea3","#4daf4a"]
+
 keys = ['accuracy', 'forget', 'transfer']
 keys_ = ['Accuracy', 'Forget', 'Transfer']
 vmins = [0,-.3,-.3]
