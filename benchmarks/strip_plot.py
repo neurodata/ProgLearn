@@ -787,7 +787,7 @@ for ii, data in enumerate(tes_all.keys()):
 
     ax_.set_xlabel('')
     ax_.set_yticks(FLE_yticks[ii])
-    ax_.set_ylabel(datasets[ii]+'\n$\log$ FLE')
+    ax_.set_ylabel(datasets[ii]+'\n$\log$ FLE', fontsize=24)
     right_side = ax_.spines["right"]
     right_side.set_visible(False)
     top_side = ax_.spines["top"]
@@ -806,7 +806,7 @@ for ii, data in enumerate(tes_all.keys()):
 
     ax_.set_xlabel('')
     ax_.set_yticks(BLE_yticks[ii])
-    ax_.set_ylabel('$\log$ BLE')
+    ax_.set_ylabel('$\log$ BLE', fontsize=24)
     right_side = ax_.spines["right"]
     right_side.set_visible(False)
     top_side = ax_.spines["top"]
@@ -824,7 +824,7 @@ for ii, data in enumerate(tes_all.keys()):
 
     ax_.set_xlabel('')
     ax_.set_yticks(LE_yticks[ii])
-    ax_.set_ylabel('$\log$ LE')
+    ax_.set_ylabel('$\log$ LE', fontsize=24)
     right_side = ax_.spines["right"]
     right_side.set_visible(False)
     top_side = ax_.spines["top"]
