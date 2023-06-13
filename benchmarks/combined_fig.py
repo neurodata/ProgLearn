@@ -400,8 +400,8 @@ te_scatter['food1k'] = te
 
 
 # %%
-fig = plt.figure(constrained_layout=True,figsize=(42,45))
-gs = fig.add_gridspec(45,42)
+fig = plt.figure(constrained_layout=True,figsize=(48,28))
+gs = fig.add_gridspec(28,48)
 
 
 tes = tes_all['five_dataset']
@@ -423,7 +423,7 @@ fontsize=35
 ticksize=26
 legendsize=20
 
-ax = fig.add_subplot(gs[4:12,:8])
+ax = fig.add_subplot(gs[4:12,4:12])
 
 for i, fte in enumerate(ftes):
     fte[0] = 1
@@ -437,7 +437,7 @@ for i, fte in enumerate(ftes):
     
     ax.plot(np.arange(1,6), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i])
 
-ax.set_title('Forward Learning (FL)', fontsize=fontsize+5)
+ax.set_title('5-dataset', fontsize=fontsize+20)
 ax.set_xticks(np.arange(1,6))
 ax.set_yticks([0.5, 1, 2, 3])
 #ax.set_yticks([])
@@ -458,7 +458,7 @@ ax.set_yticklabels(labels)
 
 ax.tick_params(labelsize=ticksize)
 
-ax.set_ylabel('log FLE', fontsize=fontsize)
+ax.set_ylabel('Forward Learning (FL)\n log FLE', fontsize=fontsize)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 right_side = ax.spines["right"]
@@ -471,7 +471,7 @@ handles, labels_ = ax.get_legend_handles_labels()
 
 ###########################################################
 #ax[0][0].grid(axis='x')
-ax = fig.add_subplot(gs[2:15,8:27], projection='3d')
+ax = fig.add_subplot(gs[14:27,:14], projection='3d')
 
 #cmap = sns.color_palette("coolwarm", as_cmap=True)
 
@@ -518,11 +518,11 @@ ax.view_init(elev=10., azim=15, roll=0)
 '''for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
     ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
 
-ax.text(.9, .5, 3.8, 'Backward Learning (BL)', fontsize=fontsize+5)
-ax.text(.9, .75, 4.2, "5-dataset", fontsize=fontsize+20)
+#ax.text(.9, .5, 3.8, 'Backward Learning (BL)', fontsize=fontsize+5)
+#ax.text(.9, .75, 4.2, "5-dataset", fontsize=fontsize+20)
 
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
-ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
+ax.set_zlabel('log BLE \nBackward Learning (BL)', fontsize=35, labelpad=15)
 
 ax.set_zticks([.2,1,2,3])
 ax.set_xticks(np.arange(1,6,1))
@@ -556,7 +556,7 @@ for ytick, color in zip(ax.get_yticklabels(), clr_combined):
 #ax.legend(loc='center left', bbox_to_anchor=(.8, 0.5), fontsize=legendsize+16)
 
 
-ax = fig.add_subplot(gs[4:12,28:36])
+'''ax = fig.add_subplot(gs[4:12,28:36])
 ax.tick_params(labelsize=22)
 ax_ = sns.boxplot(
     x="Algorithms", y="Transfer Efficieny", data=df, palette=c_combined, whis=np.inf,
@@ -579,7 +579,7 @@ stratified_scatter(te,ax,16,c_combined,marker_style_scatter)
 right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
-top_side.set_visible(False)
+top_side.set_visible(False)'''
 
 fig.legend(handles, labels_, bbox_to_anchor=(.97, .7), fontsize=legendsize+12, frameon=False)
 
@@ -647,7 +647,7 @@ clr_combined = ["#377eb8", "#e41a1c", "#984ea3", "#f781bf", "#f781bf", "#f781bf"
 c_combined = sns.color_palette(clr_combined, n_colors=total_alg)
 
 
-ax = fig.add_subplot(gs[19:27,:8])
+ax = fig.add_subplot(gs[4:12,19:27])
 
 for i, fte in enumerate(ftes):
     fte[0] = 1
@@ -661,7 +661,7 @@ for i, fte in enumerate(ftes):
     
     ax.plot(np.arange(1,21), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i])
     
-ax.set_title('Forward Learning (FL)', fontsize=fontsize+5)
+ax.set_title('Split Mini-Imagenet\n (2400 samples)', fontsize=fontsize+20)
 ax.set_xticks(np.arange(1,21,3))
 ax.set_yticks([0.5, 1, 2, 3])
 #ax.set_yticks([])
@@ -693,7 +693,7 @@ ax.hlines(1, 1,21, colors='grey', linestyles='dashed',linewidth=1.5)
 
 handles, labels_ = ax.get_legend_handles_labels()
 
-ax = fig.add_subplot(gs[17:30,8:27], projection='3d')
+ax = fig.add_subplot(gs[14:27,15:29], projection='3d')
 
 xs = np.linspace(0, task_num, 100)
 for ii in range(total_alg):
@@ -740,8 +740,8 @@ ax.view_init(elev=10., azim=15, roll=0)
 '''for i in range(total_alg_top,total_alg_top+total_alg_bottom-1):
     ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
 
-ax.text(.9, .6, 1.75, 'Backward Learning (BL)', fontsize=fontsize+5)
-ax.text(.1, .1, 2, "Split Mini-Imagenet(2400 samples)", fontsize=fontsize+20)
+#ax.text(.9, .6, 1.75, 'Backward Learning (BL)', fontsize=fontsize+5)
+#ax.text(.1, .1, 2, "Split Mini-Imagenet(2400 samples)", fontsize=fontsize+20)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
 ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
 
@@ -773,7 +773,7 @@ for ytick, color in zip(ax.get_yticklabels(), clr_combined):
 
 ###############################################
 
-ax = fig.add_subplot(gs[19:27,28:36])
+'''ax = fig.add_subplot(gs[19:27,28:36])
 ax.tick_params(labelsize=22)
 ax_ = sns.boxplot(
     x="Algorithms", y="Transfer Efficieny", data=df, palette=c_combined, whis=np.inf,
@@ -796,7 +796,7 @@ stratified_scatter(te,ax,16,c_combined,marker_style_scatter)
 right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
-top_side.set_visible(False)
+top_side.set_visible(False)'''
 
 fig.legend(handles, labels_, bbox_to_anchor=(.97, .7), fontsize=legendsize+12, frameon=False)
 
@@ -868,7 +868,7 @@ fontsize=29
 ticksize=26
 legendsize=14
 
-ax = fig.add_subplot(gs[34:42,:8])
+ax = fig.add_subplot(gs[4:12,34:42])
 
 for i, fte in enumerate(ftes):
     fte[0] = 1
@@ -882,7 +882,8 @@ for i, fte in enumerate(ftes):
     
     ax.plot(np.arange(1,51), fte, color=c_combined[i], marker=marker_style[i], markersize=12, label=combined_alg_name[i])
 
-ax.set_title('Forward Learning (FL)', fontsize=fontsize+5)
+ax.set_title('FOOD1k 50X20\n (1200 samples)', fontsize=fontsize+20)
+#ax.text(1, 1, "FOOD1k 50X20 (1200 samples)", fontsize=fontsize+20)
 ax.set_xticks([1,10,20,30,40,50])
 ax.set_yticks([0.9,1,1.5])
 #ax.set_yticks([])
@@ -914,7 +915,7 @@ ax.hlines(1, 1,51, colors='grey', linestyles='dashed',linewidth=1.5)
 
 handles, labels_ = ax.get_legend_handles_labels()
 
-ax = fig.add_subplot(gs[32:45,8:27], projection='3d')
+ax = fig.add_subplot(gs[14:27,30:44], projection='3d')
 
 xs = np.linspace(0, task_num, 100)
 for ii in range(total_alg):
@@ -962,8 +963,7 @@ ax.view_init(elev=10., azim=15, roll=0)
     ax.plot(1,0,color=c_combined[i], marker=marker_style[i], markersize=8,label=combined_alg_name[i])'''
 
 
-ax.text(.9, .5, 1.7, 'Backward Learning (BL)', fontsize=fontsize+5)
-ax.text(.1, .1, 1.8, "FOOD1k 50X20 (1200 samples)", fontsize=fontsize+20)
+#ax.text(.9, .5, 1.7, 'Backward Learning (BL)', fontsize=fontsize+5)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
 ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
 
@@ -995,7 +995,7 @@ for ytick, color in zip(ax.get_yticklabels(), clr_combined):
 
 ###############################################
 
-ax = fig.add_subplot(gs[34:42,29:37])
+'''ax = fig.add_subplot(gs[34:42,29:37])
 ax.tick_params(labelsize=22)
 ax_ = sns.boxplot(
     x="Algorithms", y="Transfer Efficieny", data=df, palette=c_combined, whis=np.inf,
@@ -1018,7 +1018,7 @@ stratified_scatter(te,ax,16,c_combined,marker_style_scatter)
 right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
-top_side.set_visible(False)
+top_side.set_visible(False)'''
 
 plt.savefig('combined.pdf')
 # %%
