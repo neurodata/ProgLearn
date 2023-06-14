@@ -458,7 +458,7 @@ ax.set_yticklabels(labels)
 
 ax.tick_params(labelsize=ticksize)
 
-ax.set_ylabel('Forward Learning (FL)\n log FLE', fontsize=fontsize)
+ax.set_ylabel('Forward Learning (FL)\n log FLE', fontsize=fontsize+10)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 right_side = ax.spines["right"]
@@ -471,7 +471,7 @@ handles, labels_ = ax.get_legend_handles_labels()
 
 ###########################################################
 #ax[0][0].grid(axis='x')
-ax = fig.add_subplot(gs[14:27,:14], projection='3d')
+ax = fig.add_subplot(gs[14:27,:15], projection='3d')
 
 #cmap = sns.color_palette("coolwarm", as_cmap=True)
 
@@ -522,7 +522,7 @@ ax.view_init(elev=10., azim=15, roll=0)
 #ax.text(.9, .75, 4.2, "5-dataset", fontsize=fontsize+20)
 
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
-ax.set_zlabel('log BLE \nBackward Learning (BL)', fontsize=35, labelpad=15)
+ax.set_zlabel('log BLE \nBackward Learning (BL)', fontsize=40, labelpad=15)
 
 ax.set_zticks([.2,1,2,3])
 ax.set_xticks(np.arange(1,6,1))
@@ -539,7 +539,7 @@ for ii,_ in enumerate(labels):
     labels[ii] = str(log_lbl[ii])
 
 ax.set_zticklabels(labels)
-ax.set_yticklabels(combined_alg_name, rotation=80)
+ax.set_yticklabels(combined_alg_name, rotation=80, fontsize=20)
 ax.tick_params(labelsize=ticksize-4)
 #ax[0][1].grid(axis='x')
 ax.invert_xaxis()
@@ -682,7 +682,7 @@ ax.set_yticklabels(labels)
 
 ax.tick_params(labelsize=ticksize)
 
-ax.set_ylabel('log FLE', fontsize=fontsize)
+ax.set_ylabel('log FLE', fontsize=fontsize+10)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 right_side = ax.spines["right"]
@@ -693,7 +693,7 @@ ax.hlines(1, 1,21, colors='grey', linestyles='dashed',linewidth=1.5)
 
 handles, labels_ = ax.get_legend_handles_labels()
 
-ax = fig.add_subplot(gs[14:27,15:29], projection='3d')
+ax = fig.add_subplot(gs[14:27,15:31], projection='3d')
 
 xs = np.linspace(0, task_num, 100)
 for ii in range(total_alg):
@@ -743,7 +743,7 @@ ax.view_init(elev=10., azim=15, roll=0)
 #ax.text(.9, .6, 1.75, 'Backward Learning (BL)', fontsize=fontsize+5)
 #ax.text(.1, .1, 2, "Split Mini-Imagenet(2400 samples)", fontsize=fontsize+20)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
-ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
+ax.set_zlabel('log BLE', fontsize=40, labelpad=15)
 
 ax.set_zticks([.4,1,1.5])
 ax.set_xticks(np.arange(4,task_num+1,8))
@@ -760,7 +760,7 @@ for ii,_ in enumerate(labels):
     labels[ii] = str(log_lbl[ii])
 
 ax.set_zticklabels(labels)
-ax.set_yticklabels(combined_alg_name, rotation=80)
+ax.set_yticklabels(combined_alg_name, rotation=80, fontsize=20)
 ax.tick_params(labelsize=ticksize-4)
 #ax[0][1].grid(axis='x')
 ax.invert_xaxis()
@@ -904,7 +904,7 @@ ax.set_yticklabels(labels)
 
 ax.tick_params(labelsize=ticksize)
 
-ax.set_ylabel('log FLE', fontsize=fontsize)
+ax.set_ylabel('log FLE', fontsize=fontsize+10)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 right_side = ax.spines["right"]
@@ -915,7 +915,7 @@ ax.hlines(1, 1,51, colors='grey', linestyles='dashed',linewidth=1.5)
 
 handles, labels_ = ax.get_legend_handles_labels()
 
-ax = fig.add_subplot(gs[14:27,30:44], projection='3d')
+ax = fig.add_subplot(gs[14:27,30:45], projection='3d')
 
 xs = np.linspace(0, task_num, 100)
 for ii in range(total_alg):
@@ -965,7 +965,7 @@ ax.view_init(elev=10., azim=15, roll=0)
 
 #ax.text(.9, .5, 1.7, 'Backward Learning (BL)', fontsize=fontsize+5)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
-ax.set_zlabel('log BLE', fontsize=30, labelpad=15)
+ax.set_zlabel('log BLE', fontsize=40, labelpad=15)
 
 ax.set_zticks([.7,1,1.5])
 ax.set_xticks([1,20,50])
@@ -982,7 +982,7 @@ for ii,_ in enumerate(labels):
     labels[ii] = str(log_lbl[ii])
 
 ax.set_zticklabels(labels)
-ax.set_yticklabels(combined_alg_name, rotation=80)
+ax.set_yticklabels(combined_alg_name, rotation=80, fontsize=20)
 ax.tick_params(labelsize=ticksize-4)
 #ax[0][1].grid(axis='x')
 ax.invert_xaxis()
