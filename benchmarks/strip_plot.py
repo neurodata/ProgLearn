@@ -770,61 +770,60 @@ clr = [["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#984ea3", "#f781bf", "#b159
        ["#377eb8", "#e41a1c", "#984ea3", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928"],
        ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928"],
        ["#377eb8", "#e41a1c", "#984ea3", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928"]]
-fig, ax = plt.subplots(len(tes_all.keys()), 3, figsize=(16,30))
+fig, ax = plt.subplots(3,len(tes_all.keys()), figsize=(30,16))
 sns.set_context('talk')
 
 for ii, data in enumerate(tes_all.keys()):
     clr_ = sns.color_palette(clr[ii], n_colors=len(clr[ii]))
-    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Algorithms', palette=clr_, ax=ax[ii][0], legend=None)
-    
-    if ii==0:
-        ax_.set_title('Forward', fontsize=28)
-    ax_.set_xticklabels(
-    labels[ii],
-    fontsize=12,rotation=65,ha="right",rotation_mode='anchor'
-    )
+    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Algorithms', palette=clr_, ax=ax[0][ii], legend=None)
+    ax_.set_title(data, fontsize=38)
+    ax_.set_xticklabels([])
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
     ax_.set_xlabel('')
     ax_.set_yticks(FLE_yticks[ii])
-    ax_.set_ylabel(datasets[ii]+'\n$\log$ FLE', fontsize=24)
+    if ii==0:
+        ax_.set_ylabel('Forward Learning\n $\log$ FLE', fontsize=24)
+    else:
+        ax_.set_ylabel('$\log$ FLE', fontsize=24)
+
     right_side = ax_.spines["right"]
     right_side.set_visible(False)
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Algorithms', palette=clr_, ax=ax[ii][1], legend=None)
+    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Algorithms', palette=clr_, ax=ax[1][ii], legend=None)
 
-    if ii==0:
-        ax_.set_title('Backward', fontsize=28)
-
-    ax_.set_xticklabels(
-    labels[ii],
-    fontsize=12,rotation=65,ha="right",rotation_mode='anchor'
-    )
+    ax_.set_xticklabels([])
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
     ax_.set_xlabel('')
     ax_.set_yticks(BLE_yticks[ii])
-    ax_.set_ylabel('$\log$ BLE', fontsize=24)
+    if ii==0:
+        ax_.set_ylabel('Backward Learning\n $\log$ FLE', fontsize=24)
+    else:
+        ax_.set_ylabel('$\log$ BLE', fontsize=24)
+
     right_side = ax_.spines["right"]
     right_side.set_visible(False)
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Algorithms', palette=clr_, ax=ax[ii][2], legend=None)
-    if ii ==0:
-        ax_.set_title('Overall', fontsize=28)
-        
+    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Algorithms', palette=clr_, ax=ax[2][ii], legend=None)
+    
     ax_.set_xticklabels(
     labels[ii],
-    fontsize=12,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=18,rotation=65,ha="right",rotation_mode='anchor'
     )
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
     ax_.set_xlabel('')
     ax_.set_yticks(LE_yticks[ii])
-    ax_.set_ylabel('$\log$ LE', fontsize=24)
+    if ii==0:
+        ax_.set_ylabel('Overall Learning\n $\log$ LE', fontsize=24)
+    else:
+        ax_.set_ylabel('$\log$ LE', fontsize=24)
+
     right_side = ax_.spines["right"]
     right_side.set_visible(False)
     top_side = ax_.spines["top"]
