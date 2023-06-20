@@ -837,20 +837,20 @@ for data_key in fle.keys():
             )
 
 #%%
-data['forward learning'] = pd.DataFrame({"cifar":fle_sorted["cifar"], "5-dataset":fle_sorted["five_dataset"],\
-        "imagenet":fle_sorted["imagenet"], "spoken":fle_sorted["spoken"], "food1k":fle_sorted["food1k"]})
+data['forward learning'] = pd.DataFrame({"cifar":fle_sorted["cifar"], "spoken":fle_sorted["spoken"], "food1k":fle_sorted["food1k"],\
+        "imagenet":fle_sorted["imagenet"], "5-dataset":fle_sorted["five_dataset"]})
 data['forward learning'].index = algorithms_ours
 
 data['forward learning']['mean'] = data['forward learning'].mean(axis=1)
 
-data['backward learning'] = pd.DataFrame({"cifar":ble_sorted["cifar"], "5-dataset":ble_sorted["five_dataset"],\
-        "imagenet":ble_sorted["imagenet"], "spoken":ble_sorted["spoken"], "food1k":ble_sorted["food1k"]})
+data['backward learning'] = pd.DataFrame({"cifar":ble_sorted["cifar"], "spoken":ble_sorted["spoken"], "food1k":ble_sorted["food1k"],\
+    "imagenet":ble_sorted["imagenet"], "5-dataset":ble_sorted["five_dataset"]})
 data['backward learning'].index = algorithms_ours
 
 data['backward learning']['mean'] = data['backward learning'].mean(axis=1)
 
-data['overall learning'] = pd.DataFrame({"cifar":le_sorted["cifar"], "5-dataset":le_sorted["five_dataset"],\
-        "imagenet":le_sorted["imagenet"], "spoken":le_sorted["spoken"], "food1k":le_sorted["food1k"]})
+data['overall learning'] = pd.DataFrame({"cifar":le_sorted["cifar"], "spoken":le_sorted["spoken"], "food1k":le_sorted["food1k"],\
+        "imagenet":le_sorted["imagenet"], "5-dataset":le_sorted["five_dataset"]})
 data['overall learning'].index = algorithms_ours
 
 
@@ -884,21 +884,6 @@ transfer_['cifar'] = [.13, .08, .07,  -0.04, -.09, -.09, -.09, -.07,\
             .05, .03, -.03, -.08, -.09, -.09, -.13,\
             -.23, -.16]
 
-accuracy_['5 dataset'] = [.79, .71, np.nan, np.nan, np.nan, .68, .83, .82, .89,\
-            np.nan, .8, .68, .66, .68, .67, .69, .62]
-forget_['5 dataset'] = [-.02, -.01, np.nan, np.nan, np.nan, -.08, -.01, -.01, .03,\
-            np.nan, -.07, -.08, -.07, -.13, -.14, -.11, -.31]
-transfer_['5 dataset'] = [-.03, -.02, np.nan, np.nan, np.nan, -.18, -.03, -.04, .03,\
-            np.nan, -.06, -.18, -.2, -.12, -.09, -.1, -.24]
-
-
-accuracy_['imagenet'] = [.55, .52, np.nan, np.nan, np.nan, .54, .58, .58, .6,\
-            np.nan, .6, .55, .57, .58, .56, .58, .52]
-forget_['imagenet'] = [.03, .02, np.nan, np.nan, np.nan, -.04, -.01, -.01, .06,\
-            np.nan, 0, -.03, -.02, -.07, -.07, -.06, -.12]
-transfer_['imagenet'] = [.02, .04, np.nan, np.nan, np.nan, -.07, -.03, -.03, .1,\
-            np.nan, -.01, -.06, -.04, -.01, .05, -.04, -.1]
-
 accuracy_['speech'] = [.91, .91, np.nan, np.nan, np.nan, .73, .93, .93, .98,\
             np.nan, .76, .72, .72, np.nan, np.nan, np.nan, .73]
 forget_['speech'] = [.035, .01, np.nan, np.nan, np.nan, -.28, 0, 0, 0.01,\
@@ -912,6 +897,22 @@ forget_['food1k'] = [.03, .01, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, .
            np.nan, -.08, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
 transfer_['food1k'] = [.2, .09, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, .08,\
            np.nan, -.03, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
+
+
+accuracy_['imagenet'] = [.55, .52, np.nan, np.nan, np.nan, .54, .58, .58, .6,\
+            np.nan, .6, .55, .57, .58, .56, .58, .52]
+forget_['imagenet'] = [.03, .02, np.nan, np.nan, np.nan, -.04, -.01, -.01, .06,\
+            np.nan, 0, -.03, -.02, -.07, -.07, -.06, -.12]
+transfer_['imagenet'] = [.02, .04, np.nan, np.nan, np.nan, -.07, -.03, -.03, .1,\
+            np.nan, -.01, -.06, -.04, -.01, .05, -.04, -.1]
+
+accuracy_['5 dataset'] = [.79, .71, np.nan, np.nan, np.nan, .68, .83, .82, .89,\
+            np.nan, .8, .68, .66, .68, .67, .69, .62]
+forget_['5 dataset'] = [-.02, -.01, np.nan, np.nan, np.nan, -.08, -.01, -.01, .03,\
+            np.nan, -.07, -.08, -.07, -.13, -.14, -.11, -.31]
+transfer_['5 dataset'] = [-.03, -.02, np.nan, np.nan, np.nan, -.18, -.03, -.04, .03,\
+            np.nan, -.06, -.18, -.2, -.12, -.09, -.1, -.24]
+
 
 for idx in sorted_indx:
     algorithms.append(algorithms_[idx])
@@ -927,20 +928,20 @@ for key in transfer_.keys():
 
 keys = ['accuracy', 'forget', 'transfer']
 
-data_ven['accuracy'] = pd.DataFrame({"cifar":accuracy["cifar"], "5-dataset":accuracy["5 dataset"],\
-        "imagenet":accuracy["imagenet"], "speech":accuracy["speech"], "food1k":accuracy["food1k"]})
+data_ven['accuracy'] = pd.DataFrame({"cifar":accuracy["cifar"], "speech":accuracy["speech"], "food1k":accuracy["food1k"],\
+                    "imagenet":accuracy["imagenet"], "5-dataset":accuracy["5 dataset"]})
 data_ven['accuracy'].index = algorithms
 data_ven['accuracy']['mean'] = data_ven['accuracy'].mean(axis=1)
 
 
-data_ven['forget'] = pd.DataFrame({"cifar":forget["cifar"], "5-dataset":forget["5 dataset"],\
-        "imagenet":forget["imagenet"], "speech":forget["speech"], "food1k":forget["food1k"]})
+data_ven['forget'] = pd.DataFrame({"cifar":forget["cifar"], "speech":forget["speech"],\
+                    "food1k":forget["food1k"], "imagenet":forget["imagenet"], "5-dataset":forget["5 dataset"]})
 data_ven['forget'].index = algorithms
 data_ven['forget']['mean'] = data_ven['forget'].mean(axis=1)
 
 
-data_ven['transfer'] = pd.DataFrame({"cifar":transfer["cifar"], "5-dataset":transfer["5 dataset"],\
-        "imagenet":transfer["imagenet"], "speech":transfer["speech"], "food1k":transfer["food1k"]})
+data_ven['transfer'] = pd.DataFrame({"cifar":transfer["cifar"], "speech":transfer["speech"], "food1k":transfer["food1k"],\
+                    "imagenet":transfer["imagenet"], "5-dataset":transfer["5 dataset"]})
 data_ven['transfer'].index = algorithms
 data_ven['transfer']['mean'] = data_ven['transfer'].mean(axis=1)
 mean_trn = list(data_ven['transfer']['mean'])
@@ -953,7 +954,7 @@ fig, ax = plt.subplots(2, 3, figsize=(18,16), sharex=True)
 sns.set_context('talk')
 vmins = [-1.5,-1.5,-1.5]
 vmaxs = [1.5,1.5,1.5]
-clr = ["#984ea3","#984ea3","#984ea3","#984ea3","#4daf4a","#984ea3","#984ea3","#4daf4a","#984ea3","#984ea3","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#984ea3","#4daf4a"]
+clr = ["#984ea3","#984ea3","#984ea3","#984ea3","#4daf4a","#984ea3","#984ea3","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a"]
 for i in range(3):
     sns.heatmap(data[keys_ours[i]], yticklabels=algorithms_ours,\
                 vmin=vmins[i], vmax=vmaxs[i],
@@ -974,7 +975,7 @@ for ytick, color in zip(ax[0][0].get_yticklabels(), clr):
 
 
 ### veniant's ###
-clr = ["#984ea3","#984ea3","#984ea3","#984ea3","#4daf4a","#984ea3","#984ea3","#984ea3","#4daf4a","#4daf4a","#4daf4a","#984ea3","#4daf4a","#4daf4a","#4daf4a","#984ea3","#4daf4a"]
+clr = ["#984ea3","#984ea3","#984ea3","#984ea3","#4daf4a","#984ea3","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#984ea3","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a"]
 
 keys = ['accuracy', 'forget', 'transfer']
 keys_ = ['Accuracy', 'Forget', 'Transfer']
