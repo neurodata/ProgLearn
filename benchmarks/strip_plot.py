@@ -931,7 +931,7 @@ for ii, data in enumerate(tes_all.keys()):
     ax_.set_xlabel('')
     ax_.set_yticks(BLE_yticks[ii])
     if ii==0:
-        ax_.set_ylabel('Backward Learning\n $\log$ FLE', fontsize=24)
+        ax_.set_ylabel('Backward Learning\n $\log$ BLE', fontsize=24)
     else:
         ax_.set_ylabel('$\log$ BLE', fontsize=24)
 
