@@ -906,13 +906,14 @@ for ii, data in enumerate(tes_all.keys()):
         c_.append(clr[ii][id])
 
     clr_ = sns.color_palette(c_, n_colors=len(clr[ii]))
-    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Algorithms', palette=clr_, ax=ax[0][ii], legend=None)
+    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Algorithms', palette=clr_, ax=ax[0][ii], size=12, legend=None)
     ax_.set_title(data, fontsize=38)
     ax_.set_xticklabels([])
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
     ax_.set_xlabel('')
     ax_.set_yticks(FLE_yticks[ii])
+    ax_.tick_params('y', labelsize=24)
     if ii==0:
         ax_.set_ylabel('Forward Learning\n $\log$ FLE', fontsize=24)
     else:
@@ -923,13 +924,15 @@ for ii, data in enumerate(tes_all.keys()):
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Algorithms', palette=clr_, ax=ax[1][ii], legend=None)
+    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Algorithms', palette=clr_, ax=ax[1][ii], size=12, legend=None)
 
     ax_.set_xticklabels([])
+    #ax_.set_xlim([0, len(labels[ii])])
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
     ax_.set_xlabel('')
     ax_.set_yticks(BLE_yticks[ii])
+    ax_.tick_params('y', labelsize=24)
     if ii==0:
         ax_.set_ylabel('Backward Learning\n $\log$ BLE', fontsize=24)
     else:
@@ -940,7 +943,7 @@ for ii, data in enumerate(tes_all.keys()):
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Algorithms', palette=clr_, ax=ax[2][ii], legend=None)
+    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Algorithms', palette=clr_, ax=ax[2][ii], size=12, legend=None)
     
     ax_.set_xticklabels(
     labels[ii],
@@ -948,13 +951,14 @@ for ii, data in enumerate(tes_all.keys()):
     )
 
 
-    for xtick, color in zip(ax_.get_xticklabels(), xcolor[ii]):
+    for xtick, color in zip(ax_.get_xticklabels(), c_):
         xtick.set_color(color)
 
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
     ax_.set_xlabel('')
     ax_.set_yticks(LE_yticks[ii])
+    ax_.tick_params('y', labelsize=24)
     if ii==0:
         ax_.set_ylabel('Overall Learning\n $\log$ LE', fontsize=24)
     else:
