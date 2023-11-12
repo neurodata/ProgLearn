@@ -122,8 +122,7 @@ def LF_experiment(
 
         default_transformer_kwargs = {
             "network": network,
-            "euclidean_layer_idx": -2,
-            "num_classes": 10,
+            "euclidean_layer_idx": -1,
             "optimizer": keras.optimizers.Adam(3e-4),
         }
 
@@ -230,9 +229,10 @@ def LF_experiment(
     df_single_task["train_times"] = train_times_across_tasks
 
     summary = (df, df_single_task)
+    print(df)
+
     file_to_save = (
-        "result/result/"
-        + model
+        model
         + str(ntrees)
         + "_"
         + str(shift)
@@ -383,7 +383,7 @@ def run_parallel_exp(
 
 #%%
 ### MAIN HYPERPARAMS ###
-model = "uf"
+model = "dnn"
 num_points_per_task = 500
 ########################
 
@@ -430,4 +430,17 @@ elif model == "dnn":
     with Pool(4) as p:
         p.map(perform_shift, stage_2_iterable)
 
+# %%
+LF_experiment(
+                train_x,
+                train_y,
+                test_x,
+                test_y,
+                10,
+                1,
+                1,
+                model,
+                num_points_per_task,
+                acorn=12345,
+            )
 # %%
