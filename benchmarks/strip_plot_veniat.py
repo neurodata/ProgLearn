@@ -922,7 +922,7 @@ labels.append(combined_alg_name)
 
 #%%
 datasets = ['CIFAR 10X10', 'Speech', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
-acc_yticks = [[0,.5], [0,1], [0,1], [0,.9], [0,1]]
+acc_yticks = [[0,.5], [0.3,1], [0.9,1], [0,.9], [0,1]]
 FLE_yticks = [[-.2,0,.2], [-.1,0,.3], [-.01,0,.03], [-0.1,0,.3], [-.2,0,.2]]
 BLE_yticks = [[-.3,0,.2], [-.4,0,.2], [-.03,0,.03], [-0.4,0,.2], [-.5,0,.1]]
 LE_yticks = [[-.3,0,.2], [-.4,0,.3], [-.02,0,.03], [-0.4,0,.3], [-.5,0,.2]]
@@ -948,29 +948,10 @@ for ii, data in enumerate(tes_all.keys()):
 
     clr_ = sns.color_palette(c_, n_colors=len(clr[ii]))
 
-    ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=acc_all[data], hue='Algorithms', palette=clr_, ax=ax[0][ii], size=12, legend=None, alpha=.3)
-    ax_.set_title(data, fontsize=38)
-    ax_.set_xticklabels([])
-    #ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-
-    ax_.set_xlabel('')
-    ax_.set_yticks(acc_yticks[ii])
-    ax_.tick_params('y',labelsize=30)
-    if ii==0:
-        ax_.set_ylabel('Accuracy', fontsize=30)
-    else:
-        ax_.set_ylabel('', fontsize=24)
-
-    right_side = ax_.spines["right"]
-    right_side.set_visible(False)
-    top_side = ax_.spines["top"]
-    top_side.set_visible(False)
-
-
-    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Algorithms', palette=clr_, ax=ax[1][ii], size=12, legend=None, alpha=.3)
+    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Algorithms', palette=clr_, ax=ax[0][ii], size=12, legend=None, alpha=.3)
     ax_.set_xticklabels([])
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-
+    ax_.set_title(data, fontsize=38)
     ax_.set_xlabel('')
     ax_.set_yticks(FLE_yticks[ii])
     ax_.tick_params('y',labelsize=30)
@@ -984,7 +965,7 @@ for ii, data in enumerate(tes_all.keys()):
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Algorithms', palette=clr_, ax=ax[2][ii], size=12, legend=None, alpha=.3)
+    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Algorithms', palette=clr_, ax=ax[1][ii], size=12, legend=None, alpha=.3)
 
     ax_.set_xticklabels([])
     #ax_.set_xlim([0, len(labels[ii])])
@@ -1003,19 +984,10 @@ for ii, data in enumerate(tes_all.keys()):
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Algorithms', palette=clr_, ax=ax[3][ii], size=12, legend=None, alpha=.3)
-    
-    ax_.set_xticklabels(
-    labels[ii],
-    fontsize=18,rotation=65,ha="right",rotation_mode='anchor'
-    )
-
-
-    for xtick, color in zip(ax_.get_xticklabels(), c_):
-        xtick.set_color(color)
-
+    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Algorithms', palette=clr_, ax=ax[2][ii], size=12, legend=None, alpha=.3)
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
+    ax_.set_xticklabels([])
     ax_.set_xlabel('')
     ax_.set_yticks(LE_yticks[ii])
     ax_.tick_params('y', labelsize=30)
@@ -1028,6 +1000,32 @@ for ii, data in enumerate(tes_all.keys()):
     right_side.set_visible(False)
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
+
+    ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=acc_all[data], hue='Algorithms', palette=clr_, ax=ax[3][ii], size=12, legend=None, alpha=.3)
+    ax_.set_xticklabels([])
+    #ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+    ax_.set_xlabel('')
+    ax_.set_yticks(acc_yticks[ii])
+    ax_.tick_params('y',labelsize=30)
+    if ii==0:
+        ax_.set_ylabel('Accuracy', fontsize=30)
+    else:
+        ax_.set_ylabel('', fontsize=24)
+    
+    right_side = ax_.spines["right"]
+    right_side.set_visible(False)
+    top_side = ax_.spines["top"]
+    top_side.set_visible(False)
+
+    ax_.set_xticklabels(
+    labels[ii],
+    fontsize=18,rotation=65,ha="right",rotation_mode='anchor'
+    )
+
+
+    for xtick, color in zip(ax_.get_xticklabels(), c_):
+        xtick.set_color(color)
 
 plt.savefig('stripplot_summary_veniat.pdf')
 # %%
