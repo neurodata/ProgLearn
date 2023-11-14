@@ -183,7 +183,7 @@ for alg in range(total_alg):
     count = 0 
 
     for rep in range(reps):
-        filename = 'five_datasets/results/'+model_file_combined[alg]+'.pickle'
+        filename = '/Users/jayantadey/ProgLearn/benchmarks/five_datasets/results/'+model_file_combined[alg]+'.pickle'
 
         multitask_df, single_task_df = unpickle(filename)
 
@@ -293,7 +293,7 @@ for alg in range(total_alg):
     count = 0 
 
     for rep in range(reps):
-        filename = 'mini_imagenet/results/'+model_file_combined[alg]+'.pickle'
+        filename = '/Users/jayantadey/ProgLearn/benchmarks/mini_imagenet/results/'+model_file_combined[alg]+'.pickle'
 
         multitask_df, single_task_df = unpickle(filename)
 
@@ -400,7 +400,7 @@ avg_single_var = [[] for i in range(total_alg)]
 
 for alg in range(total_alg): 
 
-    filename = 'food1k/results/'+model_file_combined[alg]+'.pickle'
+    filename = '/Users/jayantadey/ProgLearn/benchmarks/food1k/results/'+model_file_combined[alg]+'.pickle'
 
     multitask_df, single_task_df = unpickle(filename)
 
@@ -519,13 +519,13 @@ for alg in range(total_alg_top):
     for slot in range(slots):
         for shift in range(shifts):
             if alg < 2:
-                filename = 'cifar_exp/result/result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             elif alg == 3 or alg == 5:
-                filename = 'cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(shift+1)+'-'+str(slot+1)+'.pickle'
+                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(shift+1)+'-'+str(slot+1)+'.pickle'
             elif alg == 2:
-                filename = 'cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(slot+1)+'_'+str(shift+1)+'.pickle'
+                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(slot+1)+'_'+str(shift+1)+'.pickle'
             else:
-                filename = 'cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
+                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
 
             multitask_df, single_task_df = unpickle(filename)
 
@@ -572,9 +572,9 @@ for alg in range(total_alg_bottom):
     for slot in range(slots):
         for shift in range(shifts):
             if alg < 1:
-                filename = 'cifar_exp/result/result/'+model_file_bottom[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_bottom[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             else:
-                filename = 'cifar_exp/benchmarking_algorthms_result/'+model_file_bottom[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
+                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_bottom[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
 
             multitask_df, single_task_df = unpickle(filename)
 
@@ -706,7 +706,7 @@ for alg in range(total_alg):
     te_tmp = [[] for _ in range(reps)]
 
     for rep in range(reps):
-        filename = 'spoken_digit/'+model_file_combined[alg]+'-'+str(rep)+'.pickle'
+        filename = '/Users/jayantadey/ProgLearn/benchmarks/spoken_digit/'+model_file_combined[alg]+'-'+str(rep)+'.pickle'
 
         multitask_df, single_task_df = unpickle(filename)
 
@@ -867,7 +867,7 @@ transfer_ = {}
 transfer = {}
 data_ven = {}
 algorithms_ = ['SynN', 'SynF', 'ProgNN', 'LMC', \
-            'DF-CNN', 'EWC', 'Tota Replay', \
+            'DF-CNN', 'EWC', 'Total Replay', \
             'Partial Replay', 'Model Zoo', \
             'SynF (constrained)', \
             'LwF', 'O-EWC', 'SI', 'ER', \
@@ -974,7 +974,7 @@ for ytick, color in zip(ax[0][0].get_yticklabels(), clr):
 
 
 
-### veniant's ###
+### veniat's ###
 clr = ["#984ea3","#984ea3","#984ea3","#984ea3","#4daf4a","#984ea3","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#984ea3","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a"]
 
 keys = ['accuracy', 'forget', 'transfer']

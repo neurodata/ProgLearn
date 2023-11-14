@@ -179,7 +179,7 @@ for alg in range(total_alg):
     count = 0 
 
     for rep in range(reps):
-        filename = 'five_datasets/results/'+model_file_combined[alg]+'.pickle'
+        filename = '/Users/jayantadey/ProgLearn/benchmarks/five_datasets/results/'+model_file_combined[alg]+'.pickle'
 
         multitask_df, single_task_df = unpickle(filename)
 
@@ -263,7 +263,7 @@ for alg in range(total_alg):
     count = 0 
 
     for rep in range(reps):
-        filename = 'mini_imagenet/results/'+model_file_combined[alg]+'.pickle'
+        filename = '/Users/jayantadey/ProgLearn/benchmarks/mini_imagenet/results/'+model_file_combined[alg]+'.pickle'
 
         multitask_df, single_task_df = unpickle(filename)
 
@@ -344,7 +344,7 @@ avg_single_var = [[] for i in range(total_alg)]
 
 for alg in range(total_alg): 
 
-    filename = 'food1k/results/'+model_file_combined[alg]+'.pickle'
+    filename = '/Users/jayantadey/ProgLearn/benchmarks/food1k/results/'+model_file_combined[alg]+'.pickle'
 
     multitask_df, single_task_df = unpickle(filename)
 
