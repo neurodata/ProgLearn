@@ -458,7 +458,7 @@ ax.set_yticklabels(labels)
 
 ax.tick_params(labelsize=ticksize)
 
-ax.set_ylabel('Forward Learning (FL)\n log FLE', fontsize=fontsize+10)
+ax.set_ylabel('Forward Transfer', fontsize=fontsize+10)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 right_side = ax.spines["right"]
@@ -522,7 +522,7 @@ ax.view_init(elev=10., azim=15, roll=0)
 #ax.text(.9, .75, 4.2, "5-dataset", fontsize=fontsize+20)
 
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
-ax.set_zlabel('log BLE \nBackward Learning (BL)', fontsize=40, labelpad=15)
+ax.set_zlabel('Backward Transfer', fontsize=40, labelpad=15)
 
 ax.set_zticks([.2,1,2,3])
 ax.set_xticks(np.arange(1,6,1))
@@ -682,7 +682,7 @@ ax.set_yticklabels(labels)
 
 ax.tick_params(labelsize=ticksize)
 
-ax.set_ylabel('log FLE', fontsize=fontsize+10)
+ax.set_ylabel('', fontsize=fontsize+10)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 right_side = ax.spines["right"]
@@ -743,7 +743,7 @@ ax.view_init(elev=10., azim=15, roll=0)
 #ax.text(.9, .6, 1.75, 'Backward Learning (BL)', fontsize=fontsize+5)
 #ax.text(.1, .1, 2, "Split Mini-Imagenet(2400 samples)", fontsize=fontsize+20)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
-ax.set_zlabel('log BLE', fontsize=40, labelpad=15)
+ax.set_zlabel('', fontsize=40, labelpad=15)
 
 ax.set_zticks([.4,1,1.5])
 ax.set_xticks(np.arange(4,task_num+1,8))
@@ -904,7 +904,7 @@ ax.set_yticklabels(labels)
 
 ax.tick_params(labelsize=ticksize)
 
-ax.set_ylabel('log FLE', fontsize=fontsize+10)
+ax.set_ylabel('', fontsize=fontsize+10)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 
 right_side = ax.spines["right"]
@@ -965,7 +965,7 @@ ax.view_init(elev=10., azim=15, roll=0)
 
 #ax.text(.9, .5, 1.7, 'Backward Learning (BL)', fontsize=fontsize+5)
 ax.set_xlabel('Tasks seen', fontsize=30, labelpad=15)
-ax.set_zlabel('log BLE', fontsize=40, labelpad=15)
+ax.set_zlabel('', fontsize=40, labelpad=15)
 
 ax.set_zticks([.7,1,1.5])
 ax.set_xticks([1,20,50])
