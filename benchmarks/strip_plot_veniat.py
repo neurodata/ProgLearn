@@ -289,6 +289,7 @@ te_500 = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float),
           'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
 
 
+task_order = []
 for count,name in enumerate(te_500.keys()):
     #print(name, count)
     for i in range(10):
@@ -296,6 +297,8 @@ for count,name in enumerate(te_500.keys()):
             te_500[name][i] = tes_top[count][i][9-i]
         else:
             te_500[name][i] = tes_bottom[count-8][i][9-i]
+        
+        task_order.append(i+1)
 
 
 mean_val = []
@@ -303,7 +306,7 @@ for name in te_500.keys():
     mean_val.append(np.mean(te_500[name]))
     print(name, np.round(np.mean(te_500[name]),2), np.round(np.std(te_500[name], ddof=1),2))
 
-arg = np.argsort(mean_val)[::-1]
+arg = [ 0,  1,  2,  9, 6, 7, 11,  3,  8,  4,  5, 10]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te_500.keys())
 combined_alg_name = []
@@ -319,7 +322,9 @@ for id in combined_alg_name:
 
 df_le = pd.DataFrame.from_dict(tmp_te)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
+df_le.insert(2, "Task ID", task_order)
 
+df_acc.insert(2, "Task ID", task_order)
 # %%
 fle['cifar'] = np.concatenate((
     np.mean(ftes_top, axis=1),
@@ -351,6 +356,8 @@ for id in combined_alg_name:
 
 df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
+df_ble.insert(2, "Task ID", task_order)
+
 
 fte_end = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float), 
           'Model Zoo*':np.zeros(10,dtype=float),
@@ -375,7 +382,7 @@ for id in combined_alg_name:
 
 df_fle = pd.DataFrame.from_dict(tmp_fle)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
-
+df_fle.insert(2, "Task ID", task_order)
 #%%
 btes_all['cifar'] = df_ble
 ftes_all['cifar'] = df_fle
@@ -456,16 +463,18 @@ te = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float),
     'Total Replay':np.zeros(6,dtype=float), 'Partial Replay':np.zeros(6,dtype=float), 
     'None':np.zeros(6,dtype=float)}
 
+task_order = []
 for count,name in enumerate(te.keys()):
     for i in range(6):
         te[name][i] = tes[count][i][5-i]
+        task_order.append(i+1)
 
 mean_val = []
 for name in te.keys():
     mean_val.append(np.mean(te[name]))
     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
 
-arg = np.argsort(mean_val)[::-1]
+arg = [0, 1, 2, 3, 4, 5, 6]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te.keys())
 combined_alg_name = []
@@ -481,6 +490,8 @@ for id in combined_alg_name:
 
 df_le = pd.DataFrame.from_dict(tmp_te)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
+df_le.insert(2, "Task ID", task_order)
+df_acc.insert(2, "Task ID", task_order)
 
 # %%
 bte_end = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float), 
@@ -498,6 +509,7 @@ for id in combined_alg_name:
 
 df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
+df_ble.insert(2, "Task ID", task_order)
 
 fte_end = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float), 
     'Model Zoo*':np.zeros(6,dtype=float), 'LwF':np.zeros(6,dtype=float), 
@@ -514,7 +526,7 @@ for id in combined_alg_name:
 
 df_fle = pd.DataFrame.from_dict(fte_end)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
-
+df_fle.insert(2, "Task ID", task_order)
 #%%
 btes_all['speech'] = df_ble
 ftes_all['speech'] = df_fle
@@ -577,9 +589,11 @@ df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 te = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
 
+task_order = []
 for count,name in enumerate(te.keys()):
     for i in range(50):
         te[name][i] = tes[count][i][49-i]
+        task_order.append(i+1)
 
 
 mean_val = []
@@ -603,9 +617,9 @@ for id in combined_alg_name:
 
 df_le = pd.DataFrame.from_dict(tmp_te)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
+df_le.insert(2, "Task ID", task_order)
 
-
-
+df_acc.insert(2, "Task ID", task_order)
 #%%
 bte_end = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
@@ -620,6 +634,7 @@ for id in combined_alg_name:
 
 df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
+df_ble.insert(2, "Task ID", task_order)
 
 fte_end = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
@@ -634,7 +649,7 @@ for id in combined_alg_name:
 
 df_fle = pd.DataFrame.from_dict(fte_end)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
-
+df_fle.insert(2, "Task ID", task_order)
 #%%
 btes_all['food1k'] = df_ble
 ftes_all['food1k'] = df_fle
@@ -713,9 +728,11 @@ te = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), 'Model
     'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
     'None':np.zeros(20,dtype=float)}
 
+task_order = []
 for count,name in enumerate(te.keys()):
     for i in range(20):
         te[name][i] = tes[count][i][19-i]
+        task_order.append(i+1)
 
 
 mean_val = []
@@ -723,7 +740,7 @@ for name in te.keys():
     mean_val.append(np.mean(te[name]))
     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
 
-arg = np.argsort(mean_val)[::-1]
+arg = [0, 1, 2, 3, 5, 6, 7, 4]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te.keys())
 combined_alg_name = []
@@ -739,8 +756,9 @@ for id in combined_alg_name:
 
 df_le = pd.DataFrame.from_dict(tmp_te)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
+df_le.insert(2, "Task ID", task_order)
 
-
+df_acc.insert(2, "Task ID", task_order)
 #%%
 fle['imagenet'] = np.mean(ftes, axis=1)
 ble['imagenet'] = []
@@ -761,6 +779,7 @@ for id in combined_alg_name:
 
 df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
+df_ble.insert(2, "Task ID", task_order)
 
 fte_end = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
     'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
@@ -776,7 +795,7 @@ for id in combined_alg_name:
 
 df_fle = pd.DataFrame.from_dict(fte_end)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
-
+df_fle.insert(2, "Task ID", task_order)
 #%%
 btes_all['imagenet'] = df_ble
 ftes_all['imagenet'] = df_fle
@@ -855,16 +874,18 @@ te = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Model Z
     'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
     'None':np.zeros(5,dtype=float)}
 
+task_order = []
 for count,name in enumerate(te.keys()):
     for i in range(5):
         te[name][i] = tes[count][i][4-i]
+        task_order.append(i+1)
 
 mean_val = []
 for name in te.keys():
     mean_val.append(np.mean(te[name]))
     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
 
-arg = np.argsort(mean_val)[::-1]
+arg = [0, 1, 2, 3, 5, 6, 7, 4]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te.keys())
 combined_alg_name = []
@@ -880,7 +901,9 @@ for id in combined_alg_name:
 
 df_le = pd.DataFrame.from_dict(tmp_te)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
+df_le.insert(2, "Task ID", task_order)
 
+df_acc.insert(2, "Task ID", task_order)
 #%%
 bte_end = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
@@ -896,6 +919,7 @@ for id in combined_alg_name:
 
 df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
+df_ble.insert(2, "Task ID", task_order)
 
 fte_end = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
@@ -911,7 +935,7 @@ for id in combined_alg_name:
 
 df_fle = pd.DataFrame.from_dict(fte_end)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
-
+df_fle.insert(2, "Task ID", task_order)
 #%%
 btes_all['five_dataset'] = df_ble
 ftes_all['five_dataset'] = df_fle
@@ -938,7 +962,7 @@ clr = [["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#984ea3", "#f781bf", "#b159
        ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928"],
        ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"],
        ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"]]
-fig, ax = plt.subplots(4,len(tes_all.keys()), figsize=(30,20))
+fig, ax = plt.subplots(4,len(tes_all.keys())+1, figsize=(36,20))
 sns.set_context('talk')
 
 for ii, data in enumerate(tes_all.keys()):
@@ -946,12 +970,11 @@ for ii, data in enumerate(tes_all.keys()):
     for id in ordr[ii]:
         c_.append(clr[ii][id])
 
-    clr_ = sns.color_palette(c_, n_colors=len(clr[ii]))
+    clr_ = sns.color_palette('Reds', n_colors=len(clr[ii]))
 
-    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Algorithms', palette=clr_, ax=ax[0][ii], size=12, legend=None, alpha=.3)
+    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Task ID', palette=clr_, ax=ax[1][ii], size=12, legend=None)
     ax_.set_xticklabels([])
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-    ax_.set_title(data, fontsize=38)
     ax_.set_xlabel('')
     ax_.set_yticks(FLE_yticks[ii])
     ax_.tick_params('y',labelsize=30)
@@ -965,7 +988,7 @@ for ii, data in enumerate(tes_all.keys()):
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Algorithms', palette=clr_, ax=ax[1][ii], size=12, legend=None, alpha=.3)
+    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Task ID', palette=clr_, ax=ax[2][ii], size=12, legend=None)
 
     ax_.set_xticklabels([])
     #ax_.set_xlim([0, len(labels[ii])])
@@ -984,9 +1007,9 @@ for ii, data in enumerate(tes_all.keys()):
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Algorithms', palette=clr_, ax=ax[2][ii], size=12, legend=None, alpha=.3)
+    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Task ID', palette=clr_, ax=ax[0][ii], size=12, legend=None)
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-
+    ax_.set_title(data, fontsize=38)
     ax_.set_xticklabels([])
     ax_.set_xlabel('')
     ax_.set_yticks(LE_yticks[ii])
@@ -1001,7 +1024,7 @@ for ii, data in enumerate(tes_all.keys()):
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=acc_all[data], hue='Algorithms', palette=clr_, ax=ax[3][ii], size=12, legend=None, alpha=.3)
+    ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=acc_all[data], hue='Task ID', palette=clr_, ax=ax[3][ii], size=12, legend=None)
     ax_.set_xticklabels([])
     #ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
@@ -1022,10 +1045,6 @@ for ii, data in enumerate(tes_all.keys()):
     labels[ii],
     fontsize=18,rotation=65,ha="right",rotation_mode='anchor'
     )
-
-
-    for xtick, color in zip(ax_.get_xticklabels(), c_):
-        xtick.set_color(color)
 
 plt.savefig('stripplot_summary_veniat.pdf')
 # %%
