@@ -157,13 +157,13 @@ ntrees = 10
 slots = 10
 task_num = 10
 shifts = 6
-total_alg_top = 8
+total_alg_top = 9
 total_alg_bottom = 4
-alg_name_top = ['SynN','SynF', 'Model Zoo','ProgNN', 'LMC', 'DF-CNN', 'Total Replay', 'Partial Replay']
+alg_name_top = ['SynN','SynF', 'Model Zoo','ProgNN', 'LMC', 'DF-CNN', 'Total Replay', 'Partial Replay', 'CoSCL']
 alg_name_bottom = ['SynF','LwF', 'A-GEM', 'None']
-combined_alg_name = ['SynN','SynF', 'Model Zoo','ProgNN', 'LMC', 'DF-CNN', 'Total Replay', 'Partial Replay', 'LwF', 'A-GEM', 'None']
+combined_alg_name = ['SynN','SynF', 'Model Zoo','ProgNN', 'LMC', 'DF-CNN', 'Total Replay', 'Partial Replay', 'CoSCL', 'LwF', 'A-GEM', 'None']
 
-model_file_top = ['dnn0withrep','fixed_uf10withrep', 'model_zoo','Prog_NN', 'LMC', 'DF_CNN', 'offline', 'exact']
+model_file_top = ['dnn0withrep','fixed_uf10withrep', 'model_zoo','Prog_NN', 'LMC', 'DF_CNN', 'offline', 'exact', 'CoSCL']
 model_file_bottom = ['uf10withrep', 'LwF', 'agem', 'None']
 btes_top = [[] for i in range(total_alg_top)]
 ftes_top = [[] for i in range(total_alg_top)]
@@ -173,7 +173,7 @@ ftes_bottom = [[] for i in range(total_alg_bottom)]
 tes_bottom = [[] for i in range(total_alg_bottom)]
 
 #combined_alg_name = ['L2N','L2F','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI', 'Replay (increasing amount)', 'Replay (fixed amount)', 'None']
-model_file_combined = ['dnn0withrep','fixed_uf10withrep', 'model_zoo','Prog_NN','DF_CNN', 'LwF', 'offline', 'exact', 'agem', 'None']
+model_file_combined = ['dnn0withrep','fixed_uf10withrep', 'model_zoo','Prog_NN','DF_CNN', 'LwF', 'offline', 'exact', 'CoSCL', 'agem', 'None']
 
 ########################
 
@@ -195,6 +195,8 @@ for alg in range(total_alg_top):
                 filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(shift+1)+'-'+str(slot+1)+'.pickle'
             elif alg == 2:
                 filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(slot+1)+'_'+str(shift+1)+'.pickle'
+            elif alg == 8:
+                filename = '/Users/jayantadey/progressive-learning/experiments/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             else:
                 filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
 
@@ -272,17 +274,17 @@ acc_500 = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float),
           'Model Zoo*':np.zeros(10,dtype=float),
           'ProgNN*':np.zeros(10,dtype=float), 'LMC*':np.zeros(10,dtype=float),
           'DF-CNN*':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
-          'Partial Replay':np.zeros(10,dtype=float),
+          'Partial Replay':np.zeros(10,dtype=float), 'CoSCL*':np.zeros(10,dtype=float),
           'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
           'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
 
 
 for count,name in enumerate(acc_500.keys()):
     #print(name, count)
-    if count <8:
+    if count <9:
         acc_500[name] = np.array(final_acc_top[count])
     else:
-        acc_500[name] = np.array(final_acc_bottom[count-8])
+        acc_500[name] = np.array(final_acc_bottom[count-9])
 
 
 
@@ -294,7 +296,7 @@ te_500 = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float),
           'Model Zoo*':np.zeros(10,dtype=float),
           'ProgNN*':np.zeros(10,dtype=float), 'LMC*':np.zeros(10,dtype=float),
           'DF-CNN*':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
-          'Partial Replay':np.zeros(10,dtype=float),
+          'Partial Replay':np.zeros(10,dtype=float), 'CoSCL*':np.zeros(10,dtype=float),
           'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
           'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
 
@@ -304,10 +306,10 @@ t = 1
 for count,name in enumerate(te_500.keys()):
     #print(name, count)
     for i in range(10):
-        if count <8:
+        if count <9:
             te_500[name][i] = tes_top[count][i][9-i]
         else:
-            te_500[name][i] = tes_bottom[count-8][i][9-i]
+            te_500[name][i] = tes_bottom[count-9][i][9-i]
         
         task_order.append(t)
         t += 1
@@ -318,7 +320,7 @@ for name in te_500.keys():
     mean_val.append(np.mean(te_500[name]))
     print(name, np.round(np.mean(te_500[name]),2), np.round(np.std(te_500[name], ddof=1),2))
 
-arg = [ 0,  1,  3,  2,  4,  5,  8,  9,  7,  6, 10, 11]#np.argsort(mean_val)[::-1]
+arg = [ 0,  1,  3,  2,  8,  4,  5,  9, 10,  7,  6, 11, 12]#np.argsort(mean_val)[::-1]#
 ordr.append(arg)
 algos = list(te_500.keys())
 combined_alg_name = []
@@ -349,7 +351,7 @@ bte_end = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float),
           'Model Zoo*':np.zeros(10,dtype=float),
           'ProgNN*':np.zeros(10,dtype=float), 'LMC*':np.zeros(10,dtype=float),
           'DF-CNN*':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
-          'Partial Replay':np.zeros(10,dtype=float),
+          'Partial Replay':np.zeros(10,dtype=float), 'CoSCL*':np.zeros(10,dtype=float),
           'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
           'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
 
@@ -357,10 +359,10 @@ bte_end = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float),
 for count,name in enumerate(bte_end.keys()):
     #print(name, count)
     for i in range(10):
-        if count <8:
+        if count <9:
             bte_end[name][i] = btes_top[count][i][9-i]
         else:
-            bte_end[name][i] = btes_bottom[count-8][i][9-i]
+            bte_end[name][i] = btes_bottom[count-9][i][9-i]
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -375,7 +377,7 @@ fte_end = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float),
           'Model Zoo*':np.zeros(10,dtype=float),
           'ProgNN*':np.zeros(10,dtype=float), 'LMC*':np.zeros(10,dtype=float),
           'DF-CNN*':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
-          'Partial Replay':np.zeros(10,dtype=float),
+          'Partial Replay':np.zeros(10,dtype=float), 'CoSCL*':np.zeros(10,dtype=float),
           'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
           'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
 
@@ -383,10 +385,10 @@ fte_end = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float),
 for count,name in enumerate(fte_end.keys()):
     #print(name, count)
     for i in range(10):
-        if count <8:
+        if count <9:
             fte_end[name][i] = ftes_top[count][i]
         else:
-            fte_end[name][i] = ftes_bottom[count-8][i]
+            fte_end[name][i] = ftes_bottom[count-9][i]
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -966,13 +968,14 @@ acc_all['five_dataset'] = df_acc
 labels.append(combined_alg_name)
 
 #%% register the palettes from cifar
-clr = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#e41a1c", "#f781bf", "#b15928", "#b15928", "#e41a1c", "#f781bf", "#b15928", "#b15928"]
+clr = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#984ea3", "#f781bf", "#b15928", "#e41a1c", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928"]
 c_ = []
 universal_clr_dic = {}
 for id in ordr[0]:
     c_.append(clr[id])
 
 for ii, name in enumerate(labels[0]):
+    print(name)
     register_palette(name, clr[ii])
     universal_clr_dic[name] = clr[ii]
 
