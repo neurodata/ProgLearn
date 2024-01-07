@@ -7,9 +7,20 @@ import numpy as np
 import pandas as pd
 from itertools import product
 import seaborn as sns
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.cm import register_cmap
 import matplotlib.gridspec as gridspec
 import matplotlib
 #%%
+def register_palette(name, clr):
+    # relative positions of colors in cmap/palette 
+    pos = [0.0,1.0]
+
+    colors=['#FFFFFF',clr]
+    cmap = LinearSegmentedColormap.from_list("", list(zip(pos, colors)))
+    register_cmap(name, cmap)
+
+
 def calc_forget(err, total_task, reps):
 #Tom Vient et al
     forget = 0
@@ -140,7 +151,6 @@ fle = {}
 ble = {}
 le = {}
 ordr = []
-
 # %%
 ### MAIN HYPERPARAMS ###
 ntrees = 10
@@ -290,6 +300,7 @@ te_500 = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float),
 
 
 task_order = []
+t = 1
 for count,name in enumerate(te_500.keys()):
     #print(name, count)
     for i in range(10):
@@ -298,7 +309,8 @@ for count,name in enumerate(te_500.keys()):
         else:
             te_500[name][i] = tes_bottom[count-8][i][9-i]
         
-        task_order.append(i+1)
+        task_order.append(t)
+        t += 1
 
 
 mean_val = []
@@ -306,7 +318,7 @@ for name in te_500.keys():
     mean_val.append(np.mean(te_500[name]))
     print(name, np.round(np.mean(te_500[name]),2), np.round(np.std(te_500[name], ddof=1),2))
 
-arg = [ 0,  1,  2,  9, 6, 7, 11,  3,  8,  4,  5, 10]#np.argsort(mean_val)[::-1]
+arg = [ 0,  1,  3,  2,  4,  5,  8,  9,  7,  6, 10, 11]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te_500.keys())
 combined_alg_name = []
@@ -464,17 +476,19 @@ te = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float),
     'None':np.zeros(6,dtype=float)}
 
 task_order = []
+t = 1
 for count,name in enumerate(te.keys()):
     for i in range(6):
         te[name][i] = tes[count][i][5-i]
-        task_order.append(i+1)
+        task_order.append(t)
+        t += 1
 
 mean_val = []
 for name in te.keys():
     mean_val.append(np.mean(te[name]))
     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
 
-arg = [0, 1, 2, 3, 4, 5, 6]#np.argsort(mean_val)[::-1]
+arg = [0, 1, 2, 4, 5, 3, 6]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te.keys())
 combined_alg_name = []
@@ -590,10 +604,12 @@ te = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), 'Model
     'LwF':np.zeros(50,dtype=float)}
 
 task_order = []
+t = 1
 for count,name in enumerate(te.keys()):
     for i in range(50):
         te[name][i] = tes[count][i][49-i]
-        task_order.append(i+1)
+        task_order.append(t)
+        t += 1
 
 
 mean_val = []
@@ -601,7 +617,7 @@ for name in te.keys():
     mean_val.append(np.mean(te[name]))
     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
 
-arg = np.argsort(mean_val)[::-1]
+arg = [0, 1, 2, 3]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te.keys())
 combined_alg_name = []
@@ -669,6 +685,7 @@ tes = [[] for i in range(total_alg)]
 model_file_combined = ['synn','synf', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
 ########################
 
+
 #%% 
 reps = 1
 final_acc = []
@@ -729,10 +746,12 @@ te = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), 'Model
     'None':np.zeros(20,dtype=float)}
 
 task_order = []
+t = 1
 for count,name in enumerate(te.keys()):
     for i in range(20):
         te[name][i] = tes[count][i][19-i]
-        task_order.append(i+1)
+        task_order.append(t)
+        t += 1
 
 
 mean_val = []
@@ -740,7 +759,7 @@ for name in te.keys():
     mean_val.append(np.mean(te[name]))
     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
 
-arg = [0, 1, 2, 3, 5, 6, 7, 4]#np.argsort(mean_val)[::-1]
+arg = [2, 1, 0, 5, 4, 3, 6, 7]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te.keys())
 combined_alg_name = []
@@ -815,6 +834,7 @@ tes = [[] for i in range(total_alg)]
 model_file_combined = ['synn','synf', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
 ########################
 
+
 #%% code for 500 samples
 reps = 1
 final_acc = []
@@ -875,17 +895,19 @@ te = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Model Z
     'None':np.zeros(5,dtype=float)}
 
 task_order = []
+t = 1
 for count,name in enumerate(te.keys()):
     for i in range(5):
         te[name][i] = tes[count][i][4-i]
-        task_order.append(i+1)
+        task_order.append(t)
+        t += 1
 
 mean_val = []
 for name in te.keys():
     mean_val.append(np.mean(te[name]))
     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
 
-arg = [0, 1, 2, 3, 5, 6, 7, 4]#np.argsort(mean_val)[::-1]
+arg = [2, 1, 0, 5, 6, 3, 4, 7]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te.keys())
 combined_alg_name = []
@@ -943,6 +965,16 @@ tes_all['five_dataset'] = df_le
 acc_all['five_dataset'] = df_acc
 labels.append(combined_alg_name)
 
+#%% register the palettes from cifar
+clr = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#e41a1c", "#f781bf", "#b15928", "#b15928", "#e41a1c", "#f781bf", "#b15928", "#b15928"]
+c_ = []
+universal_clr_dic = {}
+for id in ordr[0]:
+    c_.append(clr[id])
+
+for ii, name in enumerate(labels[0]):
+    register_palette(name, clr[ii])
+    universal_clr_dic[name] = clr[ii]
 
 #%%
 datasets = ['CIFAR 10X10', 'Speech', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
@@ -950,29 +982,26 @@ acc_yticks = [[0,.5], [0.3,1], [0.9,1], [0,.9], [0,1]]
 FLE_yticks = [[-.2,0,.2], [-.1,0,.3], [-.01,0,.03], [-0.1,0,.3], [-.2,0,.2]]
 BLE_yticks = [[-.3,0,.2], [-.4,0,.2], [-.03,0,.03], [-0.4,0,.2], [-.5,0,.1]]
 LE_yticks = [[-.3,0,.2], [-.4,0,.3], [-.02,0,.03], [-0.4,0,.3], [-.5,0,.2]]
+task_num = [10, 6, 50, 20, 5]
 
-xcolor = [["#984ea3","#984ea3","#984ea3","#984ea3","#4daf4a","#4daf4a","#984ea3","#984ea3","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a"],
-          ["#984ea3", "#984ea3", "#984ea3", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a"],
-          ["#984ea3", "#984ea3", "#984ea3", "#4daf4a"],
-          ["#984ea3", "#984ea3", "#4daf4a", "#4daf4a", "#984ea3", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a"],
-          ["#984ea3", "#984ea3", "#4daf4a", "#4daf4a", "#984ea3", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a", "#4daf4a"]]
-
-clr = [["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#984ea3", "#f781bf", "#b15928", "#b15928", "#e41a1c", "#f781bf", "#b15928", "#b15928"],
-       ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#b15928", "#b15928", "#b15928"],
-       ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928"],
-       ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"],
-       ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"]]
-fig, ax = plt.subplots(4,len(tes_all.keys())+1, figsize=(36,20))
+fig, ax = plt.subplots(4,len(tes_all.keys()), figsize=(30,20))
 sns.set_context('talk')
 
 for ii, data in enumerate(tes_all.keys()):
     c_ = []
-    for id in ordr[ii]:
-        c_.append(clr[ii][id])
+    clr_ = []
+    for name in labels[ii]:
+        c_.extend(
+            [universal_clr_dic[name]]
+        )
+        clr_.extend(
+            sns.color_palette(
+                name, 
+                n_colors=task_num[ii]
+                )
+            )
 
-    clr_ = sns.color_palette('Reds', n_colors=len(clr[ii]))
-
-    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Task ID', palette=clr_, ax=ax[1][ii], size=12, legend=None)
+    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Task ID', palette=clr_, ax=ax[1][ii], size=18, legend=None)
     ax_.set_xticklabels([])
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
     ax_.set_xlabel('')
@@ -988,7 +1017,7 @@ for ii, data in enumerate(tes_all.keys()):
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Task ID', palette=clr_, ax=ax[2][ii], size=12, legend=None)
+    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Task ID', palette=clr_, ax=ax[2][ii], size=18, legend=None)
 
     ax_.set_xticklabels([])
     #ax_.set_xlim([0, len(labels[ii])])
@@ -1007,7 +1036,7 @@ for ii, data in enumerate(tes_all.keys()):
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Task ID', palette=clr_, ax=ax[0][ii], size=12, legend=None)
+    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Task ID', palette=clr_, ax=ax[0][ii], size=18, legend=None)
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
     ax_.set_title(data, fontsize=38)
     ax_.set_xticklabels([])
@@ -1024,7 +1053,7 @@ for ii, data in enumerate(tes_all.keys()):
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=acc_all[data], hue='Task ID', palette=clr_, ax=ax[3][ii], size=12, legend=None)
+    ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=acc_all[data], hue='Task ID', palette=clr_, ax=ax[3][ii], size=18, legend=None)
     ax_.set_xticklabels([])
     #ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
@@ -1043,8 +1072,10 @@ for ii, data in enumerate(tes_all.keys()):
 
     ax_.set_xticklabels(
     labels[ii],
-    fontsize=18,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
     )
+    for xtick, color in zip(ax_.get_xticklabels(), c_):
+        xtick.set_color(color)
 
 plt.savefig('stripplot_summary_veniat.pdf')
 # %%
