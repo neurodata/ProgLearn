@@ -28,7 +28,7 @@ alg_size = {
     'channel' : [0.07, 0.28, 0.63, 1.12, 1.75, 2.52, 3.43, 4.48, 5.67, 7]
 }'''
 # %%
-fig, ax = plt.subplots(1, 1, figsize=(8,8))
+fig, ax = plt.subplots(1, 1, figsize=(9,8))
 sns.set_context('talk')
 tasks = np.arange(1,11,1)
 clr = ["#377eb8", 'r', "#b15928", "#f781bf", "#f781bf", "#f781bf", "#4daf4a", "#984ea3", "#f781bf", "#984ea3"]
@@ -47,11 +47,11 @@ for ii,key in enumerate(alg_size.keys()):
 
 ax.set_xlim(1,10.5)
 ax.set_yticks([0,300,600])
-ax.set_ylabel('Model Size (MB)', fontsize=22)
-ax.set_xlabel('Taks Seen', fontsize=22)
+ax.set_ylabel('Model Size (MB)', fontsize=40)
+ax.set_xlabel('Tasks Seen', fontsize=40)
 
-ax.tick_params(labelsize=20)
-fig.legend(bbox_to_anchor=(1.3, .85), fontsize=18, frameon=False)
+ax.tick_params(labelsize=25)
+fig.legend(bbox_to_anchor=(1.3, .85), fontsize=25, frameon=False)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
