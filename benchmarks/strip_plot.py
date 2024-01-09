@@ -884,7 +884,7 @@ labels.append(combined_alg_name)
 
 
 #%% register the palettes from cifar
-clr = ["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#984ea3", "#f781bf", "#b15928", "#e41a1c", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928"]
+clr = ['#377eb8', '#e41a1c', '#4daf4a', '#984ea3', '#83d0c9', '#f781bf', '#b15928', '#e41a1c', '#f781bf', '#f47835', '#b15928', '#8b8589', '#4c516d']
 c_ = []
 universal_clr_dic = {}
 for id in ordr[0]:
