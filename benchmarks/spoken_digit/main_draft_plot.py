@@ -9,7 +9,17 @@ from itertools import product
 import seaborn as sns
 import matplotlib.gridspec as gridspec
 import matplotlib
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.cm import register_cmap
 #%%
+def register_palette(name, clr):
+    # relative positions of colors in cmap/palette 
+    pos = [0.0,1.0]
+
+    colors=['#FFFFFF',clr]
+    cmap = LinearSegmentedColormap.from_list("", list(zip(pos, colors)))
+    register_cmap(name, cmap)
+
 def calc_forget(err, reps, total_task=5):
 #Tom Vient et al
     forget = 0
@@ -176,7 +186,7 @@ for alg in range(total_alg):
     te_tmp = [[] for _ in range(reps)]
 
     for rep in range(reps):
-        filename = model_file_combined[alg]+'-'+str(rep)+'.pickle'
+        filename = '/Users/jayantadey/ProgLearn/benchmarks/spoken_digit/'+model_file_combined[alg]+'-'+str(rep)+'.pickle'
 
         multitask_df, single_task_df = unpickle(filename)
 
@@ -219,13 +229,56 @@ te = {'SynN':np.zeros(6,dtype=float), 'SynF':np.zeros(6,dtype=float),
     'Total Replay':np.zeros(6,dtype=float), 'Partial Replay':np.zeros(6,dtype=float), 
     'None':np.zeros(6,dtype=float)}
 
+task_order = []
+t = 1
 for count,name in enumerate(te.keys()):
     for i in range(6):
         te[name][i] = np.log(tes[count][i][5-i])
+        task_order.append(t)
+        t += 1
 
 
 df = pd.DataFrame.from_dict(te)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
+df.insert(2, "Task ID", task_order)
+#%%
+bte_end = {'SynN':np.zeros(6,dtype=float), 'SynF':np.zeros(6,dtype=float), 
+            'Model Zoo':np.zeros(6,dtype=float), 'LwF':np.zeros(6,dtype=float), 
+            'EWC':np.zeros(6,dtype=float), 
+            'O-EWC':np.zeros(6,dtype=float), 'SI':np.zeros(6,dtype=float),
+            'Total Replay':np.zeros(6,dtype=float), 'Partial Replay':np.zeros(6,dtype=float), 
+            'None':np.zeros(6,dtype=float)}
+
+for count,name in enumerate(te.keys()):
+    for i in range(6):
+        bte_end[name][i] = np.log(btes[count][i][5-i])
+
+tmp_ble = {}
+for id in combined_alg_name:
+    tmp_ble[id] = bte_end[id]
+
+df_ble = pd.DataFrame.from_dict(tmp_ble)
+df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
+df_ble.insert(2, "Task ID", task_order)
+
+fte_end = {'SynN':np.zeros(6,dtype=float), 'SynF':np.zeros(6,dtype=float), 
+            'Model Zoo':np.zeros(6,dtype=float), 'LwF':np.zeros(6,dtype=float), 
+            'EWC':np.zeros(6,dtype=float), 
+            'O-EWC':np.zeros(6,dtype=float), 'SI':np.zeros(6,dtype=float),
+            'Total Replay':np.zeros(6,dtype=float), 'Partial Replay':np.zeros(6,dtype=float), 
+            'None':np.zeros(6,dtype=float)}
+
+for count,name in enumerate(te.keys()):
+    for i in range(1,6):
+        fte_end[name][i] = np.log(ftes[count][i])
+
+tmp_fle = {}
+for id in combined_alg_name:
+    tmp_fle[id] = fte_end[id]
+
+df_fle = pd.DataFrame.from_dict(fte_end)
+df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
+df_fle.insert(2, "Task ID", task_order)
 
 # %%
 fig = plt.figure(constrained_layout=True,figsize=(40,12))
@@ -439,4 +492,108 @@ top_side.set_visible(False)'''
 
 fig.text(.45, 0.88, "Spoken Digit", fontsize=fontsize+15)
 plt.savefig('spoken_digit.pdf')
- # %%
+#%%
+universal_clr_dict = {'SynN': '#377eb8',
+                      'SynF': '#e41a1c',
+                      'Model Zoo': '#984ea3',
+                      'LwF': '#f781bf',
+                      'EWC': '#4daf4a',
+                      'O-EWC': '#83d0c9',
+                      'SI': '#f781bf',
+                      'Total Replay': '#b15928',
+                      'Partial Replay': '#f47835',
+                      'None': '#4c516d'}
+for ii, name in enumerate(universal_clr_dict.keys()):
+    print(name)
+    register_palette(name, universal_clr_dict[name])
+
+# %%
+FLE_yticks = [-1.5,0,1]
+BLE_yticks = [-3,0,2]
+LE_yticks = [-3,0,2]
+task_num = 6
+
+clr_ = []
+for name in combined_alg_name:
+    clr_.extend(
+        sns.color_palette(
+            name, 
+            n_colors=task_num
+            )
+        )
+    
+fig, ax = plt.subplots(1,3, figsize=(24,8))
+
+ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=df_fle, hue='Task ID', palette=clr_, ax=ax[0], size=25, legend=None)
+ax_.set_xticklabels(
+    combined_alg_name,
+    fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
+    )
+
+for xtick, color in zip(ax_.get_xticklabels(), te.keys()):
+    xtick.set_color(universal_clr_dict[color])
+
+ax_.hlines(0, -1,len(combined_alg_name), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+ax_.set_xlabel('')
+ax_.set_yticks(FLE_yticks)
+ax_.tick_params('y',labelsize=30)
+ax_.set_ylabel('Forward Transfer', fontsize=30)
+
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+
+###########################################################
+ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=df_ble, hue='Task ID', palette=clr_, ax=ax[1], size=25, legend=None)
+ax_.set_xticklabels(
+combined_alg_name,
+fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
+)
+
+for xtick, color in zip(ax_.get_xticklabels(), te.keys()):
+    xtick.set_color(universal_clr_dict[color])
+
+
+#ax_.set_xlim([0, len(labels[ii])])
+ax_.hlines(0, -1,len(combined_alg_name), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+ax_.set_title('Spoken Digit', fontsize=38)
+ax_.set_xlabel('')
+ax_.set_yticks(BLE_yticks)
+ax_.tick_params('y', labelsize=30)
+ax_.set_ylabel('Backward Transfer', fontsize=30)
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+
+
+#########################################################
+ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df, hue='Task ID', palette=clr_, ax=ax[2], size=25, legend=None)
+ax_.set_xticklabels(
+combined_alg_name,
+fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
+)
+
+for xtick, color in zip(ax_.get_xticklabels(), te.keys()):
+    xtick.set_color(universal_clr_dict[color])
+
+ax_.hlines(0, -1,len(combined_alg_name), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+ax_.set_xlabel('')
+ax_.set_yticks(LE_yticks)
+ax_.tick_params('y', labelsize=30)
+ax_.set_ylabel('Transfer', fontsize=30)
+
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+
+plt.savefig('spoken_digit.pdf')
+# %%

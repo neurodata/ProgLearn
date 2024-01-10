@@ -994,7 +994,7 @@ for id in ordr[0]:
 
 for ii, name in enumerate(labels[0]):
     print(name)
-    #register_palette(name, clr[ii])
+    register_palette(name, clr[ii])
     universal_clr_dic[name] = clr[ii]
 #%%
 datasets = ['CIFAR 10X10', 'Speech', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
@@ -1124,4 +1124,74 @@ for ii, data in enumerate(tes_all.keys()):
     top_side.set_visible(False)
 
 plt.savefig('stripplot_summary.pdf')
+# %%
+fig, ax = plt.subplots(1,3, figsize=(24,8))
+
+ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all['speech'], hue='Task ID', palette=clr_, ax=ax[0], size=25, legend=None)
+ax_.set_xticklabels(
+    labels[1],
+    fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
+    )
+
+for xtick, color in zip(ax_.get_xticklabels(), c_):
+    xtick.set_color(color)
+
+ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+ax_.set_xlabel('')
+ax_.set_yticks(FLE_yticks[1])
+ax_.tick_params('y',labelsize=30)
+ax_.set_ylabel('Forward Transfer', fontsize=30)
+
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+
+###########################################################
+ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all['speech'], hue='Task ID', palette=clr_, ax=ax[1], size=25, legend=None)
+'''ax_.set_xticklabels(
+labels[ii],
+fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
+)
+
+
+for xtick, color in zip(ax_.get_xticklabels(), c_):
+    xtick.set_color(color)'''
+
+
+#ax_.set_xlim([0, len(labels[ii])])
+ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+ax_.set_title('Spoken Digit', fontsize=38)
+ax_.set_xlabel('')
+ax_.set_xticklabels([])
+ax_.set_yticks(BLE_yticks[1])
+ax_.tick_params('y', labelsize=30)
+ax_.set_ylabel('Backward Transfer', fontsize=30)
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+
+
+#########################################################
+ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all['speech'], hue='Task ID', palette=clr_, ax=ax[2], size=25, legend=None)
+ax_.set_xticklabels([])
+ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+ax_.set_xlabel('')
+ax_.set_yticks(LE_yticks[1])
+ax_.tick_params('y', labelsize=30)
+ax_.set_ylabel('Transfer', fontsize=30)
+
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+
+plt.savefig('spoken_digit.pdf')
 # %%
