@@ -9,7 +9,17 @@ from itertools import product
 import seaborn as sns
 import matplotlib.gridspec as gridspec
 import matplotlib
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.cm import register_cmap
 #%%
+def register_palette(name, clr):
+    # relative positions of colors in cmap/palette 
+    pos = [0.0,1.0]
+
+    colors=['#FFFFFF',clr]
+    cmap = LinearSegmentedColormap.from_list("", list(zip(pos, colors)))
+    register_cmap(name, cmap)
+
 def calc_forget(err, total_task, reps):
 #Tom Vient et al
     forget = 0
@@ -225,10 +235,12 @@ fte_dict = {'SynN':np.zeros(5,dtype=float), 'SynF':np.zeros(5,dtype=float), 'mod
     'None':np.zeros(5,dtype=float)}
 
 task_order = []
+t = 1
 for count,name in enumerate(fte_dict.keys()):
     for i in range(5):
         fte_dict[name][i] = np.log(ftes[count][i])
-        task_order.append(i+1)
+        task_order.append(t+1)
+        t += 1
 
 for name in fte_dict.keys():
     print(name, np.round(np.mean(fte_dict[name]),2), np.round(np.std(fte_dict[name], ddof=1),2))
@@ -353,10 +365,12 @@ fte_dict = {'SynN':np.zeros(20,dtype=float), 'SynF':np.zeros(20,dtype=float), 'm
     'None':np.zeros(20,dtype=float)}
 
 task_order = []
+t = 1
 for count,name in enumerate(fte_dict.keys()):
     for i in range(20):
         fte_dict[name][i] = np.log(ftes[count][i])
-        task_order.append(i+1)
+        task_order.append(t+1)
+        t += 1
 
 for name in fte_dict.keys():
     print(name, np.round(np.mean(fte_dict[name]),2), np.round(np.std(fte_dict[name], ddof=1),2))
@@ -464,10 +478,12 @@ fte_dict = {'SynN':np.zeros(50,dtype=float), 'SynF':np.zeros(50,dtype=float), 'm
     'LwF':np.zeros(50,dtype=float)}
 
 task_order = []
+t = 1
 for count,name in enumerate(fte_dict.keys()):
     for i in range(50):
         fte_dict[name][i] = np.log(ftes[count][i])
-        task_order.append(i+1)
+        task_order.append(t+1)
+        t += 1
 
 for name in fte_dict.keys():
     print(name, np.round(np.mean(fte_dict[name]),2), np.round(np.std(fte_dict[name], ddof=1),2))
@@ -517,9 +533,28 @@ df_le_all['food1k'] = df
 tes_all['food1k'] = tes
 te_scatter['food1k'] = te
 
+#%%
+universal_clr_dict = {'SynN': '#377eb8',
+                    'SynF': '#e41a1c',
+                    'Model Zoo': '#984ea3',
+                    'LwF': '#f781bf',
+                    'EWC': '#4daf4a',
+                    'O-EWC': '#83d0c9',
+                    'SI': '#f781bf',
+                    'ER': '#b15928',
+                    'TAG': '#f781bf',
+                    'Partial Replay': '#f47835',
+                    'Total Replay': '#b15928',
+                    'A-GEM': '#8b8589',
+                    'None': '#4c516d'}
+
+for ii, name in enumerate(universal_clr_dict.keys()):
+    print(name)
+    register_palette(name, universal_clr_dict[name])
+    
 # %%
-fig = plt.figure(constrained_layout=True,figsize=(34,28))
-gs = fig.add_gridspec(28,34)
+fig = plt.figure(constrained_layout=True,figsize=(34,24))
+gs = fig.add_gridspec(24,34)
 
 
 tes = tes_all['five_dataset']
@@ -534,21 +569,26 @@ combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER',
 marker_style = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 marker_style_scatter = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 
-c_combined = sns.color_palette('Reds', n_colors=task_num)
-
-fontsize=30
-ticksize=26
-legendsize=20
+#c_combined = sns.color_palette('Reds', n_colors=task_num)
+c_combined = []
+for name in combined_alg_name:
+    c_combined.extend(
+        sns.color_palette(
+            name, 
+            n_colors=task_num
+            )
+        )
+    
+fontsize=40
+ticksize=40
+labelsize = 30
 
 ax = fig.add_subplot(gs[4:12,:8])
 
 ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=df_fle_all['five_dataset'], hue='Task ID', palette=c_combined, ax=ax, size=25, legend=None)
-ax_.set_xticklabels(
-    combined_alg_name,
-    fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
-    )
 
 ax.set_xlabel('')
+ax.set_xticklabels('')
 ax.set_ylabel('Forward Transfer', fontsize=fontsize)
 ax_.set_yticks([.3, 0,-2])
 ax.tick_params(labelsize=ticksize)
@@ -564,18 +604,20 @@ ax.set_title('5-dataset', fontsize=fontsize+20)
 handles, labels_ = ax.get_legend_handles_labels()
 
 ###########################################################
-ax = fig.add_subplot(gs[15:23,:8])
+ax = fig.add_subplot(gs[13:21,:8])
 
 ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=df_ble_all['five_dataset'], hue='Task ID', palette=c_combined, ax=ax, size=25, legend=None)
 ax_.set_xticklabels(
     combined_alg_name,
-    fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=labelsize,rotation=65,ha="right",rotation_mode='anchor'
     )
+for xtick, color in zip(ax_.get_xticklabels(), combined_alg_name):
+        xtick.set_color(universal_clr_dict[color])
 
 ax.set_xlabel('')
 ax.set_ylabel('Backward Transfer', fontsize=fontsize)
 ax_.set_yticks([1, 0,-3])
-ax.tick_params(labelsize=ticksize)
+ax.tick_params(axis='y', labelsize=ticksize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
@@ -583,7 +625,7 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.hlines(0, 0, 12, colors='grey', linestyles='dashed',linewidth=1.5)
 
-
+################################################################
 tes = tes_all['imagenet']
 btes = btes_all['imagenet']
 ftes = ftes_all['imagenet']
@@ -596,21 +638,26 @@ combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER',
 marker_style = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 marker_style_scatter = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 
-c_combined = sns.color_palette('Reds', n_colors=total_alg)
-
+#c_combined = sns.color_palette('Reds', n_colors=total_alg)
+c_combined = []
+for name in combined_alg_name:
+    c_combined.extend(
+        sns.color_palette(
+            name, 
+            n_colors=task_num
+            )
+        )
+    
 ax = fig.add_subplot(gs[4:12,12:20])
 
 ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=df_fle_all['imagenet'], hue='Task ID', palette=c_combined, ax=ax, size=25, legend=None)
-ax_.set_xticklabels(
-    combined_alg_name,
-    fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
-    )
 
 ax.set_xlabel('')
+ax.set_xticklabels('')
 ax.set_ylabel('Forward Transfer', fontsize=fontsize)
 ax.set_title('Split Mini-Imagenet\n (2400 samples)', fontsize=fontsize+20)
 ax_.set_yticks([.6, 0,-.4])
-ax.tick_params(labelsize=ticksize)
+ax.tick_params(axis='y', labelsize=ticksize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
@@ -619,18 +666,20 @@ top_side.set_visible(False)
 ax.hlines(0, 0,12, colors='grey', linestyles='dashed',linewidth=1.5)
 
 
-ax = fig.add_subplot(gs[15:23,12:20])
+ax = fig.add_subplot(gs[13:21,12:20])
 
 ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=df_ble_all['imagenet'], hue='Task ID', palette=c_combined, ax=ax, size=25, legend=None)
 ax_.set_xticklabels(
     combined_alg_name,
-    fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=labelsize,rotation=65,ha="right",rotation_mode='anchor'
     )
+for xtick, color in zip(ax_.get_xticklabels(), combined_alg_name):
+        xtick.set_color(universal_clr_dict[color])
 
 ax.set_xlabel('')
 ax.set_ylabel('Backward Transfer', fontsize=fontsize)
 ax_.set_yticks([.2, 0,-.6])
-ax.tick_params(labelsize=ticksize)
+ax.tick_params(axis='y', labelsize=ticksize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
@@ -653,21 +702,26 @@ combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF']
 
 marker_style = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 marker_style_scatter = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
-c_combined = sns.color_palette('Reds', n_colors=total_alg)
-
+#c_combined = sns.color_palette('Reds', n_colors=total_alg)
+c_combined = []
+for name in combined_alg_name:
+    c_combined.extend(
+        sns.color_palette(
+            name, 
+            n_colors=task_num
+            )
+        )
+    
 ax = fig.add_subplot(gs[4:12,24:32])
 
 ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=df_fle_all['food1k'], hue='Task ID', palette=c_combined, ax=ax, size=25, legend=None)
-ax_.set_xticklabels(
-    combined_alg_name,
-    fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
-    )
 
 ax.set_xlabel('')
+ax.set_xticklabels('')
 ax.set_ylabel('Forward Transfer', fontsize=fontsize)
 ax.set_title('FOOD1k 50X20\n (1200 samples)', fontsize=fontsize+20)
 ax_.set_yticks([.4, 0,-.1])
-ax.tick_params(labelsize=ticksize)
+ax.tick_params(axis='y', labelsize=ticksize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
@@ -675,18 +729,20 @@ top_side = ax.spines["top"]
 top_side.set_visible(False)
 ax.hlines(0, 0, 4, colors='grey', linestyles='dashed',linewidth=1.5)
 
-ax = fig.add_subplot(gs[15:23,24:32])
+ax = fig.add_subplot(gs[13:21,24:32])
 
 ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=df_ble_all['food1k'], hue='Task ID', palette=c_combined, ax=ax, size=25, legend=None)
 ax_.set_xticklabels(
     combined_alg_name,
-    fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=labelsize,rotation=65,ha="right",rotation_mode='anchor'
     )
+for xtick, color in zip(ax_.get_xticklabels(), combined_alg_name):
+        xtick.set_color(universal_clr_dict[color])
 
 ax.set_xlabel('')
 ax.set_ylabel('Backward Transfer', fontsize=fontsize)
 ax_.set_yticks([.3, 0,-.3])
-ax.tick_params(labelsize=ticksize)
+ax.tick_params(axis='y', labelsize=ticksize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
