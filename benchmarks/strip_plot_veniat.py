@@ -16,7 +16,7 @@ def register_palette(name, clr):
     # relative positions of colors in cmap/palette 
     pos = [0.0,1.0]
 
-    colors=['#FFFFFF',clr]
+    colors=['#FFFFFF', clr]
     cmap = LinearSegmentedColormap.from_list("", list(zip(pos, colors)))
     register_cmap(name, cmap)
 
@@ -282,9 +282,9 @@ acc_500 = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float),
 for count,name in enumerate(acc_500.keys()):
     #print(name, count)
     if count <9:
-        acc_500[name] = np.array(final_acc_top[count])
+        acc_500[name] = np.array(final_acc_top[count][::-1])
     else:
-        acc_500[name] = np.array(final_acc_bottom[count-9])
+        acc_500[name] = np.array(final_acc_bottom[count-9][::-1])
 
 
 
@@ -307,9 +307,9 @@ for count,name in enumerate(te_500.keys()):
     #print(name, count)
     for i in range(10):
         if count <9:
-            te_500[name][i] = tes_top[count][i][9-i]
+            te_500[name][9-i] = tes_top[count][i][9-i]
         else:
-            te_500[name][i] = tes_bottom[count-9][i][9-i]
+            te_500[name][9-i] = tes_bottom[count-9][i][9-i]
         
         task_order.append(t)
         t += 1
@@ -360,9 +360,9 @@ for count,name in enumerate(bte_end.keys()):
     #print(name, count)
     for i in range(10):
         if count <9:
-            bte_end[name][i] = btes_top[count][i][9-i]
+            bte_end[name][9-i] = btes_top[count][i][9-i]
         else:
-            bte_end[name][i] = btes_bottom[count-9][i][9-i]
+            bte_end[name][9-i] = btes_bottom[count-9][i][9-i]
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -386,9 +386,9 @@ for count,name in enumerate(fte_end.keys()):
     #print(name, count)
     for i in range(10):
         if count <9:
-            fte_end[name][i] = ftes_top[count][i]
+            fte_end[name][9-i] = ftes_top[count][i]
         else:
-            fte_end[name][i] = ftes_bottom[count-9][i]
+            fte_end[name][9-i] = ftes_bottom[count-9][i]
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -465,7 +465,7 @@ acc = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float),
     'None':np.zeros(6,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
-    acc[name] = np.array(final_acc[count])
+    acc[name] = np.array(final_acc[count][::-1])
 
 
 df_acc = pd.DataFrame.from_dict(acc)
@@ -481,7 +481,7 @@ task_order = []
 t = 1
 for count,name in enumerate(te.keys()):
     for i in range(6):
-        te[name][i] = tes[count][i][5-i]
+        te[name][5-i] = tes[count][i][5-i]
         task_order.append(t)
         t += 1
 
@@ -517,7 +517,7 @@ bte_end = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float),
 
 for count,name in enumerate(te.keys()):
     for i in range(6):
-        bte_end[name][i] = btes[count][i][5-i]
+        bte_end[name][5-i] = btes[count][i][5-i]
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -534,7 +534,7 @@ fte_end = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float),
 
 for count,name in enumerate(te.keys()):
     for i in range(1,6):
-        fte_end[name][i] = ftes[count][i]
+        fte_end[name][5-i] = ftes[count][i]
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -544,10 +544,10 @@ df_fle = pd.DataFrame.from_dict(fte_end)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
 #%%
-btes_all['speech'] = df_ble
-ftes_all['speech'] = df_fle
-tes_all['speech'] = df_le
-acc_all['speech'] = df_acc
+btes_all['sppken digit'] = df_ble
+ftes_all['sppken digit'] = df_fle
+tes_all['sppken digit'] = df_le
+acc_all['sppken digit'] = df_acc
 labels.append(combined_alg_name)
 
 #%%
@@ -595,7 +595,7 @@ acc = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), 'Mode
     'LwF':np.zeros(50,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
-    acc[name] = np.array(final_acc[count])
+    acc[name] = np.array(final_acc[count][::-1])
 
 
 df_acc = pd.DataFrame.from_dict(acc)
@@ -609,7 +609,7 @@ task_order = []
 t = 1
 for count,name in enumerate(te.keys()):
     for i in range(50):
-        te[name][i] = tes[count][i][49-i]
+        te[name][49-i] = tes[count][i][49-i]
         task_order.append(t)
         t += 1
 
@@ -644,7 +644,7 @@ bte_end = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), '
 
 for count,name in enumerate(te.keys()):
     for i in range(50):
-        bte_end[name][i] = btes[count][i][49-i]
+        bte_end[name][49-i] = btes[count][i][49-i]
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -659,7 +659,7 @@ fte_end = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), '
 
 for count,name in enumerate(te.keys()):
     for i in range(1,50):
-        fte_end[name][i] = ftes[count][i]
+        fte_end[name][49-i] = ftes[count][i]
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -735,7 +735,7 @@ acc = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), 'Mode
     'None':np.zeros(20,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
-    acc[name] = np.array(final_acc[count])
+    acc[name] = np.array(final_acc[count][::-1])
 
 
 df_acc = pd.DataFrame.from_dict(acc)
@@ -751,7 +751,7 @@ task_order = []
 t = 1
 for count,name in enumerate(te.keys()):
     for i in range(20):
-        te[name][i] = tes[count][i][19-i]
+        te[name][19-i] = tes[count][i][19-i]
         task_order.append(t)
         t += 1
 
@@ -792,7 +792,7 @@ bte_end = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), '
 
 for count,name in enumerate(te.keys()):
     for i in range(20):
-        bte_end[name][i] = btes[count][i][19-i]
+        bte_end[name][19-i] = btes[count][i][19-i]
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -808,7 +808,7 @@ fte_end = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), '
     'None':np.zeros(20,dtype=float)}
 for count,name in enumerate(te.keys()):
     for i in range(1,20):
-        fte_end[name][i] = ftes[count][i]
+        fte_end[name][19-i] = ftes[count][i]
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -884,7 +884,7 @@ acc = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Model 
     'None':np.zeros(5,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
-    acc[name] = np.array(final_acc[count])
+    acc[name] = np.array(final_acc[count][::-1])
 
 
 df_acc = pd.DataFrame.from_dict(acc)
@@ -900,7 +900,7 @@ task_order = []
 t = 1
 for count,name in enumerate(te.keys()):
     for i in range(5):
-        te[name][i] = tes[count][i][4-i]
+        te[name][4-i] = tes[count][i][4-i]
         task_order.append(t)
         t += 1
 
@@ -935,7 +935,7 @@ bte_end = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Mo
     'None':np.zeros(5,dtype=float)}
 for count,name in enumerate(te.keys()):
     for i in range(5):
-        bte_end[name][i] = btes[count][i][4-i]
+        bte_end[name][4-i] = btes[count][i][4-i]
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -951,7 +951,7 @@ fte_end = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Mo
     'None':np.zeros(5,dtype=float)}
 for count,name in enumerate(te.keys()):
     for i in range(1,5):
-        fte_end[name][i] = ftes[count][i]
+        fte_end[name][4-i] = ftes[count][i]
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -980,7 +980,7 @@ for ii, name in enumerate(labels[0]):
     universal_clr_dic[name] = clr[ii]
 
 #%%
-datasets = ['CIFAR 10X10', 'Speech', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
+datasets = ['CIFAR 10X10', 'sppken digit', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
 acc_yticks = [[0,.5], [0.3,1], [0.9,1], [0,.9], [0,1]]
 FLE_yticks = [[-.2,0,.2], [-.1,0,.3], [-.01,0,.03], [-0.1,0,.3], [-.2,0,.2]]
 BLE_yticks = [[-.3,0,.2], [-.4,0,.2], [-.03,0,.03], [-0.4,0,.2], [-.5,0,.1]]

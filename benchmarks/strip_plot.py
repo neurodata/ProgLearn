@@ -16,7 +16,7 @@ def register_palette(name, clr):
     # relative positions of colors in cmap/palette 
     pos = [0.0,1.0]
 
-    colors=['#FFFFFF',clr]
+    colors=['#FFFFFF', clr]
     cmap = LinearSegmentedColormap.from_list("", list(zip(pos, colors)))
     register_cmap(name, cmap)
 
@@ -310,9 +310,9 @@ acc_500 = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float),
 for count,name in enumerate(acc_500.keys()):
     #print(name, count)
     if count <9:
-        acc_500[name] = np.array(final_acc_top[count])
+        acc_500[name] = np.array(final_acc_top[count][::-1])
     else:
-        acc_500[name] = np.array(final_acc_bottom[count-9])
+        acc_500[name] = np.array(final_acc_bottom[count-9][::-1])
 
 
 
@@ -333,9 +333,9 @@ for count,name in enumerate(te_500.keys()):
     #print(name, count)
     for i in range(10):
         if count <9:
-            te_500[name][i] = np.log(tes_top[count][i][9-i])
+            te_500[name][9-i] = np.log(tes_top[count][i][9-i])
         else:
-            te_500[name][i] = np.log(tes_bottom[count-9][i][9-i])
+            te_500[name][9-i] = np.log(tes_bottom[count-9][i][9-i])
         
         task_order.append(t)
         t += 1       
@@ -384,9 +384,9 @@ for count,name in enumerate(bte_end.keys()):
     #print(name, count)
     for i in range(10):
         if count <9:
-            bte_end[name][i] = np.log(btes_top[count][i][9-i])
+            bte_end[name][9-i] = np.log(btes_top[count][i][9-i])
         else:
-            bte_end[name][i] = np.log(btes_bottom[count-9][i][9-i])
+            bte_end[name][9-i] = np.log(btes_bottom[count-9][i][9-i])
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -411,9 +411,9 @@ for count,name in enumerate(fte_end.keys()):
     #print(name, count)
     for i in range(10):
         if count <9:
-            fte_end[name][i] = np.log(ftes_top[count][i])
+            fte_end[name][9-i] = np.log(ftes_top[count][i])
         else:
-            fte_end[name][i] = np.log(ftes_bottom[count-9][i])
+            fte_end[name][9-i] = np.log(ftes_bottom[count-9][i])
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -489,7 +489,7 @@ acc = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float),
     'None':np.zeros(6,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
-    acc[name] = np.array(final_acc[count])
+    acc[name] = np.array(final_acc[count][::-1])
 
 
 df_acc = pd.DataFrame.from_dict(acc)
@@ -505,7 +505,7 @@ task_order = []
 t = 1
 for count,name in enumerate(te.keys()):
     for i in range(6):
-        te[name][i] = np.log(tes[count][i][5-i])
+        te[name][5-i] = np.log(tes[count][i][5-i])
         task_order.append(t)
         t += 1
 
@@ -541,7 +541,7 @@ bte_end = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float),
 
 for count,name in enumerate(te.keys()):
     for i in range(6):
-        bte_end[name][i] = np.log(btes[count][i][5-i])
+        bte_end[name][5-i] = np.log(btes[count][i][5-i])
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -558,7 +558,7 @@ fte_end = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float),
 
 for count,name in enumerate(te.keys()):
     for i in range(1,6):
-        fte_end[name][i] = np.log(ftes[count][i])
+        fte_end[name][5-i] = np.log(ftes[count][i])
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -568,10 +568,10 @@ df_fle = pd.DataFrame.from_dict(fte_end)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
 #%%
-btes_all['speech'] = df_ble
-ftes_all['speech'] = df_fle
-tes_all['speech'] = df_le
-acc_all['speech'] = df_acc
+btes_all['sppken digit'] = df_ble
+ftes_all['sppken digit'] = df_fle
+tes_all['sppken digit'] = df_le
+acc_all['sppken digit'] = df_acc
 labels.append(combined_alg_name)
 
 #%%
@@ -619,7 +619,7 @@ acc = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), 'Mode
     'LwF':np.zeros(50,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
-    acc[name] = np.array(final_acc[count])
+    acc[name] = np.array(final_acc[count][::-1])
 
 
 df_acc = pd.DataFrame.from_dict(acc)
@@ -632,7 +632,7 @@ task_order = []
 t = 1
 for count,name in enumerate(te.keys()):
     for i in range(50):
-        te[name][i] = np.log(tes[count][i][49-i])
+        te[name][49-i] = np.log(tes[count][i][49-i])
         task_order.append(t)
         t += 1
 
@@ -666,7 +666,7 @@ bte_end = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), '
 
 for count,name in enumerate(te.keys()):
     for i in range(50):
-        bte_end[name][i] = np.log(btes[count][i][49-i])
+        bte_end[name][49-i] = np.log(btes[count][i][49-i])
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -681,7 +681,7 @@ fte_end = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), '
 
 for count,name in enumerate(te.keys()):
     for i in range(1,50):
-        fte_end[name][i] = np.log(ftes[count][i])
+        fte_end[name][49-i] = np.log(ftes[count][i])
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -756,7 +756,7 @@ acc = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), 'Mode
     'None':np.zeros(20,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
-    acc[name] = np.array(final_acc[count])
+    acc[name] = np.array(final_acc[count][::-1])
 
 
 df_acc = pd.DataFrame.from_dict(acc)
@@ -771,7 +771,7 @@ task_order = []
 t = 1
 for count,name in enumerate(te.keys()):
     for i in range(20):
-        te[name][i] = np.log(tes[count][i][19-i])
+        te[name][19-i] = np.log(tes[count][i][19-i])
         task_order.append(t)
         t += 1
 
@@ -811,7 +811,7 @@ bte_end = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), '
 
 for count,name in enumerate(te.keys()):
     for i in range(20):
-        bte_end[name][i] = np.log(btes[count][i][19-i])
+        bte_end[name][19-i] = np.log(btes[count][i][19-i])
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -827,7 +827,7 @@ fte_end = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), '
     'None':np.zeros(20,dtype=float)}
 for count,name in enumerate(te.keys()):
     for i in range(1,20):
-        fte_end[name][i] = np.log(ftes[count][i])
+        fte_end[name][19-i] = np.log(ftes[count][i])
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -902,7 +902,7 @@ acc = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Model 
     'None':np.zeros(5,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
-    acc[name] = np.array(final_acc[count])
+    acc[name] = np.array(final_acc[count][::-1])
 
 
 df_acc = pd.DataFrame.from_dict(acc)
@@ -917,7 +917,7 @@ task_order = []
 t = 1
 for count,name in enumerate(te.keys()):
     for i in range(5):
-        te[name][i] = np.log(tes[count][i][4-i])
+        te[name][4-i] = np.log(tes[count][i][4-i])
         task_order.append(t)
         t += 1
 
@@ -952,7 +952,7 @@ bte_end = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Mo
     'None':np.zeros(5,dtype=float)}
 for count,name in enumerate(te.keys()):
     for i in range(5):
-        bte_end[name][i] = np.log(btes[count][i][4-i])
+        bte_end[name][4-i] = np.log(btes[count][i][4-i])
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -968,7 +968,7 @@ fte_end = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Mo
     'None':np.zeros(5,dtype=float)}
 for count,name in enumerate(te.keys()):
     for i in range(1,5):
-        fte_end[name][i] = np.log(ftes[count][i])
+        fte_end[name][4-i] = np.log(ftes[count][i])
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -997,7 +997,7 @@ for ii, name in enumerate(labels[0]):
     register_palette(name, clr[ii])
     universal_clr_dic[name] = clr[ii]
 #%%
-datasets = ['CIFAR 10X10', 'Speech', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
+datasets = ['CIFAR 10X10', 'sppken digit', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
 FLE_yticks = [[-.3,0,.3], [-1.5,0,1], [-.1,0,.4], [-0.4,0,.6], [-1.5,0,.3]]
 BLE_yticks = [[-.4,0,.2], [-3,0,2], [-.3,0,.3], [-0.6,0,.2], [-2.5,0,.5]]
 LE_yticks = [[-.4,0,.2], [-3,0,2], [-.3,0,.4], [-0.6,0,.6], [-2.5,0,.4]]
@@ -1124,74 +1124,4 @@ for ii, data in enumerate(tes_all.keys()):
     top_side.set_visible(False)
 
 plt.savefig('stripplot_summary.pdf')
-# %%
-fig, ax = plt.subplots(1,3, figsize=(24,8))
-
-ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all['speech'], hue='Task ID', palette=clr_, ax=ax[0], size=25, legend=None)
-ax_.set_xticklabels(
-    labels[1],
-    fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
-    )
-
-for xtick, color in zip(ax_.get_xticklabels(), c_):
-    xtick.set_color(color)
-
-ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-
-ax_.set_xlabel('')
-ax_.set_yticks(FLE_yticks[1])
-ax_.tick_params('y',labelsize=30)
-ax_.set_ylabel('Forward Transfer', fontsize=30)
-
-
-right_side = ax_.spines["right"]
-right_side.set_visible(False)
-top_side = ax_.spines["top"]
-top_side.set_visible(False)
-
-###########################################################
-ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all['speech'], hue='Task ID', palette=clr_, ax=ax[1], size=25, legend=None)
-'''ax_.set_xticklabels(
-labels[ii],
-fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
-)
-
-
-for xtick, color in zip(ax_.get_xticklabels(), c_):
-    xtick.set_color(color)'''
-
-
-#ax_.set_xlim([0, len(labels[ii])])
-ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-
-ax_.set_title('Spoken Digit', fontsize=38)
-ax_.set_xlabel('')
-ax_.set_xticklabels([])
-ax_.set_yticks(BLE_yticks[1])
-ax_.tick_params('y', labelsize=30)
-ax_.set_ylabel('Backward Transfer', fontsize=30)
-
-right_side = ax_.spines["right"]
-right_side.set_visible(False)
-top_side = ax_.spines["top"]
-top_side.set_visible(False)
-
-
-#########################################################
-ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all['speech'], hue='Task ID', palette=clr_, ax=ax[2], size=25, legend=None)
-ax_.set_xticklabels([])
-ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-
-ax_.set_xlabel('')
-ax_.set_yticks(LE_yticks[1])
-ax_.tick_params('y', labelsize=30)
-ax_.set_ylabel('Transfer', fontsize=30)
-
-
-right_side = ax_.spines["right"]
-right_side.set_visible(False)
-top_side = ax_.spines["top"]
-top_side.set_visible(False)
-
-plt.savefig('spoken_digit.pdf')
 # %%
