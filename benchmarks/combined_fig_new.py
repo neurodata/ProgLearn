@@ -16,7 +16,7 @@ def register_palette(name, clr):
     # relative positions of colors in cmap/palette 
     pos = [0.0,1.0]
 
-    colors=['#FFFFFF',clr]
+    colors=['#FFFFFF', clr]
     cmap = LinearSegmentedColormap.from_list("", list(zip(pos, colors)))
     register_cmap(name, cmap)
 
@@ -238,7 +238,7 @@ task_order = []
 t = 1
 for count,name in enumerate(fte_dict.keys()):
     for i in range(5):
-        fte_dict[name][i] = np.log(ftes[count][i])
+        fte_dict[name][4-i] = np.log(ftes[count][i])
         task_order.append(t+1)
         t += 1
 
@@ -260,7 +260,7 @@ bte_dict = {'SynN':np.zeros(5,dtype=float), 'SynF':np.zeros(5,dtype=float), 'mod
 
 for count,name in enumerate(bte_dict.keys()):
     for i in range(5):
-        bte_dict[name][i] = np.log(btes[count][i][4-i])
+        bte_dict[name][4-i] = np.log(btes[count][i][4-i])
 
 for name in bte_dict.keys():
     print(name, np.round(np.mean(bte_dict[name]),2), np.round(np.std(bte_dict[name], ddof=1),2))
@@ -280,7 +280,7 @@ te = {'SynN':np.zeros(5,dtype=float), 'SynF':np.zeros(5,dtype=float), 'model_zoo
 
 for count,name in enumerate(te.keys()):
     for i in range(5):
-        te[name][i] = np.log(tes[count][i][4-i])
+        te[name][4-i] = np.log(tes[count][i][4-i])
 
 for name in te.keys():
     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
@@ -368,7 +368,7 @@ task_order = []
 t = 1
 for count,name in enumerate(fte_dict.keys()):
     for i in range(20):
-        fte_dict[name][i] = np.log(ftes[count][i])
+        fte_dict[name][19-i] = np.log(ftes[count][i])
         task_order.append(t+1)
         t += 1
 
@@ -390,7 +390,7 @@ bte_dict = {'SynN':np.zeros(20,dtype=float), 'SynF':np.zeros(20,dtype=float), 'm
 
 for count,name in enumerate(bte_dict.keys()):
     for i in range(20):
-        bte_dict[name][i] = np.log(btes[count][i][19-i])
+        bte_dict[name][19-i] = np.log(btes[count][i][19-i])
 
 for name in bte_dict.keys():
     print(name, np.round(np.mean(bte_dict[name]),2), np.round(np.std(bte_dict[name], ddof=1),2))
@@ -410,7 +410,7 @@ te = {'SynN':np.zeros(20,dtype=float), 'SynF':np.zeros(20,dtype=float), 'model_z
 
 for count,name in enumerate(te.keys()):
     for i in range(20):
-        te[name][i] = np.log(tes[count][i][19-i])
+        te[name][19-i] = np.log(tes[count][i][19-i])
 
 
 for name in te.keys():
@@ -481,7 +481,7 @@ task_order = []
 t = 1
 for count,name in enumerate(fte_dict.keys()):
     for i in range(50):
-        fte_dict[name][i] = np.log(ftes[count][i])
+        fte_dict[name][49-i] = np.log(ftes[count][i])
         task_order.append(t+1)
         t += 1
 
@@ -498,7 +498,7 @@ bte_dict = {'SynN':np.zeros(50,dtype=float), 'SynF':np.zeros(50,dtype=float), 'm
 
 for count,name in enumerate(bte_dict.keys()):
     for i in range(50):
-        bte_dict[name][i] = np.log(btes[count][i][49-i])
+        bte_dict[name][49-i] = np.log(btes[count][i][49-i])
 
 for name in bte_dict.keys():
     print(name, np.round(np.mean(bte_dict[name]),2), np.round(np.std(bte_dict[name], ddof=1),2))
@@ -513,7 +513,7 @@ te = {'SynN':np.zeros(50,dtype=float), 'SynF':np.zeros(50,dtype=float), 'model_z
 
 for count,name in enumerate(te.keys()):
     for i in range(50):
-        te[name][i] = np.log(tes[count][i][49-i])
+        te[name][49-i] = np.log(tes[count][i][49-i])
 
 
 for name in te.keys():
@@ -582,6 +582,7 @@ for name in combined_alg_name:
 fontsize=40
 ticksize=40
 labelsize = 30
+legendsize=30
 
 ax = fig.add_subplot(gs[4:12,:8])
 

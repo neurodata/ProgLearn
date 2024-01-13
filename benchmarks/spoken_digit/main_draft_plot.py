@@ -16,7 +16,7 @@ def register_palette(name, clr):
     # relative positions of colors in cmap/palette 
     pos = [0.0,1.0]
 
-    colors=['#FFFFFF',clr]
+    colors=['#FFFFFF', clr]
     cmap = LinearSegmentedColormap.from_list("", list(zip(pos, colors)))
     register_cmap(name, cmap)
 
@@ -233,7 +233,7 @@ task_order = []
 t = 1
 for count,name in enumerate(te.keys()):
     for i in range(6):
-        te[name][i] = np.log(tes[count][i][5-i])
+        te[name][5-i] = np.log(tes[count][i][5-i])
         task_order.append(t)
         t += 1
 
@@ -251,7 +251,7 @@ bte_end = {'SynN':np.zeros(6,dtype=float), 'SynF':np.zeros(6,dtype=float),
 
 for count,name in enumerate(te.keys()):
     for i in range(6):
-        bte_end[name][i] = np.log(btes[count][i][5-i])
+        bte_end[name][5-i] = np.log(btes[count][i][5-i])
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -270,7 +270,7 @@ fte_end = {'SynN':np.zeros(6,dtype=float), 'SynF':np.zeros(6,dtype=float),
 
 for count,name in enumerate(te.keys()):
     for i in range(1,6):
-        fte_end[name][i] = np.log(ftes[count][i])
+        fte_end[name][5-i] = np.log(ftes[count][i])
 
 tmp_fle = {}
 for id in combined_alg_name:
