@@ -320,7 +320,7 @@ for name in te_500.keys():
     mean_val.append(np.mean(te_500[name]))
     print(name, np.round(np.mean(te_500[name]),2), np.round(np.std(te_500[name], ddof=1),2))
 
-arg = [ 0,  1,  3,  2,  8,  4,  5,  9, 10,  7,  6, 11, 12]#np.argsort(mean_val)[::-1]#
+arg = [ 0,  1,  3,  2,  4,  8,  5,  9, 10,  7,  6, 11, 12]#np.argsort(mean_val)[::-1]#
 ordr.append(arg)
 algos = list(te_500.keys())
 combined_alg_name = []
