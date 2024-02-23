@@ -568,10 +568,10 @@ df_fle = pd.DataFrame.from_dict(fte_end)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
 #%%
-btes_all['sppken digit'] = df_ble
-ftes_all['sppken digit'] = df_fle
-tes_all['sppken digit'] = df_le
-acc_all['sppken digit'] = df_acc
+btes_all['spoken digit'] = df_ble
+ftes_all['spoken digit'] = df_fle
+tes_all['spoken digit'] = df_le
+acc_all['spoken digit'] = df_acc
 labels.append(combined_alg_name)
 
 #%%
@@ -708,6 +708,7 @@ ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
 model_file_combined = ['synn','synf', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
 ########################
+
 
 #%% 
 reps = 1
@@ -997,7 +998,7 @@ for ii, name in enumerate(labels[0]):
     register_palette(name, clr[ii])
     universal_clr_dic[name] = clr[ii]
 #%%
-datasets = ['CIFAR 10X10', 'sppken digit', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
+datasets = ['CIFAR 10X10', 'spoken digit', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
 FLE_yticks = [[-.3,0,.3], [-1.5,0,1], [-.1,0,.4], [-0.4,0,.6], [-1.5,0,.3]]
 BLE_yticks = [[-.4,0,.2], [-3,0,2], [-.3,0,.3], [-0.6,0,.2], [-2.5,0,.5]]
 LE_yticks = [[-.4,0,.2], [-3,0,2], [-.3,0,.4], [-0.6,0,.6], [-2.5,0,.4]]
