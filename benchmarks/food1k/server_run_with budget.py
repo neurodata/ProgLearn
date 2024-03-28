@@ -22,7 +22,7 @@ import pickle
 
 #%%
 TRAIN_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Train'
-VAL_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Val'
+VAL_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Val'
 
 CATEGORIES = list(range(20))
 SAMPLE_PER_CLASS = 60
