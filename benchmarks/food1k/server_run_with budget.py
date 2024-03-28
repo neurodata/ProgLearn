@@ -198,8 +198,8 @@ def experiment(model='synf', ntrees=10, rep=1, budget=40):
             
         transformers_to_consider.append(task)
         train_x, train_y, test_x, test_y = get_data(task)
-        train_x = train_x.reshape(-1, 3*IMG_SIZE*IMG_SIZE)
-        test_x = test_x.reshape(-1, 3*IMG_SIZE*IMG_SIZE)
+        #train_x = train_x.reshape(-1, 3*IMG_SIZE*IMG_SIZE)
+        #test_x = test_x.reshape(-1, 3*IMG_SIZE*IMG_SIZE)
         
         test_x_task.append(
             test_x
