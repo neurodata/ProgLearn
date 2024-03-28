@@ -7,7 +7,7 @@ import os
 import cv2
 from tensorflow.keras import layers
 from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers.legacy import Adam
 from proglearn.deciders import SimpleArgmaxAverage
 from proglearn.progressive_learner import ProgressiveLearner
 from proglearn.transformers import (
