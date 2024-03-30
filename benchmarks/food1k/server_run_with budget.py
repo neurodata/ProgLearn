@@ -250,7 +250,7 @@ def experiment(model='synf', ntrees=10, rep=1, budget=40):
 
 #%%
 reps = 1
-budgets = [10,20,30,40]
+budgets = [40]
 
 for budget in budgets:
     for ii in range(reps):
