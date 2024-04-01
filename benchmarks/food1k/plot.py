@@ -196,11 +196,31 @@ df = pd.DataFrame.from_dict(te_df)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 df.insert(2, "Task ID", task_order)
 # %%
+universal_clr_dict = {'Budget 10': '#377eb8',
+                    'Budget 20': '#e41a1c',
+                    'Budget 30': '#984ea3',
+                    'Budget 40': '#f781bf',
+                    'Budget 50': '#4daf4a'}
+
+for ii, name in enumerate(universal_clr_dict.keys()):
+    print(name)
+    register_palette(name, universal_clr_dict[name])
+#%%
+c_combined = []
+for name in te_df.keys():
+    c_combined.extend(
+        sns.color_palette(
+            name, 
+            n_colors=50
+            )
+        )
+
+#%%
 ticksize = 20
 labelsize = 20
 fig, ax = plt.subplots(1, 1, figsize=(8, 8))
 
-ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df, hue='Task ID', ax=ax, size=25, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df, hue='Task ID', palette=c_combined, ax=ax, size=25, legend=None)
 ax_.set_xticklabels(
     te_df.keys(),
     fontsize=labelsize,rotation=65,ha="right",rotation_mode='anchor'
