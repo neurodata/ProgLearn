@@ -193,10 +193,12 @@ def experiment(model='synf', ntrees=10, rep=1, budget=40):
     for task in range(num_tasks):
         print("doing task ", task)
         
-        if task > budget-1:
-            transformers_to_consider.pop(0)
-            
-        transformers_to_consider.append(task)
+        '''if task > budget-1:
+            transformers_to_consider.pop(0)'''
+
+        if task < budget:    
+            transformers_to_consider.append(task)
+
         train_x, train_y, test_x, test_y = get_data(task)
         #train_x = train_x.reshape(-1, 3*IMG_SIZE*IMG_SIZE)
         #test_x = test_x.reshape(-1, 3*IMG_SIZE*IMG_SIZE)
@@ -207,14 +209,27 @@ def experiment(model='synf', ntrees=10, rep=1, budget=40):
         test_y_task.append(
             test_y
         )
-        progressive_learner.add_task(
-            X=train_x,
-            y=train_y,
-            task_id=task,
-            num_transformers=1 if model == "synn" else ntrees,
-            transformer_voter_decider_split=[0.67, 0.33, 0],
-            decider_kwargs={"classes": np.unique(train_y)},
-        )
+
+        if task < budget:
+            progressive_learner.add_task(
+                X=train_x,
+                y=train_y,
+                task_id=task,
+                num_transformers=1,
+                transformer_voter_decider_split=[0.67, 0.33, 0],
+                decider_kwargs={"classes": np.unique(train_y)},
+            )
+        else:
+            progressive_learner.add_task(
+                X=train_x,
+                y=train_y,
+                task_id=task,
+                num_transformers=0,
+                forward_transformer_ids = transformers_to_consider,
+                transformer_voter_decider_split=[0.67, 0.33, 0],
+                decider_kwargs={"classes": np.unique(train_y)},
+            )
+
 
         singletask_prediction = progressive_learner.predict(
             X=test_x, transformer_ids=[task], task_id=task
@@ -244,13 +259,13 @@ def experiment(model='synf', ntrees=10, rep=1, budget=40):
 
     summary = (df_multitask, df_singletask)
 
-    with open('results/'+model+'_'+str(rep)+'_' + str(budget)+'.pickle', 'wb') as f:
+    with open('results/'+model+'_'+str(rep)+'fixed_' + str(budget)+'.pickle', 'wb') as f:
         pickle.dump(summary, f)
 
 
 #%%
 reps = 1
-budgets = [8,9]
+budgets = [5,6,7,10,20,30,40]
 
 for budget in budgets:
     for ii in range(reps):

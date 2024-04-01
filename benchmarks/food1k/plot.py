@@ -163,7 +163,7 @@ def stratified_scatter(te_dict,axis_handle,s,color,style):
 
 # %%
 tes = []
-budgets = [10,20,30,40,50]
+budgets = [5,6,7,10,20,30,40,50]
 reps = 1
 
 for budget in budgets:
@@ -177,9 +177,11 @@ for budget in budgets:
 
     tes.append(te_)
 # %%
-te_df = {'Budget 10':np.zeros(50,dtype=float), 'Budget 20':np.zeros(50,dtype=float), 
-      'Budget 30':np.zeros(50,dtype=float), 'Budget 40':np.zeros(50,dtype=float),
-      'Budget 50':np.zeros(50,dtype=float)}
+te_df = {'Budget 5':np.zeros(50,dtype=float), 'Budget 6':np.zeros(50,dtype=float),
+         'Budget 7':np.zeros(50,dtype=float),
+         'Budget 10':np.zeros(50,dtype=float), 'Budget 20':np.zeros(50,dtype=float), 
+         'Budget 30':np.zeros(50,dtype=float), 'Budget 40':np.zeros(50,dtype=float),
+         'Budget 50':np.zeros(50,dtype=float)}
 
 task_order =[]
 t=1
@@ -196,11 +198,14 @@ df = pd.DataFrame.from_dict(te_df)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 df.insert(2, "Task ID", task_order)
 # %%
-universal_clr_dict = {'Budget 10': '#377eb8',
-                    'Budget 20': '#e41a1c',
-                    'Budget 30': '#984ea3',
-                    'Budget 40': '#f781bf',
-                    'Budget 50': '#4daf4a'}
+universal_clr_dict = {'Budget 5': '#377eb8',
+                      'Budget 6': '#377eb8',
+                      'Budget 7': '#377eb8',
+                      'Budget 10': '#377eb8',
+                      'Budget 20': '#e41a1c',
+                      'Budget 30': '#984ea3',
+                      'Budget 40': '#f781bf',
+                      'Budget 50': '#4daf4a'}
 
 for ii, name in enumerate(universal_clr_dict.keys()):
     print(name)
