@@ -81,7 +81,7 @@ def get_data(task=0):
     return train_X, train_y, test_X, test_y
 
 #%%
-def experiment(model='synf', ntrees=10, rep=1, budget=40):
+def experiment(model='synf', rep=1, budget=40):
     num_tasks = 50
     tasks = []
     base_tasks = []
@@ -210,7 +210,7 @@ def experiment(model='synf', ntrees=10, rep=1, budget=40):
             test_y
         )
 
-        if task < budget:
+        '''if task < budget:
             progressive_learner.add_task(
                 X=train_x,
                 y=train_y,
@@ -228,9 +228,17 @@ def experiment(model='synf', ntrees=10, rep=1, budget=40):
                 forward_transformer_ids = transformers_to_consider,
                 transformer_voter_decider_split=[0.67, 0.33, 0],
                 decider_kwargs={"classes": np.unique(train_y)},
+            )'''
+
+        progressive_learner.add_task(
+                X=train_x,
+                y=train_y,
+                task_id=task,
+                num_transformers=1,
+                transformer_voter_decider_split=[0.67, 0.33, 0],
+                decider_kwargs={"classes": np.unique(train_y)},
             )
-
-
+        
         singletask_prediction = progressive_learner.predict(
             X=test_x, transformer_ids=[task], task_id=task
         )
@@ -265,8 +273,8 @@ def experiment(model='synf', ntrees=10, rep=1, budget=40):
 
 #%%
 reps = 1
-budgets = [5,6,7,10,20,30,40]
+budgets = [40,30,20,10,7,6,5]
 
 for budget in budgets:
-    for ii in range(reps):
-        experiment(model='synn',rep=ii, budget=budget)
+    for jj in range(reps):
+        experiment(model='synn',rep=jj, budget=budget)
