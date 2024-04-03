@@ -273,7 +273,7 @@ def experiment(model='synf', rep=1, budget=40):
 
 #%%
 reps = 1
-budgets = [40,30,20,10,7,6,5]
+budgets = [7,6,5]
 
 for budget in budgets:
     for jj in range(reps):

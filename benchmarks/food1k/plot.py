@@ -173,15 +173,15 @@ for budget in budgets:
 
     fte_, bte_, te_ = get_fte_bte(err,single_err, total_task=50)
     avg_acc_, avg_var_ = calc_avg_acc(err, 50, reps)
-    avg_single_acc_, avg_single_var_ = calc_avg_single_acc(single_err, 50, reps)
+    #avg_single_acc_, avg_single_var_ = calc_avg_single_acc(single_err, 50, reps)
 
     tes.append(te_)
 # %%
-te_df = {'Budget 5':np.zeros(50,dtype=float), 'Budget 6':np.zeros(50,dtype=float),
-         'Budget 7':np.zeros(50,dtype=float),
-         'Budget 10':np.zeros(50,dtype=float), 'Budget 20':np.zeros(50,dtype=float), 
-         'Budget 30':np.zeros(50,dtype=float), 'Budget 40':np.zeros(50,dtype=float),
-         'Budget 50':np.zeros(50,dtype=float)}
+te_df = {'5':np.zeros(50,dtype=float), '6':np.zeros(50,dtype=float),
+         '7':np.zeros(50,dtype=float),
+         '10':np.zeros(50,dtype=float), '20':np.zeros(50,dtype=float), 
+         '30':np.zeros(50,dtype=float), '40':np.zeros(50,dtype=float),
+         '50':np.zeros(50,dtype=float)}
 
 task_order =[]
 t=1
@@ -198,14 +198,14 @@ df = pd.DataFrame.from_dict(te_df)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 df.insert(2, "Task ID", task_order)
 # %%
-universal_clr_dict = {'Budget 5': '#377eb8',
-                      'Budget 6': '#377eb8',
-                      'Budget 7': '#377eb8',
-                      'Budget 10': '#377eb8',
-                      'Budget 20': '#e41a1c',
-                      'Budget 30': '#984ea3',
-                      'Budget 40': '#f781bf',
-                      'Budget 50': '#4daf4a'}
+universal_clr_dict = {'5': '#377eb8',
+                      '6': '#377eb8',
+                      '7': '#377eb8',
+                      '10': '#377eb8',
+                      '20': '#377eb8',
+                      '30': '#377eb8',
+                      '40': '#377eb8',
+                      '50': '#377eb8'}
 
 for ii, name in enumerate(universal_clr_dict.keys()):
     print(name)
@@ -221,26 +221,26 @@ for name in te_df.keys():
         )
 
 #%%
-ticksize = 20
-labelsize = 20
+ticksize = 30
+labelsize = 30
 fig, ax = plt.subplots(1, 1, figsize=(8, 8))
 
 ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df, hue='Task ID', palette=c_combined, ax=ax, size=25, legend=None)
 ax_.set_xticklabels(
     te_df.keys(),
-    fontsize=labelsize,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=labelsize,rotation=0,rotation_mode='anchor'
     )
 ax.set_ylabel('Transfer', fontsize=labelsize)
-ax.set_xlabel('', fontsize=labelsize)
+ax.set_xlabel('Budget', fontsize=labelsize)
 ax_.set_yticks([0,.4])
 ax.tick_params(axis='y', labelsize=ticksize)
-ax.set_title('food1k', fontsize=30)
+ax.set_title('food1k', fontsize=labelsize+5)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
-ax.hlines(0, 0, 4, colors='grey', linestyles='dashed',linewidth=1.5)
+ax.hlines(0, 0, 7, colors='grey', linestyles='dashed',linewidth=1.5)
 
 plt.savefig('food1k_budgeted.pdf')
 # %%
