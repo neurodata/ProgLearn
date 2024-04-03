@@ -163,11 +163,11 @@ def stratified_scatter(te_dict,axis_handle,s,color,style):
 
 # %%
 tes = []
-budgets = [5,6,7,10,20,30,40,50]
+budgets = [10,20,30,40,50]
 reps = 1
 
 for budget in budgets:
-    filename =  '/Users/jayantadey/budgeted_proglearn/ProgLearn/benchmarks/food1k/results/synn_0_'+ str(budget) +'.pickle'
+    filename =  '/Users/jayantadey/budgeted_proglearn/ProgLearn/benchmarks/food1k/results/synn_0fixed_'+ str(budget) +'.pickle'
     multitask_df, single_task_df = unpickle(filename)
     single_err, err = get_error_matrix(filename, 50)
 
@@ -177,8 +177,7 @@ for budget in budgets:
 
     tes.append(te_)
 # %%
-te_df = {'5':np.zeros(50,dtype=float), '6':np.zeros(50,dtype=float),
-         '7':np.zeros(50,dtype=float),
+te_df = {
          '10':np.zeros(50,dtype=float), '20':np.zeros(50,dtype=float), 
          '30':np.zeros(50,dtype=float), '40':np.zeros(50,dtype=float),
          '50':np.zeros(50,dtype=float)}
@@ -198,9 +197,7 @@ df = pd.DataFrame.from_dict(te_df)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 df.insert(2, "Task ID", task_order)
 # %%
-universal_clr_dict = {'5': '#377eb8',
-                      '6': '#377eb8',
-                      '7': '#377eb8',
+universal_clr_dict = {
                       '10': '#377eb8',
                       '20': '#377eb8',
                       '30': '#377eb8',
