@@ -270,7 +270,7 @@ for name in te_df.keys():
 
 #%%
 ticksize = 30
-labelsize = 30
+labelsize = 40
 fig, ax = plt.subplots(1, 3, figsize=(24, 8))
 
 ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df_te, hue='Task ID', palette=c_combined, ax=ax[2], size=25, legend=None)
