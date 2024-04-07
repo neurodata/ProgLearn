@@ -81,7 +81,7 @@ def get_data(task=0):
     return train_X, train_y, test_X, test_y
 
 #%%
-def experiment(model='synf', rep=1, budget=40):
+def experiment(model='synf', n_trees=10, rep=1, budget=40):
     num_tasks = 50
     tasks = []
     base_tasks = []
@@ -234,7 +234,7 @@ def experiment(model='synf', rep=1, budget=40):
                 X=train_x,
                 y=train_y,
                 task_id=task,
-                num_transformers=1,
+                num_transformers=1 if model == "synn" else ntrees,
                 transformer_voter_decider_split=[0.67, 0.33, 0],
                 decider_kwargs={"classes": np.unique(train_y)},
             )
@@ -273,8 +273,8 @@ def experiment(model='synf', rep=1, budget=40):
 
 #%%
 reps = 1
-budgets = [7,6,5]
+budgets = [40,30,20,10,7,6,5]
 
 for budget in budgets:
     for jj in range(reps):
-        experiment(model='synn',rep=jj, budget=budget)
+        experiment(model='synf',rep=jj, budget=budget)
