@@ -12,6 +12,13 @@ import matplotlib
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.cm import register_cmap
 #%%
+def calc_acc_per_task(err, total_task, reps):
+#Tom Vient et al
+    acc = []
+    for ii in range(total_task):
+        acc.append(1-err[total_task-1][ii]/reps)
+    return acc
+
 def register_palette(name, clr):
     # relative positions of colors in cmap/palette 
     pos = [0.0,1.0]
@@ -162,7 +169,7 @@ def stratified_scatter(te_dict,axis_handle,s,color,style):
                 )
 
 # %%
-tes, ftes, btes = [], [], []
+tes, ftes, btes, acc = [], [], [], []
 budgets = [5,6,7,10,20,30,40,50]
 reps = 1
 
@@ -178,6 +185,9 @@ for budget in budgets:
     tes.append(te_)
     ftes.append(fte_)
     btes.append(bte_)
+    acc.append(
+        calc_acc_per_task(err,50,1)
+    )
 # %%
 te_df = {'5':np.zeros(50,dtype=float), '6':np.zeros(50,dtype=float),
          '7':np.zeros(50,dtype=float),
@@ -244,6 +254,27 @@ df_fte = pd.DataFrame.from_dict(fte_df)
 df_fte = pd.melt(df_fte,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fte.insert(2, "Task ID", task_order)
 
+#%%
+acc_df = {'5':np.zeros(50,dtype=float), '6':np.zeros(50,dtype=float),
+         '7':np.zeros(50,dtype=float),
+         '10':np.zeros(50,dtype=float), '20':np.zeros(50,dtype=float), 
+         '30':np.zeros(50,dtype=float), '40':np.zeros(50,dtype=float),
+         '50':np.zeros(50,dtype=float)}
+
+#task_order =[]
+#t=1
+for count,name in enumerate(acc_df.keys()):
+    for i in range(50):
+        acc_df[name][49-i] = acc[count][i]
+        #task_order.append(t)
+        #t += 1
+
+for name in te_df.keys():
+    print(name, np.round(np.mean(acc_df[name]),2), np.round(np.std(acc_df[name], ddof=1),2))
+# %%
+df_acc = pd.DataFrame.from_dict(acc_df)
+df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
+df_acc.insert(2, "Task ID", task_order)
 
 # %%
 universal_clr_dict = {'5': '#377eb8',
@@ -271,7 +302,7 @@ for name in te_df.keys():
 #%%
 ticksize = 30
 labelsize = 40
-fig, ax = plt.subplots(1, 3, figsize=(24, 8))
+fig, ax = plt.subplots(1, 4, figsize=(32, 8))
 
 ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df_te, hue='Task ID', palette=c_combined, ax=ax[2], size=25, legend=None)
 ax_.set_xticklabels(
@@ -282,7 +313,7 @@ ax_.set_ylabel('Transfer', fontsize=labelsize)
 ax_.set_xlabel('', fontsize=labelsize)
 ax_.set_yticks([0,.4])
 ax_.tick_params(axis='y', labelsize=ticksize)
-#ax.set_title('food1k', fontsize=labelsize+5)
+ax_.set_title('food1k', fontsize=labelsize+10)
 
 right_side = ax_.spines["right"]
 right_side.set_visible(False)
@@ -300,7 +331,6 @@ ax_.set_ylabel('Backward Transfer', fontsize=labelsize)
 ax_.set_xlabel('Budget', fontsize=labelsize+10)
 ax_.set_yticks([0,.4])
 ax_.tick_params(axis='y', labelsize=ticksize)
-ax_.set_title('food1k', fontsize=labelsize+10)
 
 right_side = ax_.spines["right"]
 right_side.set_visible(False)
@@ -328,5 +358,23 @@ top_side.set_visible(False)
 ax_.hlines(0, 0, 7, colors='grey', linestyles='dashed',linewidth=1.5)
 
 
-plt.savefig('food1k_budgeted.pdf')
+ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=df_acc, hue='Task ID', palette=c_combined, ax=ax[3], size=25, legend=None)
+ax_.set_xticklabels(
+    fte_df.keys(),
+    fontsize=labelsize,rotation=0,rotation_mode='anchor'
+    )
+ax_.set_ylabel('Accuracy', fontsize=labelsize)
+ax_.set_xlabel('', fontsize=labelsize)
+ax_.set_yticks([0,.5])
+ax_.tick_params(axis='y', labelsize=ticksize)
+#ax_.set_title('food1k', fontsize=labelsize+5)
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+ax_.hlines(0, 0, 7, colors='grey', linestyles='dashed',linewidth=1.5)
+
+
+plt.savefig('food1k_budgeted_synf.pdf')
 # %%

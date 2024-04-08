@@ -21,8 +21,11 @@ import pandas as pd
 import pickle
 
 #%%
-TRAIN_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Train'
-VAL_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Val'
+#TRAIN_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Train'
+#VAL_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Val'
+
+TRAIN_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Train'
+VAL_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Val'
 
 CATEGORIES = list(range(20))
 SAMPLE_PER_CLASS = 60
@@ -30,7 +33,7 @@ NUM_CLASS_PER_TASK = 20
 IMG_SIZE = 50
 
 #%%
-def get_data(task=0):
+def get_data(model, task=0):
     train_X = []
     train_y = []
     test_X = []
@@ -73,15 +76,21 @@ def get_data(task=0):
                 category
             )
 
-    train_X = np.array(train_X).reshape(-1,IMG_SIZE,IMG_SIZE,3)
-    train_y = np.array(train_y)
-    test_X = np.array(test_X).reshape(-1,IMG_SIZE,IMG_SIZE,3)
-    test_y = np.array(test_y)
+    if model == 'synn':
+        train_X = np.array(train_X).reshape(-1,IMG_SIZE,IMG_SIZE,3)
+        train_y = np.array(train_y)
+        test_X = np.array(test_X).reshape(-1,IMG_SIZE,IMG_SIZE,3)
+        test_y = np.array(test_y)
+    else:
+        train_X = np.array(train_X).reshape(-1,IMG_SIZE*IMG_SIZE*3)
+        train_y = np.array(train_y)
+        test_X = np.array(test_X).reshape(-1,IMG_SIZE*IMG_SIZE*3)
+        test_y = np.array(test_y)
     
     return train_X, train_y, test_X, test_y
 
 #%%
-def experiment(model='synf', n_trees=10, rep=1, budget=40):
+def experiment(model='synf', ntrees=10, rep=1, budget=40):
     num_tasks = 50
     tasks = []
     base_tasks = []
@@ -199,7 +208,7 @@ def experiment(model='synf', n_trees=10, rep=1, budget=40):
         if task < budget:    
             transformers_to_consider.append(task)
 
-        train_x, train_y, test_x, test_y = get_data(task)
+        train_x, train_y, test_x, test_y = get_data(model, task)
         #train_x = train_x.reshape(-1, 3*IMG_SIZE*IMG_SIZE)
         #test_x = test_x.reshape(-1, 3*IMG_SIZE*IMG_SIZE)
         
@@ -273,8 +282,9 @@ def experiment(model='synf', n_trees=10, rep=1, budget=40):
 
 #%%
 reps = 1
+ntrees=10
 budgets = [40,30,20,10,7,6,5]
 
 for budget in budgets:
     for jj in range(reps):
-        experiment(model='synf',rep=jj, budget=budget)
+        experiment(model='synf', ntrees=ntrees, rep=jj, budget=budget)
