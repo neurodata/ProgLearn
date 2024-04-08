@@ -376,5 +376,5 @@ top_side.set_visible(False)
 ax_.hlines(0, 0, 7, colors='grey', linestyles='dashed',linewidth=1.5)
 
 
-plt.savefig('food1k_budgeted_synf.pdf')
+plt.savefig('food1k_budgeted_synn.pdf')
 # %%
