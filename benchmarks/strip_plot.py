@@ -579,6 +579,7 @@ labels.append(combined_alg_name)
 ### MAIN HYPERPARAMS ###
 task_num = 50
 total_alg = 4
+reps = 1
 combined_alg_name = ['SynN*','SynF*', 'Model Zoo*', 'LwF']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
@@ -1002,7 +1003,7 @@ datasets = ['CIFAR 10X10', 'spoken digit', 'FOOD1k', 'Split Mini-Imagenet', '5-d
 FLE_yticks = [[-.3,0,.3], [-1.5,0,1], [-.1,0,.4], [-0.4,0,.6], [-1.5,0,.3]]
 BLE_yticks = [[-.4,0,.2], [-3,0,2], [-.3,0,.3], [-0.6,0,.2], [-2.5,0,.5]]
 LE_yticks = [[-.4,0,.2], [-3,0,2], [-.3,0,.4], [-0.6,0,.6], [-2.5,0,.4]]
-acc_yticks = [[0,.5], [0.3,1], [0.9,1], [0,.9], [0,1]]
+acc_yticks = [[0,.5], [0.3,1], [0.2,.6], [0,.9], [0,1]]
 task_num = [10, 6, 50, 20, 5]
 
 '''xcolor = [["#984ea3","#984ea3","#984ea3","#984ea3","#4daf4a","#4daf4a","#984ea3","#984ea3","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a"],
