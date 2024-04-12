@@ -188,14 +188,14 @@ ntrees = 10
 slots = 10
 task_num = 10
 shifts = 6
-total_alg_top = 9
-total_alg_bottom = 4
-alg_name_top = ['SynN','SynF', 'Model Zoo','ProgNN', 'LMC', 'DF-CNN', 'Total Replay', 'Partial Replay', 'CoSCL']
-alg_name_bottom = ['SynF','LwF', 'A-GEM', 'None']
-combined_alg_name = ['SynN','SynF', 'Model Zoo','ProgNN', 'LMC', 'DF-CNN', 'Total Replay', 'Partial Replay', 'CoSCL', 'LwF', 'A-GEM', 'None']
+total_alg_top = 8
+total_alg_bottom = 3
+alg_name_top = ['SiLLy-N', 'Model Zoo','ProgNN', 'LMC', 'DF-CNN', 'Total Replay', 'Partial Replay', 'CoSCL']
+alg_name_bottom = ['LwF', 'A-GEM', 'None']
+combined_alg_name = ['SiLLy-N', 'Model Zoo','ProgNN', 'LMC', 'DF-CNN', 'Total Replay', 'Partial Replay', 'CoSCL', 'LwF', 'A-GEM', 'None']
 
-model_file_top = ['dnn0withrep','fixed_uf10withrep', 'model_zoo','Prog_NN', 'LMC', 'DF_CNN', 'offline', 'exact', 'CoSCL']
-model_file_bottom = ['uf10withrep', 'LwF', 'agem', 'None']
+model_file_top = ['dnn0withrep', 'model_zoo','Prog_NN', 'LMC', 'DF_CNN', 'offline', 'exact', 'CoSCL']
+model_file_bottom = ['LwF', 'agem', 'None']
 btes_top = [[] for i in range(total_alg_top)]
 ftes_top = [[] for i in range(total_alg_top)]
 tes_top = [[] for i in range(total_alg_top)]
@@ -220,13 +220,13 @@ for alg in range(total_alg_top):
 
     for slot in range(slots):
         for shift in range(shifts):
-            if alg < 2:
+            if alg < 1:
                 filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
-            elif alg == 3 or alg == 5:
+            elif alg == 2 or alg == 4:
                 filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(shift+1)+'-'+str(slot+1)+'.pickle'
-            elif alg == 2:
+            elif alg == 1:
                 filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(slot+1)+'_'+str(shift+1)+'.pickle'
-            elif alg == 8:
+            elif alg == 7:
                 filename = '/Users/jayantadey/progressive-learning/experiments/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             else:
                 filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
@@ -268,7 +268,7 @@ for alg in range(total_alg_bottom):
 
     for slot in range(slots):
         for shift in range(shifts):
-            if alg < 1:
+            if alg < 0:
                 filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_bottom[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             else:
                 filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_bottom[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
@@ -298,44 +298,42 @@ for alg in range(total_alg_bottom):
     tes_bottom[alg].extend(te)
 
 #%%
-acc_500 = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float), 
-          'Model Zoo*':np.zeros(10,dtype=float),
+acc_500 = {'SiLLy-N*':np.zeros(10,dtype=float), 'Model Zoo*':np.zeros(10,dtype=float),
           'ProgNN*':np.zeros(10,dtype=float), 'LMC*':np.zeros(10,dtype=float),
           'DF-CNN*':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
-          'Partial Replay':np.zeros(10,dtype=float), 'CoSCL*':np.zeros(10,dtype=float),
-          'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
-          'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
+          'Partial Replay':np.zeros(10,dtype=float), 'CoSCL*':np.zeros(10,dtype=float), 
+          'LwF':np.zeros(10,dtype=float), 'A-GEM':np.zeros(10,dtype=float), 
+          'None':np.zeros(10,dtype=float)}
 
 
 for count,name in enumerate(acc_500.keys()):
     #print(name, count)
-    if count <9:
+    if count <8:
         acc_500[name] = np.array(final_acc_top[count][::-1])
     else:
-        acc_500[name] = np.array(final_acc_bottom[count-9][::-1])
+        acc_500[name] = np.array(final_acc_bottom[count-8][::-1])
 
 
 
 df_acc = pd.DataFrame.from_dict(acc_500)
 df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 #%%
-te_500 = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float), 
-          'Model Zoo*':np.zeros(10,dtype=float),
+te_500 = {'SiLLy-N*':np.zeros(10,dtype=float), 'Model Zoo*':np.zeros(10,dtype=float),
           'ProgNN*':np.zeros(10,dtype=float), 'LMC*':np.zeros(10,dtype=float),
           'DF-CNN*':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
-          'Partial Replay':np.zeros(10,dtype=float), 'CoSCL*':np.zeros(10,dtype=float),
-          'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
-          'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
+          'Partial Replay':np.zeros(10,dtype=float), 'CoSCL*':np.zeros(10,dtype=float), 
+          'LwF':np.zeros(10,dtype=float), 'A-GEM':np.zeros(10,dtype=float), 
+          'None':np.zeros(10,dtype=float)}
           
 task_order = []
 t = 1
 for count,name in enumerate(te_500.keys()):
     #print(name, count)
     for i in range(10):
-        if count <9:
+        if count <8:
             te_500[name][9-i] = np.log(tes_top[count][i][9-i])
         else:
-            te_500[name][9-i] = np.log(tes_bottom[count-9][i][9-i])
+            te_500[name][9-i] = np.log(tes_bottom[count-8][i][9-i])
         
         task_order.append(t)
         t += 1       
@@ -345,7 +343,7 @@ for name in te_500.keys():
     mean_val.append(np.mean(te_500[name]))
     print(name, np.round(np.mean(te_500[name]),2), np.round(np.std(te_500[name], ddof=1),2))
 
-arg = [ 0,  1,  3,  2,  4,  8,  5,  9, 10,  7,  6, 11, 12]#np.argsort(mean_val)[::-1]
+arg = [ 0,  2,  1,  3,  7,  4, 8,  6,  5, 9, 10]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te_500.keys())
 combined_alg_name = []
@@ -372,21 +370,20 @@ fle['cifar'] = np.concatenate((
 ble['cifar'] = []
 le['cifar'] = []
 
-bte_end = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float), 
-          'Model Zoo*':np.zeros(10,dtype=float),
+bte_end = {'SiLLy-N*':np.zeros(10,dtype=float), 'Model Zoo*':np.zeros(10,dtype=float),
           'ProgNN*':np.zeros(10,dtype=float), 'LMC*':np.zeros(10,dtype=float),
           'DF-CNN*':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
           'Partial Replay':np.zeros(10,dtype=float), 'CoSCL*':np.zeros(10,dtype=float),
-          'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
-          'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
+          'LwF':np.zeros(10,dtype=float), 'A-GEM':np.zeros(10,dtype=float), 
+          'None':np.zeros(10,dtype=float)}
 
 for count,name in enumerate(bte_end.keys()):
     #print(name, count)
     for i in range(10):
-        if count <9:
+        if count <8:
             bte_end[name][9-i] = np.log(btes_top[count][i][9-i])
         else:
-            bte_end[name][9-i] = np.log(btes_bottom[count-9][i][9-i])
+            bte_end[name][9-i] = np.log(btes_bottom[count-8][i][9-i])
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -398,22 +395,21 @@ df_ble.insert(2, "Task ID", task_order)
 
 
 
-fte_end = {'SynN*':np.zeros(10,dtype=float), 'SynF*':np.zeros(10,dtype=float), 
-          'Model Zoo*':np.zeros(10,dtype=float),
+fte_end = {'SiLLy-N*':np.zeros(10,dtype=float), 'Model Zoo*':np.zeros(10,dtype=float),
           'ProgNN*':np.zeros(10,dtype=float), 'LMC*':np.zeros(10,dtype=float),
           'DF-CNN*':np.zeros(10,dtype=float),'Total Replay':np.zeros(10,dtype=float),
           'Partial Replay':np.zeros(10,dtype=float), 'CoSCL*':np.zeros(10,dtype=float),
-          'SynF (constrained)':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float),
-          'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
+          'LwF':np.zeros(10,dtype=float), 'A-GEM':np.zeros(10,dtype=float), 
+          'None':np.zeros(10,dtype=float)}
 
 
 for count,name in enumerate(fte_end.keys()):
     #print(name, count)
     for i in range(10):
-        if count <9:
+        if count <8:
             fte_end[name][9-i] = np.log(ftes_top[count][i])
         else:
-            fte_end[name][9-i] = np.log(ftes_bottom[count-9][i])
+            fte_end[name][9-i] = np.log(ftes_bottom[count-8][i])
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -431,12 +427,12 @@ labels.append(combined_alg_name)
 # %%
 ### MAIN HYPERPARAMS ###
 task_num = 6
-total_alg = 7
-combined_alg_name = ['SynN*','SynF*', 'Model Zoo*','LwF', 'Total Replay', 'Partial Replay', 'None']
+total_alg = 6
+combined_alg_name = ['SiLLy-N*', 'Model Zoo*','LwF', 'Total Replay', 'Partial Replay', 'None']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
-model_file_combined = ['odin','odif', 'model_zoo', 'LwF', 'offline', 'exact', 'None']
+model_file_combined = ['odin', 'model_zoo', 'LwF', 'offline', 'exact', 'None']
 ########################
 
 #%% code for 500 samples
@@ -483,10 +479,9 @@ for alg in range(total_alg):
     print('forget', np.round(calc_forget(err, task_num, reps),2))
     print('transfer', np.round(calc_transfer(err, single_err, task_num, reps),2))
 #%%
-acc = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float), 
-    'Model Zoo*':np.zeros(6,dtype=float), 'LwF':np.zeros(6,dtype=float), 
-    'Total Replay':np.zeros(6,dtype=float), 'Partial Replay':np.zeros(6,dtype=float), 
-    'None':np.zeros(6,dtype=float)}
+acc = {'SiLLy-N*':np.zeros(6,dtype=float), 'Model Zoo*':np.zeros(6,dtype=float), 
+       'LwF':np.zeros(6,dtype=float), 'Total Replay':np.zeros(6,dtype=float), 
+       'Partial Replay':np.zeros(6,dtype=float), 'None':np.zeros(6,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
     acc[name] = np.array(final_acc[count][::-1])
@@ -496,10 +491,9 @@ df_acc = pd.DataFrame.from_dict(acc)
 df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 
 #%%
-te = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float), 
-    'Model Zoo*':np.zeros(6,dtype=float), 'LwF':np.zeros(6,dtype=float), 
-    'Total Replay':np.zeros(6,dtype=float), 'Partial Replay':np.zeros(6,dtype=float), 
-    'None':np.zeros(6,dtype=float)}
+te = {'SiLLy-N*':np.zeros(6,dtype=float), 'Model Zoo*':np.zeros(6,dtype=float), 
+      'LwF':np.zeros(6,dtype=float), 'Total Replay':np.zeros(6,dtype=float), 
+      'Partial Replay':np.zeros(6,dtype=float), 'None':np.zeros(6,dtype=float)}
 
 task_order = []
 t = 1
@@ -534,10 +528,9 @@ df_le.insert(2, "Task ID", task_order)
 
 df_acc.insert(2, "Task ID", task_order)
 # %%
-bte_end = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float), 
-    'Model Zoo*':np.zeros(6,dtype=float), 'LwF':np.zeros(6,dtype=float), 
-    'Total Replay':np.zeros(6,dtype=float), 'Partial Replay':np.zeros(6,dtype=float), 
-    'None':np.zeros(6,dtype=float)}
+bte_end = {'SiLLy-N*':np.zeros(6,dtype=float), 'Model Zoo*':np.zeros(6,dtype=float), 
+           'LwF':np.zeros(6,dtype=float), 'Total Replay':np.zeros(6,dtype=float), 
+           'Partial Replay':np.zeros(6,dtype=float), 'None':np.zeros(6,dtype=float)}
 
 for count,name in enumerate(te.keys()):
     for i in range(6):
@@ -551,10 +544,9 @@ df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
 df_ble.insert(2, "Task ID", task_order)
 
-fte_end = {'SynN*':np.zeros(6,dtype=float), 'SynF*':np.zeros(6,dtype=float), 
-    'Model Zoo*':np.zeros(6,dtype=float), 'LwF':np.zeros(6,dtype=float), 
-    'Total Replay':np.zeros(6,dtype=float), 'Partial Replay':np.zeros(6,dtype=float), 
-    'None':np.zeros(6,dtype=float)}
+fte_end = {'SiLLy-N*':np.zeros(6,dtype=float), 'Model Zoo*':np.zeros(6,dtype=float), 
+           'LwF':np.zeros(6,dtype=float), 'Total Replay':np.zeros(6,dtype=float), 
+           'Partial Replay':np.zeros(6,dtype=float), 'None':np.zeros(6,dtype=float)}
 
 for count,name in enumerate(te.keys()):
     for i in range(1,6):
@@ -578,13 +570,13 @@ labels.append(combined_alg_name)
 
 ### MAIN HYPERPARAMS ###
 task_num = 50
-total_alg = 4
+total_alg = 3
 reps = 1
-combined_alg_name = ['SynN*','SynF*', 'Model Zoo*', 'LwF']
+combined_alg_name = ['SiLLy-N*', 'Model Zoo*', 'LwF']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
-model_file_combined = ['synn','synf', 'model_zoo', 'LwF']
+model_file_combined = ['synn', 'model_zoo', 'LwF']
 ########################
 
 #%% 
@@ -616,7 +608,7 @@ for alg in range(total_alg):
     print('transfer', np.round(calc_transfer(err, single_err, task_num, 1),2))
 
 #%%
-acc = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
+acc = {'SiLLy-N*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
@@ -626,7 +618,7 @@ for count,name in enumerate(acc.keys()):
 df_acc = pd.DataFrame.from_dict(acc)
 df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 #%%
-te = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
+te = {'SiLLy-N*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
 
 task_order = []
@@ -662,7 +654,7 @@ df_le.insert(2, "Task ID", task_order)
 
 df_acc.insert(2, "Task ID", task_order)
 #%%
-bte_end = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
+bte_end = {'SiLLy-N*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
 
 for count,name in enumerate(te.keys()):
@@ -677,7 +669,7 @@ df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
 df_ble.insert(2, "Task ID", task_order)
 
-fte_end = {'SynN*':np.zeros(50,dtype=float), 'SynF*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
+fte_end = {'SiLLy-N*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
 
 for count,name in enumerate(te.keys()):
@@ -702,12 +694,12 @@ labels.append(combined_alg_name)
 
 ### MAIN HYPERPARAMS ###
 task_num = 20
-total_alg = 8
-combined_alg_name = ['SynN*','SynF*', 'Model Zoo*', 'LwF', 'A-GEM', 'Total Replay', 'Partial Replay', 'None']
+total_alg = 7
+combined_alg_name = ['SiLLy-N*', 'Model Zoo*', 'LwF', 'A-GEM', 'Total Replay', 'Partial Replay', 'None']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
-model_file_combined = ['synn','synf', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
+model_file_combined = ['synn', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
 ########################
 
 
@@ -752,7 +744,7 @@ for alg in range(total_alg):
     print('transfer', np.round(calc_transfer(err, single_err, task_num, reps),2))
 
 #%%
-acc = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
+acc = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
     'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
     'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
     'None':np.zeros(20,dtype=float)}
@@ -764,7 +756,7 @@ for count,name in enumerate(acc.keys()):
 df_acc = pd.DataFrame.from_dict(acc)
 df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 #%%
-te = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
+te = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
     'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
     'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
     'None':np.zeros(20,dtype=float)}
@@ -782,7 +774,7 @@ for name in te.keys():
     mean_val.append(np.mean(te[name]))
     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
 
-arg = [2, 1, 0, 4, 5, 3, 6, 7]#np.argsort(mean_val)[::-1]#
+arg = [1, 0, 3, 4, 2, 5, 6]#np.argsort(mean_val)[::-1]#
 ordr.append(arg)
 algos = list(te.keys())
 combined_alg_name = []
@@ -806,7 +798,7 @@ fle['imagenet'] = np.mean(np.log(ftes), axis=1)
 ble['imagenet'] = []
 le['imagenet'] = []
 
-bte_end = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
+bte_end = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
     'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
     'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
     'None':np.zeros(20,dtype=float)}
@@ -823,7 +815,7 @@ df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
 df_ble.insert(2, "Task ID", task_order)
 
-fte_end = {'SynN*':np.zeros(20,dtype=float), 'SynF*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
+fte_end = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
     'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
     'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
     'None':np.zeros(20,dtype=float)}
@@ -849,12 +841,12 @@ labels.append(combined_alg_name)
 #%%
 ### MAIN HYPERPARAMS ###
 task_num = 5
-total_alg = 8
-combined_alg_name = ['SynN*','SynF*', 'Model Zoo*', 'LwF', 'A-GEM', 'Total Replay', 'Partial Replay', 'None']
+total_alg = 7
+combined_alg_name = ['SiLLy-N*', 'Model Zoo*', 'LwF', 'A-GEM', 'Total Replay', 'Partial Replay', 'None']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
-model_file_combined = ['synn','synf', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
+model_file_combined = ['synn', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
 ########################
 
 #%% code for 500 samples
@@ -898,7 +890,7 @@ for alg in range(total_alg):
     print('transfer', np.round(calc_transfer(err, single_err, task_num, reps),2))
 
 #%%
-acc = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
+acc = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
     'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
     'None':np.zeros(5,dtype=float)}
@@ -910,7 +902,7 @@ for count,name in enumerate(acc.keys()):
 df_acc = pd.DataFrame.from_dict(acc)
 df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 #%%
-te = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
+te = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
     'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
     'None':np.zeros(5,dtype=float)}
@@ -928,7 +920,7 @@ for name in te.keys():
     mean_val.append(np.mean(te[name]))
     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
 
-arg = [2, 1, 0, 5, 6, 3, 4, 7]#np.argsort(mean_val)[::-1]
+arg = [1, 0, 4, 5, 2, 3, 6]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(te.keys())
 combined_alg_name = []
@@ -948,7 +940,7 @@ df_le.insert(2, "Task ID", task_order)
 
 df_acc.insert(2, "Task ID", task_order)
 #%%
-bte_end = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
+bte_end = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
     'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
     'None':np.zeros(5,dtype=float)}
@@ -964,7 +956,7 @@ df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
 df_ble.insert(2, "Task ID", task_order)
 
-fte_end = {'SynN*':np.zeros(5,dtype=float), 'SynF*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
+fte_end = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
     'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
     'None':np.zeros(5,dtype=float)}
@@ -988,7 +980,7 @@ labels.append(combined_alg_name)
 
 
 #%% register the palettes from cifar
-clr = ['#377eb8', '#e41a1c', '#4daf4a', '#984ea3', '#83d0c9', '#f781bf', '#b15928', '#e41a1c', '#f781bf', '#f47835', '#b15928', '#8b8589', '#4c516d']
+clr = ['#e41a1c', '#4daf4a', '#984ea3', '#83d0c9', '#f781bf', '#b15928', '#f781bf', '#f47835', '#b15928', '#8b8589', '#4c516d']
 c_ = []
 universal_clr_dic = {}
 for id in ordr[0]:
@@ -999,6 +991,10 @@ for ii, name in enumerate(labels[0]):
     register_palette(name, clr[ii])
     universal_clr_dic[name] = clr[ii]
 #%%
+ticksize = 35
+labelsize = 30
+algo_size= 25
+
 datasets = ['CIFAR 10X10', 'spoken digit', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
 FLE_yticks = [[-.3,0,.3], [-1.5,0,1], [-.1,0,.4], [-0.4,0,.6], [-1.5,0,.3]]
 BLE_yticks = [[-.4,0,.2], [-3,0,2], [-.3,0,.3], [-0.6,0,.2], [-2.5,0,.5]]
@@ -1041,9 +1037,9 @@ for ii, data in enumerate(tes_all.keys()):
 
     ax_.set_xlabel('')
     ax_.set_yticks(FLE_yticks[ii])
-    ax_.tick_params('y',labelsize=30)
+    ax_.tick_params('y',labelsize=ticksize)
     if ii==0:
-        ax_.set_ylabel('Forward Transfer', fontsize=30)
+        ax_.set_ylabel('Forward Transfer', fontsize=labelsize)
     else:
         ax_.set_ylabel('', fontsize=24)
 
@@ -1070,9 +1066,9 @@ for ii, data in enumerate(tes_all.keys()):
     ax_.set_xlabel('')
     ax_.set_xticklabels([])
     ax_.set_yticks(BLE_yticks[ii])
-    ax_.tick_params('y', labelsize=30)
+    ax_.tick_params('y', labelsize=ticksize)
     if ii==0:
-        ax_.set_ylabel('Backward Transfer', fontsize=30)
+        ax_.set_ylabel('Backward Transfer', fontsize=labelsize)
     else:
         ax_.set_ylabel('', fontsize=24)
 
@@ -1086,7 +1082,7 @@ for ii, data in enumerate(tes_all.keys()):
 
     ax_.set_xticklabels(
     labels[ii],
-    fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
     )
 
     for xtick, color in zip(ax_.get_xticklabels(), c_):
@@ -1095,9 +1091,9 @@ for ii, data in enumerate(tes_all.keys()):
     
     ax_.set_xlabel('')
     ax_.set_yticks(acc_yticks[ii])
-    ax_.tick_params('y', labelsize=30)
+    ax_.tick_params('y', labelsize=ticksize)
     if ii==0:
-        ax_.set_ylabel('Accuracy', fontsize=30)
+        ax_.set_ylabel('Accuracy', fontsize=labelsize)
     else:
         ax_.set_ylabel('', fontsize=24)
 
@@ -1111,12 +1107,12 @@ for ii, data in enumerate(tes_all.keys()):
     ax_.set_xticklabels([])
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
-    ax_.set_title(data, fontsize=38)
+    ax_.set_title(data, fontsize=ticksize)
     ax_.set_xlabel('')
     ax_.set_yticks(LE_yticks[ii])
-    ax_.tick_params('y', labelsize=30)
+    ax_.tick_params('y', labelsize=ticksize)
     if ii==0:
-        ax_.set_ylabel('Transfer', fontsize=30)
+        ax_.set_ylabel('Transfer', fontsize=labelsize)
     else:
         ax_.set_ylabel('', fontsize=24)
 
