@@ -170,7 +170,7 @@ def stratified_scatter(te_dict,axis_handle,s,color,style):
 
 # %%
 tes, ftes, btes, acc = [], [], [], []
-budgets = [5,6,7,10,20,30,40,50]
+budgets = [5,10,20,30,40,50]
 reps = 1
 
 for budget in budgets:
@@ -189,8 +189,7 @@ for budget in budgets:
         calc_acc_per_task(err,50,1)
     )
 # %%
-te_df = {'5':np.zeros(50,dtype=float), '6':np.zeros(50,dtype=float),
-         '7':np.zeros(50,dtype=float),
+te_df = {'5':np.zeros(50,dtype=float), 
          '10':np.zeros(50,dtype=float), '20':np.zeros(50,dtype=float), 
          '30':np.zeros(50,dtype=float), '40':np.zeros(50,dtype=float),
          '50':np.zeros(50,dtype=float)}
@@ -211,8 +210,7 @@ df_te = pd.melt(df_te,var_name='Algorithms', value_name='Transfer Efficieny')
 df_te.insert(2, "Task ID", task_order)
 
 #%%
-bte_df = {'5':np.zeros(50,dtype=float), '6':np.zeros(50,dtype=float),
-         '7':np.zeros(50,dtype=float),
+bte_df = {'5':np.zeros(50,dtype=float), 
          '10':np.zeros(50,dtype=float), '20':np.zeros(50,dtype=float), 
          '30':np.zeros(50,dtype=float), '40':np.zeros(50,dtype=float),
          '50':np.zeros(50,dtype=float)}
@@ -233,8 +231,7 @@ df_bte = pd.melt(df_bte,var_name='Algorithms', value_name='Backward Transfer Eff
 df_bte.insert(2, "Task ID", task_order)
 
 #%%
-fte_df = {'5':np.zeros(50,dtype=float), '6':np.zeros(50,dtype=float),
-         '7':np.zeros(50,dtype=float),
+fte_df = {'5':np.zeros(50,dtype=float),
          '10':np.zeros(50,dtype=float), '20':np.zeros(50,dtype=float), 
          '30':np.zeros(50,dtype=float), '40':np.zeros(50,dtype=float),
          '50':np.zeros(50,dtype=float)}
@@ -255,8 +252,7 @@ df_fte = pd.melt(df_fte,var_name='Algorithms', value_name='Forward Transfer Effi
 df_fte.insert(2, "Task ID", task_order)
 
 #%%
-acc_df = {'5':np.zeros(50,dtype=float), '6':np.zeros(50,dtype=float),
-         '7':np.zeros(50,dtype=float),
+acc_df = {'5':np.zeros(50,dtype=float), 
          '10':np.zeros(50,dtype=float), '20':np.zeros(50,dtype=float), 
          '30':np.zeros(50,dtype=float), '40':np.zeros(50,dtype=float),
          '50':np.zeros(50,dtype=float)}
@@ -278,8 +274,6 @@ df_acc.insert(2, "Task ID", task_order)
 
 # %%
 universal_clr_dict = {'5': '#377eb8',
-                      '6': '#377eb8',
-                      '7': '#377eb8',
                       '10': '#377eb8',
                       '20': '#377eb8',
                       '30': '#377eb8',
@@ -300,11 +294,11 @@ for name in te_df.keys():
         )
 
 #%%
-ticksize = 30
-labelsize = 40
+ticksize = 40
+labelsize = 50
 fig, ax = plt.subplots(1, 4, figsize=(32, 8))
 
-ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df_te, hue='Task ID', palette=c_combined, ax=ax[2], size=25, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df_te, hue='Task ID', palette=c_combined, ax=ax[0], size=25, legend=None)
 ax_.set_xticklabels(
     te_df.keys(),
     fontsize=labelsize,rotation=0,rotation_mode='anchor'
@@ -312,35 +306,35 @@ ax_.set_xticklabels(
 ax_.set_ylabel('Transfer', fontsize=labelsize)
 ax_.set_xlabel('', fontsize=labelsize)
 ax_.set_yticks([0,.4])
-ax_.tick_params(axis='y', labelsize=ticksize)
-ax_.set_title('food1k', fontsize=labelsize+10)
+ax_.tick_params(labelsize=ticksize)
+#ax_.set_title('food1k', fontsize=labelsize+10)
 
 right_side = ax_.spines["right"]
 right_side.set_visible(False)
 top_side = ax_.spines["top"]
 top_side.set_visible(False)
-ax_.hlines(0, 0, 7, colors='grey', linestyles='dashed',linewidth=1.5)
+ax_.hlines(0, 0, len(budgets)-1, colors='grey', linestyles='dashed',linewidth=1.5)
 
 
-ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=df_bte, hue='Task ID', palette=c_combined, ax=ax[1], size=25, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=df_bte, hue='Task ID', palette=c_combined, ax=ax[2], size=25, legend=None)
 ax_.set_xticklabels(
     bte_df.keys(),
     fontsize=labelsize,rotation=0,rotation_mode='anchor'
     )
 ax_.set_ylabel('Backward Transfer', fontsize=labelsize)
-ax_.set_xlabel('Budget', fontsize=labelsize+10)
-ax_.set_yticks([0,.4])
-ax_.tick_params(axis='y', labelsize=ticksize)
+ax_.set_xlabel('', fontsize=labelsize+10)
+ax_.set_yticks([0,.3])
+ax_.tick_params(labelsize=ticksize)
 
 right_side = ax_.spines["right"]
 right_side.set_visible(False)
 top_side = ax_.spines["top"]
 top_side.set_visible(False)
-ax_.hlines(0, 0, 7, colors='grey', linestyles='dashed',linewidth=1.5)
+ax_.hlines(0, 0, len(budgets)-1, colors='grey', linestyles='dashed',linewidth=1.5)
 
 
 
-ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=df_fte, hue='Task ID', palette=c_combined, ax=ax[0], size=25, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=df_fte, hue='Task ID', palette=c_combined, ax=ax[1], size=25, legend=None)
 ax_.set_xticklabels(
     fte_df.keys(),
     fontsize=labelsize,rotation=0,rotation_mode='anchor'
@@ -348,14 +342,14 @@ ax_.set_xticklabels(
 ax_.set_ylabel('Forward Transfer', fontsize=labelsize)
 ax_.set_xlabel('', fontsize=labelsize)
 ax_.set_yticks([0,.4])
-ax_.tick_params(axis='y', labelsize=ticksize)
+ax_.tick_params(labelsize=ticksize)
 #ax_.set_title('food1k', fontsize=labelsize+5)
 
 right_side = ax_.spines["right"]
 right_side.set_visible(False)
 top_side = ax_.spines["top"]
 top_side.set_visible(False)
-ax_.hlines(0, 0, 7, colors='grey', linestyles='dashed',linewidth=1.5)
+ax_.hlines(0, 0, len(budgets)-1, colors='grey', linestyles='dashed',linewidth=1.5)
 
 
 ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=df_acc, hue='Task ID', palette=c_combined, ax=ax[3], size=25, legend=None)
@@ -366,15 +360,17 @@ ax_.set_xticklabels(
 ax_.set_ylabel('Accuracy', fontsize=labelsize)
 ax_.set_xlabel('', fontsize=labelsize)
 ax_.set_yticks([0,.5])
-ax_.tick_params(axis='y', labelsize=ticksize)
+ax_.tick_params(labelsize=ticksize)
 #ax_.set_title('food1k', fontsize=labelsize+5)
 
 right_side = ax_.spines["right"]
 right_side.set_visible(False)
 top_side = ax_.spines["top"]
 top_side.set_visible(False)
-ax_.hlines(0, 0, 7, colors='grey', linestyles='dashed',linewidth=1.5)
+#ax_.hlines(0, 0, len(budgets)-1, colors='grey', linestyles='dashed',linewidth=1.5)
 
+fig.text(0.45, 1, 'food1k', fontsize=labelsize+10)
+fig.text(0.45, -.1, 'Budget', fontsize=labelsize)
 
 plt.savefig('food1k_budgeted_synn.pdf')
 # %%
