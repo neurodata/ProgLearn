@@ -11,8 +11,10 @@ import matplotlib.gridspec as gridspec
 import matplotlib
 # %%
 alg_size = {
-    'SynN' : [27.1, 53.2, 80.2, 107.12, 134.3, 161.1, 188.7, 217.1, 243.1, 272.11],
-    'SynF' : [0.70, 2.38, 5.15, 9.03, 14.13, 20.20, 27.12, 35.30, 44.85, 55.42],
+    'SiLLy-N' : [27.1, 53.2, 80.2, 107.12, 134.3, 161.1, 188.7, 217.1, 243.1, 272.11],
+    'SiLLy-N-5' : [27.1, 53.2, 80.2, 107.12, 134.3, 134.3, 134.3, 134.3, 134.3, 134.3],
+    'SiLLy-N-8' : [27.1, 53.2, 80.2, 107.12, 134.3, 161.1, 188.7, 217.1, 217.1, 217.1],
+    'SiLLy-F' : [0.70, 2.38, 5.15, 9.03, 14.13, 20.20, 27.12, 35.30, 44.85, 55.42],
     'EWC' : [25.37, 76.07, 126.76, 177.46, 228.16, 278.86, 329.56, 380.26, 430.96, 481.66],
     'O-EWC' : [25.37, 76.07, 76.07, 76.07, 76.07, 76.07, 76.07, 76.07, 76.07, 76.07],
     'SI' : [50.72, 76.07, 76.07, 76.07, 76.07, 76.07, 76.07, 76.07, 76.07, 76.07],
@@ -31,10 +33,10 @@ alg_size = {
 fig, ax = plt.subplots(1, 1, figsize=(9,8))
 sns.set_context('talk')
 tasks = np.arange(1,11,1)
-clr = ["#377eb8", 'r', "#b15928", "#f781bf", "#f781bf", "#f781bf", "#4daf4a", "#984ea3", "#f781bf", "#984ea3"]
-marker_style = ['.', '.', '.', 'o', '*', '.', '.', '.', '+', 'o',]
+clr = ['r', 'r', 'r', "#377eb8", "#b15928", "#f781bf", "#f781bf", "#f781bf", "#4daf4a", "#984ea3", "#f781bf", "#984ea3"]
+marker_style = ['.', 'o', '*', '.', '.', 'o', '*', '.', '.', '.', '+', 'o',]
 #"#984ea3""#984ea3""#4daf4a"
-ax.plot(tasks, alg_size['SynN'], label='SynN', c=clr[0], marker=marker_style[0], markersize=12)
+ax.plot(tasks, alg_size['SiLLy-N'], label='SiLLy-N', c=clr[0], marker=marker_style[0], markersize=12)
 #ax.plot(tasks, synn_size['encoder'], label='SynN Encoder', c='k', marker=marker_style[0], markersize=12, linewidth=3)
 #ax.plot(tasks, synn_size['channel'], label='SynN Channel', c='r', marker=marker_style[0], markersize=12)
 
@@ -51,7 +53,7 @@ ax.set_ylabel('Model Size (MB)', fontsize=40)
 ax.set_xlabel('Tasks Seen', fontsize=40)
 
 ax.tick_params(labelsize=25)
-fig.legend(bbox_to_anchor=(1.3, .85), fontsize=25, frameon=False)
+fig.legend(bbox_to_anchor=(1.3, .95), fontsize=25, frameon=False)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
