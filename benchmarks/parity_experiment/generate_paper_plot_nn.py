@@ -103,7 +103,7 @@ def generate_gaussian_parity(
 
     return X, y
 
-def move_avg(x, w=10):
+def move_avg(x, w=2):
     avg = []
     y = []
     i = 0
@@ -245,7 +245,7 @@ ax1.text(900, np.mean(ax1.get_ylim()) - 0.0, "%s" % (TASK2), fontsize=26)
 mean_error = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_xor_nxor_with_rep.pickle")
 mean_error_nn = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_xor_nxor_nn.pickle")
 
-algorithms = ["XOR Forest", "N-XOR Forest", "SynF", "RF", "SiLLy-N", "Naive DN"]
+algorithms = ["XOR Forest", "N-XOR Forest", "SynF", "RF", "SiLLy-N", "DN"]
 
 TASK1 = "XOR"
 TASK2 = "XNOR"
@@ -330,7 +330,7 @@ for ii, n in enumerate(ns):
 
 ##################
 #mean_te = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_te_xor_nxor_with_rep.pickle")
-#mean_te_nn = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_te_xor_nxor_nn.pickle")
+mean_te_nn = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_te_xor_nxor_nn.pickle")
 
 algorithms = ["SynF BLE", "SynF FLE", "RF BLE", "RF FLE", "SiLLy-N BT", "SiLLy-N FT", "DN BT", "DN FT"]
 
@@ -374,8 +374,12 @@ ax1.plot(ns, move_avg(mean_bt_nn), label=algorithms[4], c='r', ls=ls[0], lw=3)
     scatter=False
 )'''
 
+ax1.plot(
+    ns[len(n1s) :], move_avg(mean_ft_nn[len(n1s) :]), label=algorithms[5], c="r", ls=ls[1], lw=3
+)
 #ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
-#ax1.plot(ns, move_avg(mean_bt_nn), label=algorithms[6], c="#b15928", ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_te_nn[2]), label=algorithms[6], c="k", ls=ls[0], lw=2)
+ax1.plot(ns[len(n1s) :], move_avg(mean_te_nn[3][len(n1s) :]), label=algorithms[7], c="k", ls=ls[0], lw=2)
 '''sns.regplot(
     ns,
     mean_te_nn[2],
@@ -391,9 +395,7 @@ ax1.plot(ns, move_avg(mean_bt_nn), label=algorithms[4], c='r', ls=ls[0], lw=3)
 '''ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
 )'''
-ax1.plot(
-    ns[len(n1s) :], move_avg(mean_ft_nn[len(n1s) :]), label=algorithms[5], c="r", ls=ls[1], lw=3
-)
+
 '''sns.regplot(
     ns[len(n1s) :],
     mean_te_nn[3, len(n1s) :],
@@ -431,8 +433,8 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 ax1.hlines(1, 50, 1500, colors="gray", linestyles="dashed", linewidth=1.5)
 
-ax1.text(400, np.mean(ax1.get_ylim())-.0, "%s" % (TASK1), fontsize=26)
-ax1.text(900, np.mean(ax1.get_ylim())-.0, "%s" % (TASK2), fontsize=26)
+ax1.text(400, np.mean(ax1.get_ylim())+.1, "%s" % (TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim())+.1, "%s" % (TASK2), fontsize=26)
 ax1.set_title("Biii.", fontsize=30)
 ######################
 mean_te = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_te_xor_rxor_with_rep.pickle")
@@ -466,12 +468,12 @@ ax1.plot(
 )
 
 #ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
-ax1.plot(ns, move_avg(mean_te_nn[2]), label=algorithms[6], c="#b15928", ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_te_nn[2]), label=algorithms[6], c="k", ls=ls[0], lw=2)
 '''ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
 )'''
 ax1.plot(
-    ns[len(n1s) :], move_avg(mean_te_nn[3, len(n1s) :]), label=algorithms[7], c="#b15928", ls=ls[1], lw=3
+    ns[len(n1s) :], move_avg(mean_te_nn[3, len(n1s) :]), label=algorithms[7], c="k", ls=ls[1], lw=2
 )
 
 ax1.set_ylabel("Forward / Backward Learning", fontsize=fontsize)
@@ -511,7 +513,7 @@ with open("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_an
 with open("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_angle_te_nn.pickle", "rb") as f:
     te_nn = pickle.load(f)
 
-angle_sweep = range(0, 90, 1)
+angle_sweep = np.array(range(0, 90, 1))
 
 parameters, covariance = curve_fit(curve, angle_sweep, te_nn[:-1])
 fit_A = parameters[0]
@@ -520,7 +522,9 @@ fit_C = parameters[2]
 fit_y = curve(angle_sweep, fit_A, fit_B, fit_C)
 
 #ax.plot(angle_sweep, te, c="r", linewidth=3)
+idx = list(range(0,90,2))
 ax.plot(angle_sweep, fit_y, c='r', linewidth=3)
+ax.plot(angle_sweep, move_avg(te_nn[:-1], w=3), c='r', ls='dotted', linewidth=3)
 ax.set_xticks(range(0, 91, 45))
 
 
@@ -567,9 +571,9 @@ task2_sample_sweep = (2 ** np.arange(np.log2(60), np.log2(5010) + 1, 0.25)).asty
 )
 
 #ax.plot(task2_sample_sweep, te, c="r", linewidth=3, label='SynF')
-ax.plot(task2_sample_sweep, move_avg(te_nn), c='r', linewidth=3, label='SynF')
+ax.plot(task2_sample_sweep, move_avg(te_nn, w=5), c='r', linewidth=3, label='SynF')
 
-ax.hlines(1, 60, 5500, colors="gray", linestyles="dashed", linewidth=1.5)
+ax.hlines(1, 60, 10000, colors="gray", linestyles="dashed", linewidth=1.5)
 ax.set_xscale("log")
 #ax.set_xticks([])
 ax.set_yticks([1, 1.1, 1.25])
