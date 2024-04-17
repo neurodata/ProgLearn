@@ -359,7 +359,7 @@ ax_.set_xticklabels(
     )
 ax_.set_ylabel('Accuracy', fontsize=labelsize)
 ax_.set_xlabel('', fontsize=labelsize)
-ax_.set_yticks([0,.5])
+ax_.set_yticks([0.2,.5])
 ax_.tick_params(labelsize=ticksize)
 #ax_.set_title('food1k', fontsize=labelsize+5)
 

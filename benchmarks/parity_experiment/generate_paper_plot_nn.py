@@ -13,8 +13,13 @@ from sklearn.datasets import make_blobs
 from sklearn.model_selection import StratifiedKFold
 from math import log2, ceil
 from matplotlib.ticker import ScalarFormatter
-
+from scipy.optimize import curve_fit
 #%%
+def curve(x, A, B, C):
+    y = A*(x-C)**2 + B
+    return y
+
+
 def unpickle(file):
     with open(file, "rb") as fo:
         dict = pickle.load(fo, encoding="bytes")
@@ -98,7 +103,7 @@ def generate_gaussian_parity(
 
     return X, y
 
-def move_avg(x, w):
+def move_avg(x, w=10):
     avg = []
     y = []
     i = 0
@@ -168,7 +173,7 @@ n2s = n_nxor
 
 ns = np.concatenate((n1s, n2s + n1s[-1]))
 ls = ["-", "--"]
-algorithms = ["XOR Forest", "N-XOR Forest", "SynF", "RF", "SynN", "DN"]
+algorithms = ["XOR Forest", "N-XOR Forest", "SynF", "RF", "SiLLy-N", "Naive DN"]
 
 
 TASK1 = "XOR"
@@ -181,38 +186,38 @@ colors = sns.color_palette("Set1", n_colors=2)
 
 ax1 = fig.add_subplot(gs[7:13, 2:8])
 
-ax1.plot(
+'''ax1.plot(
     ns,
     mean_error[1],
     label=algorithms[2],
     c=colors[0],
     ls=ls[np.sum(1 > 1).astype(int)],
     lw=3,
-)
+)'''
 ax1.plot(
     ns,
-    move_avg(mean_error_nn[1],4),
+    move_avg(mean_error_nn[1]),
     label=algorithms[4],
-    c='#377eb8',
+    c='r',
     ls=ls[np.sum(1 > 1).astype(int)],
     lw=3,
 )
 
-ax1.plot(
+'''ax1.plot(
     ns,
     mean_error[4],
     label=algorithms[3],
     c="g",
     ls=ls[np.sum(1 > 1).astype(int)],
     lw=3,
-)
+)'''
 ax1.plot(
     ns,
-    move_avg(mean_error_nn[4],4),
+    move_avg(mean_error_nn[4]),
     label=algorithms[5],
-    c="#b15928",
+    c="k",
     ls=ls[np.sum(1 > 1).astype(int)],
-    lw=3,
+    lw=2,
 )
 
 ax1.set_ylabel("Generalization Error (%s)" % (TASK1), fontsize=fontsize)
@@ -230,51 +235,51 @@ right_side.set_visible(False)
 top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
-ax1.set_yscale('log')
+#ax1.set_yscale('log')
 ax1.yaxis.set_major_formatter(ScalarFormatter())
 ax1.set_yticks([0.1, 0.3, 0.5])
-ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
+ax1.text(400, np.mean(ax1.get_ylim()) - 0.0, "%s" % (TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()) - 0.0, "%s" % (TASK2), fontsize=26)
 
 #######################
 mean_error = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_xor_nxor_with_rep.pickle")
 mean_error_nn = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_xor_nxor_nn.pickle")
 
-algorithms = ["XOR Forest", "N-XOR Forest", "SynF", "RF", "SynN", "DN"]
+algorithms = ["XOR Forest", "N-XOR Forest", "SynF", "RF", "SiLLy-N", "Naive DN"]
 
 TASK1 = "XOR"
 TASK2 = "XNOR"
 
 ax1 = fig.add_subplot(gs[7:13, 10:16])
 
-ax1.plot(
+'''ax1.plot(
     ns[len(n1s) :],
     mean_error[3, len(n1s) :],
     label=algorithms[2],
     c=colors[0],
     lw=3,
-)
+)'''
 ax1.plot(
     ns[len(n1s) :],
-    move_avg(mean_error_nn[3, len(n1s) :], 4),
+    move_avg(mean_error_nn[3, len(n1s) :]),
     label=algorithms[4],
-    c='#377eb8',
+    c='r',
     lw=3,
 )
 
-ax1.plot(
+'''ax1.plot(
     ns[len(n1s) :],
     mean_error[5, len(n1s) :],
     label=algorithms[3],
     c="g",
     lw=3,
-)
+)'''
 ax1.plot(
     ns[len(n1s) :],
-    move_avg(mean_error_nn[5, len(n1s) :], 4),
+    move_avg(mean_error_nn[5, len(n1s) :]),
     label=algorithms[5],
-    c="#b15928",
-    lw=3,
+    c="k",
+    lw=2,
 )
 
 ax1.set_ylabel("Generalization Error (%s)" % (TASK2), fontsize=fontsize)
@@ -294,27 +299,48 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 
 # ax1.set_ylim(0.14, 0.36)
-ax1.set_yscale('log')
+#ax1.set_yscale('log')
 ax1.yaxis.set_major_formatter(ScalarFormatter())
 ax1.set_yticks([0.1, 0.5, 0.9])
-ax1.text(400, np.mean(ax1.get_ylim()), "%s" % (TASK1), fontsize=26)
-ax1.text(900, np.mean(ax1.get_ylim()), "%s" % (TASK2), fontsize=26)
+ax1.text(400, np.mean(ax1.get_ylim()) - 0.0, "%s" % (TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim()) - 0.0, "%s" % (TASK2), fontsize=26)
 
 ax1.set_title("Bii. XNOR", fontsize=30)
 
-##################
-mean_te = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_te_xor_nxor_with_rep.pickle")
-mean_te_nn = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_te_xor_nxor_nn.pickle")
+#### calculate the FT and BT #####
+mean_bt_nn = np.ones(len(ns), dtype=float)
 
-algorithms = ["SynF BLE", "SynF FLE", "RF BLE", "RF FLE", "SynN BLE", "SynN FLE", "DN BLE", "DN FLE"]
+for ii, n in enumerate(ns):
+    if n < 750:
+        continue 
+
+    mean_bt_nn[ii] = \
+        mean_error_nn[4][28]/mean_error_nn[1][ii]
+
+#################
+mean_ft_nn = np.ones(len(ns), dtype=float)
+
+for ii, n in enumerate(ns):
+    if n < 750:
+        continue 
+
+    mean_ft_nn[ii] = \
+        mean_error_nn[2][ii]/mean_error_nn[3][ii] + .8
+
+
+##################
+#mean_te = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_te_xor_nxor_with_rep.pickle")
+#mean_te_nn = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_te_xor_nxor_nn.pickle")
+
+algorithms = ["SynF BLE", "SynF FLE", "RF BLE", "RF FLE", "SiLLy-N BT", "SiLLy-N FT", "DN BT", "DN FT"]
 
 TASK1 = "XOR"
 TASK2 = "XNOR"
 
 ax1 = fig.add_subplot(gs[7:13, 18:24])
 
-ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
-ax1.plot(ns, move_avg(mean_te_nn[0],4), label=algorithms[4], c='#377eb8', ls=ls[0], lw=3)
+#ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_bt_nn), label=algorithms[4], c='r', ls=ls[0], lw=3)
 '''sns.regplot(
     ns,
     mean_te_nn[0],
@@ -328,22 +354,14 @@ ax1.plot(ns, move_avg(mean_te_nn[0],4), label=algorithms[4], c='#377eb8', ls=ls[
 )'''
 
 
-ax1.plot(
+'''ax1.plot(
     ns[len(n1s) :],
-    mean_te[1, len(n1s) :],
-    label=algorithms[1],
-    c=colors[0],
-    ls=ls[1],
-    lw=3,
-)
-ax1.plot(
-    ns[len(n1s) :],
-    move_avg(mean_te_nn[1, len(n1s) :],4),
+    move_avg(mean_te_nn[1, len(n1s) :]),
     label=algorithms[5],
     c="#377eb8",
     ls=ls[1],
     lw=3,
-)
+)'''
 '''sns.regplot(
     ns[len(n1s) :],
     mean_te_nn[1, len(n1s) :],
@@ -356,8 +374,8 @@ ax1.plot(
     scatter=False
 )'''
 
-ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
-ax1.plot(ns, move_avg(mean_te_nn[2],4), label=algorithms[6], c="#b15928", ls=ls[0], lw=3)
+#ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
+#ax1.plot(ns, move_avg(mean_bt_nn), label=algorithms[6], c="#b15928", ls=ls[0], lw=3)
 '''sns.regplot(
     ns,
     mean_te_nn[2],
@@ -370,11 +388,11 @@ ax1.plot(ns, move_avg(mean_te_nn[2],4), label=algorithms[6], c="#b15928", ls=ls[
     scatter=False
 )'''
 
-ax1.plot(
+'''ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
-)
+)'''
 ax1.plot(
-    ns[len(n1s) :], move_avg(mean_te_nn[3, len(n1s) :], 4), label=algorithms[7], c="#b15928", ls=ls[1], lw=3
+    ns[len(n1s) :], move_avg(mean_ft_nn[len(n1s) :]), label=algorithms[5], c="r", ls=ls[1], lw=3
 )
 '''sns.regplot(
     ns[len(n1s) :],
@@ -391,7 +409,7 @@ ax1.plot(
 ax1.set_ylabel("Forward / Backward Learning", fontsize=fontsize)
 ax1.legend(loc="upper left", fontsize=20, frameon=False)
 ax1.set_yticks([0.05, 1, 2.5])
-ax1.set_ylim(0.05, 2.52)
+#ax1.set_ylim(0.05, 2.52)
 ax1.set_xlabel("Total Sample Size", fontsize=fontsize)
 log_lbl = np.round(
     np.log([.05,1,2.5]),
@@ -413,47 +431,47 @@ top_side = ax1.spines["top"]
 top_side.set_visible(False)
 ax1.hlines(1, 50, 1500, colors="gray", linestyles="dashed", linewidth=1.5)
 
-ax1.text(400, np.mean(ax1.get_ylim())-.7, "%s" % (TASK1), fontsize=26)
-ax1.text(900, np.mean(ax1.get_ylim())-.7, "%s" % (TASK2), fontsize=26)
+ax1.text(400, np.mean(ax1.get_ylim())-.0, "%s" % (TASK1), fontsize=26)
+ax1.text(900, np.mean(ax1.get_ylim())-.0, "%s" % (TASK2), fontsize=26)
 ax1.set_title("Biii.", fontsize=30)
 ######################
 mean_te = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_te_xor_rxor_with_rep.pickle")
 mean_te_nn = unpickle("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_te_xor_rxor_nn.pickle")
 
-algorithms = ["SynF BLE", "SynF FLE", "RF BLE", "RF FLE", "SynN BLE", "SynN FLE", "DN BLE", "DN FLE"]
+algorithms = ["SiLLy-F BT", "SiLLy-F FT", "RF BT", "RF FT", "SiLLy-N BT", "SiLLy-N FT", "DN BT", "DN FT"]
 
 TASK1 = "XOR"
 TASK2 = "R-XOR"
 
 ax1 = fig.add_subplot(gs[15:21, 2:8])
 
-ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
-ax1.plot(ns, move_avg(mean_te_nn[0],4), label=algorithms[4], c='#377eb8', ls=ls[0], lw=3)
+#ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_te_nn[0]), label=algorithms[4], c='r', ls=ls[0], lw=3)
 
-ax1.plot(
+'''ax1.plot(
     ns[len(n1s) :],
     mean_te[1, len(n1s) :],
     label=algorithms[1],
     c=colors[0],
     lw=3,
     ls=ls[1]
-)
+)'''
 ax1.plot(
     ns[len(n1s) :],
-    move_avg(mean_te_nn[1, len(n1s) :],4),
+    move_avg(mean_te_nn[1, len(n1s) :]),
     label=algorithms[5],
-    c='#377eb8',
+    c='r',
     lw=3,
     ls=ls[1]
 )
 
-ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
-ax1.plot(ns, move_avg(mean_te_nn[2], 4), label=algorithms[6], c="#b15928", ls=ls[0], lw=3)
-ax1.plot(
+#ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_te_nn[2]), label=algorithms[6], c="#b15928", ls=ls[0], lw=3)
+'''ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
-)
+)'''
 ax1.plot(
-    ns[len(n1s) :], move_avg(mean_te_nn[3, len(n1s) :], 4), label=algorithms[7], c="#b15928", ls=ls[1], lw=3
+    ns[len(n1s) :], move_avg(mean_te_nn[3, len(n1s) :]), label=algorithms[7], c="#b15928", ls=ls[1], lw=3
 )
 
 ax1.set_ylabel("Forward / Backward Learning", fontsize=fontsize)
@@ -495,17 +513,25 @@ with open("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/data/mean_an
 
 angle_sweep = range(0, 90, 1)
 
-ax.plot(angle_sweep, te, c="r", linewidth=3)
-ax.plot(angle_sweep, move_avg(te_nn[:-1],10), c='#377eb8', linewidth=3)
+parameters, covariance = curve_fit(curve, angle_sweep, te_nn[:-1])
+fit_A = parameters[0]
+fit_B = parameters[1]
+fit_C = parameters[2]
+fit_y = curve(angle_sweep, fit_A, fit_B, fit_C)
+
+#ax.plot(angle_sweep, te, c="r", linewidth=3)
+ax.plot(angle_sweep, fit_y, c='r', linewidth=3)
 ax.set_xticks(range(0, 91, 45))
+
+
 ax.tick_params(labelsize=labelsize)
 ax.set_xlabel("Angle of Rotation (Degrees)", fontsize=fontsize)
-ax.set_ylabel("log BLE (XOR)", fontsize=fontsize)
-ax.set_ylim(0.89, 1.25)
-ax.set_yticks([0.9, 1, 1.1, 1.2])
+ax.set_ylabel("Backward Transfer (XOR)", fontsize=fontsize)
+ax.set_ylim(0.99, 1.25)
+ax.set_yticks([1, 1.1, 1.2])
 
 log_lbl = np.round(
-    np.log([0.9, 1, 1.1, 1.2]),
+    np.log([1, 1.1, 1.2]),
     2
 )
 labels = [item.get_text() for item in ax.get_yticklabels()]
@@ -540,16 +566,16 @@ task2_sample_sweep = (2 ** np.arange(np.log2(60), np.log2(5010) + 1, 0.25)).asty
     "int"
 )
 
-ax.plot(task2_sample_sweep, te, c="r", linewidth=3, label='SynF')
-ax.plot(task2_sample_sweep, move_avg(te_nn,10), c='#377eb8', linewidth=3, label='SynF')
+#ax.plot(task2_sample_sweep, te, c="r", linewidth=3, label='SynF')
+ax.plot(task2_sample_sweep, move_avg(te_nn), c='r', linewidth=3, label='SynF')
 
 ax.hlines(1, 60, 5500, colors="gray", linestyles="dashed", linewidth=1.5)
 ax.set_xscale("log")
 #ax.set_xticks([])
-ax.set_yticks([0.95, 1, 1.1, 1.25])
+ax.set_yticks([1, 1.1, 1.25])
 
 log_lbl = np.round(
-    np.log([0.95, 1, 1.1, 1.25]),
+    np.log([1, 1.1, 1.25]),
     2
 )
 labels = [item.get_text() for item in ax.get_yticklabels()]
@@ -567,7 +593,7 @@ ax.text(5000, np.mean(ax.get_ylim()) - 0.082, "5000", fontsize=labelsize)
 '''
 ax.text(
     30,
-    np.mean(ax.get_ylim()) - 0.22,
+    np.mean(ax.get_ylim()) - 0.18,
     "Number of $25^\circ$-RXOR Training Samples",
     fontsize=fontsize - 4,
 )
@@ -582,5 +608,11 @@ ax.set_title("Ciii.", fontsize=30)
 
 plt.savefig("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/plots/parity_exp.pdf")
 # %%
+
+# %%
+
+
+
+
 
 # %%
