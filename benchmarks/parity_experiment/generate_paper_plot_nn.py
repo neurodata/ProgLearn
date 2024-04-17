@@ -612,12 +612,5 @@ ax.set_title("Ciii.", fontsize=30)
 #ax.legend(fontsize=fontsize-5, frameon=False)
 
 plt.savefig("/Users/jayantadey/ProgLearn/benchmarks/parity_experiment/plots/parity_exp.pdf")
-# %%
-
-# %%
-
-
-
-
 
 # %%
