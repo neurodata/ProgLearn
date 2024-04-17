@@ -523,8 +523,8 @@ fit_y = curve(angle_sweep, fit_A, fit_B, fit_C)
 
 #ax.plot(angle_sweep, te, c="r", linewidth=3)
 idx = list(range(0,90,2))
-ax.plot(angle_sweep, fit_y, c='r', linewidth=3)
-ax.plot(angle_sweep, move_avg(te_nn[:-1], w=3), c='r', ls='dotted', linewidth=3)
+ax.plot(angle_sweep, fit_y, c='r', ls='dashed', linewidth=3, label='Regressed Curve')
+ax.plot(angle_sweep, move_avg(te_nn[:-1], w=3), c='r', linewidth=3, label='Original Curve')
 ax.set_xticks(range(0, 91, 45))
 
 
@@ -532,10 +532,10 @@ ax.tick_params(labelsize=labelsize)
 ax.set_xlabel("Angle of Rotation (Degrees)", fontsize=fontsize)
 ax.set_ylabel("Backward Transfer (XOR)", fontsize=fontsize)
 ax.set_ylim(0.99, 1.25)
-ax.set_yticks([1, 1.1, 1.2])
+ax.set_yticks([1, 1.1, 1.2, 1.3])
 
 log_lbl = np.round(
-    np.log([1, 1.1, 1.2]),
+    np.log([1, 1.1, 1.2, 1.3]),
     2
 )
 labels = [item.get_text() for item in ax.get_yticklabels()]
@@ -547,6 +547,7 @@ ax.set_yticklabels(labels)
 
 # ax.set_title("XOR vs. Rotated-XOR", fontsize = fontsize)
 ax.hlines(1, 0, 90, colors="grey", linestyles="dashed", linewidth=1.5)
+ax.legend(loc="upper left", fontsize=20, frameon=False)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
