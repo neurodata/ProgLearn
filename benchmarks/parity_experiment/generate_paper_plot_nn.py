@@ -572,7 +572,7 @@ task2_sample_sweep = (2 ** np.arange(np.log2(60), np.log2(5010) + 1, 0.25)).asty
 )
 
 #ax.plot(task2_sample_sweep, te, c="r", linewidth=3, label='SynF')
-ax.plot(task2_sample_sweep, move_avg(te_nn, w=5), c='r', linewidth=3, label='SynF')
+ax.plot(task2_sample_sweep, move_avg(te_nn, w=10), c='r', linewidth=3, label='SynF')
 
 ax.hlines(1, 60, 10000, colors="gray", linestyles="dashed", linewidth=1.5)
 ax.set_xscale("log")
@@ -602,7 +602,7 @@ ax.text(
     "Number of $25^\circ$-RXOR Training Samples",
     fontsize=fontsize - 4,
 )
-ax.set_ylabel("log BLE (XOR)", fontsize=fontsize)
+ax.set_ylabel("Backward Transfer (XOR)", fontsize=fontsize)
 
 right_side = ax.spines["right"]
 right_side.set_visible(False)
