@@ -379,7 +379,7 @@ ax1.plot(
 )
 #ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
 ax1.plot(ns, move_avg(mean_te_nn[2]), label=algorithms[6], c="k", ls=ls[0], lw=2)
-ax1.plot(ns[len(n1s) :], move_avg(mean_te_nn[3][len(n1s) :]), label=algorithms[7], c="k", ls=ls[0], lw=2)
+ax1.plot(ns[len(n1s) :], move_avg(mean_te_nn[3][len(n1s) :]), label=algorithms[7], c="k", ls='dashed', lw=2)
 '''sns.regplot(
     ns,
     mean_te_nn[2],
