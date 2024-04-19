@@ -273,12 +273,12 @@ df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 df_acc.insert(2, "Task ID", task_order)
 
 # %%
-universal_clr_dict = {'5': '#377eb8',
-                      '10': '#377eb8',
-                      '20': '#377eb8',
-                      '30': '#377eb8',
-                      '40': '#377eb8',
-                      '50': '#377eb8'}
+universal_clr_dict = {'5': 'r',
+                      '10': 'r',
+                      '20': 'r',
+                      '30': 'r',
+                      '40': 'r',
+                      '50': 'r'}
 
 for ii, name in enumerate(universal_clr_dict.keys()):
     print(name)
@@ -295,7 +295,7 @@ for name in te_df.keys():
 
 #%%
 ticksize = 40
-labelsize = 50
+labelsize = 40
 fig, ax = plt.subplots(1, 4, figsize=(32, 8))
 
 ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df_te, hue='Task ID', palette=c_combined, ax=ax[0], size=25, legend=None)
@@ -369,8 +369,8 @@ top_side = ax_.spines["top"]
 top_side.set_visible(False)
 #ax_.hlines(0, 0, len(budgets)-1, colors='grey', linestyles='dashed',linewidth=1.5)
 
-fig.text(0.45, 1, 'food1k', fontsize=labelsize+10)
+fig.text(0.45, 1, 'food1k', fontsize=labelsize+20)
 fig.text(0.45, -.1, 'Budget', fontsize=labelsize)
 
-plt.savefig('food1k_budgeted_synn.pdf')
+plt.savefig('food1k_budgeted_synn.pdf', bbox_inches='tight')
 # %%
