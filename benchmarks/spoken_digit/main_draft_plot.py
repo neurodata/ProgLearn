@@ -165,7 +165,7 @@ def stratified_scatter(te_dict,axis_handle,s,color,style):
 ### MAIN HYPERPARAMS ###
 task_num = 6
 total_alg = 10
-combined_alg_name = ['SynN','SynF', 'Model Zoo','LwF','EWC','O-EWC','SI', 'Total Replay', 'Partial Replay', 'None']
+combined_alg_name = ['SiLLy-N','SiLLy-F', 'Model Zoo','LwF','EWC','O-EWC','SI', 'Total Replay', 'Partial Replay', 'None']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
@@ -222,7 +222,7 @@ for alg in range(total_alg):
     print('transfer', np.round(calc_transfer(err, single_err, reps),2))
 
 #%%
-te = {'SynN':np.zeros(6,dtype=float), 'SynF':np.zeros(6,dtype=float), 
+te = {'SiLLy-N':np.zeros(6,dtype=float), 'SiLLy-F':np.zeros(6,dtype=float), 
     'Model Zoo':np.zeros(6,dtype=float), 'LwF':np.zeros(6,dtype=float), 
     'EWC':np.zeros(6,dtype=float), 
     'O-EWC':np.zeros(6,dtype=float), 'SI':np.zeros(6,dtype=float),
@@ -242,7 +242,7 @@ df = pd.DataFrame.from_dict(te)
 df = pd.melt(df,var_name='Algorithms', value_name='Transfer Efficieny')
 df.insert(2, "Task ID", task_order)
 #%%
-bte_end = {'SynN':np.zeros(6,dtype=float), 'SynF':np.zeros(6,dtype=float), 
+bte_end = {'SiLLy-N':np.zeros(6,dtype=float), 'SiLLy-F':np.zeros(6,dtype=float), 
             'Model Zoo':np.zeros(6,dtype=float), 'LwF':np.zeros(6,dtype=float), 
             'EWC':np.zeros(6,dtype=float), 
             'O-EWC':np.zeros(6,dtype=float), 'SI':np.zeros(6,dtype=float),
@@ -261,7 +261,7 @@ df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
 df_ble.insert(2, "Task ID", task_order)
 
-fte_end = {'SynN':np.zeros(6,dtype=float), 'SynF':np.zeros(6,dtype=float), 
+fte_end = {'SiLLy-N':np.zeros(6,dtype=float), 'SiLLy-F':np.zeros(6,dtype=float), 
             'Model Zoo':np.zeros(6,dtype=float), 'LwF':np.zeros(6,dtype=float), 
             'EWC':np.zeros(6,dtype=float), 
             'O-EWC':np.zeros(6,dtype=float), 'SI':np.zeros(6,dtype=float),
@@ -493,8 +493,8 @@ top_side.set_visible(False)'''
 fig.text(.45, 0.88, "Spoken Digit", fontsize=fontsize+15)
 plt.savefig('spoken_digit.pdf')
 #%%
-universal_clr_dict = {'SynN': '#377eb8',
-                      'SynF': '#e41a1c',
+universal_clr_dict = {'SiLLy-N': '#e41a1c',
+                      'SiLLy-F': '#377eb8',
                       'Model Zoo': '#984ea3',
                       'LwF': '#f781bf',
                       'EWC': '#4daf4a',

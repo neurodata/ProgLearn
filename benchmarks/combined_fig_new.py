@@ -173,7 +173,7 @@ df_le_all = {}
 ### MAIN HYPERPARAMS ###
 task_num = 5
 total_alg = 13
-combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
+combined_alg_name = ['SiLLy-N','SiLLy-F', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
@@ -226,7 +226,7 @@ for alg in range(total_alg):
     print('transfer', np.round(calc_transfer(err, single_err, task_num, reps),2))
 
 #%%
-fte_dict = {'SynN':np.zeros(5,dtype=float), 'SynF':np.zeros(5,dtype=float), 'model_zoo':np.zeros(5,dtype=float), 
+fte_dict = {'SiLLy-N':np.zeros(5,dtype=float), 'SiLLy-F':np.zeros(5,dtype=float), 'model_zoo':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'EWC':np.zeros(5,dtype=float), 
     'O-EWC':np.zeros(5,dtype=float), 'SI':np.zeros(5,dtype=float),
     'ER':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
@@ -250,7 +250,7 @@ df_fle = pd.DataFrame.from_dict(fte_dict)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
 #%%
-bte_dict = {'SynN':np.zeros(5,dtype=float), 'SynF':np.zeros(5,dtype=float), 'model_zoo':np.zeros(5,dtype=float), 
+bte_dict = {'SiLLy-N':np.zeros(5,dtype=float), 'SiLLy-F':np.zeros(5,dtype=float), 'model_zoo':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'EWC':np.zeros(5,dtype=float), 
     'O-EWC':np.zeros(5,dtype=float), 'SI':np.zeros(5,dtype=float),
     'ER':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
@@ -270,7 +270,7 @@ df_ble = pd.DataFrame.from_dict(bte_dict)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
 df_ble.insert(2, "Task ID", task_order)
 #%%
-te = {'SynN':np.zeros(5,dtype=float), 'SynF':np.zeros(5,dtype=float), 'model_zoo':np.zeros(5,dtype=float), 
+te = {'SiLLy-N':np.zeros(5,dtype=float), 'SiLLy-F':np.zeros(5,dtype=float), 'model_zoo':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'EWC':np.zeros(5,dtype=float), 
     'O-EWC':np.zeros(5,dtype=float), 'SI':np.zeros(5,dtype=float),
     'ER':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
@@ -303,7 +303,7 @@ te_scatter['five_dataset'] = te
 ### MAIN HYPERPARAMS ###
 task_num = 20
 total_alg = 13
-combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
+combined_alg_name = ['SiLLy-N','SiLLy-F', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
@@ -356,7 +356,7 @@ for alg in range(total_alg):
     print('transfer', np.round(calc_transfer(err, single_err, task_num, reps),2))
 
 #%%
-fte_dict = {'SynN':np.zeros(20,dtype=float), 'SynF':np.zeros(20,dtype=float), 'model_zoo':np.zeros(20,dtype=float), 
+fte_dict = {'SiLLy-N':np.zeros(20,dtype=float), 'SiLLy-F':np.zeros(20,dtype=float), 'model_zoo':np.zeros(20,dtype=float), 
     'LwF':np.zeros(20,dtype=float), 'EWC':np.zeros(20,dtype=float), 
     'O-EWC':np.zeros(20,dtype=float), 'SI':np.zeros(20,dtype=float),
     'ER':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
@@ -380,7 +380,7 @@ df_fle = pd.DataFrame.from_dict(fte_dict)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
 #%%
-bte_dict = {'SynN':np.zeros(20,dtype=float), 'SynF':np.zeros(20,dtype=float), 'model_zoo':np.zeros(20,dtype=float), 
+bte_dict = {'SiLLy-N':np.zeros(20,dtype=float), 'SiLLy-F':np.zeros(20,dtype=float), 'model_zoo':np.zeros(20,dtype=float), 
     'LwF':np.zeros(20,dtype=float), 'EWC':np.zeros(20,dtype=float), 
     'O-EWC':np.zeros(20,dtype=float), 'SI':np.zeros(20,dtype=float),
     'ER':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
@@ -400,7 +400,7 @@ df_ble = pd.DataFrame.from_dict(bte_dict)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
 df_ble.insert(2, "Task ID", task_order)
 #%%
-te = {'SynN':np.zeros(20,dtype=float), 'SynF':np.zeros(20,dtype=float), 'model_zoo':np.zeros(20,dtype=float), 
+te = {'SiLLy-N':np.zeros(20,dtype=float), 'SiLLy-F':np.zeros(20,dtype=float), 'model_zoo':np.zeros(20,dtype=float), 
     'LwF':np.zeros(20,dtype=float), 'EWC':np.zeros(20,dtype=float), 
     'O-EWC':np.zeros(20,dtype=float), 'SI':np.zeros(20,dtype=float),
     'ER':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
@@ -433,7 +433,7 @@ te_scatter['imagenet'] = te
 ### MAIN HYPERPARAMS ###
 task_num = 50
 total_alg = 4
-combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF']
+combined_alg_name = ['SiLLy-N','SiLLy-F', 'Model Zoo', 'LwF']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
@@ -474,7 +474,7 @@ for alg in range(total_alg):
     print('transfer', np.round(calc_transfer(err, single_err, task_num, 1),2))
 
 #%%
-fte_dict = {'SynN':np.zeros(50,dtype=float), 'SynF':np.zeros(50,dtype=float), 'model_zoo':np.zeros(50,dtype=float), 
+fte_dict = {'SiLLy-N':np.zeros(50,dtype=float), 'SiLLy-F':np.zeros(50,dtype=float), 'model_zoo':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
 
 task_order = []
@@ -493,7 +493,7 @@ df_fle = pd.DataFrame.from_dict(fte_dict)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
 #%%
-bte_dict = {'SynN':np.zeros(50,dtype=float), 'SynF':np.zeros(50,dtype=float), 'model_zoo':np.zeros(50,dtype=float), 
+bte_dict = {'SiLLy-N':np.zeros(50,dtype=float), 'SiLLy-F':np.zeros(50,dtype=float), 'model_zoo':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
 
 for count,name in enumerate(bte_dict.keys()):
@@ -508,7 +508,7 @@ df_ble = pd.DataFrame.from_dict(bte_dict)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
 df_ble.insert(2, "Task ID", task_order)
 #%%
-te = {'SynN':np.zeros(50,dtype=float), 'SynF':np.zeros(50,dtype=float), 'model_zoo':np.zeros(50,dtype=float), 
+te = {'SiLLy-N':np.zeros(50,dtype=float), 'SiLLy-F':np.zeros(50,dtype=float), 'model_zoo':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
 
 for count,name in enumerate(te.keys()):
@@ -534,8 +534,8 @@ tes_all['food1k'] = tes
 te_scatter['food1k'] = te
 
 #%%
-universal_clr_dict = {'SynN': '#377eb8',
-                    'SynF': '#e41a1c',
+universal_clr_dict = {'SiLLy-N': '#e41a1c',
+                    'SiLLy-F': '#377eb8',
                     'Model Zoo': '#984ea3',
                     'LwF': '#f781bf',
                     'EWC': '#4daf4a',
@@ -565,7 +565,7 @@ te = te_scatter['five_dataset']
 
 total_alg=13
 task_num=5
-combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
+combined_alg_name = ['SiLLy-N','SiLLy-F', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
 marker_style = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 marker_style_scatter = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 
@@ -635,7 +635,7 @@ te = te_scatter['imagenet']
 
 task_num = 20
 total_alg = 13
-combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
+combined_alg_name = ['SiLLy-N','SiLLy-F', 'Model Zoo', 'LwF','EWC','O-EWC','SI', 'ER', 'A-GEM', 'TAG', 'Total Replay', 'Partial Replay', 'None']
 marker_style = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 marker_style_scatter = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 
@@ -699,7 +699,7 @@ te = te_scatter['food1k']
 
 task_num = 50
 total_alg = 4
-combined_alg_name = ['SynN','SynF', 'Model Zoo', 'LwF']
+combined_alg_name = ['SiLLy-N','SiLLy-F', 'Model Zoo', 'LwF']
 
 marker_style = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
 marker_style_scatter = ['.', '.', 'v', '.', '+', 'o', '*', 'o', '*', 'x', '.', '+', 'v']
