@@ -34,7 +34,7 @@ for i, mdl in enumerate(model):
     for slot in range(0, slots):
         for shift in range(shifts):
             filename = (
-                "result/"
+                "/Users/jayantadey/ProgLearn/benchmarks/random_class_exp/result/"
                 + mdl
                 + str(ntrees[i])
                 + "_"
@@ -72,24 +72,25 @@ ax.yaxis.set_ticks_position("left")
 ax.xaxis.set_ticks_position("bottom")
 
 ax.plot(
-    range(len(btes[0])),
-    btes[0],
+    range(len(btes[1])),
+    btes[1],
     c="#e41a1c",
     linewidth=3,
     linestyle="solid",
-    label="SynF"
+    label="SiLLy-N"
 )
 ax.plot(
-    range(len(btes[1])),
-    btes[1],
+    range(len(btes[0])),
+    btes[0],
     c="#377eb8",
     linewidth=3,
     linestyle="solid",
-    label="SynN"
+    label="SiLLy-F"
 )
 
+
 ax.set_xlabel("Number of Tasks Seen", fontsize=fontsize)
-ax.set_ylabel("log LE (Task 1)", fontsize=fontsize)
+ax.set_ylabel("Transfer (Task 1)", fontsize=fontsize)
 ax.set_yticks([1.0, 1.1, 1.2])
 ax.tick_params(labelsize=ticksize)
 ax.legend(fontsize=20, frameon=False)
@@ -106,7 +107,7 @@ for ii,_ in enumerate(labels):
 ax.set_yticklabels(labels)
 
 plt.tight_layout()
-plt.savefig("./result/figs/random_class.pdf", dpi=300)
+plt.savefig("/Users/jayantadey/ProgLearn/benchmarks/random_class_exp/result/figs/random_class.pdf", dpi=300)
 #plt.close()
 
 '''ax = plt.subplot(111)
