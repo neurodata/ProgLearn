@@ -168,6 +168,12 @@ def stratified_scatter(te_dict,axis_handle,s,color,style):
                 marker=style[algo_no]
                 )
 
+def calc_final_acc(err, reps):
+    avg_acc = []
+    for err_ in err[-1]:
+        avg_acc.append(1-err_/reps)
+    
+    return avg_acc
 #%%
 labels = []
 btes_all = {}
@@ -313,9 +319,21 @@ for count,name in enumerate(acc_500.keys()):
     else:
         acc_500[name] = np.array(final_acc_bottom[count-8][::-1])
 
+arg = [ 0,  2,  1,  3,  7,  4, 8,  6,  5, 9, 10]#np.argsort(mean_val)[::-1]
+ordr.append(arg)
+algos = list(acc_500.keys())
+combined_alg_name = []
 
+for ii in arg:
+    combined_alg_name.append(
+        algos[ii]
+    )
+    
+tmp_acc = {}
+for id in combined_alg_name:
+    tmp_acc[id] = acc_500[id]
 
-df_acc = pd.DataFrame.from_dict(acc_500)
+df_acc = pd.DataFrame.from_dict(tmp_acc)
 df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 #%%
 te_500 = {'SiLLy-N*':np.zeros(10,dtype=float), 'Model Zoo*':np.zeros(10,dtype=float),
@@ -343,16 +361,6 @@ for name in te_500.keys():
     mean_val.append(np.mean(te_500[name]))
     print(name, np.round(np.mean(te_500[name]),2), np.round(np.std(te_500[name], ddof=1),2))
 
-arg = [ 0,  2,  1,  3,  7,  4, 8,  6,  5, 9, 10]#np.argsort(mean_val)[::-1]
-ordr.append(arg)
-algos = list(te_500.keys())
-combined_alg_name = []
-
-for ii in arg:
-    combined_alg_name.append(
-        algos[ii]
-    )
-    
 tmp_te = {}
 for id in combined_alg_name:
     tmp_te[id] = te_500[id]
@@ -486,10 +494,6 @@ acc = {'SiLLy-N*':np.zeros(6,dtype=float), 'Model Zoo*':np.zeros(6,dtype=float),
 for count,name in enumerate(acc.keys()):
     acc[name] = np.array(final_acc[count][::-1])
 
-
-df_acc = pd.DataFrame.from_dict(acc)
-df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
-
 #%%
 te = {'SiLLy-N*':np.zeros(6,dtype=float), 'Model Zoo*':np.zeros(6,dtype=float), 
       'LwF':np.zeros(6,dtype=float), 'Total Replay':np.zeros(6,dtype=float), 
@@ -525,6 +529,15 @@ for id in combined_alg_name:
 df_le = pd.DataFrame.from_dict(tmp_te)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
 df_le.insert(2, "Task ID", task_order)
+
+
+#####
+tmp_acc = {}
+for id in combined_alg_name:
+    tmp_acc[id] = acc[id]
+
+df_acc = pd.DataFrame.from_dict(tmp_acc)
+df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 
 df_acc.insert(2, "Task ID", task_order)
 # %%
@@ -614,9 +627,6 @@ acc = {'SiLLy-N*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float
 for count,name in enumerate(acc.keys()):
     acc[name] = np.array(final_acc[count][::-1])
 
-
-df_acc = pd.DataFrame.from_dict(acc)
-df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 #%%
 te = {'SiLLy-N*':np.zeros(50,dtype=float), 'Model Zoo*':np.zeros(50,dtype=float), 
     'LwF':np.zeros(50,dtype=float)}
@@ -651,6 +661,14 @@ for id in combined_alg_name:
 df_le = pd.DataFrame.from_dict(tmp_te)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
 df_le.insert(2, "Task ID", task_order)
+
+#######
+tmp_acc = {}
+for id in combined_alg_name:
+    tmp_acc[id] = acc[id]
+
+df_acc = pd.DataFrame.from_dict(acc)
+df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 
 df_acc.insert(2, "Task ID", task_order)
 #%%
@@ -752,9 +770,6 @@ acc = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float
 for count,name in enumerate(acc.keys()):
     acc[name] = np.array(final_acc[count][::-1])
 
-
-df_acc = pd.DataFrame.from_dict(acc)
-df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 #%%
 te = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
     'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
@@ -791,6 +806,14 @@ for id in combined_alg_name:
 df_le = pd.DataFrame.from_dict(tmp_te)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
 df_le.insert(2, "Task ID", task_order)
+
+########
+tmp_acc = {}
+for id in combined_alg_name:
+    tmp_acc[id] = acc[id]
+
+df_acc = pd.DataFrame.from_dict(acc)
+df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 
 df_acc.insert(2, "Task ID", task_order)
 #%%
@@ -899,8 +922,6 @@ for count,name in enumerate(acc.keys()):
     acc[name] = np.array(final_acc[count][::-1])
 
 
-df_acc = pd.DataFrame.from_dict(acc)
-df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 #%%
 te = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
@@ -937,6 +958,14 @@ for id in combined_alg_name:
 df_le = pd.DataFrame.from_dict(tmp_te)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
 df_le.insert(2, "Task ID", task_order)
+
+###########
+tmp_acc = {}
+for id in combined_alg_name:
+    tmp_acc[id] = acc[id]
+
+df_acc = pd.DataFrame.from_dict(acc)
+df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 
 df_acc.insert(2, "Task ID", task_order)
 #%%
