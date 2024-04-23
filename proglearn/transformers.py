@@ -72,6 +72,9 @@ class NeuralClassificationTransformer(BaseTransformer):
         },
     ):
         self.network = keras.models.clone_model(network)
+        weights = network.get_weights()
+        self.network.set_weights(weights)
+
         self.encoder_ = keras.models.Model(
             inputs=self.network.inputs,
             outputs=self.network.layers[euclidean_layer_idx].output,
@@ -100,7 +103,6 @@ class NeuralClassificationTransformer(BaseTransformer):
         """
         #check_X_y(X, y)
         _, y = np.unique(y, return_inverse=True)
-
         # more typechecking
         self.network.compile(
             loss=self.loss, optimizer=self.optimizer, **self.compile_kwargs

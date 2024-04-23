@@ -1,7 +1,6 @@
 from setuptools import setup, find_packages
 import os
 
-# Find mgc version.
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
 for line in open(os.path.join(PROJECT_PATH, "proglearn", "__init__.py")):
     if line.startswith("__version__ = "):
