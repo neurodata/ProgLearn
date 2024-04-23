@@ -383,7 +383,7 @@ ax_.set_xticklabels(
 for xtick, color in zip(ax_.get_xticklabels(), alg_name):
         xtick.set_color(universal_clr_dict[color])
 
-ax_.set_yticks([0,.5])
+ax_.set_yticks([0,.1])
 #ax.set_title('Resource Constrained BL', fontsize=fontsize)
 ax.set_ylabel('Transfer', fontsize=fontsize)
 ax.hlines(0, 0, 3, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
