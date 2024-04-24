@@ -340,7 +340,7 @@ TASK2 = "XNOR"
 ax1 = fig.add_subplot(gs[7:13, 18:24])
 
 #ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
-ax1.plot(ns, move_avg(mean_bt_nn), label=algorithms[4], c='r', ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_bt_nn), label=algorithms[4], c='r', ls='dashdot', lw=3)
 '''sns.regplot(
     ns,
     mean_te_nn[0],
@@ -378,8 +378,8 @@ ax1.plot(
     ns[len(n1s) :], move_avg(mean_ft_nn[len(n1s) :]), label=algorithms[5], c="r", ls=ls[1], lw=3
 )
 #ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
-ax1.plot(ns, move_avg(mean_te_nn[2]), label=algorithms[6], c="k", ls=ls[0], lw=2)
-ax1.plot(ns[len(n1s) :], move_avg(mean_te_nn[3][len(n1s) :]), label=algorithms[7], c="k", ls=ls[0], lw=2)
+ax1.plot(ns, move_avg(mean_te_nn[2]), label=algorithms[6], c="k", ls='dashdot', lw=2)
+ax1.plot(ns[len(n1s) :], move_avg(mean_te_nn[3][len(n1s) :]), label=algorithms[7], c="k", ls=ls[1], lw=2)
 '''sns.regplot(
     ns,
     mean_te_nn[2],
@@ -448,7 +448,7 @@ TASK2 = "R-XOR"
 ax1 = fig.add_subplot(gs[15:21, 2:8])
 
 #ax1.plot(ns, mean_te[0], label=algorithms[0], c=colors[0], ls=ls[0], lw=3)
-ax1.plot(ns, move_avg(mean_te_nn[0]), label=algorithms[4], c='r', ls=ls[0], lw=3)
+ax1.plot(ns, move_avg(mean_te_nn[0]), label=algorithms[4], c='r', ls='dashdot', lw=3)
 
 '''ax1.plot(
     ns[len(n1s) :],
@@ -468,7 +468,7 @@ ax1.plot(
 )
 
 #ax1.plot(ns, mean_te[2], label=algorithms[2], c="g", ls=ls[0], lw=3)
-ax1.plot(ns, move_avg(mean_te_nn[2]), label=algorithms[6], c="k", ls=ls[0], lw=2)
+ax1.plot(ns, move_avg(mean_te_nn[2]), label=algorithms[6], c="k", ls='dashdot', lw=2)
 '''ax1.plot(
     ns[len(n1s) :], mean_te[3, len(n1s) :], label=algorithms[3], c="g", ls=ls[1], lw=3
 )'''
@@ -523,8 +523,8 @@ fit_y = curve(angle_sweep, fit_A, fit_B, fit_C)
 
 #ax.plot(angle_sweep, te, c="r", linewidth=3)
 idx = list(range(0,90,2))
-ax.plot(angle_sweep, fit_y, c='r', ls='dashed', linewidth=3, label='Regressed Curve')
-ax.plot(angle_sweep, move_avg(te_nn[:-1], w=3), c='r', linewidth=3, label='Original Curve')
+ax.plot(angle_sweep, fit_y, c='r', ls='dotted', linewidth=3, label='Smoothed Curve')
+ax.plot(angle_sweep, move_avg(te_nn[:-1], w=3), c='r', ls='dashdot', linewidth=3, label='Original Curve')
 ax.set_xticks(range(0, 91, 45))
 
 
@@ -572,7 +572,7 @@ task2_sample_sweep = (2 ** np.arange(np.log2(60), np.log2(5010) + 1, 0.25)).asty
 )
 
 #ax.plot(task2_sample_sweep, te, c="r", linewidth=3, label='SynF')
-ax.plot(task2_sample_sweep, move_avg(te_nn, w=10), c='r', linewidth=3, label='SynF')
+ax.plot(task2_sample_sweep, move_avg(te_nn, w=10), c='r', ls='dashdot',linewidth=3, label='SiLLy-N')
 
 ax.hlines(1, 60, 10000, colors="gray", linestyles="dashed", linewidth=1.5)
 ax.set_xscale("log")
