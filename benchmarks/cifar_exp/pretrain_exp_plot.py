@@ -171,10 +171,10 @@ def stratified_scatter(te_dict,axis_handle,s,color):
 ntrees = 10
 slots = 10
 task_num = 10
-shifts = 6
-total_alg = 3
-alg_name = ['SiLLy-F', 'SiLLy-N', 'Model Zoo']
-model_file = ['fixed_uf10withrep', 'dnn', 'model_zoo']
+shifts = 1
+total_alg = 2
+alg_name = ['SiLLy-N', 'SiLLy-N (pretrained)']
+model_file = ['dnn_not_pretrained', 'dnn']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
@@ -192,11 +192,8 @@ for alg in range(total_alg):
 
     for slot in range(slots):
         for shift in range(shifts):
-            if alg < 1:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result_fcc/'+model_file[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
-            else:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result_fcc/'+model_file[alg]+'_'+str(slot)+'_'+str(shift)+'.pickle'
-
+            filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result_pretrained/'+model_file[alg]+'_'+str(slot)+'_'+str(shift)+'.pickle'
+           
             multitask_df, single_task_df = unpickle(filename)
 
             single_err_, err_ = get_error_matrix(filename)
@@ -220,8 +217,7 @@ for alg in range(total_alg):
     tes[alg].extend(te)
     acc[alg].extend(avg_acc)
 #%%
-fte_end = {'SiLLy-F':np.zeros(10,dtype=float), 'SiLLy-N':np.zeros(10,dtype=float),
-           'Model Zoo':np.zeros(10,dtype=float),
+fte_end = {'SiLLy-N':np.zeros(10,dtype=float), 'SiLLy-N (pretrained)':np.zeros(10,dtype=float)
           }
 
 task_order = []
@@ -241,8 +237,7 @@ df_fle = pd.DataFrame.from_dict(tmp_fle)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
 #%%
-bte_end = {'SiLLy-F':np.zeros(10,dtype=float), 'SiLLy-N':np.zeros(10,dtype=float),
-           'Model Zoo':np.zeros(10,dtype=float),
+bte_end = {'SiLLy-N':np.zeros(10,dtype=float), 'SiLLy-N (pretrained)':np.zeros(10,dtype=float)
           }
 
 
@@ -260,8 +255,7 @@ df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Eff
 df_ble.insert(2, "Task ID", task_order)
 
 #%%
-te_end = {'SiLLy-F':np.zeros(10,dtype=float), 'SiLLy-N':np.zeros(10,dtype=float),
-           'Model Zoo':np.zeros(10,dtype=float),
+te_end = {'SiLLy-N':np.zeros(10,dtype=float), 'SiLLy-N (pretrained)':np.zeros(10,dtype=float)
           }
 
 
@@ -278,8 +272,7 @@ df_le = pd.DataFrame.from_dict(tmp_le)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficiency')
 df_le.insert(2, "Task ID", task_order)
 #%%
-acc_end = {'SiLLy-F':np.zeros(10,dtype=float), 'SiLLy-N':np.zeros(10,dtype=float),
-           'Model Zoo':np.zeros(10,dtype=float),
+acc_end = {'SiLLy-N':np.zeros(10,dtype=float), 'SiLLy-N (pretrained)':np.zeros(10,dtype=float)
           }
 
 
@@ -296,9 +289,8 @@ df_acc = pd.DataFrame.from_dict(tmp_acc)
 df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 df_acc.insert(2, "Task ID", task_order)
 #%%
-universal_clr_dict = {'SiLLy-N': 'r',
-                      'SiLLy-F': 'b',
-                      'Model Zoo': '#984ea3',
+universal_clr_dict = {'SiLLy-N': 'b',
+                      'SiLLy-N (pretrained)': 'r',
                     }
 for ii, name in enumerate(universal_clr_dict.keys()):
     print(name)
@@ -308,6 +300,7 @@ for ii, name in enumerate(universal_clr_dict.keys()):
 fig = plt.figure(constrained_layout=True,figsize=(46,16))
 gs = fig.add_gridspec(16,46)
 
+names = ['SiLLy-N (not\npretrained)', 'SiLLy-N     \n (pretrained)']
 #c_top = sns.color_palette('Reds', n_colors=10)
 c_top = []
 for name in alg_name:
@@ -317,7 +310,8 @@ for name in alg_name:
             n_colors=task_num
             )
         )
-    
+
+
 fontsize=40
 ticksize=38
 legendsize=16
@@ -327,7 +321,7 @@ ax = fig.add_subplot(gs[2:10,10:18])
 
 ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', hue='Task ID', data=df_fle, palette=c_top, ax=ax, size=25, legend=None)
 ax_.set_xticklabels(
-    alg_name,
+    names,
     fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
     )
 for xtick, color in zip(ax_.get_xticklabels(), alg_name):
@@ -335,7 +329,7 @@ for xtick, color in zip(ax_.get_xticklabels(), alg_name):
 
 #ax.set_title('Resource Constrained FL', fontsize=fontsize)
 
-ax_.set_yticks([-.3,0,.1])
+ax_.set_yticks([-.3,0,.2])
 ax.set_ylabel('Forward Transfer', fontsize=fontsize)
 ax.set_xlabel('', fontsize=fontsize)
 ax.tick_params(labelsize=ticksize)
@@ -345,7 +339,7 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-ax.hlines(0, 0, 3, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(0, 0, 1, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
 handles_task, labels_task = ax.get_legend_handles_labels()
 
@@ -355,7 +349,7 @@ ax = fig.add_subplot(gs[2:10,20:28])
 
 ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', hue='Task ID', data=df_ble, palette=c_top, ax=ax, size=25, legend=None)
 ax_.set_xticklabels(
-    alg_name,
+    names,
     fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
     )
 for xtick, color in zip(ax_.get_xticklabels(), alg_name):
@@ -364,7 +358,7 @@ for xtick, color in zip(ax_.get_xticklabels(), alg_name):
 ax_.set_yticks([-.4,0,.1])
 #ax.set_title('Resource Constrained BL', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer', fontsize=fontsize)
-ax.hlines(0, 0, 3, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(0, 0, 1, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 ax.set_xlabel('')
 ax.tick_params(labelsize=ticksize)
 
@@ -377,16 +371,16 @@ ax = fig.add_subplot(gs[2:10,:8])
 
 ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficiency', hue='Task ID', data=df_le, palette=c_top, ax=ax, size=25, legend=None)
 ax_.set_xticklabels(
-    alg_name,
+    names,
     fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
     )
 for xtick, color in zip(ax_.get_xticklabels(), alg_name):
         xtick.set_color(universal_clr_dict[color])
 
-ax_.set_yticks([0,.1])
+ax_.set_yticks([0,.2])
 #ax.set_title('Resource Constrained BL', fontsize=fontsize)
 ax.set_ylabel('Transfer', fontsize=fontsize)
-ax.hlines(0, 0, 3, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(0, 0, 1, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 ax.set_xlabel('')
 ax.tick_params(labelsize=ticksize)
 
@@ -401,7 +395,7 @@ ax = fig.add_subplot(gs[2:10,30:38])
 
 ax_ = sns.stripplot(x='Algorithms', y='Accuracy', hue='Task ID', data=df_acc, palette=c_top, ax=ax, size=25, legend=None)
 ax_.set_xticklabels(
-    alg_name,
+    names,
     fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
     )
 for xtick, color in zip(ax_.get_xticklabels(), alg_name):
@@ -418,8 +412,8 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-fig.text(0.35,.9,'Tabular CIFAR 10X10',fontsize=60)
+fig.text(.3,.95,'CIFAR 10X10 (ResNet 50 Encoder)', fontsize=55)
 #########################################################
-plt.savefig('cifar_tabular.pdf', bbox_inches='tight')
+plt.savefig('cifar_pretrained.pdf', bbox_inches='tight')
 
 # %%
