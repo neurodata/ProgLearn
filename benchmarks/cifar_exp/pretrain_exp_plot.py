@@ -319,7 +319,7 @@ legendsize=16
 
 ax = fig.add_subplot(gs[2:10,10:18])
 
-ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', hue='Task ID', data=df_fle, palette=c_top, ax=ax, size=25, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', hue='Task ID', data=df_fle, palette=c_top, ax=ax, size=25, legend=None, jitter=.05)
 ax_.set_xticklabels(
     names,
     fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
@@ -347,7 +347,7 @@ handles_task, labels_task = ax.get_legend_handles_labels()
 #ax[0][0].grid(axis='x')
 ax = fig.add_subplot(gs[2:10,20:28])
 
-ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', hue='Task ID', data=df_ble, palette=c_top, ax=ax, size=25, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', hue='Task ID', data=df_ble, palette=c_top, ax=ax, size=25, legend=None, jitter=.05)
 ax_.set_xticklabels(
     names,
     fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
@@ -369,7 +369,7 @@ top_side.set_visible(False)
 ########################################################
 ax = fig.add_subplot(gs[2:10,:8])
 
-ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficiency', hue='Task ID', data=df_le, palette=c_top, ax=ax, size=25, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficiency', hue='Task ID', data=df_le, palette=c_top, ax=ax, size=25, legend=None, jitter=.05)
 ax_.set_xticklabels(
     names,
     fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
@@ -393,7 +393,7 @@ top_side.set_visible(False)
 ##########################################################
 ax = fig.add_subplot(gs[2:10,30:38])
 
-ax_ = sns.stripplot(x='Algorithms', y='Accuracy', hue='Task ID', data=df_acc, palette=c_top, ax=ax, size=25, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Accuracy', hue='Task ID', data=df_acc, palette=c_top, ax=ax, size=25, legend=None, jitter=.05)
 ax_.set_xticklabels(
     names,
     fontsize=fontsize,rotation=65,ha="right",rotation_mode='anchor'
@@ -414,6 +414,6 @@ top_side.set_visible(False)
 
 fig.text(.3,.95,'CIFAR 10X10 (ResNet 50 Encoder)', fontsize=55)
 #########################################################
-plt.savefig('cifar_pretrained.pdf', bbox_inches='tight')
+plt.savefig('/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result_pretrained/cifar_pretrained.pdf', bbox_inches='tight')
 
 # %%
