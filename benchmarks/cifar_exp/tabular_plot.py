@@ -345,7 +345,7 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-ax.hlines(0, 0, 3, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(0, 0, 2, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
 handles_task, labels_task = ax.get_legend_handles_labels()
 
@@ -364,7 +364,7 @@ for xtick, color in zip(ax_.get_xticklabels(), alg_name):
 ax_.set_yticks([-.4,0,.1])
 #ax.set_title('Resource Constrained BL', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer', fontsize=fontsize)
-ax.hlines(0, 0, 3, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(0, 0, 2, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 ax.set_xlabel('')
 ax.tick_params(labelsize=ticksize)
 
@@ -386,7 +386,7 @@ for xtick, color in zip(ax_.get_xticklabels(), alg_name):
 ax_.set_yticks([0,.1])
 #ax.set_title('Resource Constrained BL', fontsize=fontsize)
 ax.set_ylabel('Transfer', fontsize=fontsize)
-ax.hlines(0, 0, 3, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(0, 0, 2, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 ax.set_xlabel('')
 ax.tick_params(labelsize=ticksize)
 
