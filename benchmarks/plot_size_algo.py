@@ -25,18 +25,18 @@ alg_size = {
     'LMC' : [68.54, 70.56, 72.57, 74.58, 76.60, 78.61, 80.62, 82.63, 84.65, 86.66]
 }
 
-'''synn_size = {
+synn_size = {
     'encoder' : [26.4, 52.8, 79.2, 105.6, 132.0, 158.4, 184.8, 211.2, 237.6, 264.0],
     'channel' : [0.07, 0.28, 0.63, 1.12, 1.75, 2.52, 3.43, 4.48, 5.67, 7]
-}'''
+}
 # %%
-fig, ax = plt.subplots(1, 1, figsize=(9,8))
+fig, ax = plt.subplots(1, 2, figsize=(18,8), sharex=True, sharey=True)
 sns.set_context('talk')
 tasks = np.arange(1,11,1)
 clr = ['r', 'r', 'r', "#377eb8", "#b15928", "#f781bf", "#f781bf", "#f781bf", "#4daf4a", "#984ea3", "#f781bf", "#984ea3"]
 marker_style = ['.', 'o', '*', '.', '.', 'o', '*', '.', '.', '.', '+', 'o',]
 #"#984ea3""#984ea3""#4daf4a"
-ax.plot(tasks, alg_size['SiLLy-N-t'], label='SiLLy-N-t', c=clr[0], marker=marker_style[0], markersize=12)
+ax[0].plot(tasks, alg_size['SiLLy-N-t'], label='SiLLy-N-t', c=clr[0], marker=marker_style[0], markersize=12)
 #ax.plot(tasks, synn_size['encoder'], label='SynN Encoder', c='k', marker=marker_style[0], markersize=12, linewidth=3)
 #ax.plot(tasks, synn_size['channel'], label='SynN Channel', c='r', marker=marker_style[0], markersize=12)
 
@@ -44,21 +44,36 @@ for ii,key in enumerate(alg_size.keys()):
     if ii ==0:
         continue
 
-    ax.plot(tasks, alg_size[key], label=key, c=clr[ii], marker=marker_style[ii], markersize=12, alpha=.8)
+    ax[0].plot(tasks, alg_size[key], label=key, c=clr[ii], marker=marker_style[ii], markersize=12, alpha=.8)
 
 
-ax.set_xlim(1,10.5)
-ax.set_yticks([0,300,600])
-ax.set_ylabel('Model Size (MB)', fontsize=40)
-ax.set_xlabel('Tasks Seen', fontsize=40)
+ax[0].set_xticks([1,5,10])
+ax[0].set_xlim(1,10.5)
+ax[0].set_yticks([0,300,550])
+ax[0].set_ylabel('Model Size (MB)', fontsize=40)
 
-ax.tick_params(labelsize=25)
-fig.legend(bbox_to_anchor=(1.3, .95), fontsize=25, frameon=False)
+ax[0].tick_params(labelsize=30)
+ax[0].legend(bbox_to_anchor=(1.0, 1.0), fontsize=28, frameon=False)
 
-right_side = ax.spines["right"]
+right_side = ax[0].spines["right"]
 right_side.set_visible(False)
-top_side = ax.spines["top"]
+top_side = ax[0].spines["top"]
 top_side.set_visible(False)
+
+
+ax[1].plot(tasks, synn_size['encoder'], label='SiLLy-N encoder', c='r', marker='.', markersize=12, alpha=.8)
+ax[1].plot(tasks, synn_size['channel'], label='SiLLy-N channel', c='r', marker='x', markersize=12, alpha=.8)
+
+ax[1].set_xlim(1,10.5)
+ax[1].tick_params(labelsize=30)
+ax[1].legend(bbox_to_anchor=(1.0, .95), fontsize=30, frameon=False)
+
+right_side = ax[1].spines["right"]
+right_side.set_visible(False)
+top_side = ax[1].spines["top"]
+top_side.set_visible(False)
+
+fig.text(0.45, -0.05, 'Tasks Seen', fontsize=45)
 
 plt.savefig('model_size.pdf', bbox_inches='tight')
 # %%

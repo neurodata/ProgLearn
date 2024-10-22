@@ -30,9 +30,11 @@ from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
 import tensorflow as tf
 
 import time
+import objsize
+
 # %%
 def get_size(obj, seen=None):
-    print(obj)
+    # print(obj)
     """Recursively finds size of objects"""
     size = sys.getsizeof(obj)
     if seen is None:
@@ -46,14 +48,14 @@ def get_size(obj, seen=None):
     #print(seen)
     if isinstance(obj, dict):
         size += sum([get_size(v, seen) for v in obj.values()])
-        print([get_size(v, seen) for v in obj.values()], 'size')
+        # print([get_size(v, seen) for v in obj.values()], 'size')
         size += sum([get_size(k, seen) for k in obj.keys()])
     elif hasattr(obj, '__dict__'):
         size += get_size(obj.__dict__, seen)
-        print(get_size(obj.__dict__, seen), 'size')
+        # print(get_size(obj.__dict__, seen), 'size')
     elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
         size += sum([get_size(i, seen) for i in obj])
-        print([get_size(i, seen) for i in obj], 'seen')
+        # print([get_size(i, seen) for i in obj], 'seen')
     return size
 
 #%%
@@ -292,7 +294,7 @@ def LF_experiment(
         print(get_size(progressive_learner)/(1024**2), get_size(progressive_learner.task_id_to_transformer_id_to_voters)/1024**2, get_size(progressive_learner.transformer_id_to_transformers)/1024**2)
         print(objsize.get_deep_size(progressive_learner)/(1024**2), objsize.get_deep_size(progressive_learner.task_id_to_transformer_id_to_voters)/1024**2, objsize.get_deep_size(progressive_learner.transformer_id_to_transformers)/1024**2)
 
-    print(get_size(progressive_learner)/(1024**2))  
+    # print(get_size(progressive_learner)/(1024**2))  
 
 # %%
 model = "dnn"
