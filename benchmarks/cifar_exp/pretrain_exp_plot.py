@@ -172,9 +172,9 @@ ntrees = 10
 slots = 10
 task_num = 10
 shifts = 1
-total_alg = 2
-alg_name = ['SiLLy-N', 'SiLLy-N (pretrained)']
-model_file = ['dnn_not_pretrained', 'dnn']
+total_alg = 4
+alg_name = ['SiLLy-Resnet', 'SiLLy-Resnet (pretrained)', 'SiLLy-ViT', 'SiLLy-ViT (pretrained)']
+model_file = ['dnn_not_pretrained', 'dnn', 'dnn_vit', 'dnn_vit_not_pretrained']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
@@ -217,7 +217,7 @@ for alg in range(total_alg):
     tes[alg].extend(te)
     acc[alg].extend(avg_acc)
 #%%
-fte_end = {'SiLLy-N':np.zeros(10,dtype=float), 'SiLLy-N (pretrained)':np.zeros(10,dtype=float)
+fte_end = {'SiLLy-Resnet':np.zeros(10,dtype=float), 'SiLLy-Resnet (pretrained)':np.zeros(10,dtype=float), 'SiLLy-ViT':np.zeros(10,dtype=float), 'SiLLy-ViT (pretrained)':np.zeros(10,dtype=float)
           }
 
 task_order = []
@@ -237,7 +237,7 @@ df_fle = pd.DataFrame.from_dict(tmp_fle)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
 #%%
-bte_end = {'SiLLy-N':np.zeros(10,dtype=float), 'SiLLy-N (pretrained)':np.zeros(10,dtype=float)
+bte_end = {'SiLLy-Resnet':np.zeros(10,dtype=float), 'SiLLy-Resnet (pretrained)':np.zeros(10,dtype=float), 'SiLLy-ViT':np.zeros(10,dtype=float), 'SiLLy-ViT (pretrained)':np.zeros(10,dtype=float)
           }
 
 
@@ -255,7 +255,7 @@ df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Eff
 df_ble.insert(2, "Task ID", task_order)
 
 #%%
-te_end = {'SiLLy-N':np.zeros(10,dtype=float), 'SiLLy-N (pretrained)':np.zeros(10,dtype=float)
+te_end = {'SiLLy-Resnet':np.zeros(10,dtype=float), 'SiLLy-Resnet (pretrained)':np.zeros(10,dtype=float), 'SiLLy-ViT':np.zeros(10,dtype=float), 'SiLLy-ViT (pretrained)':np.zeros(10,dtype=float)
           }
 
 
@@ -272,7 +272,7 @@ df_le = pd.DataFrame.from_dict(tmp_le)
 df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficiency')
 df_le.insert(2, "Task ID", task_order)
 #%%
-acc_end = {'SiLLy-N':np.zeros(10,dtype=float), 'SiLLy-N (pretrained)':np.zeros(10,dtype=float)
+acc_end = {'SiLLy-Resnet':np.zeros(10,dtype=float), 'SiLLy-Resnet (pretrained)':np.zeros(10,dtype=float), 'SiLLy-ViT':np.zeros(10,dtype=float), 'SiLLy-ViT (pretrained)':np.zeros(10,dtype=float)
           }
 
 
@@ -289,8 +289,10 @@ df_acc = pd.DataFrame.from_dict(tmp_acc)
 df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 df_acc.insert(2, "Task ID", task_order)
 #%%
-universal_clr_dict = {'SiLLy-N': 'b',
-                      'SiLLy-N (pretrained)': 'r',
+universal_clr_dict = {'SiLLy-Resnet': 'b',
+                      'SiLLy-Resnet (pretrained)': 'r',
+                      'SiLLy-ViT': 'b',
+                      'SiLLy-ViT (pretrained)': 'r'
                     }
 for ii, name in enumerate(universal_clr_dict.keys()):
     print(name)
@@ -300,7 +302,7 @@ for ii, name in enumerate(universal_clr_dict.keys()):
 fig = plt.figure(constrained_layout=True,figsize=(46,16))
 gs = fig.add_gridspec(16,46)
 
-names = ['SiLLy-N (not\npretrained)', 'SiLLy-N     \n (pretrained)']
+names = ['SiLLy-Resnet (not\npretrained)', 'SiLLy-Resnet    \n (pretrained)', 'SiLLy-ViT (not\npretrained)', 'SiLLy-ViT   \n (pretrained)']
 #c_top = sns.color_palette('Reds', n_colors=10)
 c_top = []
 for name in alg_name:
@@ -339,7 +341,7 @@ right_side.set_visible(False)
 top_side = ax.spines["top"]
 top_side.set_visible(False)
 
-ax.hlines(0, 0, 1, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(0, 0, 3, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
 handles_task, labels_task = ax.get_legend_handles_labels()
 
@@ -358,7 +360,7 @@ for xtick, color in zip(ax_.get_xticklabels(), alg_name):
 ax_.set_yticks([-.4,0,.1])
 #ax.set_title('Resource Constrained BL', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer', fontsize=fontsize)
-ax.hlines(0, 0, 1, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(0, 0, 3, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 ax.set_xlabel('')
 ax.tick_params(labelsize=ticksize)
 
@@ -380,7 +382,7 @@ for xtick, color in zip(ax_.get_xticklabels(), alg_name):
 ax_.set_yticks([0,.2])
 #ax.set_title('Resource Constrained BL', fontsize=fontsize)
 ax.set_ylabel('Transfer', fontsize=fontsize)
-ax.hlines(0, 0, 1, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+ax.hlines(0, 0, 3, colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 ax.set_xlabel('')
 ax.tick_params(labelsize=ticksize)
 

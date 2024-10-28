@@ -63,7 +63,7 @@ def get_size(obj, seen=None):
 
 #%%
 input_shape = (32, 32, 3)
-image_size = 32
+image_size = 256
 
 def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, num_points_per_task, acorn=None):
 
@@ -82,7 +82,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
         default_transformer_class = NeuralClassificationTransformer
 
         network = keras.Sequential()
-        base_model_1 = vit.vit_b16(image_size=image_size, activation="sigmoid", pretrained=True,
+        base_model_1 = vit.vit_b16(image_size=image_size, activation="sigmoid", pretrained=False,
                                 include_top=False, pretrained_top=False)
         network.add(base_model_1) #Adds the base model (in this case vgg19 to model_1)
         network.add(layers.Flatten())
@@ -183,6 +183,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
                 llf_task == test_y[task_jj*1000:(task_jj+1)*1000]
                 ))
             multitask_inference_times_across_tasks.append(multitask_inference_end_time - multitask_inference_start_time)
+            print(accuracies_across_tasks[-1])
 
     df['data_fold'] = shifts
     df['task'] = tasks
@@ -195,7 +196,7 @@ def LF_experiment(train_x, train_y, test_x, test_y, ntrees, shift, slot, model, 
  
     print(df)
     summary = (df,df_single_task)
-    file_to_save = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result_pretrained/'+model+'_vit_'+ str(slot)+'_'+str(shift)+'.pickle'
+    file_to_save = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result_pretrained/'+model+'_vit_not_pretrained_'+ str(slot)+'_'+str(shift)+'.pickle'
     with open(file_to_save, 'wb') as f:
         pickle.dump(summary, f)
 
@@ -218,7 +219,7 @@ def cross_val_data(data_x, data_y, num_points_per_task, total_task=10, shift=1):
     test_data_slot=100//batch_per_task
 
     for task in range(total_task):
-        for batch in range(batch_per_task):
+        for batch in tqdm(range(batch_per_task)):
             for class_no in range(task*10,(task+1)*10,1):
                 indx = np.roll(idx[class_no],(shift-1)*100)
 
@@ -251,15 +252,16 @@ data_x = np.concatenate([X_train, X_test])
 data_y = np.concatenate([y_train, y_test])
 data_y = data_y[:, 0]
 
-# data_x = np.array([cv2.resize(img, (image_size, image_size)) for img in tqdm(data_x)])
+data_x = np.array([cv2.resize(img, (image_size, image_size)) for img in tqdm(data_x)])
 
 #%%
-slot_fold = range(10)
+slot_fold = range(7,10)
 shift_fold = range(6)
 
 iterable = product(shift_fold,slot_fold)
 
 for shift,slot in iterable:
+    print('Doing ', slot, shift)
     run_parallel_exp(data_x, data_y, 0, model, num_points_per_task, slot=slot, shift=shift)
 
 
