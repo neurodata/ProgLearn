@@ -14,7 +14,7 @@ from proglearn.transformers import (
     NeuralClassificationTransformer,
     TreeClassificationTransformer,
 )
-from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter
+from proglearn.voters import TreeClassificationVoter, KNNClassificationVoter, ForestClassificationVoter
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.backend import clear_session 
 import pandas as pd
@@ -177,8 +177,8 @@ def experiment(model='synf', ntrees=10, rep=1, budget=40):
                 "batch_size": 32,
             },
         }
-        default_voter_class = KNNClassificationVoter
-        default_voter_kwargs = {"k": int(np.log2(500))}
+        default_voter_class = ForestClassificationVoter
+        default_voter_kwargs = {"ntrees": 10}
         default_decider_class = SimpleArgmaxAverage
 
     elif model == "synf":
@@ -276,15 +276,17 @@ def experiment(model='synf', ntrees=10, rep=1, budget=40):
 
     summary = (df_multitask, df_singletask)
 
-    with open('results/'+model+'_'+str(rep)+'fixed_' + str(budget)+'.pickle', 'wb') as f:
+    with open('results/'+model+'_'+str(rep)+'fixed_forest_voter_' + str(budget)+'.pickle', 'wb') as f:
         pickle.dump(summary, f)
 
 
 #%%
 reps = 1
 ntrees=10
-budgets = [40,30,20,10,7,6,5]
+budgets = [50, 40, 30, 20, 10, 5]
 
 for budget in budgets:
+    print('Doing budget ', budget)
     for jj in range(reps):
-        experiment(model='synf', ntrees=ntrees, rep=jj, budget=budget)
+        experiment(model='synn', ntrees=ntrees, rep=jj, budget=budget)
+# %%
