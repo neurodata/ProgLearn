@@ -174,7 +174,7 @@ budgets = [5,10,20,30,40,50]
 reps = 1
 
 for budget in budgets:
-    filename =  '/Users/jayantadey/budgeted_proglearn/ProgLearn/benchmarks/food1k/results/synn_0fixed_'+ str(budget) +'.pickle'
+    filename =  '/Users/jayantadey/TPAMI_rebuttal/large_data_exp/ProgLearn/benchmarks/food1k/results/synn_0fixed_forest_voter_'+ str(budget) +'.pickle'
     multitask_df, single_task_df = unpickle(filename)
     single_err, err = get_error_matrix(filename, 50)
 
