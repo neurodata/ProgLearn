@@ -11,6 +11,8 @@ from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.cm import register_cmap
 import matplotlib.gridspec as gridspec
 import matplotlib
+import random
+from scipy import stats
 #%%
 def register_palette(name, clr):
     # relative positions of colors in cmap/palette 
@@ -186,6 +188,11 @@ df_all = {}
 fle = {}
 ble = {}
 le = {}
+
+fle_IQR = {}
+ble_IQR = {}
+le_IQR = {}
+
 ordr = []
 
 # %%
@@ -209,6 +216,13 @@ btes_bottom = [[] for i in range(total_alg_bottom)]
 ftes_bottom = [[] for i in range(total_alg_bottom)]
 tes_bottom = [[] for i in range(total_alg_bottom)]
 
+btes_IQR_top = [[] for i in range(total_alg_top)]
+ftes_IQR_top = [[] for i in range(total_alg_top)]
+tes_IQR_top = [[] for i in range(total_alg_top)]
+btes_IQR_bottom = [[] for i in range(total_alg_bottom)]
+ftes_IQR_bottom = [[] for i in range(total_alg_bottom)]
+tes_IQR_bottom = [[] for i in range(total_alg_bottom)]
+
 #combined_alg_name = ['L2N','L2F','Prog-NN', 'DF-CNN','LwF','EWC','O-EWC','SI', 'Replay (increasing amount)', 'Replay (fixed amount)', 'None']
 model_file_combined = ['dnn0withrep', 'model_zoo','Prog_NN','DF_CNN', 'LwF', 'offline', 'exact', 'CoSCL', 'agem', 'None']
 
@@ -227,15 +241,15 @@ for alg in range(total_alg_top):
     for slot in range(slots):
         for shift in range(shifts):
             if alg < 1:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+                filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             elif alg == 2 or alg == 4:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(shift+1)+'-'+str(slot+1)+'.pickle'
+                filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(shift+1)+'-'+str(slot+1)+'.pickle'
             elif alg == 1:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(slot+1)+'_'+str(shift+1)+'.pickle'
+                filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(slot+1)+'_'+str(shift+1)+'.pickle'
             elif alg == 7:
                 filename = '/Users/jayantadey/progressive-learning/experiments/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             else:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
+                filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
 
             multitask_df, single_task_df = unpickle(filename)
 
@@ -254,13 +268,87 @@ for alg in range(total_alg_top):
     #err /= reps
     fte, bte, te = get_fte_bte(err,single_err,task_num)
     avg_acc, avg_var = calc_avg_acc(err, task_num, reps)
-    avg_single_acc, avg_single_var = calc_avg_single_acc(single_err, task_num, reps)
+    # avg_single_acc, avg_single_var = calc_avg_single_acc(single_err, task_num, reps)
     final_acc_top.append(calc_acc_per_task(err, task_num, reps))
     
     btes_top[alg].extend(bte)
     ftes_top[alg].extend(fte)
     tes_top[alg].extend(te)
     
+
+############################################################
+
+final_acc_IQR_top = []
+sample_slot = 5
+repeat =20
+
+for alg in range(total_alg_top): 
+    fte_tmp, bte_tmp, te_tmp, acc_tmp = [], [], [], []
+
+    for _ in range(repeat):
+        count = 0 
+        # bte_tmp = [[] for _ in range(reps)]
+        # fte_tmp = [[] for _ in range(reps)] 
+        # te_tmp = [[] for _ in range(reps)]
+
+        slot_list = random.choices(
+                range(slots), 
+                k=sample_slot
+            )
+        
+        for slot in slot_list:
+            for shift in range(shifts):
+                if alg < 1:
+                    filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+                elif alg == 2 or alg == 4:
+                    filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(shift+1)+'-'+str(slot+1)+'.pickle'
+                elif alg == 1:
+                    filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(slot+1)+'_'+str(shift+1)+'.pickle'
+                elif alg == 7:
+                    filename = '/Users/jayantadey/progressive-learning/experiments/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+                else:
+                    filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
+
+                multitask_df, single_task_df = unpickle(filename)
+
+                single_err_, err_ = get_error_matrix(filename, task_num)
+
+                if count == 0:
+                    single_err, err = single_err_, err_
+                else:
+                    err = sum_error_matrix(err, err_, task_num)
+                    single_err = list(
+                        np.asarray(single_err) + np.asarray(single_err_)
+                    )
+
+                count += 1
+        #single_err /= reps
+        #err /= reps
+        tmp = []
+        fte, bte, te = get_fte_bte(err,single_err,task_num)
+        avg_acc, avg_var = calc_avg_acc(err, task_num, reps)
+
+        for ii in range(task_num):
+            tmp.append(bte[ii][-1])
+        
+        bte = tmp
+
+        tmp = []
+        for ii in range(task_num):
+            tmp.append(te[ii][-1])
+        
+        te = tmp
+        # avg_single_acc, avg_single_var = calc_avg_single_acc(single_err, task_num, reps)
+        acc_tmp.append(calc_acc_per_task(err, task_num, reps))
+        fte_tmp.append(np.log(fte))
+        bte_tmp.append(np.log(bte))
+        te_tmp.append(np.log(te))
+        # break
+    # break
+    btes_IQR_top[alg].extend(stats.iqr(bte_tmp, axis=0))
+    ftes_IQR_top[alg].extend(stats.iqr(fte_tmp, axis=0))
+    tes_IQR_top[alg].extend(stats.iqr(te_tmp, axis=0))
+    final_acc_IQR_top.append(stats.iqr(acc_tmp, axis=0))
 
 # %%
 reps = slots*shifts
@@ -275,9 +363,9 @@ for alg in range(total_alg_bottom):
     for slot in range(slots):
         for shift in range(shifts):
             if alg < 0:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_bottom[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+                filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_bottom[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             else:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_bottom[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
+                filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_bottom[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
 
             multitask_df, single_task_df = unpickle(filename)
 
@@ -302,6 +390,74 @@ for alg in range(total_alg_bottom):
     btes_bottom[alg].extend(bte)
     ftes_bottom[alg].extend(fte)
     tes_bottom[alg].extend(te)
+
+
+##############################################################
+final_acc_IQR_bottom = []
+sample_slot = 5
+repeat =20
+
+for alg in range(total_alg_bottom): 
+    fte_tmp, bte_tmp, te_tmp, acc_tmp = [], [], [], []
+
+    for _ in range(repeat):
+        count = 0 
+        # bte_tmp = [[] for _ in range(reps)]
+        # fte_tmp = [[] for _ in range(reps)] 
+        # te_tmp = [[] for _ in range(reps)]
+
+        slot_list = random.choices(
+                range(slots), 
+                k=sample_slot
+            )
+        
+        for slot in slot_list:
+            for shift in range(shifts):
+                if alg < 0:
+                    filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_bottom[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+                else:
+                    filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_bottom[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
+
+                multitask_df, single_task_df = unpickle(filename)
+
+                single_err_, err_ = get_error_matrix(filename, task_num)
+
+                if count == 0:
+                    single_err, err = single_err_, err_
+                else:
+                    err = sum_error_matrix(err, err_, task_num)
+                    single_err = list(
+                        np.asarray(single_err) + np.asarray(single_err_)
+                    )
+
+                count += 1
+        #single_err /= reps
+        #err /= reps
+        tmp = []
+        fte, bte, te = get_fte_bte(err,single_err,task_num)
+        avg_acc, avg_var = calc_avg_acc(err, task_num, reps)
+
+        for ii in range(task_num):
+            tmp.append(bte[ii][-1])
+        
+        bte = tmp
+
+        tmp = []
+        for ii in range(task_num):
+            tmp.append(te[ii][-1])
+        
+        te = tmp
+        # avg_single_acc, avg_single_var = calc_avg_single_acc(single_err, task_num, reps)
+        acc_tmp.append(calc_acc_per_task(err, task_num, reps))
+        fte_tmp.append(np.log(fte))
+        bte_tmp.append(np.log(bte))
+        te_tmp.append(np.log(te))
+        # break
+    # break
+    btes_IQR_bottom[alg].extend(stats.iqr(bte_tmp, axis=0))
+    ftes_IQR_bottom[alg].extend(stats.iqr(fte_tmp, axis=0))
+    tes_IQR_bottom[alg].extend(stats.iqr(te_tmp, axis=0))
+    final_acc_IQR_bottom.append(stats.iqr(acc_tmp, axis=0))
 
 #%%
 acc_500 = {'SiLLy-N*':np.zeros(10,dtype=float), 
@@ -335,6 +491,40 @@ for id in combined_alg_name:
 
 df_acc = pd.DataFrame.from_dict(tmp_acc)
 df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
+
+##############################################################
+acc_500_IQR = {'SiLLy-N*':np.zeros(10,dtype=float), 
+           'Model Zoo*':np.zeros(10,dtype=float), 'ProgNN*':np.zeros(10,dtype=float), 
+           'LMC*':np.zeros(10,dtype=float), 'DF-CNN*':np.zeros(10,dtype=float),
+           'Total Replay':np.zeros(10,dtype=float), 'Partial Replay':np.zeros(10,dtype=float), 
+           'CoSCL*':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float), 
+           'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
+
+
+for count,name in enumerate(acc_500_IQR.keys()):
+    #print(name, count)
+    if count <8:
+        acc_500_IQR[name] = np.array(final_acc_IQR_top[count][::-1])
+    else:
+        acc_500_IQR[name] = np.array(final_acc_IQR_bottom[count-8][::-1])
+
+arg = [ 0, 2, 1, 3, 7, 4, 8, 6, 5, 9, 10]#np.argsort(mean_val)[::-1]
+ordr.append(arg)
+algos = list(acc_500.keys())
+combined_alg_name = []
+
+for ii in arg:
+    combined_alg_name.append(
+        algos[ii]
+    )
+    
+tmp_acc = {}
+for id in combined_alg_name:
+    tmp_acc[id] = acc_500_IQR[id]
+
+df_acc_IQR = pd.DataFrame.from_dict(tmp_acc)
+df_acc_IQR = pd.melt(df_acc_IQR,var_name='Algorithms', value_name='Accuracy')
+
 #%%
 te_500 = {'SiLLy-N*':np.zeros(10,dtype=float), 
            'Model Zoo*':np.zeros(10,dtype=float), 'ProgNN*':np.zeros(10,dtype=float), 
@@ -350,9 +540,9 @@ for count,name in enumerate(te_500.keys()):
     #print(name, count)
     for i in range(10):
         if count <8:
-            te_500[name][8-i] = np.log(tes_top[count][i][9-i])
+            te_500[name][9-i] = np.log(tes_top[count][i][9-i])
         else:
-            te_500[name][8-i] = np.log(tes_bottom[count-8][i][9-i])
+            te_500[name][9-i] = np.log(tes_bottom[count-8][i][9-i])
         
         task_order.append(t)
         t += 1       
@@ -371,6 +561,47 @@ df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
 df_le.insert(2, "Task ID", task_order)
 
 df_acc.insert(2, "Task ID", task_order)
+
+
+
+##############################################################
+te_500_IQR = {'SiLLy-N*':np.zeros(10,dtype=float), 
+           'Model Zoo*':np.zeros(10,dtype=float), 'ProgNN*':np.zeros(10,dtype=float), 
+           'LMC*':np.zeros(10,dtype=float), 'DF-CNN*':np.zeros(10,dtype=float),
+           'Total Replay':np.zeros(10,dtype=float), 'Partial Replay':np.zeros(10,dtype=float), 
+           'CoSCL*':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float), 
+           'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
+
+          
+task_order = []
+t = 1
+for count,name in enumerate(te_500.keys()):
+    #print(name, count)
+    for i in range(10):
+        if count <8:
+            te_500_IQR[name][9-i] = tes_IQR_top[count][i]
+        else:
+            te_500_IQR[name][9-i] = tes_IQR_bottom[count-8][i]
+        
+        task_order.append(t)
+        t += 1       
+
+mean_val = []
+print('\n')
+for name in te_500_IQR.keys():
+    mean_val.append(np.mean(te_500_IQR[name]))
+    print(name, np.round(np.mean(te_500_IQR[name]),2), np.round(np.std(te_500[name], ddof=1),2))
+
+tmp_te = {}
+for id in combined_alg_name:
+    tmp_te[id] = te_500_IQR[id]
+
+df_le_IQR = pd.DataFrame.from_dict(tmp_te)
+df_le_IQR = pd.melt(df_le_IQR,var_name='Algorithms', value_name='Transfer Efficieny')
+df_le_IQR.insert(2, "Task ID", task_order)
+
+df_acc_IQR.insert(2, "Task ID", task_order)
+
 # %%
 fle['cifar'] = np.concatenate((
     np.mean(np.log(ftes_top), axis=1),
@@ -430,6 +661,66 @@ df_fle = pd.DataFrame.from_dict(tmp_fle)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
 
+#%%
+#######################################################################################
+fle_IQR['cifar'] = np.concatenate((
+    np.mean(np.log(ftes_IQR_top), axis=1),
+    np.mean(np.log(ftes_IQR_bottom), axis=1)
+))
+ble_IQR['cifar'] = []
+le_IQR['cifar'] = []
+
+bte_end = {'SiLLy-N*':np.zeros(10,dtype=float), 
+           'Model Zoo*':np.zeros(10,dtype=float), 'ProgNN*':np.zeros(10,dtype=float), 
+           'LMC*':np.zeros(10,dtype=float), 'DF-CNN*':np.zeros(10,dtype=float),
+           'Total Replay':np.zeros(10,dtype=float), 'Partial Replay':np.zeros(10,dtype=float), 
+           'CoSCL*':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float), 
+           'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
+
+
+for count,name in enumerate(bte_end.keys()):
+    #print(name, count)
+    for i in range(10):
+        if count <8:
+            bte_end[name][9-i] = btes_IQR_top[count][i]
+        else:
+            bte_end[name][9-i] = btes_IQR_bottom[count-8][i]
+
+tmp_ble = {}
+for id in combined_alg_name:
+    tmp_ble[id] = bte_end[id]
+
+df_ble_IQR = pd.DataFrame.from_dict(tmp_ble)
+df_ble_IQR = pd.melt(df_ble_IQR,var_name='Algorithms', value_name='Backward Transfer Efficieny')
+df_ble_IQR.insert(2, "Task ID", task_order)
+
+
+
+fte_end = {'SiLLy-N*':np.zeros(10,dtype=float), 
+           'Model Zoo*':np.zeros(10,dtype=float), 'ProgNN*':np.zeros(10,dtype=float), 
+           'LMC*':np.zeros(10,dtype=float), 'DF-CNN*':np.zeros(10,dtype=float),
+           'Total Replay':np.zeros(10,dtype=float), 'Partial Replay':np.zeros(10,dtype=float), 
+           'CoSCL*':np.zeros(10,dtype=float), 'LwF':np.zeros(10,dtype=float), 
+           'A-GEM':np.zeros(10,dtype=float), 'None':np.zeros(10,dtype=float)}
+
+
+
+for count,name in enumerate(fte_end.keys()):
+    #print(name, count)
+    for i in range(10):
+        if count <8:
+            fte_end[name][9-i] = ftes_IQR_top[count][i]
+        else:
+            fte_end[name][9-i] = ftes_IQR_bottom[count-8][i]
+
+tmp_fle = {}
+for id in combined_alg_name:
+    tmp_fle[id] = fte_end[id]
+
+df_fle_IQR = pd.DataFrame.from_dict(tmp_fle)
+df_fle_IQR = pd.melt(df_fle_IQR,var_name='Algorithms', value_name='Forward Transfer Efficieny')
+df_fle_IQR.insert(2, "Task ID", task_order)
+
 #%% register the palettes from cifar
 clr = ['#e41a1c', '#4daf4a', '#984ea3', '#83d0c9', '#f781bf', '#b15928', '#f781bf', '#f47835', '#b15928', '#8b8589', '#4c516d']
 c_ = []
@@ -464,7 +755,7 @@ clr = [["#377eb8", "#e41a1c", "#4daf4a", "#984ea3", "#984ea3", "#f781bf", "#b159
        ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#f781bf", "#f781bf", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928", "#b15928"],
        ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"],
        ["#377eb8", "#e41a1c", "#4daf4a", "#f781bf", "#b15928", "#b15928", "#b15928", "#b15928"]]'''
-fig, ax = plt.subplots(1,4, figsize=(30,8))
+fig, ax = plt.subplots(2,4, figsize=(30,16))
 sns.set_context('talk')
 
 c_ = []
@@ -482,11 +773,11 @@ for name in combined_alg_name:
         
 
 #clr_ = sns.color_palette(c_, n_colors=len(clr[ii]))
-ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=df_fle, hue='Task ID', palette=clr_, ax=ax[1], size=18, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=df_fle, hue='Task ID', palette=clr_, ax=ax[0][1], size=18, legend=None)
 ax_.hlines(0, -1,len(combined_alg_name), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
 ax_.set_xticklabels(
-    combined_alg_name,
+    [],
     fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
     )
 
@@ -505,13 +796,13 @@ top_side = ax_.spines["top"]
 top_side.set_visible(False)
 
 ###########################################################
-ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=df_ble, hue='Task ID', palette=clr_, ax=ax[2], size=18, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=df_ble, hue='Task ID', palette=clr_, ax=ax[0][2], size=18, legend=None)
 
 #ax_.set_xlim([0, len(labels[ii])])
 ax_.hlines(0, -1,len(combined_alg_name), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
 ax_.set_xticklabels(
-    combined_alg_name,
+    [],
     fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
     )
 
@@ -529,10 +820,10 @@ top_side = ax_.spines["top"]
 top_side.set_visible(False)
 
 #################################################
-ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=df_acc, hue='Task ID', palette=clr_, ax=ax[3], size=18, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=df_acc, hue='Task ID', palette=clr_, ax=ax[0][3], size=18, legend=None)
 
 ax_.set_xticklabels(
-    combined_alg_name,
+    [],
     fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
     )
 
@@ -551,11 +842,11 @@ top_side = ax_.spines["top"]
 top_side.set_visible(False)
 
 #########################################################
-ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df_le, hue='Task ID', palette=clr_, ax=ax[0], size=18, legend=None)
+ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df_le, hue='Task ID', palette=clr_, ax=ax[0][0], size=18, legend=None)
 ax_.hlines(0, -1,len(combined_alg_name), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
 ax_.set_xticklabels(
-    combined_alg_name,
+    [],
     fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
     )
 
@@ -575,5 +866,99 @@ top_side.set_visible(False)
 
 fig.text(.4,1,'CIFAR 10X10 (500 samples per task)', fontsize=ticksize)
 
-plt.savefig('stripplot_cifar.pdf', bbox_inches='tight')
+
+
+###################################################################################################################################################################
+ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=df_fle_IQR, hue='Task ID', palette=clr_, ax=ax[1][1], size=18, legend=None)
+ax_.hlines(0, -1,len(combined_alg_name), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+ax_.set_xticklabels(
+    combined_alg_name,
+    fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
+    )
+
+for xtick, color in zip(ax_.get_xticklabels(), c_):
+    xtick.set_color(color)
+    
+ax_.set_xlabel('')
+ax_.set_yticks([0,.03])
+ax_.tick_params('y',labelsize=ticksize)
+ax_.set_ylabel('Forward Transfer (IQR)', fontsize=labelsize)
+
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+
+###########################################################
+ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=df_ble_IQR, hue='Task ID', palette=clr_, ax=ax[1][2], size=18, legend=None)
+
+#ax_.set_xlim([0, len(labels[ii])])
+ax_.hlines(0, -1,len(combined_alg_name), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+ax_.set_xticklabels(
+    combined_alg_name,
+    fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
+    )
+
+for xtick, color in zip(ax_.get_xticklabels(), c_):
+    xtick.set_color(color)
+
+ax_.set_xlabel('')
+ax_.set_yticks([0,0.03])
+ax_.tick_params('y', labelsize=ticksize)
+ax_.set_ylabel('Backward Transfer (IQR)', fontsize=labelsize)
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+
+#################################################
+ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=df_acc_IQR, hue='Task ID', palette=clr_, ax=ax[1][3], size=18, legend=None)
+
+ax_.set_xticklabels(
+    combined_alg_name,
+    fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
+    )
+
+for xtick, color in zip(ax_.get_xticklabels(), c_):
+    xtick.set_color(color)
+
+
+ax_.set_xlabel('')
+ax_.set_yticks([0,0.01])
+ax_.tick_params('y', labelsize=ticksize)
+ax_.set_ylabel('Accuracy (IQR)', fontsize=labelsize)
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+
+#########################################################
+ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=df_le_IQR, hue='Task ID', palette=clr_, ax=ax[1][0], size=18, legend=None)
+ax_.hlines(0, -1,len(combined_alg_name), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+ax_.set_xticklabels(
+    combined_alg_name,
+    fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
+    )
+
+for xtick, color in zip(ax_.get_xticklabels(), c_):
+    xtick.set_color(color)
+
+ax_.set_xlabel('')
+ax_.set_yticks([0,0.03])
+ax_.tick_params('y', labelsize=ticksize)
+
+ax_.set_ylabel('Transfer (IQR)', fontsize=labelsize)
+
+right_side = ax_.spines["right"]
+right_side.set_visible(False)
+top_side = ax_.spines["top"]
+top_side.set_visible(False)
+
+plt.savefig('stripplot_cifar_IQR.pdf', bbox_inches='tight')
 # %%

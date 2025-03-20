@@ -190,15 +190,15 @@ for alg in range(total_alg_top):
     for slot in range(slots):
         for shift in range(shifts):
             if alg < 1:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
+                filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/result/result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             elif alg == 2 or alg == 4:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(shift+1)+'-'+str(slot+1)+'.pickle'
+                filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(shift+1)+'-'+str(slot+1)+'.pickle'
             elif alg == 1:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(slot+1)+'_'+str(shift+1)+'.pickle'
+                filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(slot+1)+'_'+str(shift+1)+'.pickle'
             elif alg == 7:
                 filename = '/Users/jayantadey/progressive-learning/experiments/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'_'+str(shift+1)+'_'+str(slot)+'.pickle'
             else:
-                filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
+                filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_top[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
 
             multitask_df, single_task_df = unpickle(filename)
 
@@ -239,7 +239,7 @@ for alg in range(total_alg_bottom):
 
     for slot in range(slots):
         for shift in range(shifts):
-            filename = '/Users/jayantadey/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_bottom[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
+            filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/cifar_exp/benchmarking_algorthms_result/'+model_file_bottom[alg]+'-'+str(slot+1)+'-'+str(shift+1)+'.pickle'
 
             multitask_df, single_task_df = unpickle(filename)
 
@@ -425,7 +425,7 @@ for alg in range(total_alg):
     te_tmp = [[] for _ in range(reps)]
 
     for rep in range(reps):
-        filename = '/Users/jayantadey/ProgLearn/benchmarks/spoken_digit/'+model_file_combined[alg]+'-'+str(rep)+'.pickle'
+        filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/spoken_digit/'+model_file_combined[alg]+'-'+str(rep)+'.pickle'
 
         multitask_df, single_task_df = unpickle(filename)
 
@@ -569,7 +569,7 @@ final_acc = []
 
 for alg in range(total_alg): 
 
-    filename = '/Users/jayantadey/ProgLearn/benchmarks/food1k/results/'+model_file_combined[alg]+'.pickle'
+    filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/food1k/results/'+model_file_combined[alg]+'.pickle'
 
     multitask_df, single_task_df = unpickle(filename)
 
@@ -674,45 +674,40 @@ df_fle = pd.DataFrame.from_dict(fte_end)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
 
-
-
-
-
 #%%
 btes_all['food1k'] = df_ble
 ftes_all['food1k'] = df_fle
 tes_all['food1k'] = df_le
 acc_all['food1k'] = df_acc
 labels.append(combined_alg_name)
-
 #%%
+##########################################################################################
 
 ### MAIN HYPERPARAMS ###
-task_num = 20
-total_alg = 7
-combined_alg_name = ['SiLLy-N*', 'Model Zoo*', 'LwF', 'A-GEM', 'Total Replay', 'Partial Replay', 'None']
+task_num = 110
+total_alg = 2
+reps=20
+combined_alg_name = ['SynN*', 'LwF']
 btes = [[] for i in range(total_alg)]
 ftes = [[] for i in range(total_alg)]
 tes = [[] for i in range(total_alg)]
-model_file_combined = ['synn', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
+model_file_combined = ['sillyN', 'LwF']
 ########################
 
-
 #%% 
-reps = 1
 final_acc = []
-
-for alg in range(total_alg): 
-    count = 0 
-
+for alg in range(total_alg):
     for rep in range(reps):
-        filename = '/Users/jayantadey/ProgLearn/benchmarks/mini_imagenet/results/'+model_file_combined[alg]+'.pickle'
+        if alg == 0:
+            filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/core50/'+model_file_combined[alg]+'_'+str(rep)+'fixed_20.pickle'
+        else:
+            filename = '/Users/jayantadey/TPAMI_rebuttal/plots/ProgLearn/benchmarks/core50/'+model_file_combined[alg]+'_'+str(rep)+'.pickle'
 
         multitask_df, single_task_df = unpickle(filename)
 
         single_err_, err_ = get_error_matrix(filename, task_num)
 
-        if count == 0:
+        if rep == 0:
             single_err, err = single_err_, err_
         else:
             err = sum_error_matrix(err, err_, task_num)
@@ -720,34 +715,31 @@ for alg in range(total_alg):
                 np.asarray(single_err) + np.asarray(single_err_)
             )
 
-        count += 1
-    #single_err /= reps
-    #err /= reps
-    fte, bte, te = get_fte_bte(err,single_err, task_num,reps=reps)
-    avg_acc_, avg_var_ = calc_avg_acc(err, task_num, reps)
-    avg_single_acc_, avg_single_var_ = calc_avg_single_acc(single_err, task_num, reps)
+    # single_err /= reps
+    # err /= reps
+    fte, bte, te = get_fte_bte(err,single_err, task_num, reps=reps)
+    avg_acc_, avg_var_ = calc_avg_acc(err, task_num, 1)
+    avg_single_acc_, avg_single_var_ = calc_avg_single_acc(single_err, task_num, 1)
 
     final_acc.append(calc_acc_per_task(err, task_num, reps))
 
     btes[alg].extend(bte)
     ftes[alg].extend(fte)
     tes[alg].extend(te)
-    
+
     print('Algo name:' , combined_alg_name[alg])
     print('Accuracy', np.round(calc_acc(err, task_num, reps),2))
     print('forget', np.round(calc_forget(err, task_num, reps),2))
     print('transfer', np.round(calc_transfer(err, single_err, task_num, reps),2))
 
 #%%
-acc = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
-    'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
-    'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
-    'None':np.zeros(20,dtype=float)}
+acc = {'SiLLy-N*':np.zeros(task_num,dtype=float), 
+    'LwF':np.zeros(task_num,dtype=float)}
 
 for count,name in enumerate(acc.keys()):
     acc[name] = np.array(final_acc[count][::-1])
 
-arg = [1, 0, 4, 3, 2, 5, 6]#np.argsort(mean_val)[::-1]
+arg = [0, 1]#np.argsort(mean_val)[::-1]
 ordr.append(arg)
 algos = list(acc.keys())
 combined_alg_name = []
@@ -765,16 +757,14 @@ df_acc = pd.DataFrame.from_dict(tmp_acc)
 df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
 
 #%%
-te = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
-    'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
-    'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
-    'None':np.zeros(20,dtype=float)}
+te = {'SiLLy-N*':np.zeros(task_num,dtype=float), 
+    'LwF':np.zeros(task_num,dtype=float)}
 
 task_order = []
 t = 1
 for count,name in enumerate(te.keys()):
-    for i in range(20):
-        te[name][19-i] = tes[count][i][19-i]
+    for i in range(task_num):
+        te[name][task_num-1-i] = tes[count][i][task_num-1-i]
         task_order.append(t)
         t += 1
 
@@ -794,18 +784,12 @@ df_le.insert(2, "Task ID", task_order)
 
 df_acc.insert(2, "Task ID", task_order)
 #%%
-fle['imagenet'] = np.mean(ftes, axis=1)
-ble['imagenet'] = []
-le['imagenet'] = []
-
-bte_end = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
-    'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
-    'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
-    'None':np.zeros(20,dtype=float)}
+bte_end = {'SiLLy-N*':np.zeros(task_num,dtype=float), 
+    'LwF':np.zeros(task_num,dtype=float)}
 
 for count,name in enumerate(te.keys()):
-    for i in range(20):
-        bte_end[name][19-i] = btes[count][i][19-i]
+    for i in range(task_num):
+        bte_end[name][task_num-1-i] = btes[count][i][task_num-1-i]
 
 tmp_ble = {}
 for id in combined_alg_name:
@@ -815,13 +799,12 @@ df_ble = pd.DataFrame.from_dict(tmp_ble)
 df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
 df_ble.insert(2, "Task ID", task_order)
 
-fte_end = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
-    'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
-    'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
-    'None':np.zeros(20,dtype=float)}
+fte_end = {'SiLLy-N*':np.zeros(task_num,dtype=float), 
+    'LwF':np.zeros(task_num,dtype=float)}
+
 for count,name in enumerate(te.keys()):
-    for i in range(1,20):
-        fte_end[name][19-i] = ftes[count][i]
+    for i in range(1,task_num):
+        fte_end[name][task_num-1-i] = ftes[count][i]
 
 tmp_fle = {}
 for id in combined_alg_name:
@@ -830,162 +813,319 @@ for id in combined_alg_name:
 df_fle = pd.DataFrame.from_dict(fte_end)
 df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
 df_fle.insert(2, "Task ID", task_order)
+
+
+
+
 #%%
-btes_all['imagenet'] = df_ble
-ftes_all['imagenet'] = df_fle
-tes_all['imagenet'] = df_le
-acc_all['imagenet'] = df_acc
+btes_all['core50'] = df_ble
+ftes_all['core50'] = df_fle
+tes_all['core50'] = df_le
+acc_all['core50'] = df_acc
 labels.append(combined_alg_name)
 
 
 #%%
-### MAIN HYPERPARAMS ###
-task_num = 5
-total_alg = 7
-combined_alg_name = ['SiLLy-N*', 'Model Zoo*', 'LwF', 'A-GEM', 'Total Replay', 'Partial Replay', 'None']
-btes = [[] for i in range(total_alg)]
-ftes = [[] for i in range(total_alg)]
-tes = [[] for i in range(total_alg)]
-model_file_combined = ['synn', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
-########################
+
+# ### MAIN HYPERPARAMS ###
+# task_num = 20
+# total_alg = 7
+# combined_alg_name = ['SiLLy-N*', 'Model Zoo*', 'LwF', 'A-GEM', 'Total Replay', 'Partial Replay', 'None']
+# btes = [[] for i in range(total_alg)]
+# ftes = [[] for i in range(total_alg)]
+# tes = [[] for i in range(total_alg)]
+# model_file_combined = ['synn', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
+# ########################
 
 
-#%% code for 500 samples
-reps = 1
-final_acc = []
+# #%% 
+# reps = 1
+# final_acc = []
 
-for alg in range(total_alg): 
-    count = 0 
+# for alg in range(total_alg): 
+#     count = 0 
 
-    for rep in range(reps):
-        filename = '/Users/jayantadey/ProgLearn/benchmarks/five_datasets/results/'+model_file_combined[alg]+'.pickle'
+#     for rep in range(reps):
+#         filename = '/Users/jayantadey/ProgLearn/benchmarks/mini_imagenet/results/'+model_file_combined[alg]+'.pickle'
 
-        multitask_df, single_task_df = unpickle(filename)
+#         multitask_df, single_task_df = unpickle(filename)
 
-        single_err_, err_ = get_error_matrix(filename, task_num)
+#         single_err_, err_ = get_error_matrix(filename, task_num)
 
-        if count == 0:
-            single_err, err = single_err_, err_
-        else:
-            err = sum_error_matrix(err, err_, total_task=task_num)
-            single_err = list(
-                np.asarray(single_err) + np.asarray(single_err_)
-            )
+#         if count == 0:
+#             single_err, err = single_err_, err_
+#         else:
+#             err = sum_error_matrix(err, err_, task_num)
+#             single_err = list(
+#                 np.asarray(single_err) + np.asarray(single_err_)
+#             )
 
-        count += 1
-    #single_err /= reps
-    #err /= reps
-    fte, bte, te = get_fte_bte(err,single_err, total_task=task_num,reps=reps)
-    avg_acc_, avg_var_ = calc_avg_acc(err, task_num, reps)
-    avg_single_acc_, avg_single_var_ = calc_avg_single_acc(single_err, task_num, reps)
+#         count += 1
+#     #single_err /= reps
+#     #err /= reps
+#     fte, bte, te = get_fte_bte(err,single_err, task_num,reps=reps)
+#     avg_acc_, avg_var_ = calc_avg_acc(err, task_num, reps)
+#     avg_single_acc_, avg_single_var_ = calc_avg_single_acc(single_err, task_num, reps)
 
-    final_acc.append(calc_acc_per_task(err, task_num, reps))
+#     final_acc.append(calc_acc_per_task(err, task_num, reps))
 
-    btes[alg].extend(bte)
-    ftes[alg].extend(fte)
-    tes[alg].extend(te)
+#     btes[alg].extend(bte)
+#     ftes[alg].extend(fte)
+#     tes[alg].extend(te)
     
-    print('Algo name:' , combined_alg_name[alg])
-    print('Accuracy', np.round(calc_acc(err, task_num, reps),2))
-    print('forget', np.round(calc_forget(err, task_num, reps),2))
-    print('transfer', np.round(calc_transfer(err, single_err, task_num, reps),2))
+#     print('Algo name:' , combined_alg_name[alg])
+#     print('Accuracy', np.round(calc_acc(err, task_num, reps),2))
+#     print('forget', np.round(calc_forget(err, task_num, reps),2))
+#     print('transfer', np.round(calc_transfer(err, single_err, task_num, reps),2))
 
-#%%
-acc = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
-    'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
-    'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
-    'None':np.zeros(5,dtype=float)}
+# #%%
+# acc = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
+#     'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
+#     'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
+#     'None':np.zeros(20,dtype=float)}
 
-for count,name in enumerate(acc.keys()):
-    acc[name] = np.array(final_acc[count][::-1])
+# for count,name in enumerate(acc.keys()):
+#     acc[name] = np.array(final_acc[count][::-1])
 
-arg = [1, 0, 4, 5, 2, 3, 6]#np.argsort(mean_val)[::-1]
-ordr.append(arg)
-algos = list(acc.keys())
-combined_alg_name = []
+# arg = [1, 0, 4, 3, 2, 5, 6]#np.argsort(mean_val)[::-1]
+# ordr.append(arg)
+# algos = list(acc.keys())
+# combined_alg_name = []
 
-for ii in arg:
-    combined_alg_name.append(
-        algos[ii]
-    )
+# for ii in arg:
+#     combined_alg_name.append(
+#         algos[ii]
+#     )
     
-tmp_acc = {}
-for id in combined_alg_name:
-    tmp_acc[id] = acc[id]
+# tmp_acc = {}
+# for id in combined_alg_name:
+#     tmp_acc[id] = acc[id]
+
+# df_acc = pd.DataFrame.from_dict(tmp_acc)
+# df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
+
+# #%%
+# te = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
+#     'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
+#     'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
+#     'None':np.zeros(20,dtype=float)}
+
+# task_order = []
+# t = 1
+# for count,name in enumerate(te.keys()):
+#     for i in range(20):
+#         te[name][19-i] = tes[count][i][19-i]
+#         task_order.append(t)
+#         t += 1
 
 
-df_acc = pd.DataFrame.from_dict(tmp_acc)
-df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
+# mean_val = []
+# for name in te.keys():
+#     mean_val.append(np.mean(te[name]))
+#     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
 
-#%%
-te = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
-    'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
-    'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
-    'None':np.zeros(5,dtype=float)}
+# tmp_te = {}
+# for id in combined_alg_name:
+#     tmp_te[id] = te[id]
 
-task_order = []
-t = 1
-for count,name in enumerate(te.keys()):
-    for i in range(5):
-        te[name][4-i] = tes[count][i][4-i]
-        task_order.append(t)
-        t += 1
+# df_le = pd.DataFrame.from_dict(tmp_te)
+# df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
+# df_le.insert(2, "Task ID", task_order)
 
-mean_val = []
-for name in te.keys():
-    mean_val.append(np.mean(te[name]))
-    print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
+# df_acc.insert(2, "Task ID", task_order)
+# #%%
+# fle['imagenet'] = np.mean(ftes, axis=1)
+# ble['imagenet'] = []
+# le['imagenet'] = []
 
-tmp_te = {}
-for id in combined_alg_name:
-    tmp_te[id] = te[id]
+# bte_end = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
+#     'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
+#     'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
+#     'None':np.zeros(20,dtype=float)}
 
-df_le = pd.DataFrame.from_dict(tmp_te)
-df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
-df_le.insert(2, "Task ID", task_order)
+# for count,name in enumerate(te.keys()):
+#     for i in range(20):
+#         bte_end[name][19-i] = btes[count][i][19-i]
 
-df_acc.insert(2, "Task ID", task_order)
-#%%
-bte_end = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
-    'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
-    'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
-    'None':np.zeros(5,dtype=float)}
-for count,name in enumerate(te.keys()):
-    for i in range(5):
-        bte_end[name][4-i] = btes[count][i][4-i]
+# tmp_ble = {}
+# for id in combined_alg_name:
+#     tmp_ble[id] = bte_end[id]
 
-tmp_ble = {}
-for id in combined_alg_name:
-    tmp_ble[id] = bte_end[id]
+# df_ble = pd.DataFrame.from_dict(tmp_ble)
+# df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
+# df_ble.insert(2, "Task ID", task_order)
 
-df_ble = pd.DataFrame.from_dict(tmp_ble)
-df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
-df_ble.insert(2, "Task ID", task_order)
+# fte_end = {'SiLLy-N*':np.zeros(20,dtype=float), 'Model Zoo*':np.zeros(20,dtype=float), 
+#     'LwF':np.zeros(20,dtype=float), 'A-GEM':np.zeros(20,dtype=float),
+#     'Total Replay':np.zeros(20,dtype=float), 'Partial Replay':np.zeros(20,dtype=float), 
+#     'None':np.zeros(20,dtype=float)}
+# for count,name in enumerate(te.keys()):
+#     for i in range(1,20):
+#         fte_end[name][19-i] = ftes[count][i]
 
-fte_end = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
-    'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
-    'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
-    'None':np.zeros(5,dtype=float)}
-for count,name in enumerate(te.keys()):
-    for i in range(1,5):
-        fte_end[name][4-i] = ftes[count][i]
+# tmp_fle = {}
+# for id in combined_alg_name:
+#     tmp_fle[id] = fte_end[id]
 
-tmp_fle = {}
-for id in combined_alg_name:
-    tmp_fle[id] = fte_end[id]
+# df_fle = pd.DataFrame.from_dict(fte_end)
+# df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
+# df_fle.insert(2, "Task ID", task_order)
+# #%%
+# btes_all['imagenet'] = df_ble
+# ftes_all['imagenet'] = df_fle
+# tes_all['imagenet'] = df_le
+# acc_all['imagenet'] = df_acc
+# labels.append(combined_alg_name)
 
-df_fle = pd.DataFrame.from_dict(fte_end)
-df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
-df_fle.insert(2, "Task ID", task_order)
-#%%
-btes_all['five_dataset'] = df_ble
-ftes_all['five_dataset'] = df_fle
-tes_all['five_dataset'] = df_le
-acc_all['five_dataset'] = df_acc
-labels.append(combined_alg_name)
+
+# #%%
+# ### MAIN HYPERPARAMS ###
+# task_num = 5
+# total_alg = 7
+# combined_alg_name = ['SiLLy-N*', 'Model Zoo*', 'LwF', 'A-GEM', 'Total Replay', 'Partial Replay', 'None']
+# btes = [[] for i in range(total_alg)]
+# ftes = [[] for i in range(total_alg)]
+# tes = [[] for i in range(total_alg)]
+# model_file_combined = ['synn', 'model_zoo', 'LwF', 'agem', 'offline', 'exact', 'None']
+# ########################
+
+
+# #%% code for 500 samples
+# reps = 1
+# final_acc = []
+
+# for alg in range(total_alg): 
+#     count = 0 
+
+#     for rep in range(reps):
+#         filename = '/Users/jayantadey/ProgLearn/benchmarks/five_datasets/results/'+model_file_combined[alg]+'.pickle'
+
+#         multitask_df, single_task_df = unpickle(filename)
+
+#         single_err_, err_ = get_error_matrix(filename, task_num)
+
+#         if count == 0:
+#             single_err, err = single_err_, err_
+#         else:
+#             err = sum_error_matrix(err, err_, total_task=task_num)
+#             single_err = list(
+#                 np.asarray(single_err) + np.asarray(single_err_)
+#             )
+
+#         count += 1
+#     #single_err /= reps
+#     #err /= reps
+#     fte, bte, te = get_fte_bte(err,single_err, total_task=task_num,reps=reps)
+#     avg_acc_, avg_var_ = calc_avg_acc(err, task_num, reps)
+#     avg_single_acc_, avg_single_var_ = calc_avg_single_acc(single_err, task_num, reps)
+
+#     final_acc.append(calc_acc_per_task(err, task_num, reps))
+
+#     btes[alg].extend(bte)
+#     ftes[alg].extend(fte)
+#     tes[alg].extend(te)
+    
+#     print('Algo name:' , combined_alg_name[alg])
+#     print('Accuracy', np.round(calc_acc(err, task_num, reps),2))
+#     print('forget', np.round(calc_forget(err, task_num, reps),2))
+#     print('transfer', np.round(calc_transfer(err, single_err, task_num, reps),2))
+
+# #%%
+# acc = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
+#     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
+#     'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
+#     'None':np.zeros(5,dtype=float)}
+
+# for count,name in enumerate(acc.keys()):
+#     acc[name] = np.array(final_acc[count][::-1])
+
+# arg = [1, 0, 4, 5, 2, 3, 6]#np.argsort(mean_val)[::-1]
+# ordr.append(arg)
+# algos = list(acc.keys())
+# combined_alg_name = []
+
+# for ii in arg:
+#     combined_alg_name.append(
+#         algos[ii]
+#     )
+    
+# tmp_acc = {}
+# for id in combined_alg_name:
+#     tmp_acc[id] = acc[id]
+
+
+# df_acc = pd.DataFrame.from_dict(tmp_acc)
+# df_acc = pd.melt(df_acc,var_name='Algorithms', value_name='Accuracy')
+
+# #%%
+# te = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
+#     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
+#     'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
+#     'None':np.zeros(5,dtype=float)}
+
+# task_order = []
+# t = 1
+# for count,name in enumerate(te.keys()):
+#     for i in range(5):
+#         te[name][4-i] = tes[count][i][4-i]
+#         task_order.append(t)
+#         t += 1
+
+# mean_val = []
+# for name in te.keys():
+#     mean_val.append(np.mean(te[name]))
+#     print(name, np.round(np.mean(te[name]),2), np.round(np.std(te[name], ddof=1),2))
+
+# tmp_te = {}
+# for id in combined_alg_name:
+#     tmp_te[id] = te[id]
+
+# df_le = pd.DataFrame.from_dict(tmp_te)
+# df_le = pd.melt(df_le,var_name='Algorithms', value_name='Transfer Efficieny')
+# df_le.insert(2, "Task ID", task_order)
+
+# df_acc.insert(2, "Task ID", task_order)
+# #%%
+# bte_end = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
+#     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
+#     'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
+#     'None':np.zeros(5,dtype=float)}
+# for count,name in enumerate(te.keys()):
+#     for i in range(5):
+#         bte_end[name][4-i] = btes[count][i][4-i]
+
+# tmp_ble = {}
+# for id in combined_alg_name:
+#     tmp_ble[id] = bte_end[id]
+
+# df_ble = pd.DataFrame.from_dict(tmp_ble)
+# df_ble = pd.melt(df_ble,var_name='Algorithms', value_name='Backward Transfer Efficieny')
+# df_ble.insert(2, "Task ID", task_order)
+
+# fte_end = {'SiLLy-N*':np.zeros(5,dtype=float), 'Model Zoo*':np.zeros(5,dtype=float), 
+#     'LwF':np.zeros(5,dtype=float), 'A-GEM':np.zeros(5,dtype=float),
+#     'Total Replay':np.zeros(5,dtype=float), 'Partial Replay':np.zeros(5,dtype=float), 
+#     'None':np.zeros(5,dtype=float)}
+# for count,name in enumerate(te.keys()):
+#     for i in range(1,5):
+#         fte_end[name][4-i] = ftes[count][i]
+
+# tmp_fle = {}
+# for id in combined_alg_name:
+#     tmp_fle[id] = fte_end[id]
+
+# df_fle = pd.DataFrame.from_dict(fte_end)
+# df_fle = pd.melt(df_fle,var_name='Algorithms', value_name='Forward Transfer Efficieny')
+# df_fle.insert(2, "Task ID", task_order)
+# #%%
+# btes_all['five_dataset'] = df_ble
+# ftes_all['five_dataset'] = df_fle
+# tes_all['five_dataset'] = df_le
+# acc_all['five_dataset'] = df_acc
+# labels.append(combined_alg_name)
 
 #%% register the palettes from cifar
-clr = ['#e41a1c', '#4daf4a', '#984ea3', '#83d0c9', '#f781bf', '#b15928', '#f781bf', '#f47835', '#b15928', '#8b8589', '#4c516d']
+clr = ['#e41a1c', '#4daf4a', '#984ea3', '#e41a1c', '#83d0c9', '#f781bf', '#b15928', '#f781bf', '#f47835', '#b15928', '#8b8589', '#4c516d']
 c_ = []
 universal_clr_dic = {}
 for id in ordr[0]:
@@ -997,14 +1137,18 @@ for ii, name in enumerate(labels[0]):
     universal_clr_dic[name] = clr[ii]
 
 #%%
-datasets = ['CIFAR 10X10', 'spoken digit', 'FOOD1k', 'Split Mini-Imagenet', '5-dataset']
+ticksize = 35
+labelsize = 30
+algo_size= 25
+
+datasets = ['CIFAR 10X10', 'spoken digit', 'FOOD1k', 'CORe50']
 acc_yticks = [[0,.5], [0.3,1], [0.2,0.6], [0,.9], [0,1]]
 FLE_yticks = [[-.2,0,.2], [-.1,0,.3], [-.1,0,.3], [-0.1,0,.3], [-.2,0,.2]]
 BLE_yticks = [[-.3,0,.2], [-.4,0,.2], [-.3,0,.3], [-0.4,0,.2], [-.5,0,.1]]
 LE_yticks = [[-.3,0,.2], [-.4,0,.3], [-.2,0,.3], [-0.4,0,.3], [-.5,0,.2]]
-task_num = [10, 6, 50, 20, 5]
+task_num = [10, 6, 50, 110]
 
-fig, ax = plt.subplots(4,len(tes_all.keys()), figsize=(30,20))
+fig, ax = plt.subplots(len(tes_all.keys()), 4, figsize=(26,6*len(tes_all.keys())+3))
 sns.set_context('talk')
 
 for ii, data in enumerate(tes_all.keys()):
@@ -1021,81 +1165,119 @@ for ii, data in enumerate(tes_all.keys()):
                 )
             )
 
-    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Task ID', palette=clr_, ax=ax[1][ii], size=18, legend=None)
-    ax_.set_xticklabels([])
+    #clr_ = sns.color_palette(c_, n_colors=len(clr[ii]))
+    ax_ = sns.stripplot(x='Algorithms', y='Forward Transfer Efficieny', data=ftes_all[data], hue='Task ID', palette=clr_, ax=ax[ii][1], size=18, legend=None)
+    
+    ax_.set_xticklabels(
+    labels[ii],
+    fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
+    )
+    for xtick, color in zip(ax_.get_xticklabels(), c_):
+        xtick.set_color(color)
+
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
     ax_.set_xlabel('')
     ax_.set_yticks(FLE_yticks[ii])
-    ax_.tick_params('y',labelsize=30)
+    ax_.tick_params('y',labelsize=ticksize)
     if ii==0:
-        ax_.set_ylabel('Forward Transfer', fontsize=30)
-    else:
-        ax_.set_ylabel('', fontsize=24)
+        ax_.set_title('Forward Transfer', fontsize=labelsize+10)
+    
+    ax_.set_ylabel('', fontsize=24)
 
     right_side = ax_.spines["right"]
     right_side.set_visible(False)
     top_side = ax_.spines["top"]
     top_side.set_visible(False)
 
-    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Task ID', palette=clr_, ax=ax[2][ii], size=18, legend=None)
+###########################################################
+    ax_ = sns.stripplot(x='Algorithms', y='Backward Transfer Efficieny', data=btes_all[data], hue='Task ID', palette=clr_, ax=ax[ii][2], size=18, legend=None)
+    '''ax_.set_xticklabels(
+    labels[ii],
+    fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
+    )
 
-    ax_.set_xticklabels([])
+
+    for xtick, color in zip(ax_.get_xticklabels(), c_):
+        xtick.set_color(color)'''
+
+    
     #ax_.set_xlim([0, len(labels[ii])])
     ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
 
     ax_.set_xlabel('')
-    ax_.set_yticks(BLE_yticks[ii])
-    ax_.tick_params('y', labelsize=30)
-    if ii==0:
-        ax_.set_ylabel('Forget', fontsize=30)
-    else:
-        ax_.set_ylabel('', fontsize=24)
-
-    right_side = ax_.spines["right"]
-    right_side.set_visible(False)
-    top_side = ax_.spines["top"]
-    top_side.set_visible(False)
-
-    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Task ID', palette=clr_, ax=ax[0][ii], size=18, legend=None)
-    ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-    ax_.set_title(data, fontsize=38)
-    ax_.set_xticklabels([])
-    ax_.set_xlabel('')
-    ax_.set_yticks(LE_yticks[ii])
-    ax_.tick_params('y', labelsize=30)
-    if ii==0:
-        ax_.set_ylabel('Transfer', fontsize=30)
-    else:
-        ax_.set_ylabel('', fontsize=24)
-
-    right_side = ax_.spines["right"]
-    right_side.set_visible(False)
-    top_side = ax_.spines["top"]
-    top_side.set_visible(False)
-
-    ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=acc_all[data], hue='Task ID', palette=clr_, ax=ax[3][ii], size=18, legend=None)
-    ax_.set_xticklabels([])
-    #ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
-
-    ax_.set_xlabel('')
-    ax_.set_yticks(acc_yticks[ii])
-    ax_.tick_params('y',labelsize=30)
-    if ii==0:
-        ax_.set_ylabel('Accuracy', fontsize=30)
-    else:
-        ax_.set_ylabel('', fontsize=24)
     
-    right_side = ax_.spines["right"]
-    right_side.set_visible(False)
-    top_side = ax_.spines["top"]
-    top_side.set_visible(False)
-
     ax_.set_xticklabels(
     labels[ii],
-    fontsize=20,rotation=65,ha="right",rotation_mode='anchor'
+    fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
     )
     for xtick, color in zip(ax_.get_xticklabels(), c_):
         xtick.set_color(color)
+
+    ax_.set_yticks(BLE_yticks[ii])
+    ax_.tick_params('y', labelsize=ticksize)
+    if ii==0:
+        ax_.set_title('Backward Transfer', fontsize=labelsize+10)
+    
+    ax_.set_ylabel('', fontsize=24)
+
+    right_side = ax_.spines["right"]
+    right_side.set_visible(False)
+    top_side = ax_.spines["top"]
+    top_side.set_visible(False)
+
+#################################################
+    ax_ = sns.stripplot(x='Algorithms', y='Accuracy', data=acc_all[data], hue='Task ID', palette=clr_, ax=ax[ii][3], size=18, legend=None)
+
+    ax_.set_xticklabels(
+    labels[ii],
+    fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
+    )
+
+    for xtick, color in zip(ax_.get_xticklabels(), c_):
+        xtick.set_color(color)
+
+    
+    ax_.set_xlabel('')
+    ax_.set_yticks(acc_yticks[ii])
+    ax_.tick_params('y', labelsize=ticksize)
+    if ii==0:
+        ax_.set_title('Accuracy', fontsize=labelsize+10)
+    
+    ax_.set_ylabel('', fontsize=24)
+
+    right_side = ax_.spines["right"]
+    right_side.set_visible(False)
+    top_side = ax_.spines["top"]
+    top_side.set_visible(False)
+
+#########################################################
+    ax_ = sns.stripplot(x='Algorithms', y='Transfer Efficieny', data=tes_all[data], hue='Task ID', palette=clr_, ax=ax[ii][0], size=18, legend=None)
+    
+    ax_.set_xticklabels(
+    labels[ii],
+    fontsize=algo_size,rotation=65,ha="right",rotation_mode='anchor'
+    )
+    for xtick, color in zip(ax_.get_xticklabels(), c_):
+        xtick.set_color(color)
+
+    ax_.hlines(0, -1,len(labels[ii]), colors='grey', linestyles='dashed',linewidth=1.5, label='chance')
+
+    ax_.set_xlabel('')
+    ax_.set_yticks(LE_yticks[ii])
+    ax_.tick_params('y', labelsize=ticksize)
+    if ii==0:
+        ax_.set_title('Transfer', fontsize=labelsize+10)
+    
+    ax_.set_ylabel('', fontsize=24)
+
+    right_side = ax_.spines["right"]
+    right_side.set_visible(False)
+    top_side = ax_.spines["top"]
+    top_side.set_visible(False)
+
+for ii in range(len(datasets)):
+    ax[ii][0].set_ylabel(datasets[ii], fontsize=ticksize)
 
 plt.savefig('stripplot_summary_veniat.pdf')
 # %%
