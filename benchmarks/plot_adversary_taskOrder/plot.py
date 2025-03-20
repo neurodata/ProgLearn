@@ -441,7 +441,7 @@ sns.boxplot(showmeans=True,
             showcaps=False,
             ax=ax)
 
-ax.set_title("A. Task Order Shuffle", fontsize = fontsize)
+ax.set_title("Task Order Shuffle", fontsize = fontsize)
 ax_.set_xlabel('')
 ax_.set_ylabel('Transfer',fontsize=fontsize)
 ax_.tick_params('y', labelsize=ticksize)
@@ -483,7 +483,7 @@ ax.set_yticklabels(labels)
 ax.tick_params(labelsize=ticksize)
 ax.set_xlabel('Number of tasks seen', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer', fontsize=fontsize)
-ax.set_title("B. Label Shuffled CIFAR", fontsize = fontsize)
+ax.set_title("Label Shuffled CIFAR", fontsize = fontsize)
 ax.hlines(1,1,10, colors='grey', linestyles='dashed',linewidth=1.5)
 right_side = ax.spines["right"]
 right_side.set_visible(False)
@@ -529,7 +529,7 @@ ax.set_yticklabels(labels)
 ax.tick_params(labelsize=ticksize)
 ax.set_xlabel('Angle of Rotation (Degrees)', fontsize=fontsize)
 ax.set_ylabel('Backward Transfer', fontsize=fontsize)
-ax.set_title("C. Rotation Experiment", fontsize=fontsize)
+ax.set_title("Rotation Experiment", fontsize=fontsize)
 handles, labels_ = ax.get_legend_handles_labels()
 right_side = ax.spines["right"]
 right_side.set_visible(False)
