@@ -1,13 +1,10 @@
 """
 Main Author: Will LeVine 
 Corresponding Email: levinewill@icloud.com
-
-MLKNNClassificationVoter Author: Narayani Wagle
-Corresponding Email: nwagle1@jhu.edu or nhwagle@gmail.com
 """
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
-from skmultilearn.adapt import MLkNN
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.utils.validation import (
     check_X_y,
     check_array,
@@ -45,7 +42,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
     def __init__(self, kappa=np.inf, classes=[]):
         self.kappa = kappa
-        self.classes = np.asarray(classes)
+        self.classes = classes
 
     def fit(self, X, y):
         """
@@ -68,9 +65,7 @@ class TreeClassificationVoter(BaseClassificationVoter):
         num_fit_classes = len(np.unique(y))
         self.missing_label_indices_ = []
 
-        if self.classes.size != 0 and num_fit_classes < len(
-            self.classes
-        ):  # pragma: no cover
+        if np.asarray(self.classes).size != 0 and num_fit_classes < len(self.classes):
             for idx, label in enumerate(self.classes):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(idx)
@@ -121,14 +116,14 @@ class TreeClassificationVoter(BaseClassificationVoter):
 
         votes_per_example = np.array(votes_per_example)
 
-        if len(self.missing_label_indices_) > 0:  # pragma: no cover
+        if len(self.missing_label_indices_) > 0:
             for i in self.missing_label_indices_:
                 new_col = np.zeros(votes_per_example.shape[0])
                 votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
 
         return votes_per_example
 
-    def predict(self, X):  # pragma: no cover
+    def predict(self, X):
         """
         Returns the predicted class labels for data X.
 
@@ -209,10 +204,11 @@ class KNNClassificationVoter(BaseClassificationVoter):
         classifier
     """
 
-    def __init__(self, k=None, kwargs={}, classes=[]):
+    def __init__(self, k=None, metric = '', kwargs={}, classes=[]):
         self.k = k
+        self.metric = metric
         self.kwargs = kwargs
-        self.classes = np.asarray(classes)
+        self.classes = classes
 
     def fit(self, X, y):
         """
@@ -232,15 +228,13 @@ class KNNClassificationVoter(BaseClassificationVoter):
         """
         X, y = check_X_y(X, y)
         k = int(np.log2(len(X))) if self.k == None else self.k
-        self.knn_ = KNeighborsClassifier(k, **self.kwargs)
+        self.knn_ = KNeighborsClassifier(k, metric=self.metric)#KNeighborsClassifier(k, **self.kwargs)
         self.knn_.fit(X, y)
 
         num_classes = len(np.unique(y))
         self.missing_label_indices_ = []
 
-        if self.classes.size != 0 and num_classes < len(
-            self.classes
-        ):  # pragma: no cover
+        if np.asarray(self.classes).size != 0 and num_classes < len(self.classes):
             for idx, label in enumerate(self.classes):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(idx)
@@ -267,17 +261,17 @@ class KNNClassificationVoter(BaseClassificationVoter):
             When the model is not fitted.
         """
         check_is_fitted(self)
-        X = check_array(X)
+        X = check_array(X, ensure_2d=False)
         votes_per_example = self.knn_.predict_proba(X)
 
-        if len(self.missing_label_indices_) > 0:  # pragma: no cover
+        if len(self.missing_label_indices_) > 0:
             for i in self.missing_label_indices_:
                 new_col = np.zeros(votes_per_example.shape[0])
                 votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
 
         return votes_per_example
 
-    def predict(self, X):  # pragma: no cover
+    def predict(self, X):
         """
         Returns the predicted class labels for data X.
 
@@ -297,77 +291,51 @@ class KNNClassificationVoter(BaseClassificationVoter):
             When the model is not fitted.
         """
         return self.classes[np.argmax(self.predict_proba(X), axis=1)]
+    
 
-
-class MLKNNClassificationVoter(BaseClassificationVoter):
+class ForestClassificationVoter(BaseClassificationVoter):
     """
-    A class used to vote on data under any transformer outputting data
-    in continuous Euclidean space, which inherits from the BaseClassificationVoter
-    class in base.py.
+    A class used to vote on data transformed under a tree, which inherits from
+    the BaseClassificationVoter class in base.py.
 
     Parameters
     ----------
-    k : int
-        integer indicating number of neighbors to use for each prediction during
-        fitting and voting
-
-    kwargs : dictionary, default={}
-        contains all keyword arguments for the underlying KNN
-
-    classes : list, default=[]
-        list of all possible output label values
-
+    
     Attributes
     ----------
-    missing_label_indices_ : list
-        a (potentially empty) list of label values
-        that exist in the ``classes`` parameter but
-        are missing in the latest ``fit`` function
-        call
-
-    knn_ : sklearn.neighbors.KNeighborsClassifier
-        the internal sklearn instance of KNN
-        classifier
+   
     """
 
-    def __init__(self, k=None, kwargs={}, classes=[]):
-        self.k = k
-        self.kwargs = kwargs
-        self.classes = np.asarray(classes)
+    def __init__(self, ntrees=10, max_depth=10, classes=[]):
+        self.ntrees = ntrees
+        self.max_depth = max_depth
+        self.classes = classes
 
     def fit(self, X, y):
         """
-        Fits data X given class labels y.
+        Fits transformed data X given corresponding class labels y.
 
         Parameters
         ----------
         X : array of shape [n_samples, n_features]
-            the transformed data that will be trained on
-        y : array of shape [n_samples, n_features]
-            the label for class membership of the given data
+            the transformed input data
+        y : array of shape [n_samples]
+            the class labels
 
         Returns
         -------
-        self : MLKNNClassificationVoter
+        self : TreeClassificationVoter
             The object itself.
         """
-        y[y > 0] = 1
-        y[y <= 0] = 0
-        # X, y = check_X_y(X, y, multi_output=True)
-        k = int(np.log2(len(X))) if self.k == None else self.k
-        self.mlknn_ = MLkNN(k, **self.kwargs)
+        check_classification_targets(y)
 
-        # flatten X and y such that each sample is one dimensional
-        X_flattened = X.reshape(X.shape[0], -1)
-        y_flattened = y.reshape(y.shape[0], -1)
-
-        self.mlknn_.fit(X_flattened, y_flattened)
-
-        # missing label indices should not be issue in scene segmentation
-        num_classes = len(np.unique(y))
+        num_fit_classes = len(np.unique(y))
         self.missing_label_indices_ = []
 
-        if self.classes.size != 0 and num_classes < len(self.classes):
+        self.forest_ = RandomForestClassifier(n_estimators=self.ntrees)
+        self.forest_.fit(X, y)
+
+        if np.asarray(self.classes).size != 0 and num_fit_classes < len(self.classes):
             for idx, label in enumerate(self.classes):
                 if label not in np.unique(y):
                     self.missing_label_indices_.append(idx)
@@ -393,20 +361,9 @@ class MLKNNClassificationVoter(BaseClassificationVoter):
         NotFittedError
             When the model is not fitted.
         """
-        check_is_fitted(self)
-        # X = check_array(X)
-
-        # flatten X such that each sample is one dimensional
-        X_flattened = X.reshape(X.shape[0], -1)
-
-        votes_per_example = self.mlknn_.predict_proba(X_flattened)
-
-        if len(self.missing_label_indices_) > 0:
-            for i in self.missing_label_indices_:
-                new_col = np.zeros(votes_per_example.shape[0])
-                votes_per_example = np.insert(votes_per_example, i, new_col, axis=1)
-
-        return votes_per_example.toarray()
+        # check_is_fitted(self)
+        
+        return self.forest_.predict_proba(X)
 
     def predict(self, X):
         """
@@ -419,7 +376,7 @@ class MLKNNClassificationVoter(BaseClassificationVoter):
 
         Returns
         -------
-        y_hat : ndarray of shape [n_samples, n_features]
+        y_hat : ndarray of shape [n_samples]
             predicted class label per example
 
         Raises
@@ -427,4 +384,4 @@ class MLKNNClassificationVoter(BaseClassificationVoter):
         NotFittedError
             When the model is not fitted.
         """
-        return (self.predict_proba(X) > 0.5).astype(int)
+        return self.classes[np.argmax(self.predict_proba(X), axis=1)]
