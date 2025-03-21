@@ -1148,7 +1148,7 @@ BLE_yticks = [[-.3,0,.2], [-.4,0,.2], [-.3,0,.3], [-0.4,0,.2], [-.5,0,.1]]
 LE_yticks = [[-.3,0,.2], [-.4,0,.3], [-.2,0,.3], [-0.4,0,.3], [-.5,0,.2]]
 task_num = [10, 6, 50, 110]
 
-fig, ax = plt.subplots(len(tes_all.keys()), 4, figsize=(26,6*len(tes_all.keys())+3))
+fig, ax = plt.subplots(len(tes_all.keys()), 4, figsize=(25,6*len(tes_all.keys())+3))
 sns.set_context('talk')
 
 for ii, data in enumerate(tes_all.keys()):
